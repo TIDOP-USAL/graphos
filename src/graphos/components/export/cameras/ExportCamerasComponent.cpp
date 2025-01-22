@@ -48,7 +48,7 @@ ExportCamerasComponent::~ExportCamerasComponent()
 
 void ExportCamerasComponent::init()
 {
-    setName("Export Cameras");
+    setName(tr("Export Cameras"));
     setMenu("file_export");
 
     createCommand();

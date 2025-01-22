@@ -50,7 +50,7 @@ OrientationComponent::~OrientationComponent()
 
 void OrientationComponent::init()
 {
-    setName("Orientation");
+    setName(tr("Orientation"));
     setMenu("workflow");
     setToolbar("workflow");
     setIcon(QIcon::fromTheme("orientation"));

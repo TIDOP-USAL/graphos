@@ -47,7 +47,7 @@ RecentProjectsComponent::~RecentProjectsComponent()
 
 void RecentProjectsComponent::init()
 {
-    setName("Recent Projects");
+    setName(tr("Recent Projects"));
     setMenu("file");
 
     createModel();

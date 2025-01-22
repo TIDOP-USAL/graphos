@@ -50,7 +50,7 @@ ImageLoaderComponent::~ImageLoaderComponent()
 
 void ImageLoaderComponent::init()
 {
-    setName("Load Images");
+    setName(tr("Load Images"));
     setMenu("workflow");
     setToolbar("workflow");
     setIcon(QIcon::fromTheme("pictures-folder"));

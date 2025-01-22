@@ -152,6 +152,7 @@ void AboutViewImp::update()
 
 void AboutViewImp::retranslate()
 {
+    QString about_graphos = QCoreApplication::translate("AboutView", "About Graphos", nullptr);
     this->setWindowTitle(QCoreApplication::translate("AboutView", "About Graphos", nullptr));
     mTabWidget->setTabText(mTabWidget->indexOf(mTabGraphosLicence), QCoreApplication::translate("AboutView", "Licence", nullptr));
     mTabWidget->setTabText(mTabWidget->indexOf(mTabThirdPartyLiceses), QCoreApplication::translate("AboutView", "Third Party Licences", nullptr));

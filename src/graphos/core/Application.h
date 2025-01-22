@@ -298,6 +298,8 @@ public:
      */
     void clearHistory();
 
+    auto translationFile() const -> tl::Path;
+
 signals:
 
     /*!
@@ -334,6 +336,7 @@ private:
 private:
 
     AppStatus *mAppStatus;
+    tl::Path mAppPath;
     Project *mProject;
     Settings *mSettings;
     QMainWindow *mMainWindow;

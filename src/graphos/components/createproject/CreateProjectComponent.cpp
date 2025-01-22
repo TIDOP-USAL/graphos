@@ -53,7 +53,7 @@ CreateProjectComponent::~CreateProjectComponent()
 
 void CreateProjectComponent::init()
 {
-    setName("New Project");
+    setName(tr("New Project"));
     setMenu("file");
     setToolbar("file");
     setIcon(QIcon::fromTheme("new-project"));

@@ -50,7 +50,7 @@ GroundControlPointsComponent::~GroundControlPointsComponent()
 
 void GroundControlPointsComponent::init()
 {
-    setName("Ground Control Points");
+    setName(tr("Ground Control Points"));
     setMenu("tools");
     setToolbar("tools");
     setIcon(QIcon::fromTheme("orientation"));

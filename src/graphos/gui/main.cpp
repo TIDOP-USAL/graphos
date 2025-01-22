@@ -137,6 +137,9 @@
 #include <ogr_srs_api.h>
 
 #include <QAction>
+#include <QTranslator>
+
+#include "graphos/core/settings.h"
 
 #ifdef HAVE_VLD
 #include "gflags/gflags.h"
@@ -149,7 +152,7 @@
 
 using namespace graphos;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 
 void messageHandlerGDAL(CPLErr errorClass, int error, const char *msg) 
 {
@@ -203,6 +206,7 @@ void messageHandlerQt(QtMsgType type, const QMessageLogContext &context, const Q
 int main(int argc, char *argv[])
 {
     Application app(argc, argv);
+
     Application::setApplicationName("GRAPHOS");
     Application::setApplicationDisplayName("GRAPHOS");
     Application::setApplicationVersion(GRAPHOS_VERSION);
@@ -215,7 +219,7 @@ int main(int argc, char *argv[])
     tl::Message::addMessageHandler(&console);
 
 
-#ifdef DEBUG
+#ifdef _DEBUG
     qInstallMessageHandler(messageHandlerQt);
     CPLSetErrorHandler(messageHandlerGDAL);
 #endif // DEBUG
@@ -228,6 +232,18 @@ int main(int argc, char *argv[])
     catch (std::exception& e) {
         tl::printException(e);
         return(1);
+    }
+
+    QLocale locale;
+    QTranslator qt_translator;
+    QCoreApplication::installTranslator(&qt_translator);
+
+    QTranslator graphos_translator;
+    tl::Path translations_file = app.translationFile();
+    if (translations_file.exists()) {
+        if (graphos_translator.load(QString::fromStdString(translations_file.toString()))) {
+            QCoreApplication::installTranslator(&graphos_translator);
+        } 
     }
 
     ProjectImp project;

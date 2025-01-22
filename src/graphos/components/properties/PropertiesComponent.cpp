@@ -107,7 +107,7 @@ void PropertiesComponent::parseDocuments(const QStringList &parsers, const QStri
 
 void PropertiesComponent::init()
 {
-    this->setName("Properties");
+    this->setName(tr("Properties"));
 }
 
 void PropertiesComponent::createModel()

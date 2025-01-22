@@ -39,6 +39,7 @@ class ExportCamerasModel;
 class ExportCamerasPresenterImp
   : public ExportCamerasPresenter
 {
+    Q_OBJECT
 
 public:
 

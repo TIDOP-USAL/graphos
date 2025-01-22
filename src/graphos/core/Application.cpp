@@ -47,6 +47,7 @@ namespace graphos
 Application::Application(int &argc, char **argv)
   : QApplication(argc, argv),
     mAppStatus(new AppStatus()),
+    mAppPath(argv[0]),
     mProject(nullptr),
     mSettings(new SettingsImp),
     mMainWindow(nullptr),
@@ -243,6 +244,18 @@ void Application::clearHistory()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
     settings.setValue("HISTORY/RecentProjects", mHistory);
     emit update_history();
+}
+
+auto Application::translationFile() const -> tl::Path
+{
+    tl::Path translations_path = mAppPath.parentPath();
+    translations_path.append("translations");
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
+    auto lang = settings.value("lang", "en").toString();
+    auto translation_file = tl::Message::format("graphos_{}.qm", lang.toStdString());
+    translations_path.append(translation_file);
+    translations_path.normalize();
+    return translations_path;
 }
 
 auto Application::instance() -> Application&

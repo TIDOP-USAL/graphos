@@ -38,7 +38,7 @@ namespace graphos
 ImportCamerasComponent::ImportCamerasComponent(Application *application)
   : ComponentBase(application)
 {
-    ComponentBase::setName("Import Cameras");
+    ComponentBase::setName(tr("Import Cameras"));
     ComponentBase::setMenu("file_import");
 }
 

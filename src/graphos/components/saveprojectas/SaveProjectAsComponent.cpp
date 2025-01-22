@@ -48,7 +48,7 @@ SaveProjectAsComponent::~SaveProjectAsComponent()
 
 void SaveProjectAsComponent::init()
 {
-    setName("Save Project As...");
+    setName(tr("Save Project As..."));
     setMenu("file");
     setToolbar("file");
     setIcon(QIcon::fromTheme("save-as"));

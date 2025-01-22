@@ -87,20 +87,38 @@ endif(BUILD_GUI)
 
 
 # Translation files
-### TODO: Por si se quiere añadir soporte para varios idiomas
-SET(GRAPHOS_TS_FILES
-    ${CMAKE_SOURCE_DIR}/resources/lang/graphos_en.ts
-    ${CMAKE_SOURCE_DIR}/resources/lang/graphos_es.ts
+
+set(TRANSLATIONS_DIR ${CMAKE_SOURCE_DIR}/res/translations)
+file(GLOB TRANSLATIONS_FILES ${TRANSLATIONS_DIR}/*.ts)
+
+# lupdate
+add_custom_target(update_translations
+    COMMAND ${Qt5_LUPDATE_EXECUTABLE} ${CMAKE_SOURCE_DIR} -ts ${TRANSLATIONS_FILES}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Updating translations"
 )
 
-qt5_add_translation(GRAPHOS_QM_FILES ${GRAPHOS_TS_FILES})
+qt5_add_translation(QM_FILES ${TRANSLATIONS_FILES})
 
 add_executable(${PROJECT_NAME}
 #add_executable(${PROJECT_NAME} WIN32
                ${PROJECT_SOURCE_FILES}
                ${PROJECT_HEADER_FILES}
                ${PROJECT_FORM_FILES}
-               ${PROJECT_RESOURCE_FILES})
+               ${PROJECT_RESOURCE_FILES}
+               ${QM_FILES}
+)
+
+set(TRANSLATIONS_OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin/$<CONFIG>/translations)
+
+add_custom_target(copy_translations ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${TRANSLATIONS_OUTPUT_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy ${QM_FILES} ${TRANSLATIONS_OUTPUT_DIR}
+    COMMENT "Copying .qm files to ${TRANSLATIONS_OUTPUT_DIR}"
+)
+
+add_dependencies(copy_translations update_translations)
+add_dependencies(${PROJECT_NAME} copy_translations)
 
 target_link_libraries(${PROJECT_NAME}
                       TidopLib::Core
@@ -166,7 +184,6 @@ target_link_libraries(${PROJECT_NAME}
                       ${Boost_PROGRAM_OPTIONS_LIBRARY}
                       #$<$<BOOL:${GRAPHOS_GUI}>:${CLOUDCOMPARE_LIBRARIES}>
                       $<$<BOOL:${HAVE_VLD}>:${VLD_LIBRARY}>)
-
 
 if(ENABLE_SOLUTION_FOLDERS)
     set_target_properties(${PROJECT_NAME}  PROPERTIES FOLDER "graphos")

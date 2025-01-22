@@ -46,7 +46,7 @@ AboutComponent::~AboutComponent()
 
 void AboutComponent::init()
 {
-    setName("About Graphos");
+    setName(tr("About Graphos"));
     setMenu("help");
     setIcon(QIcon::fromTheme("about"));
 }

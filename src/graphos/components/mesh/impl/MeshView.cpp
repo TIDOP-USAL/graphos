@@ -112,11 +112,11 @@ void MeshViewImp::retranslate()
 {
     this->setWindowTitle(QApplication::translate("MeshView", "Mesh"));
 
-    mLabelDepth->setText(QApplication::translate("DepthView", "Maximum reconstruction depth:"));
-    //mLabelSolveDepth->setText(QApplication::translate("SolveDepthView", "Maximum solution depth:"));
-    mLabelBoundaryType->setText(QApplication::translate("BoundaryTypeView", "Boundary Type:"));
-    //mLabelWidth->setText(QApplication::translate("WidthView", "Grid width:"));
-    //mLabelFullDepth->setText(QApplication::translate("FullDepthView", "Full Depth:"));
+    mLabelDepth->setText(QApplication::translate("MeshView", "Maximum reconstruction depth:"));
+    //mLabelSolveDepth->setText(QApplication::translate("MeshView", "Maximum solution depth:"));
+    mLabelBoundaryType->setText(QApplication::translate("MeshView", "Boundary Type:"));
+    //mLabelWidth->setText(QApplication::translate("MeshView", "Grid width:"));
+    //mLabelFullDepth->setText(QApplication::translate("MeshView", "Full Depth:"));
 
 
     mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("MeshView", "Cancel"));

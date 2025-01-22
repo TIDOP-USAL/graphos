@@ -44,7 +44,7 @@ ExportMeshComponent::ExportMeshComponent(Application *application)
 
 void ExportMeshComponent::init()
 {
-    setName("Export Mesh");
+    setName(tr("Export Mesh"));
     setMenu("file_export");
     setIcon(QIcon::fromTheme("export"));
 

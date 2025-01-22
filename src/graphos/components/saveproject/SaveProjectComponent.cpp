@@ -48,7 +48,7 @@ SaveProjectComponent::~SaveProjectComponent()
 
 void SaveProjectComponent::init()
 {
-    setName("Save Project");
+    setName(tr("Save Project"));
     setMenu("file");
     setToolbar("file");
     setIcon(QIcon::fromTheme("save"));

@@ -48,7 +48,7 @@ OpenProjectComponent::~OpenProjectComponent()
 
 void OpenProjectComponent::init()
 {
-    setName("Open Project");
+    setName(tr("Open Project"));
     setMenu("file");
     setToolbar("file");
     setIcon(QIcon::fromTheme("open-project"));

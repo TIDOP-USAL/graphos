@@ -115,9 +115,9 @@ void OrthophotoViewImp::retranslate()
     mComboBoxInterpolation->setItemText(1, QApplication::translate("OrthophotoView", "Bilinear"));
     mComboBoxInterpolation->setItemText(2, QApplication::translate("OrthophotoView", "Bicubic"));
 
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("BilateralFilterView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("BilateralFilterView", "Run"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("BilateralFilterView", "Help"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("OrthophotoView", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("OrthophotoView", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("OrthophotoView", "Help"));
 }
 
 void OrthophotoViewImp::clear()
