@@ -110,18 +110,18 @@ void MeshViewImp::initSignalAndSlots()
 
 void MeshViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("MeshView", "Mesh"));
+    this->setWindowTitle(QApplication::translate("MeshComponent", "Mesh"));
 
-    mLabelDepth->setText(QApplication::translate("MeshView", "Maximum reconstruction depth:"));
-    //mLabelSolveDepth->setText(QApplication::translate("MeshView", "Maximum solution depth:"));
-    mLabelBoundaryType->setText(QApplication::translate("MeshView", "Boundary Type:"));
-    //mLabelWidth->setText(QApplication::translate("MeshView", "Grid width:"));
-    //mLabelFullDepth->setText(QApplication::translate("MeshView", "Full Depth:"));
+    mLabelDepth->setText(QApplication::translate("MeshComponent", "Maximum reconstruction depth:"));
+    //mLabelSolveDepth->setText(QApplication::translate("MeshComponent", "Maximum solution depth:"));
+    mLabelBoundaryType->setText(QApplication::translate("MeshComponent", "Boundary Type:"));
+    //mLabelWidth->setText(QApplication::translate("MeshComponent", "Grid width:"));
+    //mLabelFullDepth->setText(QApplication::translate("MeshComponent", "Full Depth:"));
 
 
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("MeshView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("MeshView", "Run"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("MeshView", "Help"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("MeshComponent", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("MeshComponent", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("MeshComponent", "Help"));
 }
 
 void MeshViewImp::clear()

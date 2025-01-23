@@ -56,7 +56,7 @@ void ExportPointCloudPresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Export Point Cloud error"));
+        progressHandler()->setDescription(QApplication::translate("ExportPointCloudComponent", "Task error"));
     }
 }
 
@@ -65,7 +65,7 @@ void ExportPointCloudPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Export Point Cloud finished"));
+        progressHandler()->setDescription(QApplication::translate("ExportPointCloudComponent", "Task finished"));
     }
 }
 
@@ -96,8 +96,8 @@ auto ExportPointCloudPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     if (progressHandler()) {
         double scale = mModel->pointCloudSize() / 90.;
         progressHandler()->setRange(0, 10. * scale + mModel->pointCloudSize());
-        progressHandler()->setTitle("Export Point Cloud");
-        progressHandler()->setDescription("Export Point Cloud processing...");
+        progressHandler()->setTitle(QApplication::translate("ExportPointCloudComponent", "Point Cloud Export"));
+        progressHandler()->setDescription(QApplication::translate("ExportPointCloudComponent", "Point cloud exporting..."));
         progressHandler()->setCloseAuto(true);
     }
 
@@ -122,7 +122,7 @@ void ExportPointCloudPresenterImp::open()
 
     QString selected_filter;
     mExportFile = QFileDialog::getSaveFileName(nullptr,
-                                               tr("Export Point Cloud"),
+                                               QApplication::translate("ExportPointCloudComponent", "Point Cloud Export"),
                                                QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
                                                filters,
                                                &selected_filter);

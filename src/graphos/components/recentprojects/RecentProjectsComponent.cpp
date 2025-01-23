@@ -47,7 +47,7 @@ RecentProjectsComponent::~RecentProjectsComponent()
 
 void RecentProjectsComponent::init()
 {
-    setName(tr("Recent Projects"));
+    setName(QApplication::translate("RecentProjectsComponent", "Recent Projects"));
     setMenu("file");
 
     createModel();

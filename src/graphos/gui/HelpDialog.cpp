@@ -176,20 +176,20 @@ void HelpDialog::init()
     indexWidget->setFrameStyle(QFrame::NoFrame);
 
     QTabWidget *tabWidget = new QTabWidget(this);
-    tabWidget->addTab(contentWidget, tr("Contents"));
-    tabWidget->addTab(indexWidget, tr("Index"));
+    tabWidget->addTab(contentWidget, QApplication::translate("HelpDialog", "Contents"));
+    tabWidget->addTab(indexWidget, QApplication::translate("HelpDialog", "Index"));
     tabWidget->setMaximumWidth(300);
     tabWidget->setMinimumWidth(200);
 
     QWidget *searchTabWidget = new QWidget(this);
     QVBoxLayout *searchTabLayout = new QVBoxLayout(this);
     searchTabLayout->addWidget(mHelpEngine->searchEngine()->queryWidget());
-    searchTabLayout->addWidget(new QLabel(tr("Search results: "), this));
+    searchTabLayout->addWidget(new QLabel(QApplication::translate("HelpDialog", "Search results: "), this));
     mSearchResultsWidget = new QTextBrowser(this);
     searchTabLayout->addWidget(mSearchResultsWidget);
     searchTabWidget->setLayout(searchTabLayout);
 
-    tabWidget->addTab(searchTabWidget, tr("Search"));
+    tabWidget->addTab(searchTabWidget, QApplication::translate("HelpDialog", "Search"));
     tabWidget->setContentsMargins(0, 0, 0, 0);
 
     QToolBar *toolBar = new QToolBar(this);

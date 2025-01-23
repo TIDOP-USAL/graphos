@@ -37,7 +37,7 @@ OpenProjectViewImp::OpenProjectViewImp(QWidget *parent)
 void OpenProjectViewImp::init()
 {
     QString filter = Application::applicationDisplayName() + QString(" project (*.xml)");
-    QFileDialog::setWindowTitle(tr("Open project"));
+    QFileDialog::setWindowTitle(QApplication::translate("OpenProjectComponent", "Open Project"));
     QFileDialog::setNameFilter(filter);
     QFileDialog::setFileMode(QFileDialog::ExistingFile);
 }

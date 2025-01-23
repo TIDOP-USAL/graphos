@@ -33,6 +33,7 @@
 #include <tidop/core/task.h>
 
 #include <QMessageBox>
+#include <QApplication>
 
 namespace graphos
 {
@@ -99,7 +100,7 @@ void FeatureMatchingPresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Feature Matching error"));
+        progressHandler()->setDescription(QApplication::translate("FeatureMatchingComponent", "Task error"));
     }
 }
 
@@ -108,7 +109,7 @@ void FeatureMatchingPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Feature detection and description finished"));
+        progressHandler()->setDescription(QApplication::translate("FeatureMatchingComponent", "Task finished"));
     }
 
     mModel->writeMatchPairs();
@@ -120,8 +121,8 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createTask()
 
     if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()) {
         int i_ret = QMessageBox(QMessageBox::Warning,
-                                tr("Previous results"),
-                                tr("The previous results will be overwritten. Do you wish to continue?"),
+                                QApplication::translate("FeatureMatchingComponent", "Previous results"),
+                                QApplication::translate("FeatureMatchingComponent", "The previous results will be overwritten. Do you wish to continue?"),
                                 QMessageBox::Yes | QMessageBox::No).exec();
         if (i_ret == QMessageBox::No) {
             tl::Message::warning("Process canceled by user");
@@ -185,8 +186,8 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createTask()
             max = num_blocks * num_blocks;
         }
         progressHandler()->setRange(0, max);
-        progressHandler()->setTitle("Computing Matches...");
-        progressHandler()->setDescription("Computing Matches...");
+        progressHandler()->setTitle(QApplication::translate("FeatureMatchingComponent", "Feature Matching"));
+        progressHandler()->setDescription(QApplication::translate("FeatureMatchingComponent", "Matching search..."));
     }
 
     mView->hide();
@@ -198,7 +199,7 @@ void FeatureMatchingPresenterImp::cancel()
 {
     TaskPresenter::cancel();
 
-    tl::Message::warning("Processing has been canceled by the user");
+    tl::Message::warning("Task canceled by the user");
 }
 
 void FeatureMatchingPresenterImp::setCurrentMatchMethod(const QString &matchMethod)

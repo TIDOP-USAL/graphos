@@ -48,12 +48,12 @@ OpenProjectComponent::~OpenProjectComponent()
 
 void OpenProjectComponent::init()
 {
-    setName(tr("Open Project"));
+    setName(QApplication::translate("OpenProjectComponent", "Open Project"));
     setMenu("file");
     setToolbar("file");
     setIcon(QIcon::fromTheme("open-project"));
 #ifndef QT_NO_SHORTCUT
-    action()->setShortcut(tr("Ctrl+O"));
+    action()->setShortcut(QString("Ctrl+O"));
 #endif // QT_NO_SHORTCUT
 }
 

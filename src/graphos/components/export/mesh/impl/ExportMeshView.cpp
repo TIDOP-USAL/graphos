@@ -22,6 +22,7 @@
  ************************************************************************/
  
 #include "ExportMeshView.h"
+#include <QApplication>
 
 namespace graphos
 {
@@ -39,8 +40,8 @@ void ExportMeshViewImp::setGraphosProjectsPath(const QString &directory)
 
 void ExportMeshViewImp::init()
 {
-    QFileDialog::setWindowTitle(tr("Export Mesh..."));
-    QFileDialog::setNameFilter(tr("PLY (*.ply)"));
+    QFileDialog::setWindowTitle(QApplication::translate("ExportMeshComponent", "Export Mesh..."));
+    QFileDialog::setNameFilter(QApplication::translate("ExportMeshComponent", "PLY file (*.ply)"));
     //QFileDialog::setFileMode(QFileDialog::ExistingFile);
     QFileDialog::setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
 }

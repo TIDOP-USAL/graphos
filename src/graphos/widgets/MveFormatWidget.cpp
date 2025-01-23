@@ -110,7 +110,7 @@ QString MveFormatWidget::file() const
 void MveFormatWidget::onPushButtonSelectPath()
 {
     QString export_path = QFileDialog::getExistingDirectory(this,
-                                                         tr("Export directory"),
+                                                         QApplication::translate("MveOrientationFormatWidget", "Export directory"),
                                                          "",
                                                          QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 

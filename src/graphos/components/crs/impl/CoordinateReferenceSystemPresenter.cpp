@@ -40,8 +40,8 @@ CoordinateReferenceSystemPresenterImp::CoordinateReferenceSystemPresenterImp(Coo
     mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    CoordinateReferenceSystemPresenterImp::init();
+    CoordinateReferenceSystemPresenterImp::initSignalAndSlots();
 }
 
 CoordinateReferenceSystemPresenterImp::~CoordinateReferenceSystemPresenterImp()

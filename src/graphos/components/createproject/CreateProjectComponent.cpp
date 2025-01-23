@@ -53,7 +53,7 @@ CreateProjectComponent::~CreateProjectComponent()
 
 void CreateProjectComponent::init()
 {
-    setName(tr("New Project"));
+    setName(QApplication::translate("CreateProjectComponent", "New Project"));
     setMenu("file");
     setToolbar("file");
     setIcon(QIcon::fromTheme("new-project"));
@@ -61,7 +61,7 @@ void CreateProjectComponent::init()
     createCommand();
 
 #ifndef QT_NO_SHORTCUT
-    action()->setShortcut(tr("Ctrl+N"));
+    action()->setShortcut(QString("Ctrl+N"));
 #endif // QT_NO_SHORTCUT
 }
 

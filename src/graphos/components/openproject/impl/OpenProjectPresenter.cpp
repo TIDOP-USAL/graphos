@@ -54,9 +54,9 @@ void OpenProjectPresenterImp::setProjectFile(const QString &file)
 
         if (status->isEnabled(AppStatus::Flag::project_modified)) {
             int i_ret = QMessageBox(QMessageBox::Information,
-                tr("Save Changes"),
-                tr("There are unsaved changes. Do you want to save them?"),
-                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
+                                    QApplication::translate("OpenProjectComponent", "Save Changes"),
+                                    QApplication::translate("OpenProjectComponent", "There are unsaved changes. Do you want to save them?"),
+                                    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
             if (i_ret == QMessageBox::Yes) {
                 mModel->saveProject();
                 status->clear();

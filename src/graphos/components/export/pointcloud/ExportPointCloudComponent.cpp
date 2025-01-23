@@ -80,7 +80,7 @@ bool ExportPointCloudComponent::isFormatEnabled(Format format) const
 
 void ExportPointCloudComponent::init()
 {
-    setName(tr("Export Point Cloud"));
+    setName(QApplication::translate("ExportPointCloudComponent", "Point Cloud Export"));
     setMenu("file_export");
     setIcon(QIcon::fromTheme("export"));
 

@@ -48,7 +48,7 @@ CoordinateReferenceSystemComponent::~CoordinateReferenceSystemComponent()
 
 void CoordinateReferenceSystemComponent::init()
 {
-    setName(tr("Coordinate Reference System"));
+    setName(QApplication::translate("CoordinateReferenceSystemComponent", "Coordinate Reference System"));
 }
 
 void CoordinateReferenceSystemComponent::createModel()

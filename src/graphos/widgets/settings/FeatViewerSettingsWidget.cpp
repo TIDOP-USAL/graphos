@@ -125,21 +125,21 @@ void FeatureViewerSettingsWidget::setSelectedMarkerColor(const QString &color)
 
 void FeatureViewerSettingsWidget::onPushButtonBackgroundColorClicked()
 {
-    QColor color = QColorDialog::getColor(QColor(mLineEditBackgroundColor->text()), this, "Pick a color", QColorDialog::DontUseNativeDialog);
+    QColor color = QColorDialog::getColor(QColor(mLineEditBackgroundColor->text()), this, QApplication::translate("FeatureViewerSettingsWidget", "Pick a color"), QColorDialog::DontUseNativeDialog);
     if (color.isValid())
         mLineEditBackgroundColor->setText(color.name());
 }
 
 void FeatureViewerSettingsWidget::onPushButtonMarkerColorClicked()
 {
-    QColor color = QColorDialog::getColor(QColor(mLineEditMarkerColor->text()), this, "Pick a color", QColorDialog::DontUseNativeDialog);
+    QColor color = QColorDialog::getColor(QColor(mLineEditMarkerColor->text()), this, QApplication::translate("FeatureViewerSettingsWidget", "Pick a color"), QColorDialog::DontUseNativeDialog);
     if (color.isValid())
         mLineEditMarkerColor->setText(color.name());
 }
 
 void FeatureViewerSettingsWidget::onPushButtonSelectedMarkerColorClicked()
 {
-    QColor color = QColorDialog::getColor(QColor(mLineEditSelectMarkerColor->text()), this, "Pick a color", QColorDialog::DontUseNativeDialog);
+    QColor color = QColorDialog::getColor(QColor(mLineEditSelectMarkerColor->text()), this, QApplication::translate("FeatureViewerSettingsWidget", "Pick a color"), QColorDialog::DontUseNativeDialog);
     if (color.isValid())
         mLineEditSelectMarkerColor->setText(color.name());
 }
@@ -152,14 +152,15 @@ void FeatureViewerSettingsWidget::update()
 void FeatureViewerSettingsWidget::retranslate()
 {
     setWindowTitle(QApplication::translate("FeatureViewerSettingsWidget", "Feature viewer", nullptr));
+    mGroupBoxMVMarker->setTitle(QApplication::translate("FeatureViewerSettingsWidget", "Marker", nullptr));
     mLabelBackgroundColor->setText(QApplication::translate("FeatureViewerSettingsWidget", "Background Color:", nullptr));
     mGroupBoxMVMarker->setTitle(QApplication::translate("FeatureViewerSettingsWidget", "Marker", nullptr));
     mLabelMarkerSize->setText(QApplication::translate("FeatureViewerSettingsWidget", "Size:", nullptr));
     mLabelMarkerWidth->setText(QApplication::translate("FeatureViewerSettingsWidget", "Width:", nullptr));
     mLabelMarkerColor->setText(QApplication::translate("FeatureViewerSettingsWidget", "Color:", nullptr));
     mGroupBoxSelectMarker->setTitle(QApplication::translate("FeatureViewerSettingsWidget", "Selected marker"));
-    mLabelSelectMarkerWidth->setText(QApplication::translate("MatchViewerSettingsWidget", "Width:", nullptr));
-    mLabelSelectMarkerColor->setText(QApplication::translate("MatchViewerSettingsWidget", "Color:", nullptr));
+    mLabelSelectMarkerWidth->setText(QApplication::translate("FeatureViewerSettingsWidget", "Width:", nullptr));
+    mLabelSelectMarkerColor->setText(QApplication::translate("FeatureViewerSettingsWidget", "Color:", nullptr));
 
 }
 
@@ -200,13 +201,13 @@ void FeatureViewerSettingsWidget::initUI()
     mLineEditBackgroundColor = new QLineEdit(this);
     mLineEditBackgroundColor->setText("#dcdcdc");
     gridLayoutContentsFeaturesViewer->addWidget(mLineEditBackgroundColor, 0, 1, 1, 1);
-    mPushButtonBackgroundColor = new QPushButton(tr("..."), this);
+    mPushButtonBackgroundColor = new QPushButton("...", this);
     mPushButtonBackgroundColor->setMaximumSize(QSize(23, 23));
     gridLayoutContentsFeaturesViewer->addWidget(mPushButtonBackgroundColor, 0, 2, 1, 1);
 
     /* Marker */
 
-    mGroupBoxMVMarker = new QGroupBox(tr("Marker"), this);
+    mGroupBoxMVMarker = new QGroupBox(this);
     gridLayoutContentsFeaturesViewer->addWidget(mGroupBoxMVMarker, 1, 0, 1, 3);
     QGridLayout *layoutKPVMarker = new QGridLayout();
     mGroupBoxMVMarker->setLayout(layoutKPVMarker);
@@ -217,10 +218,10 @@ void FeatureViewerSettingsWidget::initUI()
     mListWidgetMarkerType->setIconSize(QSize(30, 30));
     mListWidgetMarkerType->setViewMode(QListWidget::ListMode);
     mListWidgetMarkerType->setResizeMode(QListWidget::Fixed);
-    mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint.png"), "Scale/Distance", mListWidgetMarkerType));
-    mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_circle.png"), "Circle", mListWidgetMarkerType));
-    mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_cross.png"), "Cross", mListWidgetMarkerType));
-    mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_diag_cross.png"), "Diagonal cross", mListWidgetMarkerType));
+    mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint.png"), QApplication::translate("FeatureViewerSettingsWidget", "Scale/Distance"), mListWidgetMarkerType));
+    mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_circle.png"), QApplication::translate("FeatureViewerSettingsWidget", "Circle"), mListWidgetMarkerType));
+    mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_cross.png"), QApplication::translate("FeatureViewerSettingsWidget", "Cross"), mListWidgetMarkerType));
+    mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_diag_cross.png"), QApplication::translate("FeatureViewerSettingsWidget", "Diagonal cross"), mListWidgetMarkerType));
     mListWidgetMarkerType->setCurrentRow(0);
     layoutKPVMarker->addWidget(mListWidgetMarkerType, 0, 1, 1, 2);
 
@@ -243,7 +244,7 @@ void FeatureViewerSettingsWidget::initUI()
     mLineEditMarkerColor = new QLineEdit(this);
     mLineEditMarkerColor->setText("#e5097e");
     layoutKPVMarker->addWidget(mLineEditMarkerColor, 3, 1, 1, 1);
-    mPushButtonMarkerColor = new QPushButton(tr("..."), this);
+    mPushButtonMarkerColor = new QPushButton("...", this);
     mPushButtonMarkerColor->setMaximumSize(QSize(23, 23));
     layoutKPVMarker->addWidget(mPushButtonMarkerColor, 3, 2, 1, 1);
 
@@ -266,7 +267,7 @@ void FeatureViewerSettingsWidget::initUI()
     mLineEditSelectMarkerColor = new QLineEdit(this);
     mLineEditSelectMarkerColor->setText("#ff0000");
     layoutKPVSelectMarker->addWidget(mLineEditSelectMarkerColor, 1, 1, 1, 1);
-    mPushButtonSelectMarkerColor = new QPushButton(tr("..."), this);
+    mPushButtonSelectMarkerColor = new QPushButton("...", this);
     mPushButtonSelectMarkerColor->setMaximumSize(QSize(23, 23));
     layoutKPVSelectMarker->addWidget(mPushButtonSelectMarkerColor, 1, 2, 1, 1);
 

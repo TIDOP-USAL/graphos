@@ -77,9 +77,9 @@ void SettingsViewImp::initUI()
     setLayout(layout);
 
     mListWidget->setMaximumSize(QSize(250, 16777215));
-    mListWidget->addItem(tr("General"));
-    mListWidget->addItem(tr("Image Viewer"));
-    mListWidget->addItem(tr("Tools"));
+    mListWidget->addItem("");
+    mListWidget->addItem("");
+    mListWidget->addItem("");
     layout->addWidget(mListWidget, 0, 0, 1, 1);
 
     layout->addWidget(mStackedWidget, 0, 1, 1, 3);
@@ -124,14 +124,14 @@ void SettingsViewImp::initUI()
     mLineEditImageViewerBGcolor = new QLineEdit(tab_image_viewer_general);
     mLineEditImageViewerBGcolor->setText("#dcdcdc");
     grid_layout_contents_image_viewer_general->addWidget(mLineEditImageViewerBGcolor, 0, 1, 1, 1);
-    mPushButtonImageViewerBGcolor = new QPushButton(tr("..."), tab_image_viewer_general);
+    mPushButtonImageViewerBGcolor = new QPushButton("...", tab_image_viewer_general);
     mPushButtonImageViewerBGcolor->setMaximumSize(QSize(23, 23));
     grid_layout_contents_image_viewer_general->addWidget(mPushButtonImageViewerBGcolor, 0, 2, 1, 1);
 
     scroll_area_image_viewer_general->setWidget(scroll_area_widget_contents_image_viewer_general);
     grid_layout_tab_image_viewer_general->addWidget(scroll_area_image_viewer_general);
 
-    tab_widget_image_viewer->addTab(tab_image_viewer_general, QString(tr("General")));
+    tab_widget_image_viewer->addTab(tab_image_viewer_general, QString(QApplication::translate("SettingsComponent", "General")));
 
     grid_layout_viewer->addWidget(tab_widget_image_viewer, 0, 0, 1, 1);
 
@@ -153,7 +153,7 @@ void SettingsViewImp::initUI()
     auto scroll_area_widget_contents_tools_general = new QWidget(this);
     scroll_area_tools_general->setWidget(scroll_area_widget_contents_tools_general);
     grid_layout_tab_tools_general->addWidget(scroll_area_tools_general, 0, 0, 1, 1);
-    mTabWidgetTools->addTab(tab_tools_general, QString(tr("General")));
+    mTabWidgetTools->addTab(tab_tools_general, QString(QApplication::translate("SettingsComponent", "General")));
 
 
     grid_layout_tools->addWidget(mTabWidgetTools, 0, 0, 1, 1);
@@ -184,7 +184,7 @@ void SettingsViewImp::initSignalAndSlots()
            [&]() {
                QColor color = QColorDialog::getColor(QColor(mLineEditImageViewerBGcolor->text()), 
                                                      this,
-                                                     "Pick a color",
+                                                     QApplication::translate("SettingsComponent", "Pick a color"),
                                                      QColorDialog::DontUseNativeDialog);
                if (color.isValid())
                    emit imageViewerBGColorChange(color.name());
@@ -218,16 +218,19 @@ void SettingsViewImp::update()
 
 void SettingsViewImp::retranslate()
 {
-    setWindowTitle(QApplication::translate("SettingsView", "Settings", nullptr));
-    mLabelHistoryMaxSize->setText(QApplication::translate("SettingsView", "History Max Size", nullptr));
-    mLabelLanguages->setText(QApplication::translate("SettingsView", "Language", nullptr));
-    mLabelUseCuda->setText(QApplication::translate("SettingsView", "Use Cuda", nullptr));
-    mLabelImageViewerBGcolor->setText(QApplication::translate("SettingsView", "Background Color:", nullptr));
+    setWindowTitle(QApplication::translate("SettingsComponent", "Settings", nullptr));
+    mLabelHistoryMaxSize->setText(QApplication::translate("SettingsComponent", "Size of recent projects history", nullptr));
+    mLabelLanguages->setText(QApplication::translate("SettingsComponent", "Language", nullptr));
+    mLabelUseCuda->setText(QApplication::translate("SettingsComponent", "Use Cuda", nullptr));
+    mLabelImageViewerBGcolor->setText(QApplication::translate("SettingsComponent", "Background color:", nullptr));
+    mListWidget->item(0)->setText(QApplication::translate("SettingsComponent", "General", nullptr));
+    mListWidget->item(1)->setText(QApplication::translate("SettingsComponent", "Image viewer", nullptr));
+    mListWidget->item(2)->setText(QApplication::translate("SettingsComponent", "Tools", nullptr));
 
-    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("SettingsView", "Ok", nullptr));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("SettingsView", "Cancel", nullptr));
-    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("SettingsView", "Apply", nullptr));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("SettingsView", "Help", nullptr));
+    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("SettingsComponent", "Ok", nullptr));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("SettingsComponent", "Cancel", nullptr));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("SettingsComponent", "Apply", nullptr));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("SettingsComponent", "Help", nullptr));
 }
 
 auto SettingsViewImp::activeLanguage() const -> QString

@@ -113,13 +113,13 @@ void FeatureExtractorViewImp::update()
 
 void FeatureExtractorViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("FeatureExtractorView", "Feature Extractor"));
-    mLabelMaxImageSize->setText(QApplication::translate("FeatureExtractorView", "Max Image Size:"));
-    mCheckBoxFullImage->setText(QApplication::translate("FeatureExtractorView", "Full Image Size"));
-    mLabelDetectorDescriptor->setText(QApplication::translate("FeatureExtractorView", "Keypoint Detector/Descriptor:"));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("FeatureExtractorView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("FeatureExtractorView", "Run"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("FeatureExtractorView", "Help"));
+    this->setWindowTitle(QApplication::translate("FeatureExtractorComponent", "Feature Extractor"));
+    mLabelMaxImageSize->setText(QApplication::translate("FeatureExtractorComponent", "Maximum image size:"));
+    mCheckBoxFullImage->setText(QApplication::translate("FeatureExtractorComponent", "Full Image Size"));
+    mLabelDetectorDescriptor->setText(QApplication::translate("FeatureExtractorComponent", "Features Detector/Descriptor:"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("FeatureExtractorComponent", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("FeatureExtractorComponent", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("FeatureExtractorComponent", "Help"));
 }
 
 void FeatureExtractorViewImp::onCheckBoxFullImageChange()

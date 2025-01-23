@@ -52,8 +52,8 @@ void CloseProjectPresenterImp::open()
 {
     if (mAppStatus->isEnabled(AppStatus::Flag::project_modified)) {
         int i_ret = QMessageBox(QMessageBox::Information,
-                                tr("Save Changes"),
-                                tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
+                                QApplication::translate("CloseProjectComponent", "Save Changes"),
+                                QApplication::translate("CloseProjectComponent", "There are unsaved changes. Do you want to save the changes before closing the project?"),
                                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
         if (i_ret == QMessageBox::Yes) {
             mModel->saveProject();

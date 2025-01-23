@@ -108,7 +108,7 @@ QString NvmFormatWidget::file() const
 void NvmFormatWidget::onPushButtonSelectPath()
 {
     QString export_path = QFileDialog::getExistingDirectory(this,
-                                                         tr("Export directory"),
+                                                         QApplication::translate("NvmOrientationFormatWidget", "Export directory"),
                                                          "",
                                                          QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 

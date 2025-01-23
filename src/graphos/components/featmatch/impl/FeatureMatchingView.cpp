@@ -106,12 +106,12 @@ void FeatureMatchingViewImp::update()
 
 void FeatureMatchingViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("FeatureMatchingView", "Feature Matching"));
-    mCheckBoxSpatialMatching->setText(QApplication::translate("FeatureMatchingView", "Spatial Matching", nullptr));
-    mLabelMatcher->setText(QApplication::translate("FeatureMatchingView", "Feature Matching Method:"));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("FeatureMatchingView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("FeatureMatchingView", "Run"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("FeatureMatchingView", "Help"));
+    this->setWindowTitle(QApplication::translate("FeatureMatchingComponent", "Feature Matching"));
+    mCheckBoxSpatialMatching->setText(QApplication::translate("FeatureMatchingComponent", "Spatial Matching", nullptr));
+    mLabelMatcher->setText(QApplication::translate("FeatureMatchingComponent", "Feature Matching Method:"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("FeatureMatchingComponent", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("FeatureMatchingComponent", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("FeatureMatchingComponent", "Help"));
 }
 
 void FeatureMatchingViewImp::addMatchMethod(QWidget *matchMethod)

@@ -110,7 +110,7 @@ void ProgressBarDialog::update()
 void ProgressBarDialog::retranslate()
 {
     this->setWindowTitle(QCoreApplication::translate("ProgressBarView", "Progress Bar", nullptr));
-    mLabelStatus->setText(QCoreApplication::translate("ProgressBarView", "TextLabel", nullptr));
+    mLabelStatus->setText(QCoreApplication::translate("ProgressBarView", "", nullptr));
     mPushButtonCancel->setText(QCoreApplication::translate("ProgressBarView", "Cancel", nullptr));
     mPushButtonMinimize->setText(QCoreApplication::translate("ProgressBarView", "Minimize", nullptr));
     mPushButtonClose->setText(QCoreApplication::translate("ProgressBarView", "Close", nullptr));
@@ -172,7 +172,7 @@ void ProgressBarDialog::setFinished()
 {
     mPushButtonCancel->setVisible(false);
     mPushButtonClose->setVisible(true);
-    mPushButtonClose->setText(tr("Close"));
+    mPushButtonClose->setText(QCoreApplication::translate("ProgressBarView", "Close"));
 
     mProgressBar->setValue(mProgressBar->maximum());
     if (!this->isVisible() && !mAutoClose) {

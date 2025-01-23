@@ -65,9 +65,9 @@ void RecentProjectsViewImp::update() const
 
 void RecentProjectsViewImp::retranslate()
 {
-    this->setTitle(QApplication::translate("RecentProjectsView", "Recent Projects", nullptr));
-    mActionNotRecentProjects->setText(QApplication::translate("RecentProjectsView", "Not recent projects", nullptr));
-    mActionClearHistory->setText(QApplication::translate("RecentProjectsView", "Clear History", nullptr));
+    this->setTitle(QApplication::translate("RecentProjectsComponent", "Recent Projects", nullptr));
+    mActionNotRecentProjects->setText(QApplication::translate("RecentProjectsComponent", "There are no recent projects", nullptr));
+    mActionClearHistory->setText(QApplication::translate("RecentProjectsComponent", "Clear history", nullptr));
 }
 
 void RecentProjectsViewImp::openFromHistory()
@@ -90,7 +90,7 @@ void RecentProjectsViewImp::setHistory(const QStringList &history)
 
     for (int r = 0; r < n; r++) {
 
-        QString project_path = tr("&%1 %2").arg(r + 1).arg(QFileInfo(history[r]).fileName());
+        QString project_path = QString("&%1 %2").arg(r + 1).arg(QFileInfo(history[r]).fileName());
 
         if (mHistory.size() == static_cast<size_t>(r)) {
 

@@ -49,7 +49,7 @@ OrthophotoComponent::~OrthophotoComponent() = default;
 
 void OrthophotoComponent::init()
 {
-    setName(tr("Orthophoto"));
+    setName(QApplication::translate("OrthophotoComponent", "Orthophoto"));
     setMenu("tools");
     //setIcon(QIcon::fromTheme("ortho"));
     createCommand();

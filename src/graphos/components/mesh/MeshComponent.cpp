@@ -49,7 +49,7 @@ MeshComponent::~MeshComponent() = default;
 
 void MeshComponent::init()
 {
-    setName(tr("Mesh"));
+    setName(QApplication::translate("MeshComponent", "Mesh"));
     setMenu("workflow");
     setToolbar("workflow");
     setIcon(QIcon::fromTheme("mesh"));

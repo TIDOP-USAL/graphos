@@ -46,7 +46,7 @@ CloseProjectComponent::~CloseProjectComponent() = default;
 
 void CloseProjectComponent::init()
 {
-    setName(tr("Close Project"));
+    setName(QApplication::translate("CloseProjectComponent", "Close Project"));
     setMenu("file");
     setIcon(QIcon::fromTheme("close-project"));
 }

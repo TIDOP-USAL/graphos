@@ -129,11 +129,11 @@ void ExportPointCloudViewImp::initSignalAndSlots()
 
 void ExportPointCloudViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("ExportPointCloudView", "Densification", nullptr));
-    mLabelCRS->setText(QCoreApplication::translate("ExportPointCloudView", "CRS"));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ExportPointCloudView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ExportPointCloudView", "Ok"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ExportPointCloudView", "Help"));
+    this->setWindowTitle(QApplication::translate("ExportPointCloudComponent", "Point Cloud Export", nullptr));
+    mLabelCRS->setText(QCoreApplication::translate("ExportPointCloudComponent", "CRS"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ExportPointCloudComponent", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ExportPointCloudComponent", "Ok"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ExportPointCloudComponent", "Help"));
 }
 
 void ExportPointCloudViewImp::clear()
@@ -147,13 +147,5 @@ void ExportPointCloudViewImp::update()
     mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(!mLineEditCRS->text().isEmpty());
 }
 
-//void ExportPointCloudViewImp::init()
-//{
-//	QFileDialog::setWindowTitle(tr("Export Point Cloud"));
-//	QFileDialog::setNameFilter(tr("PLY (*.ply)"));
-//	//QFileDialog::setNameFilter(tr("LAS (*.las)"));
-//	//QFileDialog::setFileMode(QFileDialog::ExistingFile);
-//	QFileDialog::setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
-//}
  
 } // namespace graphos

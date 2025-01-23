@@ -119,14 +119,14 @@ void DemViewImp::update()
 
 void DemViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("DemView", "DEM"));
-    mLabelCRS->setText(QCoreApplication::translate("DemView", "CRS"));
-    mCheckBoxDsm->setText(QApplication::translate("DemView", "DSM"));
-    mCheckBoxDtm->setText(QApplication::translate("DemView", "DTM"));
-    mLabelGSD->setText(QApplication::translate("DemView", "Ground sampling distance (GSD):"));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("DemView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("DemView", "Run"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("DemView", "Help"));
+    this->setWindowTitle(QApplication::translate("DemComponent", "Digital Elevation Model (DEM)"));
+    mLabelCRS->setText(QCoreApplication::translate("DemComponent", "Coordinate Reference System (CRS)"));
+    mCheckBoxDsm->setText(QApplication::translate("DemComponent", "Digital Surface Model (DSM)"));
+    mCheckBoxDtm->setText(QApplication::translate("DemComponent", "Digital Terrain Model (DTM)"));
+    mLabelGSD->setText(QApplication::translate("DemComponent", "Ground Sampling Distance (GSD):"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("DemComponent", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("DemComponent", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("DemComponent", "Help"));
 }
 
 auto DemViewImp::gsd() const -> double

@@ -117,7 +117,6 @@ void FeaturesViewerViewImp::initSignalAndSlots()
 
 void FeaturesViewerViewImp::clear()
 {
-    this->setWindowTitle(tr("Keypoints Viewer"));
     const QSignalBlocker blocker_tree_widget(mTreeWidget);
     mTreeWidget->clear();
 
@@ -132,16 +131,16 @@ void FeaturesViewerViewImp::update()
 
 void FeaturesViewerViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("FeaturesViewerView", "Keypoints Viewer"));
-    mLabelImages->setText(QApplication::translate("FeaturesViewerView", "Images:"));
+    this->setWindowTitle(QApplication::translate("FeaturesViewerComponent", "Features Viewer"));
+    mLabelImages->setText(QApplication::translate("FeaturesViewerComponent", "Images:"));
     QTreeWidgetItem *tree_widget_item = mTreeWidget->headerItem();
-    tree_widget_item->setText(0, QApplication::translate("FeaturesViewerView", "ID"));
-    tree_widget_item->setText(1, QApplication::translate("FeaturesViewerView", "X"));
-    tree_widget_item->setText(2, QApplication::translate("FeaturesViewerView", "Y"));
-    tree_widget_item->setText(3, QApplication::translate("FeaturesViewerView", "Size"));
-    tree_widget_item->setText(4, QApplication::translate("FeaturesViewerView", "Angle"));
-    mButtonBox->button(QDialogButtonBox::Close)->setText(tr("Close"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText("Help");
+    tree_widget_item->setText(0, QApplication::translate("FeaturesViewerComponent", "ID"));
+    tree_widget_item->setText(1, QApplication::translate("FeaturesViewerComponent", "X"));
+    tree_widget_item->setText(2, QApplication::translate("FeaturesViewerComponent", "Y"));
+    tree_widget_item->setText(3, QApplication::translate("FeaturesViewerComponent", "Size"));
+    tree_widget_item->setText(4, QApplication::translate("FeaturesViewerComponent", "Angle"));
+    mButtonBox->button(QDialogButtonBox::Close)->setText(QApplication::translate("FeaturesViewerComponent", "Close"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("FeaturesViewerComponent", "Help"));
 }
 
 void FeaturesViewerViewImp::onGraphicsViewSelectionChanged()

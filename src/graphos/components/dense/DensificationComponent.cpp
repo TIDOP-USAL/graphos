@@ -90,7 +90,7 @@ bool DensificationComponent::isEnabled(Method method) const
 
 void DensificationComponent::init()
 {
-    setName(tr("Densification"));
+    setName(QApplication::translate("DensificationComponent", "Densification"));
     setMenu("workflow");
     setToolbar("workflow");
     setIcon(QIcon::fromTheme("dense"));

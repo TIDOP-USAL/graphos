@@ -23,6 +23,7 @@
 
 #include "UndistortImagesView.h"
 
+#include <QApplication>
 
 namespace graphos
 {
@@ -38,7 +39,7 @@ UndistortImagesViewImp::~UndistortImagesViewImp() = default;
 void UndistortImagesViewImp::init()
 {
 
-    QFileDialog::setWindowTitle(tr("Undistort images output path"));
+    QFileDialog::setWindowTitle(QCoreApplication::translate("UndistortImagesComponent", "Undistort images output path"));
 
     QFileDialog::setFileMode(QFileDialog::Directory);
     QFileDialog::setOption(ShowDirsOnly, true);

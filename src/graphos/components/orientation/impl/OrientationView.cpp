@@ -89,13 +89,13 @@ void OrientationViewImp::update()
 
 void OrientationViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("OrientationView", "Orientation", nullptr));
-    mCheckBoxFixCalibration->setText(QApplication::translate("OrientationView", "Fix Calibration", nullptr));
-    mCheckBoxRtkPositioningAccuracy->setText(QApplication::translate("OrientationView", "RTK positioning accurary from EXIF", nullptr));
-    mCheckBoxAbsoluteOrientation->setText(QApplication::translate("OrientationView", "Absolute Orientation", nullptr));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("OrientationView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("OrientationView", "Run"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("OrientationView", "Help"));
+    this->setWindowTitle(QApplication::translate("OrientationComponent", "Orientation", nullptr));
+    mCheckBoxFixCalibration->setText(QApplication::translate("OrientationComponent", "Fix Calibration", nullptr));
+    mCheckBoxRtkPositioningAccuracy->setText(QApplication::translate("OrientationComponent", "RTK positioning accurary from EXIF", nullptr));
+    mCheckBoxAbsoluteOrientation->setText(QApplication::translate("OrientationComponent", "Absolute Orientation", nullptr));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("OrientationComponent", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("OrientationComponent", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("OrientationComponent", "Help"));
 }
 
 auto OrientationViewImp::fixCalibration() const -> bool

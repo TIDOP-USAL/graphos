@@ -47,7 +47,7 @@ MatchViewerComponent::~MatchViewerComponent()
 
 void MatchViewerComponent::init()
 {
-    setName(tr("Match Viewer"));
+    setName(QApplication::translate("MatchViewerComponent", "Matching Viewer"));
     setMenu("tools");
     setToolbar("tools");
     setIcon(QIcon::fromTheme("matches-viewer"));

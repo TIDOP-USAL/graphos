@@ -133,9 +133,9 @@ void OriTxtFormatWidget::setRotation(const QString &rotation)
 void OriTxtFormatWidget::onPushButtonSelectPath()
 {
     QString file_path = QFileDialog::getSaveFileName(nullptr,
-                                                    tr("Txt file"),
+                                                    QApplication::translate("OriTxtFormatWidget", "Txt file"),
                                                     QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-                                                    tr("Orientation plain text (*.txt)"));
+                                                    QApplication::translate("OriTxtFormatWidget", "Plain text (*.txt)"));
 
     if (!file_path.isEmpty()) {
         mLineEditFile->setText(file_path);

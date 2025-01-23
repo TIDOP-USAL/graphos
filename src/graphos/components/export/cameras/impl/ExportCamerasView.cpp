@@ -94,11 +94,11 @@ void ExportCamerasViewImp::update()
 
 void ExportCamerasViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("ExportCamerasView", "Export Cameras", nullptr));
-    mLabelFormat->setText(QApplication::translate("ExportCamerasView", "Format:", nullptr));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ExportCamerasView", "Cancel", nullptr));
-    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ExportCamerasView", "Save", nullptr));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ExportCamerasView", "Help", nullptr));
+    this->setWindowTitle(QApplication::translate("ExportCamerasComponent", "Export Cameras", nullptr));
+    mLabelFormat->setText(QApplication::translate("ExportCamerasComponent", "Format:", nullptr));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ExportCamerasComponent", "Cancel", nullptr));
+    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ExportCamerasComponent", "Save", nullptr));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ExportCamerasComponent", "Help", nullptr));
 }
 
 void ExportCamerasViewImp::addFormatWidget(QWidget *formatWidget)

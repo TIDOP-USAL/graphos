@@ -37,6 +37,7 @@
 
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QApplication>
 
 
 namespace graphos
@@ -104,7 +105,7 @@ void OrientationPresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Orientation process error"));
+        progressHandler()->setDescription(QApplication::translate("OrientationComponent", "Orientation task error"));
     }
 }
 
@@ -113,7 +114,7 @@ void OrientationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Orientation finished"));
+        progressHandler()->setDescription(QApplication::translate("OrientationComponent", "Orientation finished"));
     }
 
     if (mView->absoluteOrientation()) {
@@ -141,9 +142,9 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
     if (mModel->existReconstruction()) {
         int i_ret = QMessageBox(QMessageBox::Warning,
-            tr("Previous results"),
-            tr("The previous results will be overwritten. Do you wish to continue?"),
-            QMessageBox::Yes | QMessageBox::No).exec();
+                               QApplication::translate("OrientationComponent", "Previous results"),
+                               QApplication::translate("OrientationComponent", "The previous results will be overwritten. Do you wish to continue?"),
+                               QMessageBox::Yes | QMessageBox::No).exec();
         if (i_ret == QMessageBox::No) {
             return orientation_task;
         }
@@ -231,8 +232,8 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);
-        progressHandler()->setTitle("Computing Orientation...");
-        progressHandler()->setDescription("Computing Orientation...");
+        progressHandler()->setTitle(QApplication::translate("OrientationComponent", "Orientation"));
+        progressHandler()->setDescription(QApplication::translate("OrientationComponent", "Computing Orientation..."));
     }
 
     mView->hide();

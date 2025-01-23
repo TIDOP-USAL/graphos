@@ -414,41 +414,41 @@ void ImportCamerasViewImp::update()
 
 void ImportCamerasViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("ImportCamerasViewImp", "Import cameras", nullptr));
-    mGroupBoxDelimiter->setTitle(QCoreApplication::translate("ImportCamerasViewImp", "Delimiter", nullptr));
-    mRadioButtonTab->setText(QCoreApplication::translate("ImportCamerasViewImp", "Tab", nullptr));
-    mRadioButtonComma->setText(QCoreApplication::translate("ImportCamerasViewImp", "Comma", nullptr));
-    mRadioButtonSpace->setText(QCoreApplication::translate("ImportCamerasViewImp", "Space", nullptr));
-    mRadioButtonSemicolon->setText(QCoreApplication::translate("ImportCamerasViewImp", "Semicolon", nullptr));
-    mRadioButtonOther->setText(QCoreApplication::translate("ImportCamerasViewImp", "Other", nullptr));
-    mCheckBoxFieldNamesAuto->setText(QCoreApplication::translate("ImportCamerasViewImp", "First record has field names", nullptr));
-    mLabelSkipLines->setText(QCoreApplication::translate("ImportCamerasViewImp", "Skip lines", nullptr));
-    mGroupBoxColumns->setTitle(QCoreApplication::translate("ImportCamerasViewImp", "Columns", nullptr));
-    mLabelImageColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Image name:", nullptr));
-    mGroupBoxCoordinates->setTitle(QCoreApplication::translate("ImportCamerasViewImp", "Coordinates", nullptr));
-    mLabelYColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Y:", nullptr));
-    mLabelXColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "X:", nullptr));
-    mLabelZColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Z:", nullptr));
-    mLabelCrs->setText(QCoreApplication::translate("ImportCamerasViewImp", "CRS:", nullptr));
-    mGroupBoxRotations->setTitle(QCoreApplication::translate("ImportCamerasViewImp", "Rotations", nullptr));
-    mLabelRotation->setText(QCoreApplication::translate("ImportCamerasViewImp", "Rotation", nullptr));
-    mComboBoxRotation->setItemText(0, QCoreApplication::translate("ImportCamerasViewImp", "Quaternions", nullptr));
-    mComboBoxRotation->setItemText(1, QCoreApplication::translate("ImportCamerasViewImp", "Yaw, Pitch, Roll", nullptr));
-    mComboBoxRotation->setItemText(2, QCoreApplication::translate("ImportCamerasViewImp", "Omega, Phi, Kappa", nullptr));
-    mLabelQxColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Qx:", nullptr));
-    mLabelQyColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Qy:", nullptr));
-    mLabelQzColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Qz:", nullptr));
-    mLabelQwColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Qw:", nullptr));
-    mLabelYawColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Yaw:", nullptr));
-    mLabelPitchColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Pitch:", nullptr));
-    mLabelRollColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Roll:", nullptr));
-    mLabelOmegaColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Omega:", nullptr));
-    mLabelPhiColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Phi:", nullptr));
-    mLabelKappaColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Kappa:", nullptr));
-    mLabelPreview->setText(QCoreApplication::translate("ImportCamerasViewImp", "Preview:", nullptr));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ImportCamerasViewImp", "Cancel", nullptr));
-    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ImportCamerasViewImp", "Save", nullptr));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ImportCamerasViewImp", "Help", nullptr));
+    this->setWindowTitle(QApplication::translate("ImportCamerasComponent", "Import Cameras", nullptr));
+    mGroupBoxDelimiter->setTitle(QCoreApplication::translate("ImportCamerasComponent", "Delimiter", nullptr));
+    mRadioButtonTab->setText(QCoreApplication::translate("ImportCamerasComponent", "Tab", nullptr));
+    mRadioButtonComma->setText(QCoreApplication::translate("ImportCamerasComponent", "Comma", nullptr));
+    mRadioButtonSpace->setText(QCoreApplication::translate("ImportCamerasComponent", "Space", nullptr));
+    mRadioButtonSemicolon->setText(QCoreApplication::translate("ImportCamerasComponent", "Semicolon", nullptr));
+    mRadioButtonOther->setText(QCoreApplication::translate("ImportCamerasComponent", "Other", nullptr));
+    mCheckBoxFieldNamesAuto->setText(QCoreApplication::translate("ImportCamerasComponent", "First record has field names", nullptr));
+    mLabelSkipLines->setText(QCoreApplication::translate("ImportCamerasComponent", "Skip lines", nullptr));
+    mGroupBoxColumns->setTitle(QCoreApplication::translate("ImportCamerasComponent", "Columns", nullptr));
+    mLabelImageColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Image name:", nullptr));
+    mGroupBoxCoordinates->setTitle(QCoreApplication::translate("ImportCamerasComponent", "Coordinates", nullptr));
+    mLabelYColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Y:", nullptr));
+    mLabelXColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "X:", nullptr));
+    mLabelZColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Z:", nullptr));
+    mLabelCrs->setText(QCoreApplication::translate("ImportCamerasComponent", "CRS:", nullptr));
+    mGroupBoxRotations->setTitle(QCoreApplication::translate("ImportCamerasComponent", "Rotations", nullptr));
+    mLabelRotation->setText(QCoreApplication::translate("ImportCamerasComponent", "Rotation", nullptr));
+    mComboBoxRotation->setItemText(0, QCoreApplication::translate("ImportCamerasComponent", "Quaternions", nullptr));
+    mComboBoxRotation->setItemText(1, QCoreApplication::translate("ImportCamerasComponent", "Yaw, Pitch, Roll", nullptr));
+    mComboBoxRotation->setItemText(2, QCoreApplication::translate("ImportCamerasComponent", "Omega, Phi, Kappa", nullptr));
+    mLabelQxColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Qx:", nullptr));
+    mLabelQyColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Qy:", nullptr));
+    mLabelQzColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Qz:", nullptr));
+    mLabelQwColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Qw:", nullptr));
+    mLabelYawColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Yaw:", nullptr));
+    mLabelPitchColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Pitch:", nullptr));
+    mLabelRollColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Roll:", nullptr));
+    mLabelOmegaColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Omega:", nullptr));
+    mLabelPhiColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Phi:", nullptr));
+    mLabelKappaColumn->setText(QCoreApplication::translate("ImportCamerasComponent", "Kappa:", nullptr));
+    mLabelPreview->setText(QCoreApplication::translate("ImportCamerasComponent", "Preview:", nullptr));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ImportCamerasComponent", "Cancel", nullptr));
+    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ImportCamerasComponent", "Save", nullptr));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ImportCamerasComponent", "Help", nullptr));
 
 }
 

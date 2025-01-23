@@ -48,7 +48,7 @@ LoadFromVideoComponent::~LoadFromVideoComponent()
 
 void LoadFromVideoComponent::init()
 {
-    setName(tr("Load from Video"));
+    setName(QApplication::translate("LoadFromVideoComponent", "Load from Video"));
     setMenu("workflow");
     setToolbar("workflow");
     setIcon(QIcon::fromTheme("video-folder"));

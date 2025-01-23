@@ -94,12 +94,12 @@ void DensificationViewImp::update()
 
 void DensificationViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("DensificationView", "Densification", nullptr));
-    mLabelDensification->setText(QApplication::translate("DensificationView", "Method:", nullptr));
-    mCheckBoxAutoSegmentation->setText(QApplication::translate("DensificationView", "Point cloud automatic segmentation", nullptr));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("FeatureExtractorView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("FeatureExtractorView", "Run"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("FeatureExtractorView", "Help"));
+    this->setWindowTitle(QApplication::translate("DensificationComponent", "Densification", nullptr));
+    mLabelDensification->setText(QApplication::translate("DensificationComponent", "Method:", nullptr));
+    mCheckBoxAutoSegmentation->setText(QApplication::translate("DensificationComponent", "Point cloud automatic segmentation", nullptr));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("DensificationComponent", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("DensificationComponent", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("DensificationComponent", "Help"));
 }
 
 QString DensificationViewImp::currentDensificationMethod() const

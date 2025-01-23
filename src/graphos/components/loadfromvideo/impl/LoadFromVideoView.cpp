@@ -129,12 +129,12 @@ void LoadFromVideoViewImp::initUI()
 
 void LoadFromVideoViewImp::initSignalAndSlots()
 {
-    connect(mActionLoadVideo, &QAction::triggered, 
-        [&]() {
-
-            mVideo = QFileDialog::getOpenFileName(nullptr, tr("Open video"),
-            QDir::homePath(),
-            tr("Video file (*.*)"));
+    connect(mActionLoadVideo, &QAction::triggered, [&]() {
+        
+            mVideo = QFileDialog::getOpenFileName(nullptr, 
+                                                  QApplication::translate("LoadFromVideoComponent", "Open video"),
+                                                  QDir::homePath(),
+                                                  QApplication::translate("LoadFromVideoComponent", "Video files (*.*)"));
 
             if (!mVideo.isEmpty()) {
                 if (capture.open(mVideo.toStdString())) {
@@ -150,8 +150,7 @@ void LoadFromVideoViewImp::initSignalAndSlots()
             }
         });
 
-    connect(mActionPlayVideo, &QAction::triggered, 
-        [&]() {
+    connect(mActionPlayVideo, &QAction::triggered, [&]() {
             if (!capture.isOpened()) {
                 capture.open(mVideo.toStdString());
             }
@@ -164,8 +163,7 @@ void LoadFromVideoViewImp::initSignalAndSlots()
             update();
         });
 
-    connect(mActionPauseVideo, &QAction::triggered, 
-        [&]() {
+    connect(mActionPauseVideo, &QAction::triggered, [&]() {
 
             timer->stop();
 
@@ -174,8 +172,7 @@ void LoadFromVideoViewImp::initSignalAndSlots()
             update();
         });
 
-    connect(mActionStopVideo, &QAction::triggered, 
-        [&]() {
+    connect(mActionStopVideo, &QAction::triggered, [&]() {
 
             timer->stop();
             capture.release();
@@ -203,8 +200,7 @@ void LoadFromVideoViewImp::initSignalAndSlots()
             mSpinBoxVideoEnd->setValue(frame);
             });
 
-    connect(mPushButtonVideoEnd, &QPushButton::clicked,
-        [&]() {
+    connect(mPushButtonVideoEnd, &QPushButton::clicked, [&]() {
 
             int frame = static_cast<int>(capture.get(cv::CAP_PROP_POS_FRAMES));
             mSpinBoxVideoEnd->setValue(frame);
@@ -213,9 +209,10 @@ void LoadFromVideoViewImp::initSignalAndSlots()
 
         });
 
-    connect(mSliderVideo, &QSlider::valueChanged,
-        [&](int value) {
+    connect(mSliderVideo, &QSlider::valueChanged, [&](int value) {
+
             capture.set(cv::CAP_PROP_POS_FRAMES, static_cast<double>(value));
+
         });
 
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -225,20 +222,20 @@ void LoadFromVideoViewImp::initSignalAndSlots()
 
 void LoadFromVideoViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("LoadFromVideoView", "Load from Video"));
-    mActionLoadVideo->setText(QApplication::translate("LoadFromVideoView", "Load video"));
-    mActionPlayVideo->setText(QApplication::translate("LoadFromVideoView", "Play video"));
-    mActionPauseVideo->setText(QApplication::translate("LoadFromVideoView", "Pause video"));
-    mActionStopVideo->setText(QApplication::translate("LoadFromVideoView", "Stop video"));
-    mLabelSkipFrames->setText(QApplication::translate("SkipFramesView", "Skip Frames:"));
-    mLabelVideoIni->setText(QApplication::translate("SkipFramesView", "Video ini:"));
-    mPushButtonVideoIni->setText(QApplication::translate("SkipFramesView", "Set video ini"));
-    mLabelVideoEnd->setText(QApplication::translate("SkipFramesView", "Video end:"));
-    mPushButtonVideoEnd->setText(QApplication::translate("SkipFramesView", "Set video end"));
+    this->setWindowTitle(QApplication::translate("LoadFromVideoComponent", "Load from Video"));
+    mActionLoadVideo->setText(QApplication::translate("LoadFromVideoComponent", "Load video"));
+    mActionPlayVideo->setText(QApplication::translate("LoadFromVideoComponent", "Play video"));
+    mActionPauseVideo->setText(QApplication::translate("LoadFromVideoComponent", "Pause video"));
+    mActionStopVideo->setText(QApplication::translate("LoadFromVideoComponent", "Stop video"));
+    mLabelSkipFrames->setText(QApplication::translate("LoadFromVideoComponent", "Skip Frames:"));
+    mLabelVideoIni->setText(QApplication::translate("LoadFromVideoComponent", "Video start:"));
+    mPushButtonVideoIni->setText(QApplication::translate("LoadFromVideoComponent", "Set video start"));
+    mLabelVideoEnd->setText(QApplication::translate("LoadFromVideoComponent", "Video end:"));
+    mPushButtonVideoEnd->setText(QApplication::translate("LoadFromVideoComponent", "Set video end"));
 
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("LoadFromVideoView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("LoadFromVideoView", "Run"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("LoadFromVideoView", "Help"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("LoadFromVideoComponent", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("LoadFromVideoComponent", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("LoadFromVideoComponent", "Help"));
 }
 
 void LoadFromVideoViewImp::clear()

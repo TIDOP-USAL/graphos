@@ -74,10 +74,10 @@ void PropertiesViewImp::update()
 
 void PropertiesViewImp::retranslate()
 {
-    setWindowTitle(QCoreApplication::translate("PropertiesView", "Image Properties", nullptr));
+    setWindowTitle(QCoreApplication::translate("PropertiesComponent", "Image Properties", nullptr));
     QTreeWidgetItem *header_item = mTreeWidgetProperties->headerItem();
-    header_item->setText(0, QCoreApplication::translate("PropertiesView", "Name", nullptr));
-    header_item->setText(1, QCoreApplication::translate("PropertiesView", "Value", nullptr));
+    header_item->setText(0, QCoreApplication::translate("PropertiesComponent", "Name", nullptr));
+    header_item->setText(1, QCoreApplication::translate("PropertiesComponent", "Value", nullptr));
 }
 
 void PropertiesViewImp::setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties)

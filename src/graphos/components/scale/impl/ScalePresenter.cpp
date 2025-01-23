@@ -76,8 +76,8 @@ void ScalePresenterImp::measure(bool active)
 
     } else if (active) {
         QMessageBox msg_box(QMessageBox::Warning,
-                           "A 3D model is required for the measurement",
-                           "Do you want to open the 3D model??",
+                           QApplication::translate("ScaleComponent", "A 3D model is required for the measurement"),
+                           QApplication::translate("ScaleComponent", "Do you want to open the 3D model??"),
                            QMessageBox::Yes | QMessageBox::No, mView);
         msg_box.setDefaultButton(QMessageBox::Yes);
         int ret = msg_box.exec();
@@ -130,7 +130,7 @@ void ScalePresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Process error"));
+        progressHandler()->setDescription(QApplication::translate("ScaleComponent", "Task error"));
     }
 }
 
@@ -139,7 +139,7 @@ void ScalePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Process finished"));
+        progressHandler()->setDescription(QApplication::translate("ScaleComponent", "Task finished"));
     }
 }
 
@@ -187,8 +187,8 @@ auto ScalePresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 0);
-        progressHandler()->setTitle("Computing Scale...");
-        progressHandler()->setDescription("Computing Scale...");
+        progressHandler()->setTitle(QApplication::translate("ScaleComponent", "Model scaling"));
+        progressHandler()->setDescription(QApplication::translate("ScaleComponent", "Scaling the model..."));
         progressHandler()->closeAuto(true);
     }
 
@@ -203,7 +203,7 @@ void ScalePresenterImp::cancel()
 {
     TaskPresenter::cancel();
 
-    tl::Message::warning("Processing has been canceled by the user");
+    tl::Message::warning("Task has been canceled by the user");
 }
 
 } // namespace graphos

@@ -86,8 +86,8 @@ void MainWindowPresenter::openProject(const QString &file)
 
             if (app_status && app_status->isEnabled(AppStatus::Flag::project_modified)) {
                 int i_ret = QMessageBox(QMessageBox::Information,
-                                        tr("Save Changes"),
-                                        tr("There are unsaved changes. Do you want to save them?"),
+                                        QApplication::translate("MainWindowPresenter", "Save Changes"),
+                                        QApplication::translate("MainWindowPresenter", "There are unsaved changes. Do you want to save them?"),
                                         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
                 if (i_ret == QMessageBox::Yes) {
                     //saveProject();
@@ -101,8 +101,8 @@ void MainWindowPresenter::openProject(const QString &file)
 
             if (mModel->checkOldVersion(file.toStdWString())) {
                 int i_ret = QMessageBox(QMessageBox::Information,
-                                        tr("It is loading an old project"),
-                                        tr("If you accept, a copy of the old project will be created"),
+                                        QApplication::translate("MainWindowPresenter", "It is loading an old project"),
+                                        QApplication::translate("MainWindowPresenter", "If you accept, a copy of the old project will be created"),
                                         QMessageBox::Yes | QMessageBox::No).exec();
                 if (i_ret == QMessageBox::Yes) {
                     mModel->oldVersionBackup(file.toStdWString());
@@ -159,8 +159,8 @@ void MainWindowPresenter::exit()
 
         if (app_status->isEnabled(AppStatus::Flag::processing)) {
             int i_ret = QMessageBox(QMessageBox::Warning,
-                                    tr("Warning"),
-                                    tr("Stop the current process before closing the program."),
+                                    QApplication::translate("MainWindowPresenter", "Warning"),
+                                    QApplication::translate("MainWindowPresenter", "Stop the current process before closing the program."),
                                     QMessageBox::Yes).exec();
             if (i_ret == QMessageBox::Yes) {
                 return;
@@ -169,8 +169,8 @@ void MainWindowPresenter::exit()
 
         if (app_status->isEnabled(AppStatus::Flag::project_modified)) {
             int i_ret = QMessageBox(QMessageBox::Information,
-                                    tr("Save Changes"),
-                                    tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
+                                    QApplication::translate("MainWindowPresenter", "Save Changes"),
+                                    QApplication::translate("MainWindowPresenter", "There are unsaved changes. Do you want to save the changes before closing the project?"),
                                     QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
             if (i_ret == QMessageBox::Yes) {
                 //saveProject();
@@ -230,7 +230,7 @@ void MainWindowPresenter::loadProject()
     app.addToHistory(project_path);
     mStartPageWidget->setHistory(app.history());
 
-    QString msg = tr("Load project: ").append(project_path);
+    QString msg = QApplication::translate("MainWindowPresenter", "Load project: ").append(project_path);
     mView->setStatusBarMsg(msg);
     QByteArray ba = project_path.toLocal8Bit();
     const char *cfile = ba.data();

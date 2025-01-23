@@ -107,7 +107,7 @@ void PropertiesComponent::parseDocuments(const QStringList &parsers, const QStri
 
 void PropertiesComponent::init()
 {
-    this->setName(tr("Properties"));
+    this->setName(QCoreApplication::translate("PropertiesComponent", "Properties"));
 }
 
 void PropertiesComponent::createModel()
@@ -125,13 +125,6 @@ void PropertiesComponent::createPresenter()
     setPresenter(new PropertiesPresenterImp(dynamic_cast<PropertiesView *>(view()),
                  dynamic_cast<PropertiesModel *>(model()),
                  app()->status()));
-
-    //connect(this, &PropertiesComponent::selectImage,
-    //        dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::setImageActive);
-    //connect(this, &PropertiesComponent::parseDocument,
-    //        dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::parseDocument);
-    //connect(this, &PropertiesComponent::parseDocuments,
-    //        dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::parseDocuments);
 }
 
 void PropertiesComponent::createCommand()

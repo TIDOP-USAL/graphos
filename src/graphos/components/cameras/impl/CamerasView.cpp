@@ -56,19 +56,19 @@ void CamerasViewImp::onCalibrationImport()
 {
     QString selected_filter;
     QString path_name = QFileDialog::getOpenFileName(nullptr,
-                                                    tr("Import calibration"),
+                                                    QApplication::translate("CamerasComponent", "Import calibration", nullptr),
                                                     QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
                                                     //tr("Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
-                                                    tr("Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
+                                                    QApplication::translate("CamerasComponent", "Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)", nullptr),
                                                     &selected_filter);
 
     if (!path_name.isEmpty()) {
         QString format;
         /*if (selectedFilter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
           format = "Pix4D";
-        } else */if (selected_filter.compare("Agisoft Camera Calibration (*.xml)") == 0) {
+        } else */if (selected_filter.compare(QApplication::translate("CamerasComponent", "Agisoft Camera Calibration (*.xml)", nullptr)) == 0) {
             format = "Agisoft";
-        } else if (selected_filter.compare("OpenCV Camera Calibration (*.xml)") == 0) {
+        } else if (selected_filter.compare(QApplication::translate("CamerasComponent", "OpenCV Camera Calibration (*.xml)", nullptr)) == 0) {
             format = "OpenCV";
         } else {
             tl::Message::error("Unsupported format");
@@ -82,10 +82,10 @@ void CamerasViewImp::onCalibrationExport()
 {
     QString selected_filter;
     QString path_name = QFileDialog::getSaveFileName(nullptr,
-                                                    tr("Export Calibration"),
+                                                    QApplication::translate("CamerasComponent", "Export Calibration", nullptr),
                                                     QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
                                                     //tr("Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
-                                                    tr("Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
+                                                    QApplication::translate("CamerasComponent", "Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)", nullptr),
                                                     &selected_filter);
 
     if (!path_name.isEmpty()) {
@@ -93,9 +93,9 @@ void CamerasViewImp::onCalibrationExport()
         QString format;
         /*if (selectedFilter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
           format = "Pix4D";
-        } else */if (selected_filter.compare("Agisoft Camera Calibration (*.xml)") == 0) {
+        } else */if (selected_filter.compare(QApplication::translate("CamerasComponent", "Agisoft Camera Calibration (*.xml)", nullptr)) == 0) {
             format = "Agisoft";
-        } else if (selected_filter.compare("OpenCV Camera Calibration (*.xml)") == 0) {
+        } else if (selected_filter.compare(QApplication::translate("CamerasComponent", "OpenCV Camera Calibration (*.xml)", nullptr)) == 0) {
             format = "OpenCV";
         } else {
             tl::Message::error("Unsupported format");
@@ -460,50 +460,50 @@ void CamerasViewImp::update()
 
 void CamerasViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("CamerasView", "Cameras", nullptr));
-    mGroupBoxCalibrationParameters->setTitle(QApplication::translate("CamerasView", "Calibration parameters", nullptr));
-    mActionImportCalibration->setText(QApplication::translate("CamerasView", "Import Calibration", nullptr));
-    mActionImportCalibration->setStatusTip(QApplication::translate("CamerasView", "Import Calibration", nullptr));
-    mActionExportCalibration->setText(QApplication::translate("CamerasView", "Export Calibration", nullptr));
-    mActionExportCalibration->setStatusTip(QApplication::translate("CamerasView", "Export Calibration", nullptr));
-    mLabelF->setText(QApplication::translate("CamerasView", "f", nullptr));
-    mLabelFx->setText(QApplication::translate("CamerasView", "fx", nullptr));
-    mLabelFy->setText(QApplication::translate("CamerasView", "fy", nullptr));
-    mLabelCx->setText(QApplication::translate("CamerasView", "cx", nullptr));
-    mLabelCy->setText(QApplication::translate("CamerasView", "cy", nullptr));
-    mLabelK1->setText(QApplication::translate("CamerasView", "k1", nullptr));
-    mLabelK2->setText(QApplication::translate("CamerasView", "k2", nullptr));
-    mLabelK3->setText(QApplication::translate("CamerasView", "k3", nullptr));
-    mLabelK4->setText(QApplication::translate("CamerasView", "k4", nullptr));
-    mLabelK5->setText(QApplication::translate("CamerasView", "k5", nullptr));
-    mLabelK6->setText(QApplication::translate("CamerasView", "k6", nullptr));
-    mLabelP1->setText(QApplication::translate("CamerasView", "p1", nullptr));
-    mLabelP2->setText(QApplication::translate("CamerasView", "p2", nullptr));
-    mLabelImages->setText(QApplication::translate("CamerasView", "Images:", nullptr));
-    mLabelCameras->setText(QApplication::translate("CamerasView", "Cameras:", nullptr));
-    mGroupBoxCamera->setTitle(QApplication::translate("CamerasView", "Camera", nullptr));
-    mLabelType->setText(QApplication::translate("CamerasView", "Type", nullptr));
-    mLabelWidth->setText(QApplication::translate("CamerasView", "Width (pixels)", nullptr));
-    mLabelSensorSize->setText(QApplication::translate("CamerasView", "Sensor size (mm)", nullptr));
-    mLabelFocal->setText(QApplication::translate("CamerasView", "Focal", nullptr));
-    mComboBoxType->setItemText(radial_1, QApplication::translate("CamerasView", "Radial 1", nullptr));
-    mComboBoxType->setItemText(radial_2, QApplication::translate("CamerasView", "Radial 2", nullptr));
-    mComboBoxType->setItemText(pinhole_1, QApplication::translate("CamerasView", "Pinhole 1", nullptr));
-    mComboBoxType->setItemText(pinhole_2, QApplication::translate("CamerasView", "Pinhole 2", nullptr));
-    mComboBoxType->setItemText(opencv_1, QApplication::translate("CamerasView", "OpenCV 1", nullptr));
-    mComboBoxType->setItemText(opencv_2, QApplication::translate("CamerasView", "OpenCV 2", nullptr));
-    mComboBoxType->setItemText(opencv_fisheye, QApplication::translate("CamerasView", "OpenCV Fisheye", nullptr));
-    mComboBoxType->setItemText(radial_fisheye_1, QApplication::translate("CamerasView", "Radial Fisheye 1", nullptr));
-    mComboBoxType->setItemText(radial_fisheye_2, QApplication::translate("CamerasView", "Radial Fisheye 2", nullptr));
+    this->setWindowTitle(QApplication::translate("CamerasComponent", "Cameras", nullptr));
+    mGroupBoxCalibrationParameters->setTitle(QApplication::translate("CamerasComponent", "Calibration parameters", nullptr));
+    mActionImportCalibration->setText(QApplication::translate("CamerasComponent", "Import Calibration", nullptr));
+    mActionImportCalibration->setStatusTip(QApplication::translate("CamerasComponent", "Import Calibration", nullptr));
+    mActionExportCalibration->setText(QApplication::translate("CamerasComponent", "Export Calibration", nullptr));
+    mActionExportCalibration->setStatusTip(QApplication::translate("CamerasComponent", "Export Calibration", nullptr));
+    mLabelF->setText(QApplication::translate("CamerasComponent", "f", nullptr));
+    mLabelFx->setText(QApplication::translate("CamerasComponent", "fx", nullptr));
+    mLabelFy->setText(QApplication::translate("CamerasComponent", "fy", nullptr));
+    mLabelCx->setText(QApplication::translate("CamerasComponent", "cx", nullptr));
+    mLabelCy->setText(QApplication::translate("CamerasComponent", "cy", nullptr));
+    mLabelK1->setText(QApplication::translate("CamerasComponent", "k1", nullptr));
+    mLabelK2->setText(QApplication::translate("CamerasComponent", "k2", nullptr));
+    mLabelK3->setText(QApplication::translate("CamerasComponent", "k3", nullptr));
+    mLabelK4->setText(QApplication::translate("CamerasComponent", "k4", nullptr));
+    mLabelK5->setText(QApplication::translate("CamerasComponent", "k5", nullptr));
+    mLabelK6->setText(QApplication::translate("CamerasComponent", "k6", nullptr));
+    mLabelP1->setText(QApplication::translate("CamerasComponent", "p1", nullptr));
+    mLabelP2->setText(QApplication::translate("CamerasComponent", "p2", nullptr));
+    mLabelImages->setText(QApplication::translate("CamerasComponent", "Images:", nullptr));
+    mLabelCameras->setText(QApplication::translate("CamerasComponent", "Cameras:", nullptr));
+    mGroupBoxCamera->setTitle(QApplication::translate("CamerasComponent", "Camera", nullptr));
+    mLabelType->setText(QApplication::translate("CamerasComponent", "Type", nullptr));
+    mLabelWidth->setText(QApplication::translate("CamerasComponent", "Width (pixels)", nullptr));
+    mLabelSensorSize->setText(QApplication::translate("CamerasComponent", "Sensor size (mm)", nullptr));
+    mLabelFocal->setText(QApplication::translate("CamerasComponent", "Focal", nullptr));
+    mComboBoxType->setItemText(radial_1, QApplication::translate("CamerasComponent", "Radial 1", nullptr));
+    mComboBoxType->setItemText(radial_2, QApplication::translate("CamerasComponent", "Radial 2", nullptr));
+    mComboBoxType->setItemText(pinhole_1, QApplication::translate("CamerasComponent", "Pinhole 1", nullptr));
+    mComboBoxType->setItemText(pinhole_2, QApplication::translate("CamerasComponent", "Pinhole 2", nullptr));
+    mComboBoxType->setItemText(opencv_1, QApplication::translate("CamerasComponent", "OpenCV 1", nullptr));
+    mComboBoxType->setItemText(opencv_2, QApplication::translate("CamerasComponent", "OpenCV 2", nullptr));
+    mComboBoxType->setItemText(opencv_fisheye, QApplication::translate("CamerasComponent", "OpenCV Fisheye", nullptr));
+    mComboBoxType->setItemText(radial_fisheye_1, QApplication::translate("CamerasComponent", "Radial Fisheye 1", nullptr));
+    mComboBoxType->setItemText(radial_fisheye_2, QApplication::translate("CamerasComponent", "Radial Fisheye 2", nullptr));
 
-    mLabelMake->setText(QApplication::translate("CamerasView", "Make", nullptr));
-    mLabelModel->setText(QApplication::translate("CamerasView", "Model", nullptr));
-    mLabelHeight->setText(QApplication::translate("CamerasView", "Height (pixels)", nullptr));
-    mPushButtonEditCamera->setText(QApplication::translate("CamerasView", "Edit Camera", nullptr));
+    mLabelMake->setText(QApplication::translate("CamerasComponent", "Make", nullptr));
+    mLabelModel->setText(QApplication::translate("CamerasComponent", "Model", nullptr));
+    mLabelHeight->setText(QApplication::translate("CamerasComponent", "Height (pixels)", nullptr));
+    mPushButtonEditCamera->setText(QApplication::translate("CamerasComponent", "Edit Camera", nullptr));
 
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("CamerasView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("CamerasView", "Ok"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("CamerasView", "Help"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("CamerasComponent", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("CamerasComponent", "Ok"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("CamerasComponent", "Help"));
 }
 
 auto CamerasViewImp::activeCamera() const -> int

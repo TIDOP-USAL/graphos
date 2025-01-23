@@ -48,8 +48,8 @@ namespace graphos
 CoordinateReferenceSystemViewImp::CoordinateReferenceSystemViewImp(QWidget *parent)
   : CoordinateReferenceSystemView(parent)
 {
-    this->initUI();
-    this->initSignalAndSlots();
+    CoordinateReferenceSystemViewImp::initUI();
+    CoordinateReferenceSystemViewImp::initSignalAndSlots();
 }
 
 CoordinateReferenceSystemViewImp::~CoordinateReferenceSystemViewImp()
@@ -242,7 +242,7 @@ void CoordinateReferenceSystemViewImp::initUI()
     gridLayout->addWidget(mLabel2d3dCRS, 0, 0, 1, 1);
     mLineEditCRS = new QLineEdit(this);
     gridLayout->addWidget(mLineEditCRS, 0, 1, 1, 1);
-    mCheckBoxVerticalCRS = new QCheckBox("Set vertical CRS:", this);
+    mCheckBoxVerticalCRS = new QCheckBox(this);
     gridLayout->addWidget(mCheckBoxVerticalCRS, 0, 2, 1, 1);
     mLineEditVerticalCRS = new QLineEdit(this);
     gridLayout->addWidget(mLineEditVerticalCRS, 0, 3, 1, 1);
@@ -252,7 +252,6 @@ void CoordinateReferenceSystemViewImp::initUI()
     gridLayout->addWidget(mCRSTree, 2, 0, 1, 2);
     mVerticalCRSTree = new QTreeWidget(this);
     mVerticalCRSTree->setColumnCount(1);
-    mVerticalCRSTree->setHeaderLabel("Vertical CRS");
     gridLayout->addWidget(mVerticalCRSTree, 2, 2, 1, 2);
 
     mTextEdidCRSDetails = new QTextEdit(this);
@@ -291,11 +290,13 @@ void CoordinateReferenceSystemViewImp::initSignalAndSlots()
 
 void CoordinateReferenceSystemViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("CoordinateReferenceSystemView", "Coordinate Reference System"));
-    mLabel2d3dCRS->setText(QApplication::translate("SearchView", "2D/3D CRS:"));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("CoordinateReferenceSystemView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("CoordinateReferenceSystemView", "Apply"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("CoordinateReferenceSystemView", "Help"));
+    this->setWindowTitle(QApplication::translate("CoordinateReferenceSystemComponent", "Coordinate Reference System"));
+    mLabel2d3dCRS->setText(QApplication::translate("CoordinateReferenceSystemComponent", "2D/3D CRS:"));
+    mCheckBoxVerticalCRS->setText(QApplication::translate("CoordinateReferenceSystemComponent", "Set vertical CRS:"));
+    mVerticalCRSTree->setHeaderLabel(QApplication::translate("CoordinateReferenceSystemComponent", "Vertical CRS"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("CoordinateReferenceSystemComponent", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("CoordinateReferenceSystemComponent", "Apply"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("CoordinateReferenceSystemComponent", "Help"));
 }
 
 void CoordinateReferenceSystemViewImp::clear()

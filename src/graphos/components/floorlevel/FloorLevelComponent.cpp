@@ -220,7 +220,7 @@ void FloorLevelComponent::pointClicked(const QVector3D &point)
 void FloorLevelComponent::init()
 {
     mAction = new QAction();
-    setName(tr("Floor Level"));
+    setName(QApplication::translate("FloorLevelComponent", "Floor Level"));
     setMenu("tools");
     connect(mAction, &QAction::triggered,
             this, &FloorLevelComponent::open);

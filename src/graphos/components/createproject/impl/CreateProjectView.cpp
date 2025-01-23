@@ -134,16 +134,16 @@ void CreateProjectViewImp::update()
 
 void CreateProjectViewImp::retranslate()
 {
-    setWindowTitle(QApplication::translate("CreateProjectView", "New Project", nullptr));
-    mLabelProjectName->setText(QApplication::translate("CreateProjectView", "Project Name", nullptr));
-    mLabelProjectPath->setText(QApplication::translate("CreateProjectView", "Project Path", nullptr));
-    mLabelProjectFile->setText(QApplication::translate("CreateProjectView", "Project File", nullptr));
-    mCheckBoxProjectFolder->setText(QApplication::translate("CreateProjectView", "Create folder with project name", nullptr));
-    mLabelDescription->setText(QApplication::translate("CreateProjectView", "Description", nullptr));
+    setWindowTitle(QApplication::translate("CreateProjectComponent", "New Project", nullptr));
+    mLabelProjectName->setText(QApplication::translate("CreateProjectComponent", "Project Name", nullptr));
+    mLabelProjectPath->setText(QApplication::translate("CreateProjectComponent", "Project Path", nullptr));
+    mLabelProjectFile->setText(QApplication::translate("CreateProjectComponent", "Project File", nullptr));
+    mCheckBoxProjectFolder->setText(QApplication::translate("CreateProjectComponent", "Create folder with project name", nullptr));
+    mLabelDescription->setText(QApplication::translate("CreateProjectComponent", "Description", nullptr));
 
-    mButtonBox->button(QDialogButtonBox::Save)->setText(QApplication::translate("CreateProjectView", "Save", nullptr));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("CreateProjectView", "Cancel", nullptr));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("CreateProjectView", "Help", nullptr));
+    mButtonBox->button(QDialogButtonBox::Save)->setText(QApplication::translate("CreateProjectComponent", "Save", nullptr));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("CreateProjectComponent", "Cancel", nullptr));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("CreateProjectComponent", "Help", nullptr));
 }
 
 auto CreateProjectViewImp::projectName() const -> QString
@@ -188,7 +188,7 @@ auto CreateProjectViewImp::setExistingProject(bool prjExist) -> void
 void CreateProjectViewImp::onClickButtonSelectPath()
 {
     QString pathName = QFileDialog::getExistingDirectory(this,
-                                                         tr("Project path"),
+                                                         QApplication::translate("CreateProjectComponent", "Project path", nullptr),
                                                          mLineEditProjectPath->text(),
                                                          QFileDialog::ShowDirsOnly |
                                                          QFileDialog::DontResolveSymlinks);

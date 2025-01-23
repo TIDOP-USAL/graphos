@@ -31,6 +31,7 @@
 #include "graphos/core/utils.h"
 
 #include <QMessageBox>
+#include <QApplication>
 
 namespace graphos
 {
@@ -83,7 +84,7 @@ void MeshPresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Process error"));
+        progressHandler()->setDescription(QApplication::translate("MeshComponent", "Task error"));
     }
 }
 
@@ -92,7 +93,7 @@ void MeshPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Process finished"));
+        progressHandler()->setDescription(QApplication::translate("MeshComponent", "Task finished"));
     }
 
     tl::Path mesh = mModel->projectDir();
@@ -109,9 +110,9 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createTask()
 
     if (mesh_model.exists()) {
         int i_ret = QMessageBox(QMessageBox::Warning,
-            tr("Previous results"),
-            tr("The previous results will be overwritten. Do you wish to continue?"),
-            QMessageBox::Yes | QMessageBox::No).exec();
+                                QApplication::translate("MeshComponent", "Previous results"),
+                                QApplication::translate("MeshComponent", "The previous results will be overwritten. Do you wish to continue?"),
+                                QMessageBox::Yes | QMessageBox::No).exec();
         if (i_ret == QMessageBox::No) {
             tl::Message::warning("Process canceled by user");
             return mesh_task;
@@ -162,8 +163,8 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createTask()
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);
-        progressHandler()->setTitle("Poisson surface reconstruction");
-        progressHandler()->setDescription("Computing Poisson Reconstruction");
+        progressHandler()->setTitle(QApplication::translate("MeshComponent", "Poisson Surface Reconstruction"));
+        progressHandler()->setDescription(QApplication::translate("MeshComponent", "Processing mesh..."));
     }
 
     mView->hide();
@@ -175,7 +176,7 @@ void MeshPresenterImp::cancel()
 {
     TaskPresenter::cancel();
 
-    tl::Message::warning("Processing has been canceled by the user");
+    tl::Message::warning("Task canceled by the user");
 }
 
 } // namespace graphos

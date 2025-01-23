@@ -48,13 +48,13 @@ SaveProjectAsComponent::~SaveProjectAsComponent()
 
 void SaveProjectAsComponent::init()
 {
-    setName(tr("Save Project As..."));
+    setName(QApplication::translate("SaveProjectAsComponent", "Save Project As..."));
     setMenu("file");
     setToolbar("file");
     setIcon(QIcon::fromTheme("save-as"));
 
 #ifndef QT_NO_SHORTCUT
-    action()->setShortcut(tr("Ctrl+Shift+S"));
+    action()->setShortcut(QString("Ctrl+Shift+S"));
 #endif // QT_NO_SHORTCUT
 }
 

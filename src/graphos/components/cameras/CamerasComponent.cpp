@@ -47,7 +47,7 @@ CamerasComponent::~CamerasComponent()
 
 void CamerasComponent::init()
 {
-    setName(tr("Cameras"));
+    setName(QApplication::translate("CamerasComponent", "Cameras"));
     setMenu("tools");
     setToolbar("tools");
     setIcon(QIcon::fromTheme("cameras"));

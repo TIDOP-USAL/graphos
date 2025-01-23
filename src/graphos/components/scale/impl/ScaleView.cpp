@@ -95,15 +95,15 @@ void ScaleViewImp::initSignalAndSlots()
 
 void ScaleViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("ScaleView", "Scale"));
+    this->setWindowTitle(QApplication::translate("ScaleComponent", "Scale"));
 
-    mLabelDistance->setText(QApplication::translate("DistanceView", "Length (m):"));
-    mLabelDistanceReal->setText(QApplication::translate("DistanceView", "Length in the model (m):"));
+    mLabelDistance->setText(QApplication::translate("ScaleComponent", "Length (m):"));
+    mLabelDistanceReal->setText(QApplication::translate("ScaleComponent", "Length in the model (m):"));
 
 
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ScaleView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("ScaleView", "Scale"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ScaleView", "Help"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ScaleComponent", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("ScaleComponent", "Scale"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ScaleComponent", "Help"));
 }
 
 void ScaleViewImp::clear()
@@ -128,7 +128,6 @@ double ScaleViewImp::distanceReal() const
 
 void ScaleViewImp::setDistance(double distance)
 {
-    //const QSignalBlocker blocker(mDoubleSpinBoxDistance);
     mDoubleSpinBoxDistance->setValue(distance);
 }
 

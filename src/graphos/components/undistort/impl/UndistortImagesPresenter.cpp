@@ -75,7 +75,7 @@ void UndistortImagesPresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Process error"));
+        progressHandler()->setDescription(QCoreApplication::translate("UndistortImagesComponent", "Task error"));
     }
 }
 
@@ -84,7 +84,7 @@ void UndistortImagesPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Process finished"));
+        progressHandler()->setDescription(QCoreApplication::translate("UndistortImagesComponent", "Task finished"));
     }
 }
 
@@ -98,8 +98,8 @@ auto UndistortImagesPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
     if (progressHandler()) {
         progressHandler()->setRange(0, mModel->images().size());
-        progressHandler()->setTitle("Computing UndistortImages...");
-        progressHandler()->setDescription("Computing UndistortImages...");
+        progressHandler()->setTitle(QCoreApplication::translate("UndistortImagesComponent", "Undistort Images"));
+        progressHandler()->setDescription(QCoreApplication::translate("UndistortImagesComponent", "Undistorting images..."));
     }
 
     return process;
@@ -109,7 +109,7 @@ void UndistortImagesPresenterImp::cancel()
 {
     TaskPresenter::cancel();
 
-    tl::Message::warning("Processing has been canceled by the user");
+    tl::Message::warning("Task has been canceled by the user");
 }
 
 } // namespace graphos

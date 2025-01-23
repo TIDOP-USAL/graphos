@@ -33,7 +33,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QApplication>
-//#include <QDialogButtonBox>
 #include <QPushButton>
 #include <QTableView>
 #include <QComboBox>
@@ -251,9 +250,9 @@ void GroundControlPointsViewImp::importGCP()
 {
     QString selected_filter;
     QString path = QFileDialog::getOpenFileName(nullptr,
-                                                tr("Import Ground Control Points"),
+                                                QApplication::translate("GroundControlPointsComponent", "Import Ground Control Points"),
                                                 QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-                                                tr("Open Drone Map (*.txt)"),
+                                                "Open Drone Map (*.txt)",
                                                 &selected_filter);
 
     if (!path.isEmpty()) {
@@ -272,9 +271,9 @@ void GroundControlPointsViewImp::exportGCP()
 {
     QString selected_filter;
     QString path = QFileDialog::getSaveFileName(nullptr,
-                                                tr("Export Ground Control Points"),
+                                                QApplication::translate("GroundControlPointsComponent", "Export Ground Control Points"),
                                                 QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-                                                tr("Open Drone Map (*.txt)"),
+                                                "Open Drone Map (*.txt)",
                                                 &selected_filter);
 
     if (!path.isEmpty()) {
@@ -421,14 +420,14 @@ void GroundControlPointsViewImp::update()
 
 void GroundControlPointsViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("GroundControlPointsViewImp", "GroundControlPoints", nullptr));
-    mLabelCRS->setText(QCoreApplication::translate("GroundControlPointsViewImp", "Coordinate Reference System:", nullptr));
-    mActionNew->setText(QCoreApplication::translate("GroundControlPointsViewImp", "New", nullptr));
-    mActionSave->setText(QCoreApplication::translate("GroundControlPointsViewImp", "Save", nullptr));
-    mActionAddPoint->setText(QCoreApplication::translate("GroundControlPointsViewImp", "Add point", nullptr));
-    mActionDeletePoint->setText(QCoreApplication::translate("GroundControlPointsViewImp", "Remove", nullptr));
-    mLabelImagePoints->setText(QCoreApplication::translate("GroundControlPointsViewImp", "Image Points:", nullptr));
-    mLabelImage->setText(QCoreApplication::translate("GroundControlPointsViewImp", "Image:", nullptr));
+    this->setWindowTitle(QApplication::translate("GroundControlPointsComponent", "Ground Control Points", nullptr));
+    mLabelCRS->setText(QCoreApplication::translate("GroundControlPointsComponent", "Coordinate Reference System:", nullptr));
+    mActionNew->setText(QCoreApplication::translate("GroundControlPointsComponent", "New", nullptr));
+    mActionSave->setText(QCoreApplication::translate("GroundControlPointsComponent", "Save", nullptr));
+    mActionAddPoint->setText(QCoreApplication::translate("GroundControlPointsComponent", "Add point", nullptr));
+    mActionDeletePoint->setText(QCoreApplication::translate("GroundControlPointsComponent", "Remove", nullptr));
+    mLabelImagePoints->setText(QCoreApplication::translate("GroundControlPointsComponent", "Image Points:", nullptr));
+    mLabelImage->setText(QCoreApplication::translate("GroundControlPointsComponent", "Image:", nullptr));
 }
 
 void GroundControlPointsViewImp::setProjectPath(const QString &path)

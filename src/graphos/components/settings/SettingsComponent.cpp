@@ -40,7 +40,7 @@ namespace graphos
 SettingsComponent::SettingsComponent(Application *application)
   : ComponentBase(application)
 {
-    ComponentBase::setName(tr("Settings"));
+    ComponentBase::setName(QApplication::translate("SettingsComponent", "Settings"));
     ComponentBase::setMenu("tools");
     ComponentBase::setToolbar("tools");
     ComponentBase::setIcon(QIcon::fromTheme("settings"));

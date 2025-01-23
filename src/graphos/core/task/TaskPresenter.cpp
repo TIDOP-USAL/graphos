@@ -63,7 +63,7 @@ void TaskPresenter::onFinished(tl::TaskFinalizedEvent *event)
     if (mProgressHandler) {
         mProgressHandler->finish();
         mProgressHandler->reset();
-        mProgressHandler->setDescription(tr("Process Finished"));
+        mProgressHandler->setDescription(tr("Task Finished"));
 
         disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
     }
@@ -78,7 +78,7 @@ void TaskPresenter::onStopped(tl::TaskStoppedEvent *event)
     if (mProgressHandler) {
         mProgressHandler->finish();
         mProgressHandler->reset();
-        mProgressHandler->setDescription(tr("Process canceled"));
+        mProgressHandler->setDescription(tr("Task canceled"));
 
         disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
     }
@@ -145,7 +145,7 @@ void TaskPresenter::cancel()
     if (mTask) {
         mTask->stop();
         if (mProgressHandler) {
-            mProgressHandler->setDescription(tr("Stopping process"));
+            mProgressHandler->setDescription(tr("Stopping task"));
         }
     }
 }

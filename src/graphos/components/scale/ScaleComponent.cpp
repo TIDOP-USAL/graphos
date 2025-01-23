@@ -48,7 +48,7 @@ ScaleComponent::~ScaleComponent()
 
 void ScaleComponent::init()
 {
-    setName(tr("Scale"));
+    setName(QApplication::translate("ScaleComponent", "Scale"));
     setMenu("tools");
     setToolbar("tools");
     setIcon(QIcon::fromTheme("scale"));

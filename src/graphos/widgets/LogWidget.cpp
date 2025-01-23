@@ -194,7 +194,7 @@ void LogWidget::initUI()
 
     mClearAction = new QAction(this);
     mClearAction->setIcon(QIcon::fromTheme("clean-console"));
-    mClearAction->setStatusTip(tr("Clean log"));
+    mClearAction->setStatusTip(QApplication::translate("LogWidget", "Clean log"));
     toolBar->addAction(mClearAction);
 
     mGridLayout->setMargin(0);

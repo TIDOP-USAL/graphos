@@ -30,7 +30,7 @@
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoTask.h"
 #include "graphos/core/utils.h"
 
-#include <tidop/core/defs.h>
+#include <QApplication>
 
 namespace graphos
 {
@@ -84,7 +84,7 @@ void LoadFromVideoPresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Process error"));
+        progressHandler()->setDescription(QApplication::translate("LoadFromVideoComponent", "Task error"));
     }
 }
 
@@ -93,7 +93,7 @@ void LoadFromVideoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Process finished"));
+        progressHandler()->setDescription(QApplication::translate("LoadFromVideoComponent", "Task finished"));
     }
 }
 
@@ -127,8 +127,8 @@ auto LoadFromVideoPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
     if (progressHandler()) {
         progressHandler()->setRange(0, (static_cast<size_t>(end) - begin) / skip_frames);
-        progressHandler()->setTitle("Frame extraction...");
-        progressHandler()->setDescription("Frame extraction...");
+        progressHandler()->setTitle(QApplication::translate("LoadFromVideoComponent", "Frame extraction"));
+        progressHandler()->setDescription(QApplication::translate("LoadFromVideoComponent", "Video frame extraction..."));
     }
 
     mView->hide();
@@ -140,7 +140,7 @@ void LoadFromVideoPresenterImp::cancel()
 {
     TaskPresenter::cancel();
 
-    tl::Message::warning("Processing has been canceled by the user");
+    tl::Message::warning("Task has been canceled by the user");
 }
 
 } // namespace graphos

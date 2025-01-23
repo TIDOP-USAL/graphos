@@ -166,7 +166,7 @@ void MvsWidget::retranslate()
     mComboBoxQuality->setItemText(2, QApplication::translate("MvsWidget", "Medium"));
     mComboBoxQuality->setItemText(3, QApplication::translate("MvsWidget", "Low"));
     mLabelNumberViews->setText(QApplication::translate("MvsWidget", "Number Views:"));
-    mLabelNumberViewsFuse->setText(QApplication::translate("MvsWidget", "Number Views Fuse:"));
+    mLabelNumberViewsFuse->setText(QApplication::translate("MvsWidget", "Number of views to fuse:"));
     mCheckBoxEstimateColors->setText(QApplication::translate("MvsWidget", "Estimate colors"));
     mCheckBoxEstimateNormals->setText(QApplication::translate("MvsWidget", "Estimate normals"));
 }

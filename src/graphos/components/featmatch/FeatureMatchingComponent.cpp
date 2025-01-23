@@ -50,7 +50,7 @@ FeatureMatchingComponent::~FeatureMatchingComponent()
 
 void FeatureMatchingComponent::init()
 {
-    setName(tr("Feature Matching"));
+    setName(QApplication::translate("FeatureMatchingComponent", "Feature Matching"));
     setMenu("workflow");
     setToolbar("workflow");
     setIcon(QIcon::fromTheme("matching"));

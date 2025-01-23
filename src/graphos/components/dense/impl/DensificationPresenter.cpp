@@ -37,6 +37,7 @@
 
 #include <QMessageBox>
 #include <QFileInfo>
+#include <QApplication>
 
 #include <memory>
 
@@ -88,7 +89,7 @@ void DensificationPresenterImp::cancel()
 {
     TaskPresenter::cancel();
 
-    tl::Message::warning("Processing has been canceled by the user");
+    tl::Message::warning("Task canceled by the user");
 }
 
 void DensificationPresenterImp::setCurrentDensifier(const QString &densifier)
@@ -194,7 +195,7 @@ void DensificationPresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Densification error"));
+        progressHandler()->setDescription(QApplication::translate("DensificationComponent", "Task error"));
     }
 }
 
@@ -208,7 +209,7 @@ void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Densification finished"));
+        progressHandler()->setDescription(QApplication::translate("DensificationComponent", "Task finished"));
     }
 
 }
@@ -219,8 +220,8 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
 
     if (mModel->existDenseModel()) {
         int i_ret = QMessageBox(QMessageBox::Warning,
-                                tr("Previous results"),
-                                tr("The previous results will be overwritten. Do you wish to continue?"),
+                                QApplication::translate("DensificationComponent", "Previous results"),
+                                QApplication::translate("DensificationComponent", "The previous results will be overwritten. Do you wish to continue?"),
                                 QMessageBox::Yes | QMessageBox::No).exec();
         if (i_ret == QMessageBox::No) {
             tl::Message::warning("Process canceled by user");
@@ -348,8 +349,8 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);
-        progressHandler()->setTitle("Generating dense model...");
-        progressHandler()->setDescription("Generating dense model...");
+        progressHandler()->setTitle(QApplication::translate("DensificationComponent", "Densification"));
+        progressHandler()->setDescription(QApplication::translate("DensificationComponent", "Generating dense model..."));
     }
 
     mView->hide();

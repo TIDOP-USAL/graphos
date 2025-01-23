@@ -173,14 +173,14 @@ void TabWidget::onTabWidgetContextMenu(const QPoint &position)
 
     QPoint globalPos = mapToGlobal(position);
     if (QAction *action = mMenu->exec(globalPos)) {
-        if (action->text() == tr("Close")) {
+        if (action->text() == QApplication::translate("TabWidget", "Close")) {
             closeTab(tab_index);
-        } else if (action->text() == tr("Close all tabs")) {
+        } else if (action->text() == QApplication::translate("TabWidget", "Close all tabs")) {
             int n = this->count();
             for (int i = 0; i < n; i++) {
                 closeTab(0);
             }
-        } else if (action->text() == tr("Close all tabs but current one")) {
+        } else if (action->text() == QApplication::translate("TabWidget", "Close all tabs but current one")) {
             int n = this->count();
             int tab_to_close_id = 0;
             QString tab_text = this->tabBar()->tabText(tab_index);

@@ -52,8 +52,8 @@ void CreateProjectPresenterImp::open()
 {
     if (mAppStatus->isEnabled(AppStatus::Flag::project_modified)) {
 
-        QString title = QObject::tr("Save Changes");
-        QString message = QObject::tr("There are unsaved changes. Do you want to save them?");
+        QString title = QApplication::translate("CreateProjectComponent", "Save Changes");
+        QString message = QApplication::translate("CreateProjectComponent", "There are unsaved changes. Do you want to save them?");
         int i_ret = QMessageBox(QMessageBox::Information, title, message,
                                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
 

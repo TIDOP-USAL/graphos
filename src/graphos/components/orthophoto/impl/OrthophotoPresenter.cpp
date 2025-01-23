@@ -30,6 +30,7 @@
 
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QApplication>
 
 namespace graphos
 {
@@ -78,7 +79,7 @@ void OrthophotoPresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if(progressHandler()) {
-        progressHandler()->setDescription(tr("Orthophoto process error"));
+        progressHandler()->setDescription(QApplication::translate("OrthophotoComponent", "Orthophoto task error"));
     }
 }
 
@@ -87,7 +88,7 @@ void OrthophotoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if(progressHandler()) {
-        progressHandler()->setDescription(tr("Orthophoto finished"));
+        progressHandler()->setDescription(QApplication::translate("OrthophotoComponent", "Orthophoto finished"));
     }
         
     tl::Path ortho_path = mModel->projectFolder();
@@ -138,8 +139,8 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
 
     if(progressHandler()) {
         progressHandler()->setRange(0, 0);
-        progressHandler()->setTitle("Computing Orthophoto...");
-        progressHandler()->setDescription("Computing Orthophoto...");
+        progressHandler()->setTitle(QApplication::translate("OrthophotoComponent", "Orthophoto"));
+        progressHandler()->setDescription(QApplication::translate("OrthophotoComponent", "Orthophoto generation..."));
     }
 
     mView->hide();

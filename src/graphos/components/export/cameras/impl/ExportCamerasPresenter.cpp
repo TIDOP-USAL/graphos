@@ -35,7 +35,7 @@
 #include <tidop/core/defs.h>
 #include <tidop/geometry/entities/point.h>
 
-
+#include <QApplication>
 
 namespace graphos
 {
@@ -105,7 +105,7 @@ void ExportCamerasPresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Export cameras error"));
+        progressHandler()->setDescription(QApplication::translate("ExportCamerasComponent", "Task error"));
     }
 }
 
@@ -114,7 +114,7 @@ void ExportCamerasPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Export cameras finished"));
+        progressHandler()->setDescription(QApplication::translate("ExportCamerasComponent", "Task finished"));
     }
 }
 
@@ -125,8 +125,8 @@ auto ExportCamerasPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);
         progressHandler()->setCloseAuto(true);
-        progressHandler()->setTitle("Export Cameras...");
-        progressHandler()->setDescription("Export Cameras poses...");
+        progressHandler()->setTitle(QApplication::translate("ExportCamerasComponent", "Export Cameras"));
+        progressHandler()->setDescription(QApplication::translate("ExportCamerasComponent", "Exporting camera poses..."));
     }
 
     tl::Path export_file_path(mOriTxtFormatWidget->file().toStdString());

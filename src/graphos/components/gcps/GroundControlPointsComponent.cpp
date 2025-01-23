@@ -50,7 +50,7 @@ GroundControlPointsComponent::~GroundControlPointsComponent()
 
 void GroundControlPointsComponent::init()
 {
-    setName(tr("Ground Control Points"));
+    setName(QApplication::translate("GroundControlPointsComponent", "Ground Control Points"));
     setMenu("tools");
     setToolbar("tools");
     setIcon(QIcon::fromTheme("orientation"));

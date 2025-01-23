@@ -180,14 +180,14 @@ void MatchViewerSettingsWidget::update()
 
 void MatchViewerSettingsWidget::retranslate()
 {
-    setWindowTitle(QApplication::translate("MatchViewerSettingsWidget", "Match viewer", nullptr));
+    setWindowTitle(QApplication::translate("MatchViewerSettingsWidget", "Matching Viewer", nullptr));
     mLabelBackgroundColor->setText(QApplication::translate("MatchViewerSettingsWidget", "Background Color:", nullptr));
     mGroupBoxMVMarker->setTitle(QApplication::translate("MatchViewerSettingsWidget", "Marker", nullptr));
     mLabelMarkerType->setText(QApplication::translate("MatchViewerSettingsWidget", "Type:", nullptr));
     mLabelMarkerSize->setText(QApplication::translate("MatchViewerSettingsWidget", "Size:", nullptr));
     mLabelMarkerWidth->setText(QApplication::translate("MatchViewerSettingsWidget", "Width:", nullptr));
     mLabelMarkerColor->setText(QApplication::translate("MatchViewerSettingsWidget", "Color:", nullptr));
-    mGroupBoxSelectMatches->setTitle(QApplication::translate("MatchViewerSettingsWidget", "Select matches", nullptr));
+    mGroupBoxSelectMatches->setTitle(QApplication::translate("MatchViewerSettingsWidget", "Selected marker", nullptr));
     mLabelSelectMarkerWidth->setText(QApplication::translate("MatchViewerSettingsWidget", "Width:", nullptr));
     mLabelSelectMarkerColor->setText(QApplication::translate("MatchViewerSettingsWidget", "Color:", nullptr));
     mGroupBoxLine->setTitle(QApplication::translate("MatchViewerSettingsWidget", "Line", nullptr));
@@ -232,7 +232,7 @@ void MatchViewerSettingsWidget::initUI()
     mLineEditBackgroundColor = new QLineEdit(this);
     mLineEditBackgroundColor->setText("#dcdcdc");
     grid_layout_contents_matches_viewer->addWidget(mLineEditBackgroundColor, 0, 1, 1, 1);
-    mPushButtonBackgroundColor = new QPushButton(tr("..."), this);
+    mPushButtonBackgroundColor = new QPushButton("...", this);
     mPushButtonBackgroundColor->setMaximumSize(QSize(23, 23));
     grid_layout_contents_matches_viewer->addWidget(mPushButtonBackgroundColor, 0, 2, 1, 1);
 
@@ -320,7 +320,7 @@ void MatchViewerSettingsWidget::initUI()
     mLineEditLineColor = new QLineEdit(this);
     mLineEditLineColor->setText("#e5097e");
     layout_mv_line->addWidget(mLineEditLineColor, 1, 1, 1, 1);
-    mPushButtonLineColor = new QPushButton(tr("..."), this);
+    mPushButtonLineColor = new QPushButton("...", this);
     mPushButtonLineColor->setMaximumSize(QSize(23, 23));
     layout_mv_line->addWidget(mPushButtonLineColor, 1, 2, 1, 1);
 

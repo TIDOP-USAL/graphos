@@ -106,18 +106,18 @@ void OrthophotoViewImp::initSignalAndSlots()
 
 void OrthophotoViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("OrthophotoView", "Orthophoto"));
+    this->setWindowTitle(QApplication::translate("OrthophotoComponent", "Orthophoto"));
 
-    mLabelGSD->setText(QApplication::translate("OrthophotoView", "Resolution (m):"));
-    mLabelCRS->setText(QApplication::translate("OrthophotoView", "CRS"));
-    mLabelInterpolation->setText(QApplication::translate("OrthophotoView", "Interpolation"));
-    mComboBoxInterpolation->setItemText(0, QApplication::translate("OrthophotoView", "Nearest"));
-    mComboBoxInterpolation->setItemText(1, QApplication::translate("OrthophotoView", "Bilinear"));
-    mComboBoxInterpolation->setItemText(2, QApplication::translate("OrthophotoView", "Bicubic"));
+    mLabelGSD->setText(QApplication::translate("OrthophotoComponent", "Resolution (m):"));
+    mLabelCRS->setText(QApplication::translate("OrthophotoComponent", "CRS"));
+    mLabelInterpolation->setText(QApplication::translate("OrthophotoComponent", "Interpolation"));
+    mComboBoxInterpolation->setItemText(0, QApplication::translate("OrthophotoComponent", "Nearest"));
+    mComboBoxInterpolation->setItemText(1, QApplication::translate("OrthophotoComponent", "Bilinear"));
+    mComboBoxInterpolation->setItemText(2, QApplication::translate("OrthophotoComponent", "Bicubic"));
 
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("OrthophotoView", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("OrthophotoView", "Run"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("OrthophotoView", "Help"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("OrthophotoComponent", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("OrthophotoComponent", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("OrthophotoComponent", "Help"));
 }
 
 void OrthophotoViewImp::clear()

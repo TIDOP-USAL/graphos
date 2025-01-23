@@ -38,6 +38,7 @@
 #include <QDir>
 #include <QImageReader>
 #include <QMessageBox>
+#include <QApplication>
 
 namespace graphos
 {
@@ -90,7 +91,7 @@ void FeatureExtractorPresenterImp::cancel()
 {
     TaskPresenter::cancel();
 
-    tl::Message::warning("Processing has been canceled by the user");
+    tl::Message::warning("Task canceled by the user");
 }
 
 void FeatureExtractorPresenterImp::setCurrentDetectorDescriptor(const QString &detectorDescriptor)
@@ -131,7 +132,7 @@ void FeatureExtractorPresenterImp::onError(tl::TaskErrorEvent* event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Feature detection and description error"));
+        progressHandler()->setDescription(QApplication::translate("FeatureExtractorComponent", "Task error"));
     }
 }
 
@@ -140,7 +141,7 @@ void FeatureExtractorPresenterImp::onFinished(tl::TaskFinalizedEvent* event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Feature detection and description finished"));
+        progressHandler()->setDescription(QApplication::translate("FeatureExtractorComponent", "Task finished"));
     }
 }
 
@@ -151,8 +152,8 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createTask()
     if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()) {
 
         int i_ret = QMessageBox(QMessageBox::Warning,
-                                tr("Previous results"),
-                                tr("The previous results will be overwritten. Do you wish to continue?"),
+                                QApplication::translate("FeatureExtractorComponent", "Previous results"),
+                                QApplication::translate("FeatureExtractorComponent", "The previous results will be overwritten. Do you wish to continue?"),
                                 QMessageBox::Yes | QMessageBox::No).exec();
 
         if (i_ret == QMessageBox::No) {
@@ -219,8 +220,8 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createTask()
 
     if (progressHandler()) {
         progressHandler()->setRange(0, images.size());
-        progressHandler()->setTitle("Computing Features...");
-        progressHandler()->setDescription("Computing Features...");
+        progressHandler()->setTitle(QApplication::translate("FeatureExtractorComponent", "Feature Extraction"));
+        progressHandler()->setDescription(QApplication::translate("FeatureExtractorComponent", "Image feature extraction..."));
     }
 
     mView->hide();

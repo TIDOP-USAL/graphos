@@ -109,7 +109,7 @@ void ProgressBarWidget::update()
 
 void ProgressBarWidget::retranslate()
 {
-    mActionCancel->setText(QApplication::translate("ProgressBarWidget", "Cancel Process"));
+    mActionCancel->setText(QApplication::translate("ProgressBarWidget", "Cancel Task"));
     mActionMaximize->setText(QApplication::translate("ProgressBarWidget", "Maximize"));
 }
 

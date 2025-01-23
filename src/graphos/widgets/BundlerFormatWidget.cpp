@@ -94,7 +94,7 @@ void BundlerFormatWidget::update()
 
 void BundlerFormatWidget::retranslate()
 {
-    mLabelFile->setText(QApplication::translate("BundlerFormatWidgett", "Bundler File", nullptr));
+    mLabelFile->setText(QApplication::translate("BundlerFormatWidget", "Bundler File", nullptr));
 }
 
 void BundlerFormatWidget::setFile(const QString &file)
@@ -111,9 +111,9 @@ QString BundlerFormatWidget::file() const
 void BundlerFormatWidget::onPushButtonSelectPath()
 {
     QString bundler_file = QFileDialog::getSaveFileName(nullptr,
-                                                    tr("Bundler file"),
+                                                    QApplication::translate("BundlerFormatWidget", "Bundler File", nullptr),
                                                     QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-                                                    tr("Bundler v3 (*.out)"));
+                                                    "Bundler v3 (*.out)");
 
     if (!bundler_file.isEmpty()) {
         mLineEditFile->setText(bundler_file);

@@ -23,6 +23,8 @@
 
 #include "ImageLoaderView.h"
 
+#include <QApplication>
+
 namespace graphos
 {
 
@@ -34,9 +36,9 @@ ImageLoaderViewImp::ImageLoaderViewImp(QWidget *parent)
 
 void ImageLoaderViewImp::init()
 {
-    QFileDialog::setWindowTitle(tr("Add images"));
+    QFileDialog::setWindowTitle(QApplication::translate("ImageLoaderComponent", "Add images"));
     QFileDialog::setFileMode(QFileDialog::ExistingFiles);
-    QFileDialog::setNameFilter(tr("Image files (*.tif *.tiff *.jpg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg)"));
+    QFileDialog::setNameFilter(QApplication::translate("ImageLoaderComponent", "Image files (*.tif *.tiff *.jpg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg)"));
 }
 
 void ImageLoaderViewImp::setImagesDirectory(const QString &directory)

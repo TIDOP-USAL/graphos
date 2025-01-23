@@ -47,7 +47,7 @@ FeaturesViewerComponent::~FeaturesViewerComponent()
 
 void FeaturesViewerComponent::init()
 {
-    setName(tr("Features Viewer"));
+    setName(QApplication::translate("FeaturesViewerComponent", "Features Viewer"));
     setMenu("tools");
     setToolbar("tools");
     setIcon(QIcon::fromTheme("features-viewer"));

@@ -169,22 +169,22 @@ void MatchViewerViewImp::update()
 
 void MatchViewerViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("MatchViewerView", "Match Viewer"));
-    mLabelLeftImage->setText(QApplication::translate("MatchViewerView", "Left Image:"));
-    mLabelRightImage->setText(QApplication::translate("MatchViewerView", "Right Image:"));
-    mLabelMatches->setText(QApplication::translate("MatchViewerView", "Matches:"));
+    this->setWindowTitle(QApplication::translate("MatchViewerComponent", "Matching Viewer"));
+    mLabelLeftImage->setText(QApplication::translate("MatchViewerComponent", "Left Image:"));
+    mLabelRightImage->setText(QApplication::translate("MatchViewerComponent", "Right Image:"));
+    mLabelMatches->setText(QApplication::translate("MatchViewerComponent", "Matches:"));
     QTreeWidgetItem *qTreeWidgetItem = mTreeWidgetMatches->headerItem();
     qTreeWidgetItem->setText(0, "ID");
-    qTreeWidgetItem->setText(1, QApplication::translate("MatchViewerView", "Keypoint Left"));
-    qTreeWidgetItem->setText(2, QApplication::translate("MatchViewerView", "Left X"));
-    qTreeWidgetItem->setText(3, QApplication::translate("MatchViewerView", "Left Y"));
-    qTreeWidgetItem->setText(4, QApplication::translate("MatchViewerView", "Keypoint Right"));
-    qTreeWidgetItem->setText(5, QApplication::translate("MatchViewerView", "Right X"));
-    qTreeWidgetItem->setText(6, QApplication::translate("MatchViewerView", "Right Y"));
-    qTreeWidgetItem->setText(7, QApplication::translate("MatchViewerView", "Distance"));
-    mPushButtonDeleteMatch->setText(QApplication::translate("MatchViewerView", "Delete Match"));
-    mButtonBox->button(QDialogButtonBox::Close)->setText(tr("Close"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText("Help");
+    qTreeWidgetItem->setText(1, QApplication::translate("MatchViewerComponent", "Keypoint Left"));
+    qTreeWidgetItem->setText(2, QApplication::translate("MatchViewerComponent", "Left X"));
+    qTreeWidgetItem->setText(3, QApplication::translate("MatchViewerComponent", "Left Y"));
+    qTreeWidgetItem->setText(4, QApplication::translate("MatchViewerComponent", "Keypoint Right"));
+    qTreeWidgetItem->setText(5, QApplication::translate("MatchViewerComponent", "Right X"));
+    qTreeWidgetItem->setText(6, QApplication::translate("MatchViewerComponent", "Right Y"));
+    qTreeWidgetItem->setText(7, QApplication::translate("MatchViewerComponent", "Distance"));
+    mPushButtonDeleteMatch->setText(QApplication::translate("MatchViewerComponent", "Delete Match"));
+    mButtonBox->button(QDialogButtonBox::Close)->setText(QApplication::translate("MatchViewerComponent", "Close"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("MatchViewerComponent", "Help"));
 }
 
 void MatchViewerViewImp::setLeftImage(const QString &imageLeft)

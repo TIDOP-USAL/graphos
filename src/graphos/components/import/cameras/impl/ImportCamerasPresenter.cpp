@@ -27,9 +27,11 @@
 #include "graphos/components/import/cameras/impl/ImportCamerasView.h"
 
 #include <tidop/core/defs.h>
+#include <tidop/core/exception.h>
 
 #include <QFileDialog>
-#include <tidop/core/exception.h>
+#include <QApplication>
+
 
 namespace graphos
 {
@@ -68,12 +70,12 @@ void ImportCamerasPresenterImp::open()
 {
     QString selected_filter;
     QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
-                                                tr("Orientation cameras file"),
+                                                QApplication::translate("ImportCamerasComponent", "Orientation cameras file"),
                                                 "",
-                                                tr("MRK File (*.mrk);;Comma-separated values (*.csv);;Plain text (*.txt)"),
+                                                QApplication::translate("ImportCamerasComponent", "MRK File (*.mrk);;Comma-separated values (*.csv);;Plain text (*.txt)"),
                                                 &selected_filter);
     if (!file.isEmpty()) {
-        if (selected_filter.compare("MRK File (*.mrk)") == 0) {
+        if (selected_filter.compare(QApplication::translate("ImportCamerasComponent", "MRK File (*.mrk)")) == 0) {
 
             try {
                 mModel->importCamerasFromMRK(file);

@@ -32,6 +32,7 @@
 
 #include <tidop/core/msg/message.h>
 
+#include <QApplication>
 
 namespace graphos
 {
@@ -92,7 +93,7 @@ void ImageLoaderPresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Load images error"));
+        progressHandler()->setDescription(QApplication::translate("ImageLoaderComponent", "Task error"));
     }
 }
 
@@ -101,7 +102,7 @@ void ImageLoaderPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("Images loaded"));
+        progressHandler()->setDescription(QApplication::translate("ImageLoaderComponent", "Task finished"));
     }
 }
 
@@ -130,8 +131,8 @@ auto ImageLoaderPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
     if (progressHandler()) {
         progressHandler()->setRange(0, mImages.size());
-        progressHandler()->setTitle("Load images...");
-        progressHandler()->setDescription("Load images...");
+        progressHandler()->setTitle(QApplication::translate("ImageLoaderComponent", "Load images"));
+        progressHandler()->setDescription(QApplication::translate("ImageLoaderComponent", "Loading images..."));
     }
 
     return image_loader_process;

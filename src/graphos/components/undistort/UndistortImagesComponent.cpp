@@ -51,7 +51,7 @@ UndistortImagesComponent::~UndistortImagesComponent()
 
 void UndistortImagesComponent::init()
 {
-    setName(tr("Undistort Images"));
+    setName(QCoreApplication::translate("UndistortImagesComponent", "Undistort Images"));
     setMenu("tools");
     setToolbar("tools");
     setIcon(QIcon::fromTheme("undistort"));

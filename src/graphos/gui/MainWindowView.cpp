@@ -244,7 +244,7 @@ void MainWindowView::setProjectTitle(const QString &title)
         itemProject->setData(0, Qt::UserRole, graphos::project);
     }
 
-    itemProject->setText(0, tr("Project: ").append(title));
+    itemProject->setText(0, QApplication::translate("MainWindowView", "Project: ").append(title));
 }
 
 void MainWindowView::addImage(const Image &image, const Camera &camera)
@@ -262,7 +262,7 @@ void MainWindowView::addImage(const Image &image, const Camera &camera)
 
         if (itemImages == nullptr) {
             itemImages = new QTreeWidgetItem();
-            itemImages->setText(0, tr("Images"));
+            itemImages->setText(0, QApplication::translate("MainWindowView", "Images"));
             itemImages->setIcon(0, QIcon::fromTheme("pictures-folder"));
             itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
             itemImages->setData(0, Qt::UserRole, graphos::images);
@@ -278,7 +278,7 @@ void MainWindowView::addImage(const Image &image, const Camera &camera)
         itemPhotogram->setData(0, Qt::UserRole, graphos::image);
         itemPhotogram->setData(0, Qt::UserRole + 1, static_cast<qulonglong>(image.id()));
         itemImages->addChild(itemPhotogram);
-        itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
+        itemImages->setText(0, QApplication::translate("MainWindowView", "Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
 
         update();
     }
@@ -303,7 +303,7 @@ void MainWindowView::addImages(const std::unordered_map<size_t, Image> &images,
 
         if (itemImages == nullptr) {
             itemImages = new QTreeWidgetItem();
-            itemImages->setText(0, tr("Images"));
+            itemImages->setText(0, QApplication::translate("MainWindowView", "Images"));
             itemImages->setIcon(0, QIcon::fromTheme("pictures-folder"));
             itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
             itemImages->setData(0, Qt::UserRole, graphos::images);
@@ -329,7 +329,7 @@ void MainWindowView::addImages(const std::unordered_map<size_t, Image> &images,
             mThumbnailsWidget->addThumbnail(image.second, QSize(camera->second.width(), camera->second.height()));
         }
 
-        itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
+        itemImages->setText(0, QApplication::translate("MainWindowView", "Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
 
         update();
     }
@@ -524,7 +524,7 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
         QTreeWidgetItem *itemModels = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("3D Models")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "3D Models")) == 0) {
                 itemModels = itemProject->child(i);
                 break;
             }
@@ -532,7 +532,7 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
 
         if (itemModels == nullptr) {
             itemModels = new QTreeWidgetItem();
-            itemModels->setText(0, tr("3D Models"));
+            itemModels->setText(0, QApplication::translate("MainWindowView", "3D Models"));
             itemModels->setIcon(0, QIcon::fromTheme("folder_3d"));
             itemProject->addChild(itemModels);
             itemModels->setExpanded(true);
@@ -541,7 +541,7 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
         QTreeWidgetItem *itemSparseModel = nullptr;
         for (int i = 0; i < itemModels->childCount(); i++) {
             QTreeWidgetItem *temp = itemModels->child(i);
-            if (temp->text(0).compare(tr("Sparse Model")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "Sparse Model")) == 0) {
                 itemSparseModel = temp;
                 break;
             }
@@ -552,7 +552,7 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
             itemModels->addChild(itemSparseModel);
         }
 
-        itemSparseModel->setText(0, "Sparse Model");
+        itemSparseModel->setText(0, QApplication::translate("MainWindowView", "Sparse Model"));
         itemSparseModel->setIcon(0, QIcon::fromTheme("dense"));
         itemSparseModel->setToolTip(0, sparseModel);
         itemSparseModel->setData(0, Qt::UserRole, graphos::sparse_model);
@@ -566,7 +566,7 @@ void MainWindowView::deleteSparseModel()
         QTreeWidgetItem *item_models = nullptr;
         for (int i = 0; i < item_project->childCount(); i++) {
             QTreeWidgetItem *temp = item_project->child(i);
-            if (temp->text(0).compare(tr("3D Models")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "3D Models")) == 0) {
                 item_models = item_project->child(i);
                 break;
             }
@@ -577,7 +577,7 @@ void MainWindowView::deleteSparseModel()
         QTreeWidgetItem *item_sparse_model = nullptr;
         for (int i = 0; i < item_models->childCount(); i++) {
             QTreeWidgetItem *temp = item_models->child(i);
-            if (temp->text(0).compare(tr("Sparse Model")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "Sparse Model")) == 0) {
                 item_sparse_model = temp;
                 delete item_sparse_model;
                 item_sparse_model = nullptr;
@@ -594,7 +594,7 @@ void MainWindowView::setDenseModel(const QString &denseModel)
         QTreeWidgetItem *itemModels = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("3D Models")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "3D Models")) == 0) {
                 itemModels = itemProject->child(i);
                 break;
             }
@@ -602,7 +602,7 @@ void MainWindowView::setDenseModel(const QString &denseModel)
 
         if (itemModels == nullptr) {
             itemModels = new QTreeWidgetItem();
-            itemModels->setText(0, tr("3D Models"));
+            itemModels->setText(0, QApplication::translate("MainWindowView", "3D Models"));
             itemModels->setIcon(0, QIcon::fromTheme("folder_3d"));
             itemProject->addChild(itemModels);
             itemModels->setExpanded(true);
@@ -611,7 +611,7 @@ void MainWindowView::setDenseModel(const QString &denseModel)
         QTreeWidgetItem *itemDenseModel = nullptr;
         for (int i = 0; i < itemModels->childCount(); i++) {
             QTreeWidgetItem *temp = itemModels->child(i);
-            if (temp->text(0).compare(tr("Dense Model")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "Dense Model")) == 0) {
                 itemDenseModel = temp;
                 break;
             }
@@ -622,7 +622,7 @@ void MainWindowView::setDenseModel(const QString &denseModel)
             itemModels->addChild(itemDenseModel);
         }
 
-        itemDenseModel->setText(0, "Dense Model");
+        itemDenseModel->setText(0, QApplication::translate("MainWindowView", "Dense Model"));
         itemDenseModel->setIcon(0, QIcon::fromTheme("dense"));
         itemDenseModel->setToolTip(0, denseModel);
         itemDenseModel->setData(0, Qt::UserRole, graphos::dense_model);
@@ -636,7 +636,7 @@ void MainWindowView::deleteDenseModel()
         QTreeWidgetItem *itemModels = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("3D Models")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "3D Models")) == 0) {
                 itemModels = itemProject->child(i);
                 break;
             }
@@ -647,7 +647,7 @@ void MainWindowView::deleteDenseModel()
         QTreeWidgetItem *itemDenseModel = nullptr;
         for (int i = 0; i < itemModels->childCount(); i++) {
             QTreeWidgetItem *temp = itemModels->child(i);
-            if (temp->text(0).compare(tr("Dense Model")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "Dense Model")) == 0) {
                 itemDenseModel = temp;
                 delete itemDenseModel;
                 itemDenseModel = nullptr;
@@ -665,7 +665,7 @@ void MainWindowView::setMesh(const QString &mesh)
         QTreeWidgetItem *itemModels = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("3D Models")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "3D Models")) == 0) {
                 itemModels = itemProject->child(i);
                 break;
             }
@@ -673,7 +673,7 @@ void MainWindowView::setMesh(const QString &mesh)
 
         if (itemModels == nullptr) {
             itemModels = new QTreeWidgetItem();
-            itemModels->setText(0, tr("3D Models"));
+            itemModels->setText(0, QApplication::translate("MainWindowView", "3D Models"));
             itemModels->setIcon(0, QIcon::fromTheme("folder_3d"));
             itemProject->addChild(itemModels);
             itemModels->setExpanded(true);
@@ -682,7 +682,7 @@ void MainWindowView::setMesh(const QString &mesh)
         QTreeWidgetItem *itemDenseModel = nullptr;
         for (int i = 0; i < itemModels->childCount(); i++) {
             QTreeWidgetItem *temp = itemModels->child(i);
-            if (temp->text(0).compare(tr("Mesh")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "Mesh")) == 0) {
                 itemDenseModel = temp;
                 break;
             }
@@ -693,7 +693,7 @@ void MainWindowView::setMesh(const QString &mesh)
             itemModels->addChild(itemDenseModel);
         }
 
-        itemDenseModel->setText(0, "Mesh");
+        itemDenseModel->setText(0, QApplication::translate("MainWindowView", "Mesh"));
         itemDenseModel->setIcon(0, QIcon::fromTheme("mesh"));
         itemDenseModel->setToolTip(0, mesh);
         itemDenseModel->setData(0, Qt::UserRole, graphos::mesh);
@@ -707,7 +707,7 @@ void MainWindowView::deleteMesh()
         QTreeWidgetItem *itemModels = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("3D Models")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "3D Models")) == 0) {
                 itemModels = itemProject->child(i);
                 break;
             }
@@ -718,7 +718,7 @@ void MainWindowView::deleteMesh()
         QTreeWidgetItem *itemDenseModel = nullptr;
         for (int i = 0; i < itemModels->childCount(); i++) {
             QTreeWidgetItem *temp = itemModels->child(i);
-            if (temp->text(0).compare(tr("Mesh")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "Mesh")) == 0) {
                 itemDenseModel = temp;
                 delete itemDenseModel;
                 itemDenseModel = nullptr;
@@ -736,7 +736,7 @@ void MainWindowView::setDSM(const QString &dsm)
         QTreeWidgetItem *itemDSM = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("DSM")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "DSM")) == 0) {
                 itemDSM = temp;
                 break;
             }
@@ -747,7 +747,7 @@ void MainWindowView::setDSM(const QString &dsm)
             itemProject->addChild(itemDSM);
         }
 
-        itemDSM->setText(0, "DSM");
+        itemDSM->setText(0, QApplication::translate("MainWindowView", "DSM"));
         itemDSM->setIcon(0, QIcon::fromTheme("image-file"));
         itemDSM->setToolTip(0, dsm);
         itemDSM->setData(0, Qt::UserRole, graphos::dsm);
@@ -762,7 +762,7 @@ void MainWindowView::setDTM(const QString &dtm)
         for (int i = 0; i < itemProject->childCount(); i++) {
 
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("DTM")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "DTM")) == 0) {
                 itemDSM = temp;
                 break;
             }
@@ -773,7 +773,7 @@ void MainWindowView::setDTM(const QString &dtm)
             itemProject->addChild(itemDSM);
         }
 
-        itemDSM->setText(0, "DTM");
+        itemDSM->setText(0, QApplication::translate("MainWindowView", "DTM"));
         itemDSM->setIcon(0, QIcon::fromTheme("image-file"));
         itemDSM->setToolTip(0, dtm);
         itemDSM->setData(0, Qt::UserRole, graphos::dtm);
@@ -788,7 +788,7 @@ void MainWindowView::deleteDsm()
         QTreeWidgetItem *itemDSM = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("DTM/DSM")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "DTM/DSM")) == 0) {
                 itemDSM = temp;
                 delete itemDSM;
                 itemDSM = nullptr;
@@ -805,7 +805,7 @@ void MainWindowView::deleteDtm()
         QTreeWidgetItem *itemDTM = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("DTM")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "DTM")) == 0) {
                 itemDTM = temp;
                 delete itemDTM;
                 itemDTM = nullptr;
@@ -822,7 +822,7 @@ void MainWindowView::setOrtho(const QString &ortho)
         QTreeWidgetItem *itemOrthophoto = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("Orthophoto")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "Orthophoto")) == 0) {
                 itemOrthophoto = temp;
                 break;
             }
@@ -833,7 +833,7 @@ void MainWindowView::setOrtho(const QString &ortho)
             itemProject->addChild(itemOrthophoto);
         }
 
-        itemOrthophoto->setText(0, "Orthophoto");
+        itemOrthophoto->setText(0, QApplication::translate("MainWindowView", "Orthophoto"));
         itemOrthophoto->setIcon(0, QIcon::fromTheme("image-file"));
         itemOrthophoto->setToolTip(0, ortho);
         itemOrthophoto->setData(0, Qt::UserRole, graphos::ortho);
@@ -847,7 +847,7 @@ void MainWindowView::deleteOrtho()
         QTreeWidgetItem *itemOrthophoto = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("Orthophoto")) == 0) {
+            if (temp->text(0).compare(QApplication::translate("MainWindowView", "Orthophoto")) == 0) {
                 itemOrthophoto = temp;
                 delete itemOrthophoto;
                 itemOrthophoto = nullptr;
@@ -906,7 +906,7 @@ void MainWindowView::deleteImages(const std::vector<size_t> &imageIds)
                 }
             }
 
-            itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
+            itemImages->setText(0, QApplication::translate("MainWindowView", "Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
         }
 
     }
@@ -1024,13 +1024,13 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
         }
 
         if (QAction *selectedItem = mMenuTreeProjectImage->exec(globalPos)) {
-            if (selectedItem->text() == tr("Open Image")) {
+            if (selectedItem->text() == QApplication::translate("MainWindowView", "Open Image")) {
                 emit open_image(item->data(0, Qt::UserRole + 1).toULongLong());
-            } else if (selectedItem->text() == tr("Delete Image")) {
+            } else if (selectedItem->text() == QApplication::translate("MainWindowView", "Delete Image")) {
                 emit delete_images(std::vector<size_t>{item->data(0, Qt::UserRole + 1).toULongLong()});
-            } else if (selectedItem->text() == tr("View Keypoints")) {
+            } else if (selectedItem->text() == QApplication::translate("MainWindowView", "View Keypoints")) {
                 emit openKeypointsViewer(item->data(0, Qt::UserRole + 1).toULongLong());
-            } else if (selectedItem->text() == tr("View Matches")) {
+            } else if (selectedItem->text() == QApplication::translate("MainWindowView", "View Matches")) {
                 emit openMatchesViewer(item->data(0, Qt::UserRole + 1).toULongLong());
             }
         }
@@ -1041,7 +1041,7 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
         context_menu.addAction(mActionOpenModel3D);
 
         if (QAction *selectedItem = context_menu.exec(globalPos)) {
-            if (selectedItem->text() == tr("Open 3D model")) {
+            if (selectedItem->text() == QApplication::translate("MainWindowView", "Open 3D model")) {
                 emit open3DModel(item->toolTip(0), true);
             }
         }
@@ -1053,9 +1053,9 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
         context_menu.addAction(mActionExportPointCloud);
 
         if (QAction *selectedItem = context_menu.exec(globalPos)) {
-            if (selectedItem->text() == tr("Open 3D model")) {
+            if (selectedItem->text() == QApplication::translate("MainWindowView", "Open 3D model")) {
                 emit open3DModel(item->toolTip(0), false);
-            } else if (selectedItem->text() == tr("Export Point Cloud")) {
+            } else if (selectedItem->text() == QApplication::translate("MainWindowView", "Export Point Cloud")) {
                 emit export_point_cloud();
             }
         }
@@ -1067,9 +1067,9 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
         context_menu.addAction(mActionExportMesh);
 
         if (QAction *selectedItem = context_menu.exec(globalPos)) {
-            if (selectedItem->text() == tr("Open 3D model")) {
+            if (selectedItem->text() == QApplication::translate("MainWindowView", "Open 3D model")) {
                 emit open3DModel(item->toolTip(0), false);
-            } else if (selectedItem->text() == tr("Export Mesh")) {
+            } else if (selectedItem->text() == QApplication::translate("MainWindowView", "Export Mesh")) {
                 emit export_mesh();
             }
         }

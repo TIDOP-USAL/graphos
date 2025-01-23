@@ -31,7 +31,7 @@
 #include <tidop/core/msg/message.h>
 
 #include <QDir>
-#include <QImageReader>
+#include <QApplication>
 #include <QMessageBox>
 
 namespace graphos
@@ -73,7 +73,7 @@ void DemPresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("DEM error"));
+        progressHandler()->setDescription(QApplication::translate("DemComponent", "Task error"));
     }
 }
 
@@ -82,7 +82,7 @@ void DemPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("DEM finished"));
+        progressHandler()->setDescription(QApplication::translate("DemComponent", "Task finished"));
     }
 
     tl::Path dsm_file = mModel->projectPath();
@@ -127,8 +127,8 @@ auto DemPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 100);
-        progressHandler()->setTitle("DEM");
-        progressHandler()->setDescription("DEM processing...");
+        progressHandler()->setTitle(QApplication::translate("DemComponent", "DEM"));
+        progressHandler()->setDescription(QApplication::translate("DemComponent", "DEM processing..."));
     }
 
     mView->hide();
@@ -140,7 +140,7 @@ void DemPresenterImp::cancel()
 {
     TaskPresenter::cancel();
 
-    tl::Message::warning("Processing has been canceled by the user");
+    tl::Message::warning("Task canceled by the user");
 }
 
 } // namespace graphos
