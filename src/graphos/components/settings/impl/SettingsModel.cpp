@@ -31,6 +31,7 @@
 #include <QSettings>
 #include <QLocale>
 #include <QApplication>
+#include <QMessageBox>
 
 namespace graphos
 {
@@ -192,6 +193,10 @@ void SettingsModelImp::setLanguage(const QString &language)
 {
     mSettings->setLanguage(language);
     emit unsavedChanges(true);
+
+    QMessageBox::warning(nullptr,
+                         tr("Language change"),
+                         tr("The language change will take effect after restarting the application"));
 }
 
 void SettingsModelImp::setHistoryMaxSize(int maxSize)

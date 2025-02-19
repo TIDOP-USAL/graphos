@@ -2950,4 +2950,17 @@
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>graphos::SettingsModelImp</name>
+    <message>
+        <location filename="../../src/graphos/components/settings/impl/SettingsModel.cpp" line="198"/>
+        <source>Language change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/graphos/components/settings/impl/SettingsModel.cpp" line="199"/>
+        <source>The language change will take effect after restarting the application</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
 </TS>

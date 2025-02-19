@@ -121,10 +121,11 @@ void SettingsPresenterImp::setLanguageSettings()
         QString lang_name = QLocale::languageToString(QLocale(lang_code).language());
         langs.push_back(lang_name);
         mLang[lang_name] = lang_code;
-
     }
 
     mView->setLanguages(langs);
+    QString current_lang_name = QLocale::languageToString(QLocale(mModel->language()).language());
+    mView->setActiveLanguage(current_lang_name);
 }
 
 void SettingsPresenterImp::setKeypointsViewerSettings()
