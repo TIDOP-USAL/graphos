@@ -37,9 +37,9 @@
 #include <gdal.h>
 #include <ogr_spatialref.h>
 
-#include <tidop/GeoTools/GeoTools.h>
-#include <tidop/GeoTools/CRSsTools.h>
-#include <tidop/GeoTools/impl/CRSsToolsDefinitions.h>
+#include <tidop/geotools/GeoTools.h>
+#include <tidop/geotools/CRSsTools.h>
+#include <tidop/geotools/impl/CRSsToolsDefinitions.h>
 
 
 namespace graphos

@@ -129,8 +129,8 @@
 #include <tidop/core/console.h>
 #include <tidop/core/log.h>
 #include <tidop/core/msg/message.h>
-#include <tidop/GeoTools/GeoTools.h>
-#include <tidop/GeoTools/CRSsTools.h>
+#include <tidop/geotools/GeoTools.h>
+#include <tidop/geotools/CRSsTools.h>
 
 #include <gdal.h>
 #include <cpl_conv.h>

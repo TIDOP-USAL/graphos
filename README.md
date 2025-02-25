@@ -97,6 +97,9 @@ sudo make install
 
 GRAPHOS can be run in a Docker container, enabling ease of setup and GPU support for computational tasks.
 
+ **IMPORTANT:** The Docker image only supports console mode. The graphical interface is not available.
+
+
 ### Build the Docker Image
 
 To build a Docker image for GRAPHOS, navigate to the root directory of the repository (where the Dockerfile is located) and run:
@@ -130,9 +133,13 @@ docker run -it --name graphos --gpus all -v /home/user/data:/app graphos
 Once inside the container, you can use GRAPHOS commands as described in this documentation. For example:
 
 ```bash
-graphos createproj --name my_project
-graphos image_manager -p my_project/my_project.xml -i /app/images/image01.jpg
-graphos featextract -p my_project/my_project.xml
+graphos createproj --name /app/proj/test1/test1.xml -o
+find /app/datasets -type f \( -iname "*.jpg" -o -iname "*.png" \) > /app/datasets/images.txt
+graphos image_manager -p /app/proj/test1/test1.xml -l /app/datasets/images.txt
+graphos featextract -p /app/proj/test1/test1.xml
+graphos featmatch -p /app/proj/test1/test1.xml
+graphos ori -p /app/proj/test1/test1.xml -a
+graphos dense -p /app/proj/test1/test1.xml --method mvs --mvs:resolution_level 2 --mvs:min-resolution 256 --mvs:max-resolution 3000 --mvs:number_views 5 --mvs:number_views_fuse 3
 ```
 
 ## Issues and Contributions:

@@ -24,8 +24,8 @@
 #include "ExportPointCloudTask.h"
 
 #include <tidop/geospatial/crstransf.h>
-#include <tidop/GeoTools/CRSsTools.h>
-#include <tidop/GeoTools/GeoTools.h>
+#include <tidop/geotools/CRSsTools.h>
+#include <tidop/geotools/GeoTools.h>
 
 #include "graphos/core/ply.h"
 #include "graphos/core/sfm/posesio.h"
@@ -126,7 +126,7 @@ void ExportPointCloudTask::execute(tl::Progress *progressBar)
 
         } else {
 
-            // Configuración de PDAL para la escritura de LAS
+            // Configuraciï¿½n de PDAL para la escritura de LAS
             pdal::PointTable table;
             table.layout()->registerDim(pdal::Dimension::Id::X);
             table.layout()->registerDim(pdal::Dimension::Id::Y);

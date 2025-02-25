@@ -87,18 +87,22 @@ endif(BUILD_GUI)
 
 
 # Translation files
+if (BUILD_TRANSLATION)
 
-set(TRANSLATIONS_DIR ${CMAKE_SOURCE_DIR}/res/translations)
-file(GLOB TRANSLATIONS_FILES ${TRANSLATIONS_DIR}/*.ts)
+    set(TRANSLATIONS_DIR ${CMAKE_SOURCE_DIR}/res/translations)
+    file(GLOB TRANSLATIONS_FILES ${TRANSLATIONS_DIR}/*.ts)
 
-# lupdate
-add_custom_target(update_translations
-    COMMAND ${Qt5_LUPDATE_EXECUTABLE} ${CMAKE_SOURCE_DIR} -ts ${TRANSLATIONS_FILES}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Updating translations"
-)
+    # lupdate
+    add_custom_target(update_translations
+        COMMAND ${Qt5_LUPDATE_EXECUTABLE} ${CMAKE_SOURCE_DIR} -ts ${TRANSLATIONS_FILES}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Updating translations"
+    )
 
-qt5_add_translation(QM_FILES ${TRANSLATIONS_FILES})
+    qt5_add_translation(QM_FILES ${TRANSLATIONS_FILES})
+
+endif(BUILD_TRANSLATION)
+
 
 add_executable(${PROJECT_NAME}
 #add_executable(${PROJECT_NAME} WIN32
@@ -109,16 +113,20 @@ add_executable(${PROJECT_NAME}
                ${QM_FILES}
 )
 
-set(TRANSLATIONS_OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin/$<CONFIG>/translations)
+if (BUILD_TRANSLATION)
 
-add_custom_target(copy_translations ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${TRANSLATIONS_OUTPUT_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy ${QM_FILES} ${TRANSLATIONS_OUTPUT_DIR}
-    COMMENT "Copying .qm files to ${TRANSLATIONS_OUTPUT_DIR}"
-)
+    set(TRANSLATIONS_OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin/$<CONFIG>/translations)
 
-add_dependencies(copy_translations update_translations)
-add_dependencies(${PROJECT_NAME} copy_translations)
+    add_custom_target(copy_translations ALL
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${TRANSLATIONS_OUTPUT_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy ${QM_FILES} ${TRANSLATIONS_OUTPUT_DIR}
+        COMMENT "Copying .qm files to ${TRANSLATIONS_OUTPUT_DIR}"
+    )
+
+    add_dependencies(copy_translations update_translations)
+    add_dependencies(${PROJECT_NAME} copy_translations)
+    
+endif(BUILD_TRANSLATION)
 
 target_link_libraries(${PROJECT_NAME}
                       TidopLib::Core
@@ -129,7 +137,7 @@ target_link_libraries(${PROJECT_NAME}
                       TidopLib::Vect
                       TidopLib::Graphic
                       TidopLib::GeoTools
-                      TidopLib::PointCloudTools
+                      $<$<BOOL:${GRAPHOS_GUI}>:TidopLib::PointCloudTools>
                       Qt5::Core
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Help>
