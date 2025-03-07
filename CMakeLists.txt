@@ -211,6 +211,7 @@ option(BUILD_CRS_COMPONENT "Build Coordinate Reference System Component"  ON)
 option (BUILD_TEST                 "Include test"          OFF)
 option (BUILD_PLUGINS              "Build Plugins"         ON )
 option (BUILD_GUI                  "Build GUI"             ON )
+option (BUILD_TRANSLATION          "Build translations"    OFF)
 
 # Si se activa esta opción se pueden utilizar los métodos marcados como obsoletos (deprecated)
 option (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)

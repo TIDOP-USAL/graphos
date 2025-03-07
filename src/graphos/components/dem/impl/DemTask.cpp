@@ -24,8 +24,8 @@
 #include "DemTask.h"
 
 #include <tidop/geospatial/crstransf.h>
-#include <tidop/GeoTools/CRSsTools.h>
-#include <tidop/GeoTools/GeoTools.h>
+#include <tidop/geotools/CRSsTools.h>
+#include <tidop/geotools/GeoTools.h>
 
 
 #include "graphos/core/task/Progress.h"
@@ -395,7 +395,7 @@ void DemTask::execute(tl::Progress *progressBar)
         
         mDemPath.createDirectories();
 
-        /// Transformación de coordenadas ENU al sistema de referencia de salida
+        /// Transformaciï¿½n de coordenadas ENU al sistema de referencia de salida
 
         //tl::Point3<double> ecef_center = mEnuCrs;
 

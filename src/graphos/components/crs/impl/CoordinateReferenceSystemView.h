@@ -27,7 +27,7 @@
 
 #include "graphos/components/crs/CoordinateReferenceSystemView.h"
 
-#include <tidop/GeoTools/GeoToolsDefinitions.h>
+#include <tidop/geotools/GeoToolsDefinitions.h>
 
 #include <proj.h>
 

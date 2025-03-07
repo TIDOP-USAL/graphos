@@ -33,7 +33,7 @@
 #include <tidop/core/log.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
-#include <tidop/GeoTools/GeoTools.h>
+#include <tidop/geotools/GeoTools.h>
 
 #include <QFileInfo>
 

@@ -41,8 +41,8 @@
 #include <colmap/estimators/triangulation.h>
 #include <tidop/geospatial/crs.h>
 #include <tidop/geospatial/crstransf.h>
-#include <tidop/GeoTools/CRSsTools.h>
-#include <tidop/GeoTools/GeoTools.h>
+#include <tidop/geotools/CRSsTools.h>
+#include <tidop/geotools/GeoTools.h>
 
 namespace graphos
 {
