@@ -174,7 +174,7 @@ void CoordinateReferenceSystemViewImp::loadCRS()
     mVerticalCRSsInfo.clear();
 
     tl::GeoTools* ptrGeoTools = tl::GeoTools::getInstance();
-    ptrGeoTools->ptrCRSsTools()->getCRSsFor2dApplications(mCRSsInfo);
+    mCRSsInfo = ptrGeoTools->ptrCRSsTools()->getCRSsFor2dApplications();
 
     QTreeWidgetItem *geodeticItem = new QTreeWidgetItem(mCRSTree, QStringList() << "Geodetic CRS");
     QTreeWidgetItem *projectedItem = new QTreeWidgetItem(mCRSTree, QStringList() << "Projected CRS");
@@ -216,6 +216,8 @@ void CoordinateReferenceSystemViewImp::loadVerticalCRS()
     tl::GeoTools* ptrGeoTools = tl::GeoTools::getInstance();
 
     ptrGeoTools->ptrCRSsTools()->getCRSsVertical(crsId.toStdString(), mVerticalCRSsInfo);
+
+    if (mVerticalCRSsInfo.empty()) return;
 
     QTreeWidgetItem* verticalItem = new QTreeWidgetItem(mVerticalCRSTree, QStringList() << "Vertical CRS");
     for (auto const& x : mVerticalCRSsInfo)
