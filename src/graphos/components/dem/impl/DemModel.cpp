@@ -39,7 +39,7 @@ namespace graphos
 {
 
 DemModelImp::DemModelImp(Project *project, QObject *parent)
-    : DemModel(parent),
+  : DemModel(parent),
     mProject(project)
 {
     DemModelImp::init();

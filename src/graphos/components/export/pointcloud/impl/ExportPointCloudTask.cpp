@@ -126,7 +126,7 @@ void ExportPointCloudTask::execute(tl::Progress *progressBar)
 
         } else {
 
-            // Configuraci�n de PDAL para la escritura de LAS
+            // Configuración de PDAL para la escritura de LAS
             pdal::PointTable table;
             table.layout()->registerDim(pdal::Dimension::Id::X);
             table.layout()->registerDim(pdal::Dimension::Id::Y);

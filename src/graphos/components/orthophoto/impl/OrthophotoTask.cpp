@@ -985,9 +985,9 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
                             cv::Mat mask_full_size(compensate_image.size(), CV_8U);
                             mask_full_size.setTo(cv::Scalar::all(0));
                             mask_full_size.setTo(cv::Scalar::all(255), gray > 0);
-                            cv::Mat element = getStructuringElement(cv::MorphShapes::MORPH_RECT,
-                                                                    cv::Size(2 * 2 + 1, 2 * 2 + 1),
-                                                                    cv::Point(2, 2));
+                            //cv::Mat element = getStructuringElement(cv::MorphShapes::MORPH_RECT,
+                            //                                        cv::Size(2 * 2 + 1, 2 * 2 + 1),
+                            //                                        cv::Point(2, 2));
                             //Revisar
                             //cv::erode(mask_full_size, mask_full_size, element);
                             //cv::dilate(mask_full_size, mask_full_size, element);
@@ -1004,7 +1004,7 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
                                 image_writer->setGeoreference(image_reader->georeference());
                                 image_writer->write(compensate_image);
                                 image_writer->close();
-                                tl::Message::info("Image Compensate: {}", orto_compensate.fileName().toString());
+                                tl::Message::info("Compensated image: {}", orto_compensate.fileName().toString());
                                 //compensated_orthos.push_back(orto_compensate.toString());
                             }
                         }
