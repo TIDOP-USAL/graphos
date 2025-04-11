@@ -55,7 +55,8 @@ public:
 
     Orthorectification(const tl::Path &dtm,
                        const Camera &camera,
-                       const CameraPose &cameraPose);
+                       const CameraPose &cameraPose,
+                       double zIni = 0.);
 
     ~Orthorectification()
     {
@@ -63,13 +64,13 @@ public:
     }
 
     tl::Point<int> terrainToImage(const tl::Point3<double> &terrainPoint) const;
-    tl::Point<double> terrainToPhotocoordinates(const tl::Point3<double> &terrainPoint) const;
+    tl::Point<double> terrainToPhotoCoordinates(const tl::Point3<double> &terrainPoint) const;
     tl::Point3<double> imageToTerrain(const tl::Point<int> &imagePoint) const;
     tl::Point3<double> photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const;
     tl::Point<double> imageToPhotocoordinates(const tl::Point<int> &imagePoint) const;
-    tl::Point<double> photocoordinatesToImage(const tl::Point<double> &photocoordinates) const;
-    tl::Point3<double> dtmToTerrain(const tl::Point<int> &imagePoint) const;
-    tl::Point<int> terrainToDTM(const tl::Point3<double> &terrainPoint) const;
+    tl::Point<double> photoCoordinatesToImageCoordinates(const tl::Point<double> &photocoordinates) const;
+    tl::Point3<double> dtmImageCoordinatesToTerrain(const tl::Point<int> &imagePoint) const;
+    tl::Point<int> terrainToDTMImageCoordinates(const tl::Point3<double> &terrainPoint) const;
     double z(const tl::Point<double> &terrainPoint) const;
 
     tl::Rect<int> rectImage() const;

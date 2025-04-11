@@ -85,8 +85,6 @@ cv::Mat createBlackPixelMask(const cv::Mat &image, double areaThreshold, bool up
 
 Orthoimage::Orthoimage(const tl::Path &image,
                        Orthorectification *orthorectification,
-                       //const tl::EcefToEnu &ecefToEnu, 
-                       //const std::shared_ptr<tl::CrsTransform> &crsTransfom,
                        const std::string &enuCrs,
                        const std::string &crs,
                        const tl::Rect<int> &rectOrtho,
@@ -95,8 +93,6 @@ Orthoimage::Orthoimage(const tl::Path &image,
                        bool cuda)
   : mImageReader(tl::ImageReaderFactory::create(image)),
     mOrthorectification(orthorectification),
-    //mEcefToEnu(ecefToEnu), 
-    //mCrsTransfom(crsTransfom),
     mEnuCrs(enuCrs),
     mCrs(crs),
     mRectOrtho(rectOrtho),
@@ -116,21 +112,16 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
 
     auto convertEnuToProjected = [&](const tl::Point3d &point) -> tl::Point3d 
     {
-        //auto point_ecef = mEcefToEnu.inverse(point);
-        //auto point_utm = mCrsTransfom->transform(point_ecef);
         tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
-        tl::Point3d projected = static_cast<tl::Point3d>(point);
+        tl::Point3d projected = point;
         geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, projected.x, projected.y, projected.z);
         return projected;
     };
 
     auto convertProjectedToEnu = [&](const tl::Point3d &point) -> tl::Point3d 
     {
-        //auto point_ecef = mCrsTransfom->transform(point, tl::CrsTransform::Order::inverse);
-        //auto point_projected = mEcefToEnu.direct(point_ecef);
-        //return point_projected;
         tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
-        tl::Point3d enu = static_cast<tl::Point3d>(point);
+        tl::Point3d enu = point;
         geo_tools->ptrCRSsTools()->crsOperation(mCrs, mEnuCrs, enu.x, enu.y, enu.z);
         return enu;
     };
@@ -220,10 +211,10 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
 
         //        if (!visibilityMap.empty() && visibilityMap.at<uchar>(r - rect_dtm.y, c - rect_dtm.x) == 0) continue;
 
-        //        dtm_grid_terrain_points[0] = mOrthorectification->dtmToTerrain(tl::Point<int>(c, r));
-        //        dtm_grid_terrain_points[1] = mOrthorectification->dtmToTerrain(tl::Point<int>(c + 1, r));
-        //        dtm_grid_terrain_points[2] = mOrthorectification->dtmToTerrain(tl::Point<int>(c + 1, r + 1));
-        //        dtm_grid_terrain_points[3] = mOrthorectification->dtmToTerrain(tl::Point<int>(c, r + 1));
+        //        dtm_grid_terrain_points[0] = mOrthorectification->dtmImageCoordinatesToTerrain(tl::Point<int>(c, r));
+        //        dtm_grid_terrain_points[1] = mOrthorectification->dtmImageCoordinatesToTerrain(tl::Point<int>(c + 1, r));
+        //        dtm_grid_terrain_points[2] = mOrthorectification->dtmImageCoordinatesToTerrain(tl::Point<int>(c + 1, r + 1));
+        //        dtm_grid_terrain_points[3] = mOrthorectification->dtmImageCoordinatesToTerrain(tl::Point<int>(c, r + 1));
 
         //        if (mOrthorectification->hasNodataValue()) {
         //            double nodata_value = mOrthorectification->nodataValue();
@@ -242,15 +233,15 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         //        ortho_image_coordinates[2] = inverse_transform.transform(static_cast<tl::Point<double>>(dtm_grid_terrain_points[2]));
         //        ortho_image_coordinates[3] = inverse_transform.transform(static_cast<tl::Point<double>>(dtm_grid_terrain_points[3]));
 
-        //        photo_photocoordinates[0] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[0]);
-        //        photo_photocoordinates[1] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[1]);
-        //        photo_photocoordinates[2] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[2]);
-        //        photo_photocoordinates[3] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[3]);
+        //        photo_photocoordinates[0] = mOrthorectification->terrainToPhotoCoordinates(dtm_grid_terrain_points[0]);
+        //        photo_photocoordinates[1] = mOrthorectification->terrainToPhotoCoordinates(dtm_grid_terrain_points[1]);
+        //        photo_photocoordinates[2] = mOrthorectification->terrainToPhotoCoordinates(dtm_grid_terrain_points[2]);
+        //        photo_photocoordinates[3] = mOrthorectification->terrainToPhotoCoordinates(dtm_grid_terrain_points[3]);
 
-        //        photo_image_coordinates[0] = mOrthorectification->photocoordinatesToImage(photo_photocoordinates[0]);
-        //        photo_image_coordinates[1] = mOrthorectification->photocoordinatesToImage(photo_photocoordinates[1]);
-        //        photo_image_coordinates[2] = mOrthorectification->photocoordinatesToImage(photo_photocoordinates[2]);
-        //        photo_image_coordinates[3] = mOrthorectification->photocoordinatesToImage(photo_photocoordinates[3]);
+        //        photo_image_coordinates[0] = mOrthorectification->photoCoordinatesToImageCoordinates(photo_photocoordinates[0]);
+        //        photo_image_coordinates[1] = mOrthorectification->photoCoordinatesToImageCoordinates(photo_photocoordinates[1]);
+        //        photo_image_coordinates[2] = mOrthorectification->photoCoordinatesToImageCoordinates(photo_photocoordinates[2]);
+        //        photo_image_coordinates[3] = mOrthorectification->photoCoordinatesToImageCoordinates(photo_photocoordinates[3]);
 
         //        if (rect_image.contains(photo_image_coordinates[0]) &&
         //            rect_image.contains(photo_image_coordinates[1]) &&
@@ -378,8 +369,8 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         //});
 
         // Iteración sobre la cuadrícula de la ortofoto
-        //tl::parallel_for(0, out_height, [&](size_t r) {
-        for(int r = 0; r < out_height; ++r){
+        tl::parallel_for(0, out_height, [&](size_t r) {
+        //for(int r = 0; r < out_height; ++r){
             for (int c = 0; c < out_width; c++) {
 
                 // Coordenadas de la ortofoto en el grid
@@ -391,32 +382,32 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
                 // Las coordenadas terreno se tienen que convertir a coordenadas ENU
                 
                 //auto dtm_pixel_coordinates = mGeoreference.inverse().transform(terrain_coordinates);
-                //auto dtm_pixel_coordinates = mOrthorectification->terrainToDTM(terrain_coordinates);
+                //auto dtm_pixel_coordinates = mOrthorectification->terrainToDTMImageCoordinates(terrain_coordinates);
 
                 // Coordenadas de la ortofoto en el sistema de terreno
                 tl::Point3<double> enu_coordinates = convertProjectedToEnu(terrain_coordinates);
                 //if (!window_total_enu.containsPoint(enu_coordinates)) continue;
                 tl::Point<int> dtm_pixel_coordinates;
                 // Chapuza...
-                auto check = mOrthorectification->terrainToDTM(enu_coordinates);
+                auto check = mOrthorectification->terrainToDTMImageCoordinates(enu_coordinates);
                 //if (check.x < 0 || check.y < 0 || check.x > rect_dtm.width || check.y > rect_dtm.height) continue;
 
                 if (!rect_dtm.contains(check)) continue;
 
                 enu_coordinates.z = mOrthorectification->z(enu_coordinates);
-                dtm_pixel_coordinates = mOrthorectification->terrainToDTM(enu_coordinates);
+                dtm_pixel_coordinates = mOrthorectification->terrainToDTMImageCoordinates(enu_coordinates);
 
-                //auto dtm_pixel_coordinates = mOrthorectification->terrainToDTM(enu_coordinates);
+                //auto dtm_pixel_coordinates = mOrthorectification->terrainToDTMImageCoordinates(enu_coordinates);
 
                 auto y = dtm_pixel_coordinates.y - rect_dtm.y;
                 auto x = dtm_pixel_coordinates.x - rect_dtm.x;
-                if (x < 0 || y < 0 || x >= visibilityMap.cols || y >= visibilityMap.rows) continue;
+                if (x < 0 || y < 0 || x >= visibilityMap.cols || y >= visibilityMap.rows) continue;  // visibilityMap tiene el tamaño del trozo del DTM cargado con lo cual esto debería ser redundante con -> if (!rect_dtm.contains(check)) continue;
                 if (!visibilityMap.empty() && visibilityMap.at<uchar>(y, x) == 0) continue;
 
                 // Coordenadas fotogrametricas
-                tl::Point<double> photo_photocoord = mOrthorectification->terrainToPhotocoordinates(enu_coordinates);
+                tl::Point<double> photo_photocoord = mOrthorectification->terrainToPhotoCoordinates(enu_coordinates);
                 // Coordenadas de la imagen
-                tl::Point<double> photo_image_coord = mOrthorectification->photocoordinatesToImage(photo_photocoord);
+                tl::Point<double> photo_image_coord = mOrthorectification->photoCoordinatesToImageCoordinates(photo_photocoord);
 
                 if (rect_image.contains(photo_image_coord)) {
 
@@ -439,7 +430,7 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
                     }
                 }
             }
-        }//);
+        });
 
 
         /// Mascara
@@ -472,14 +463,9 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         mOrthophotoWriter->write(ortho_with_mask);
         mOrthophotoWriter->close();
 
-    } catch (std::exception &e) {
-        if (mOrthophotoWriter) mOrthophotoWriter->close();
-        tl::Message::error("Orthorectified image fail: {}", ortho.fileName().toString());
-        tl::printException(e);
     } catch (...) {
         if (mOrthophotoWriter) mOrthophotoWriter->close();
-        tl::Message::error("Orthorectified image fail: {}", ortho.fileName().toString());
-        tl::Message::error("Unhandled exception");
+        TL_THROW_EXCEPTION_WITH_NESTED("Error generating the orthoimage: {}", ortho.fileName().toString());
     }
 }
 

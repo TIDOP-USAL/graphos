@@ -27,9 +27,7 @@
 
 #include <tidop/core/task.h>
 #include <tidop/core/path.h>
-#include <tidop/geospatial/crs.h>
 #include <tidop/vect/vectwriter.h>
-#include <tidop/geospatial/crstransf.h>
 
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
@@ -60,13 +58,8 @@ public:
 				   const tl::Path &dtm,
 				   const tl::Path &orthoPath,
 				   const tl::Path &graphOrthos,
-				   /// Reemplazar
-                   //const tl::EcefToEnu &ecefToEnu, 
-                   //const std::shared_ptr<tl::CrsTransform> &crsTransfom,
-				   /// 
 				   const std::string &enuCrs,
 				   const std::string &crs,
-
 				   const tl::Path &footprint = tl::Path(),
 				   double gsd = -1.,
 				   const std::string &interpolation = "BILINEAR",
@@ -86,9 +79,6 @@ private:
 	std::map<int, Camera> mCameras;
 	tl::Path mDtm;
 	tl::Path mOrthoPath;
-	//tl::Point3<double> mOffset;
-	//tl::EcefToEnu mEcefToEnu;
- //   std::shared_ptr<tl::CrsTransform> mCrsTransfom;
     std::string mEnuCrs;
 	std::string mCrs;
 	std::unique_ptr<tl::VectorWriter> mFootprintWriter;

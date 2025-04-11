@@ -382,37 +382,37 @@
     <name>CoordinateReferenceSystemComponent</name>
     <message>
         <location filename="../../src/graphos/components/crs/CoordinateReferenceSystemComponent.cpp" line="51"/>
-        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="293"/>
+        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="295"/>
         <source>Coordinate Reference System</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="294"/>
+        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="296"/>
         <source>2D/3D CRS:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="295"/>
+        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="297"/>
         <source>Set vertical CRS:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="296"/>
+        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="298"/>
         <source>Vertical CRS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="297"/>
+        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="299"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="298"/>
+        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="300"/>
         <source>Apply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="299"/>
+        <location filename="../../src/graphos/components/crs/impl/CoordinateReferenceSystemView.cpp" line="301"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
@@ -484,6 +484,7 @@
 <context>
     <name>DemComponent</name>
     <message>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalView.cpp" line="120"/>
         <location filename="../../src/graphos/components/dem/DemComponent.cpp" line="49"/>
         <location filename="../../src/graphos/components/dem/impl/DemView.cpp" line="122"/>
         <source>Digital Elevation Model (DEM)</source>
@@ -500,46 +501,55 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalPresenter.cpp" line="138"/>
         <location filename="../../src/graphos/components/dem/impl/DemPresenter.cpp" line="130"/>
         <source>DEM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalPresenter.cpp" line="139"/>
         <location filename="../../src/graphos/components/dem/impl/DemPresenter.cpp" line="131"/>
         <source>DEM processing...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalView.cpp" line="121"/>
         <location filename="../../src/graphos/components/dem/impl/DemView.cpp" line="123"/>
         <source>Coordinate Reference System (CRS)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalView.cpp" line="122"/>
         <location filename="../../src/graphos/components/dem/impl/DemView.cpp" line="124"/>
         <source>Digital Surface Model (DSM)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalView.cpp" line="123"/>
         <location filename="../../src/graphos/components/dem/impl/DemView.cpp" line="125"/>
         <source>Digital Terrain Model (DTM)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalView.cpp" line="124"/>
         <location filename="../../src/graphos/components/dem/impl/DemView.cpp" line="126"/>
         <source>Ground Sampling Distance (GSD):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalView.cpp" line="125"/>
         <location filename="../../src/graphos/components/dem/impl/DemView.cpp" line="127"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalView.cpp" line="126"/>
         <location filename="../../src/graphos/components/dem/impl/DemView.cpp" line="128"/>
         <source>Run</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalView.cpp" line="127"/>
         <location filename="../../src/graphos/components/dem/impl/DemView.cpp" line="129"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
@@ -2942,6 +2952,46 @@
     </message>
 </context>
 <context>
+    <name>graphos</name>
+    <message>
+        <location filename="../../scripts/templates/component/impl/TemplateTaskPresenter.cpp" line="82"/>
+        <source>Process error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../scripts/templates/component/impl/TemplateTaskPresenter.cpp" line="91"/>
+        <source>Process finished</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../scripts/templates/component/TemplateComponent.cpp" line="51"/>
+        <location filename="../../scripts/templates/component/TemplateTaskComponent.cpp" line="51"/>
+        <source>{ComponentText}</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>graphos::DsmPdalComponent</name>
+    <message>
+        <location filename="../../plugins/DsmPdal/component/DsmPdalComponent.cpp" line="51"/>
+        <source>DSM PDAL</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>graphos::DsmPdalPresenterImp</name>
+    <message>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalPresenter.cpp" line="84"/>
+        <source>Process error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalPresenter.cpp" line="93"/>
+        <source>Process finished</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>graphos::MatchViewerSettingsWidget</name>
     <message>
         <location filename="../../src/graphos/widgets/settings/MatchViewerSettingsWidget.cpp" line="277"/>
@@ -2960,6 +3010,29 @@
     <message>
         <location filename="../../src/graphos/components/settings/impl/SettingsModel.cpp" line="199"/>
         <source>The language change will take effect after restarting the application</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>{ComponentName}View</name>
+    <message>
+        <location filename="../../scripts/templates/component/impl/TemplateView.cpp" line="77"/>
+        <source>{ComponentText}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../scripts/templates/component/impl/TemplateView.cpp" line="81"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../scripts/templates/component/impl/TemplateView.cpp" line="82"/>
+        <source>Run</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../scripts/templates/component/impl/TemplateView.cpp" line="83"/>
+        <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

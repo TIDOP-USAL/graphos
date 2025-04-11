@@ -88,7 +88,6 @@ bool OrthophotoCommand::run()
 
         tl::Path project_path = this->value<Path>("prj");
         auto gsd =  this->value<double>("gsd");
-        //auto dsm =  this->value<Path>("dsm");
         auto crs =  this->value<std::string>("crs");
         auto interpolation =  this->value<std::string>("interpolation");
         if (!mDisableCuda)
@@ -145,13 +144,17 @@ bool OrthophotoCommand::run()
         orthophoto_task.run();
 
         tl::Path orthophoto_file = orthophoto_path;
-        orthophoto_file.append("dsm.tif");
-        if (orthophoto_file.exists()) {
-            //mProject->dtm().dsmPath = orthophoto_file;
-        }
+        orthophoto_file.append("ortho.tif");
 
-        //mProject->dtm().gsd = gsd;
-        mProject->save(project_path);
+        if (orthophoto_file.exists()) {
+            auto report = orthophoto_task.report();
+            mProject->setOrthophotoReport(report);
+            mProject->orthophoto().path = orthophoto_file;
+            mProject->orthophoto().epsgCode = QString::fromStdString(crs);
+            mProject->orthophoto().gsd = gsd;
+            mProject->orthophoto().interpolation = QString::fromStdString(interpolation);
+            mProject->save(project_path);
+        }
 
     } catch (const std::exception &e) {
 
@@ -169,17 +172,6 @@ auto OrthophotoCommand::images() -> std::vector<Image>
 {
     std::vector<Image> images;
 
-    //tl::Point3<double> offset;
-
-    //std::ifstream ifs;
-    //ifs.open(mProject->offset().toString(), std::ifstream::in);
-    //if(ifs.is_open()) {
-
-    //    ifs >> offset.x >> offset.y >> offset.z;
-
-    //    ifs.close();
-    //}
-
     for(const auto &image : mProject->images()) {
 
         Image photo(image.second);
@@ -196,7 +188,7 @@ auto OrthophotoCommand::images() -> std::vector<Image>
             rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
             photoOrientation.setRotationMatrix(rotation_matrix);
 
-            photoOrientation.setPosition(photoOrientation.position() /*+ offset*/);
+            photoOrientation.setPosition(photoOrientation.position());
 
             photo.setCameraPose(photoOrientation);
 

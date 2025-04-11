@@ -127,7 +127,7 @@ auto OrthophotoModelImp::images() const -> Images
             rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
             photoOrientation.setRotationMatrix(rotation_matrix);
 
-            photoOrientation.setPosition(photoOrientation.position() /*+ offset*/);
+            photoOrientation.setPosition(photoOrientation.position());
 
             photo.setCameraPose(photoOrientation);
 

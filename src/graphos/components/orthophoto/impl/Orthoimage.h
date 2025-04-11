@@ -29,10 +29,7 @@
 #include <tidop/img/imgreader.h>
 #include <tidop/img/imgwriter.h>
 #include <tidop/math/geometry/affine.h>
-#include <tidop/vect/vectwriter.h>
 #include <tidop/geometry/rect.h>
-#include <tidop/geospatial/crs.h>
-#include <tidop/geospatial/crstransf.h>
 
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
@@ -56,8 +53,6 @@ public:
 
 	Orthoimage(const tl::Path &image,
 			   Orthorectification *orthorectification,
-			   //const tl::EcefToEnu &ecefToEnu, 
-      //         const std::shared_ptr<tl::CrsTransform> &crsTransfom,
 			   const std::string &enuCrs,
 			   const std::string &crs,
 			   const tl::Rect<int> &rectOrtho,
@@ -74,12 +69,9 @@ private:
 
 	std::unique_ptr<tl::ImageReader> mImageReader;
 	Orthorectification *mOrthorectification;
-	//tl::EcefToEnu mEcefToEnu;
- //   std::shared_ptr<tl::CrsTransform> mCrsTransfom;
 	std::string mEnuCrs;
 	std::string mCrs;
 	tl::Rect<int> mRectOrtho;
-	//tl::geom::Affine<tl::Point<double>> mGeoreference;
 	tl::Affine<double, 2> mGeoreference;
 	std::unique_ptr<tl::ImageWriter> mOrthophotoWriter;
 	tl::Window<tl::Point<double>> mWindowOrthoTerrain;

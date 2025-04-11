@@ -255,7 +255,7 @@ message(STATUS "\nDependency loading:\n")
 # TidopLib (REQUIRED)                                                    #
 ##########################################################################      
 
-find_package(TidopLib 3.0 REQUIRED)
+find_package(TidopLib 3.2 REQUIRED)
 
 if(TidopLib_FOUND)
     message(STATUS "  TidopLib version: ${TidopLib_VERSION}")
