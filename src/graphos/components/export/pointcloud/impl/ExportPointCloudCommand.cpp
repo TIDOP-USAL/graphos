@@ -48,12 +48,12 @@ ExportPointCloudCommand::ExportPointCloudCommand()
     mProject(nullptr)
 {
     this->addArgument<Path>("prj", 'p', "Project file");
-    this->addArgument<Path>("file", 'f', "Export file");
+    this->addArgument<Path>("file", 'f', "Export file (.las, .ply)");
     auto ply_format = Argument::make<std::string>("ply:format", "PLY format", "binary");
     ply_format->setValidator(ValuesValidator<std::string>::create({"binary", "text"}));
     this->addArgument(ply_format);
-    this->addOption("ply:colors", "Export point cloud colors", true);
-    this->addOption("ply:normals", "Export point cloud normals", true);
+    this->addOption("save_colors", "Export point cloud colors", true);
+    this->addOption("save_normals", "Export point cloud normals", true);
     this->addArgument<std::string>("crs", "CRS of the point cloud", "");
 
     this->addExample("export_point_cloud -p 253/253.xml --file point_cloud.ply");
@@ -100,8 +100,8 @@ bool ExportPointCloudCommand::run()
         auto file =  this->value<Path>("file");
         auto crs = this->value<std::string>("crs");
         auto ply_format = this->value<std::string>("ply:format");
-        auto colors = this->value<bool>("ply:colors");
-        auto normals = this->value<bool>("ply:normals");
+        auto colors = this->value<bool>("save_colors");
+        auto normals = this->value<bool>("save_normals");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
@@ -113,18 +113,30 @@ bool ExportPointCloudCommand::run()
         mProject = new ProjectImp;
         mProject->load(project_path);
 
-        ExportPointCloudTask export_point_cloud_task(mProject->denseModel(),
-                                                     file,
-                                                     mProject->enuCrs().toStdString(),
-                                                     crs.empty() ? this->crs() : crs,
-                                                     ply_format == "binary",
-                                                     colors, 
-                                                     normals);
+        std::unique_ptr<tl::Task> export_point_cloud_task;
+
+        if (tl::compareInsensitiveCase(file.extension().toString(), ".ply")) {
+            export_point_cloud_task = std::make_unique<ExportPointCloudTask>(mProject->denseModel(),
+                                                                             file,
+                                                                             mProject->enuCrs().toStdString(),
+                                                                             crs.empty() ? this->crs() : crs,
+                                                                             ply_format == "binary",
+                                                                             colors,
+                                                                             normals);
+        } else {
+            export_point_cloud_task = std::make_unique<ExportPointCloudTask>(mProject->denseModel(),
+                                                                             file,
+                                                                             mProject->enuCrs().toStdString(),
+                                                                             crs.empty() ? this->crs() : crs,
+                                                                             false, // se ignora
+                                                                             colors,
+                                                                             normals);
+        }
 
         size_t size = static_cast<size_t>(mProject->denseReport().points / 80.) * 20 + mProject->denseReport().points;
 
         ProgressBarColor progress(0, size);
-        export_point_cloud_task.run(&progress);
+        export_point_cloud_task->run(&progress);
 
     } catch (const std::exception &e) {
 
