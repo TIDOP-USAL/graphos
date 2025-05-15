@@ -567,7 +567,7 @@ private:
 
             double time = chrono.stop();
 
-            Message::info("Undistort image: {} [Time: {} seconds]", data.undistortImage().toString(), time);
+            Message::info("Undistort image: {} [Time: {} seconds]", data.undistortImage().toUtf8(), time);
 
             if (mProgressBar) (*mProgressBar)();
 

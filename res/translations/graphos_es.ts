@@ -501,13 +501,13 @@
         <translation>Tarea terminada</translation>
     </message>
     <message>
-        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalPresenter.cpp" line="138"/>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalPresenter.cpp" line="139"/>
         <location filename="../../src/graphos/components/dem/impl/DemPresenter.cpp" line="130"/>
         <source>DEM</source>
         <translation>MDE</translation>
     </message>
     <message>
-        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalPresenter.cpp" line="139"/>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalPresenter.cpp" line="140"/>
         <location filename="../../src/graphos/components/dem/impl/DemPresenter.cpp" line="131"/>
         <source>DEM processing...</source>
         <translation>Procesando MDE...</translation>
@@ -1519,43 +1519,43 @@
 <context>
     <name>MainWindowPresenter</name>
     <message>
-        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="89"/>
-        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="172"/>
+        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="90"/>
+        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="173"/>
         <source>Save Changes</source>
         <translation>Guardar cambios</translation>
     </message>
     <message>
-        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="90"/>
+        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="91"/>
         <source>There are unsaved changes. Do you want to save them?</source>
         <translation>Hay cambios sin guardar. ¿Quiere guardarlos?</translation>
     </message>
     <message>
-        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="104"/>
+        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="105"/>
         <source>It is loading an old project</source>
         <translation>Está cargando un proyecto antiguo</translation>
     </message>
     <message>
-        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="105"/>
+        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="106"/>
         <source>If you accept, a copy of the old project will be created</source>
         <translation>Si aceptas, se creará una copia del proyecto antiguo</translation>
     </message>
     <message>
-        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="162"/>
+        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="163"/>
         <source>Warning</source>
         <translation>Advertencia</translation>
     </message>
     <message>
-        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="163"/>
+        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="164"/>
         <source>Stop the current process before closing the program.</source>
         <translation>Detener el proceso actual antes de cerrar el programa.</translation>
     </message>
     <message>
-        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="173"/>
+        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="174"/>
         <source>There are unsaved changes. Do you want to save the changes before closing the project?</source>
         <translation>Hay cambios sin guardar. ¿Quieres guardar los cambios antes de cerrar el proyecto?</translation>
     </message>
     <message>
-        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="233"/>
+        <location filename="../../src/graphos/gui/MainWindowPresenter.cpp" line="234"/>
         <source>Load project: </source>
         <translation>Cargar proyecto: </translation>
     </message>
@@ -2996,12 +2996,12 @@
 <context>
     <name>graphos::DsmPdalPresenterImp</name>
     <message>
-        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalPresenter.cpp" line="84"/>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalPresenter.cpp" line="85"/>
         <source>Process error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalPresenter.cpp" line="93"/>
+        <location filename="../../plugins/DsmPdal/component/impl/DsmPdalPresenter.cpp" line="94"/>
         <source>Process finished</source>
         <translation type="unfinished"></translation>
     </message>

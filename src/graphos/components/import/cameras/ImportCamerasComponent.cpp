@@ -46,7 +46,7 @@ ImportCamerasComponent::~ImportCamerasComponent()
 {
 }
 
-void ImportCamerasComponent::setCrs(const QString& crs)
+void ImportCamerasComponent::setCrs(const QString &crs)
 {
 #ifdef GRAPHOS_GUI
     if (view())

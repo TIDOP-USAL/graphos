@@ -100,7 +100,7 @@ void ImportCamerasModelImp::previewImportCameras()
     QFile file(mCsvFile);
     if (file.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream stream(&file);
-
+        stream.setCodec("UTF-8");
         if (mIniLine) {
 
             for (size_t i = 0; i < static_cast<size_t>(mIniLine); i++)
@@ -250,7 +250,7 @@ void ImportCamerasModelImp::previewImportCamerasFormated()
         QFile file(mCsvFile);
         if (file.open(QFile::ReadOnly | QFile::Text)) {
             QTextStream stream(&file);
-
+            stream.setCodec("UTF-8");
             if (mIniLine) {
                 for (size_t i = 0; i < static_cast<size_t>(mIniLine); i++)
                     stream.readLine();
@@ -577,7 +577,7 @@ void ImportCamerasModelImp::setCrs(const QString &crs)
 
 void ImportCamerasModelImp::writePriorPoses()
 {
-    colmap::Database database(mProject->database().toString());
+    colmap::Database database(mProject->database().toUtf8());
 
     for (const auto &pair_image : mProject->images()) {
 
@@ -613,7 +613,7 @@ void ImportCamerasModelImp::importCameras()
     QFile file(mCsvFile);
     if (file.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream stream(&file);
-
+        stream.setCodec("UTF-8");
         if (mIniLine) {
             for (size_t i = 0; i < static_cast<size_t>(mIniLine); i++)
                 stream.readLine();
@@ -788,6 +788,10 @@ void ImportCamerasModelImp::importCameras()
                     //} else {
                         camera_pose.setPosition(tl::Point3<double>(x.toDouble(), y.toDouble(), z.toDouble()));
                         camera_pose.setCrs(mCrs);
+                        //TODO: Se tiene que pasar la precisión de los puntos
+                        camera_pose.setAccuracy({0.01, 0.01, 0.01});
+                        // Aqui se puede poner el estado RTK. Supongo que la precisión de las camaras es buena
+                        camera_pose.setRtkFlag(50);
                     //}
 
                     tl::Quaternion<double> quaternion = tl::Quaternion<double>::identity();
@@ -814,7 +818,7 @@ void ImportCamerasModelImp::importCameras()
                     Image image = pair_image.second;
                     image.setCameraPose(camera_pose);
                     mProject->updateImage(pair_image.first, image);
-                    tl::Message::info("Camera coordinates found for {} : [{},{},{}]", image.name().toStdString().c_str(), x.toDouble(), y.toDouble(), z.toDouble());
+                    tl::Message::info("Camera coordinates found for {} : [{},{},{}]", image.name().toStdString(), x.toDouble(), y.toDouble(), z.toDouble());
                     break;
                 }
             }
@@ -927,7 +931,7 @@ void ImportCamerasModelImp::importCamerasFromMRK(const QString &file)
 
                     image.setCameraPose(camera_pose);
                     mProject->updateImage(image_pair.first, image);
-                    tl::Message::info("Camera coordinates found for {} : [{},{},{}]", image.name().toStdString().c_str(), pt.x, pt.y, pt.z);
+                    tl::Message::info("Camera coordinates found for {} : [{},{},{}]", image.name().toStdString(), pt.x, pt.y, pt.z);
 
                     break;
                 }

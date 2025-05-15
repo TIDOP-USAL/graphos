@@ -323,6 +323,64 @@ cv::Mat extractDSMfromPointCloud(const CGAL::Point_set_3<Point_3> &points,
     return mat;
 }
 
+//Probar esto
+//cv::Mat extractDSMfromPointCloud(const CGAL::Point_set_3<Point_3> &points,
+//    const tl::BoundingBoxD &bbox,
+//    double gsd,
+//    const tl::Affine<double, 2> &georeference,
+//    double threshold)
+//{
+//    tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd),
+//        tl::roundToInteger(bbox.height() / gsd));
+//    cv::Mat mat(size.height, size.width, CV_32F, -9999.);  // Inicializa con valor de no datos
+//
+//    // Crea un contenedor para las celdas
+//    std::vector<std::vector<Point_3>> grid_cells(size.height * size.width);
+//
+//    // Clasificar puntos en celdas
+//    for (auto &point : points.points()) {
+//        tl::Point2d _point(point.x(), point.y());
+//        tl::Point2i point_image = georeference.transform(_point);
+//        if (point_image.x >= 0 && point_image.x < size.width && point_image.y >= 0 && point_image.y < size.height) {
+//            int cell_idx = point_image.y * size.width + point_image.x;
+//            grid_cells[cell_idx].push_back(point);
+//        }
+//    }
+//
+//    // Procesar celdas
+//    for (size_t i = 0; i < grid_cells.size(); ++i) {
+//        std::vector<Point_3> &cell_points = grid_cells[i];
+//
+//        if (cell_points.empty()) continue;
+//
+//        // Encontrar el punto más alto en la celda
+//        float max_z = -std::numeric_limits<float>::infinity();
+//        for (auto &point : cell_points) {
+//            max_z = std::max(max_z, static_cast<float>(point.z()));
+//        }
+//
+//        // Filtrar puntos que están debajo del umbral respecto al punto más alto
+//        std::vector<Point_3> filtered_points;
+//        for (auto &point : cell_points) {
+//            if (point.z() >= max_z - threshold) {  // Umbral de 1 metro
+//                filtered_points.push_back(point);
+//            }
+//        }
+//
+//        // Si hay puntos válidos, usa el más alto para el DSM
+//        if (!filtered_points.empty()) {
+//            for (auto &point : filtered_points) {
+//                tl::Point2d _point(point.x(), point.y());
+//                tl::Point2i point_image = georeference.transform(_point);
+//                if (point_image.x >= 0 && point_image.x < size.width && point_image.y >= 0 && point_image.y < size.height) {
+//                    mat.at<float>(point_image.y, point_image.x) = std::max(mat.at<float>(point_image.y, point_image.x), static_cast<float>(point.z()));
+//                }
+//            }
+//        }
+//    }
+//
+//    return mat;
+//}
 void writeDTM(const tl::Path &file, const cv::Mat &mat,
               const tl::Affine<double, 2> &georeference,
               const std::string &epsg)
@@ -469,7 +527,7 @@ void DemTask::execute(tl::Progress *progressBar)
 
             dsm_raster.release();
 
-            tl::Message::info("DSM writed at: {}", mds_path.toString());
+            tl::Message::info("DSM writed at: {}", mds_path.toUtf8());
 
         }
 

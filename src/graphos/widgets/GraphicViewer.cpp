@@ -203,7 +203,7 @@ void GraphicViewer::mouseDoubleClickEvent(QMouseEvent *event)
 
 void GraphicViewer::wheelEvent(QWheelEvent *event)
 {
-    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    //setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 
     constexpr double min_scale = 0.1;
     constexpr double max_scale = 10.0;

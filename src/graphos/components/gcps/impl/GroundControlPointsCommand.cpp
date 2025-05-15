@@ -114,6 +114,8 @@ bool GroundControlPointsCommand::run()
         //project.setCrs(QString::fromStdString(crs));
         project.save(project_path);
 
+        tl::Message::success("Ground control points imported from: {}", gcp.toUtf8());
+
     } catch (const std::exception &e) {
 
         tl::printException(e);

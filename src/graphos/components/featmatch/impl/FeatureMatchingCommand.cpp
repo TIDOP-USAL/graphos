@@ -108,7 +108,7 @@ bool FeatureMatchingCommand::run()
         project.load(project_path);
 
         {
-            colmap::Database database(project.database().toString());
+            colmap::Database database(project.database().toUtf8());
             database.ClearMatches();
             database.ClearTwoViewGeometries();
             database.Close();

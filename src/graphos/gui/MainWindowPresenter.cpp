@@ -29,6 +29,7 @@
 #include "graphos/widgets/StartPageWidget.h"
 #include "graphos/widgets/TabWidget.h"
 #include "graphos/widgets/GraphicViewer.h"
+#include "graphos/widgets/MapViewer.h"
 #include "graphos/widgets/Viewer3d.h"
 #include "graphos/gui/MainWindowView.h"
 #include "graphos/gui/MainWindowModel.h"
@@ -224,7 +225,7 @@ void MainWindowPresenter::loadProject()
     Application &app = Application::instance();
     app.status()->activeFlag(AppStatus::Flag::project_exists, true);
 
-    QString project_path = QString::fromStdWString(mModel->projectPath().toWString());
+    QString project_path = QString::fromStdString(mModel->projectPath().toUtf8());
 
     /// Se añade al historial de proyectos recientes
     app.addToHistory(project_path);
@@ -232,9 +233,8 @@ void MainWindowPresenter::loadProject()
 
     QString msg = QApplication::translate("MainWindowPresenter", "Load project: ").append(project_path);
     mView->setStatusBarMsg(msg);
-    QByteArray ba = project_path.toLocal8Bit();
-    const char *cfile = ba.data();
-    tl::Message::info("Load project: {}", mModel->projectPath().toString());
+
+    tl::Message::info("Load project: {}", mModel->projectPath().toUtf8());
 
     {
         const auto &images = mModel->images();
@@ -666,6 +666,31 @@ void MainWindowPresenter::openOrthophoto(const QString &orthophoto)
             tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
 
             graphic_viewer->zoomExtend();
+
+            //MapViewer *map_viewer = new MapViewer(mView);
+            //map_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
+            //map_viewer->loadGeoTiff(orthophoto);
+            //tab_id = tab_widget->addTab(map_viewer, QFileInfo(orthophoto).fileName());
+            //tab_widget->setCurrentIndex(tab_id);
+            //tab_widget->setTabToolTip(tab_id, orthophoto);
+            //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+
+            //TiledGeoTiffViewer *map_viewer = new TiledGeoTiffViewer(mView);
+            //map_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
+            //tab_id = tab_widget->addTab(map_viewer, QFileInfo(orthophoto).fileName());
+            //map_viewer->loadGeoTiff(orthophoto);
+            //tab_widget->setCurrentIndex(tab_id);
+            //tab_widget->setTabToolTip(tab_id, orthophoto);
+            //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+
+            //MapViewer *map_viewer = new MapViewer(mView);
+            //map_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
+            //map_viewer->addRasterLayer(orthophoto);
+            //tab_id = tab_widget->addTab(map_viewer, QFileInfo(orthophoto).fileName());
+            //tab_widget->setCurrentIndex(tab_id);
+            //tab_widget->setTabToolTip(tab_id, orthophoto);
+            //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+            //map_viewer->zoomExtend();
         }
 
         AppStatus *status = Application::instance().status();

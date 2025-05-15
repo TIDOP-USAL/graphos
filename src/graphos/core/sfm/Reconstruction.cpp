@@ -224,7 +224,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
         mIncrementalMapperOptions->ba_refine_principal_point = false;
         mIncrementalMapperOptions->ba_refine_extra_params = !mOptions.isEnabled(Options::fix_calibration);
 
-        mMapper = new colmap::IncrementalMapperController(mIncrementalMapperOptions, "", mDatabase.toString(), mReconstructionManager.get());
+        mMapper = new colmap::IncrementalMapperController(mIncrementalMapperOptions, "", mDatabase.toUtf8(), mReconstructionManager.get());
 
         size_t prev_num_reconstructions = 0;
         mMapper->AddCallback(colmap::IncrementalMapperController::LAST_IMAGE_REG_CALLBACK, [&]() {
@@ -550,7 +550,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
 
                     colmap::Database database;
-                    database.Open(mDatabase.toString());
+                    database.Open(mDatabase.toUtf8());
 
                     for (auto &ground_control_point : ground_control_points) {
 

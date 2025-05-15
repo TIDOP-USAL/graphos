@@ -519,7 +519,7 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
 
         tl::Message::info("Feature extraction running");
 
-        colmap::Database database(mDatabase.toString());
+        colmap::Database database(mDatabase.toUtf8());
 
         QueueMPMC<internal::queue_data> buffer(50);
         internal::ProducerImp producer(&mImages,
@@ -531,7 +531,7 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
                                        this);
         internal::ConsumerImp consumer(&mImages,
                                        mFeatureExtractor.get(),
-                                       mDatabase.toString(),
+                                       mDatabase.toUtf8(),
                                        &database,
                                        &buffer,
                                        this,

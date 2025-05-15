@@ -64,7 +64,7 @@ bool CreateProjectCommand::run()
         bool force_overwrite = this->value<bool>("overwrite");
 
         tl::Path project_path = project_name;
-        auto base_name = project_path.baseName().toString();
+        auto base_name = project_path.baseName().toUtf8();
 
         if (project_path.isAbsolutePath()) {
 
@@ -138,8 +138,8 @@ bool CreateProjectCommand::run()
         project.setDatabase(database_path);
         project.save(project_path);
 
-        tl::Message::success("Project created at {}", project_path.toString());
-        tl::Message::info("- Name: {}", base_name);
+        tl::Message::success("Project created at {}", project_path.toUtf8());
+        tl::Message::info("- Name: {}", project_path.baseName().toUtf8());
         tl::Message::info("- Description: {}", project_description);
 
     } catch (const std::exception &e) {

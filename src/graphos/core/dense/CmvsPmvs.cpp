@@ -264,7 +264,7 @@ void CmvsPmvsDensifier::writeBundleFile()
     try {
 
         colmap::Database database;
-        database.Open(mDatabase.toString());
+        database.Open(mDatabase.toUtf8());
         const auto &colmap_images = database.ReadAllImages();
 
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
@@ -430,7 +430,7 @@ void CmvsPmvsDensifier::writeVisibility()
         ///////////////////////////////////////////////////////////////////////////////
         /// TODO: Repetido
         colmap::Database database;
-        database.Open(mDatabase.toString());
+        database.Open(mDatabase.toUtf8());
         const auto &colmap_images = database.ReadAllImages();
 
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
@@ -561,9 +561,9 @@ void CmvsPmvsDensifier::densify()
         app_path.append("pmvs2");
 
         std::string cmd_cmvs("\"");
-        cmd_cmvs.append(app_path.toString());
+        cmd_cmvs.append(app_path.toUtf8());
         cmd_cmvs.append("\" \"");
-        cmd_cmvs.append(outputPath().toString());
+        cmd_cmvs.append(outputPath().toUtf8());
         cmd_cmvs.append("/\" option-all");
 
         Message::info("Process: {}", cmd_cmvs);

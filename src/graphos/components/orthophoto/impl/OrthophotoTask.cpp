@@ -994,9 +994,9 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
                             compensator->apply(0, corner, compensate_image, mask_full_size);
 
                             tl::Path orto_compensate(ortho_to_compensate);
-                            std::string name = orto_compensate.baseName().toString() + "_compensate.png";
+                            std::string name = orto_compensate.baseName().toUtf8() + "_compensate.png";
                             orto_compensate.replaceFileName(name);
-                            std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(orto_compensate.toString());
+                            std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(orto_compensate);
                             image_writer->open();
                             if (image_writer->isOpen()) {
                                 image_writer->create(image_reader->rows(), image_reader->cols(), image_reader->channels(), image_reader->dataType());
@@ -1004,7 +1004,7 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
                                 image_writer->setGeoreference(image_reader->georeference());
                                 image_writer->write(compensate_image);
                                 image_writer->close();
-                                tl::Message::info("Compensated image: {}", orto_compensate.fileName().toString());
+                                tl::Message::info("Compensated image: {}", orto_compensate.fileName().toUtf8());
                                 //compensated_orthos.push_back(orto_compensate.toString());
                             }
                         }
@@ -1055,9 +1055,9 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
                             auto orto_center = window_orto.center();
                             auto dist = tl::distance(orto_center, window_center);
                             tl::Path orto_compensate(polygon->data()->value(0));
-                            std::string name = orto_compensate.baseName().toString() + "_compensate.png";
+                            std::string name = orto_compensate.baseName().toUtf8() + "_compensate.png";
                             orto_compensate.replaceFileName(name);
-                            orthos[r][c][dist] = orto_compensate.toString();
+                            orthos[r][c][dist] = orto_compensate.toUtf8();
                         }
 
                     }
@@ -1126,7 +1126,7 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
                         tile.createDirectories();
                         tl::Path image_name(ortho.second);
 
-                        tile.append(image_name.fileName().toString());
+                        tile.append(image_name.fileName().toUtf8());
 
                         auto image_writer = tl::ImageWriterFactory::create(tile);
                         image_writer->open();
@@ -1182,76 +1182,83 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
             }
         }
 
+        tl::Message::info("Writing ortho image");
+
         /// Escritura de la orto
-        tl::Path ortho_final(ortho_path);
-        ortho_final.append("ortho.tif");
-        std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(ortho_final);
-        image_writer->open();
-        int cols = static_cast<int>(std::round(window_all.width() / res_ortho));
-        int rows = static_cast<int>(std::round(window_all.height() / res_ortho));
+        try {
 
-        if (image_writer->isOpen()) {
-            image_writer->create(rows, cols, 3, tl::DataType::TL_8U);
-            image_writer->setCRS(crs.toWktFormat());
-            tl::Affine<double, 2> affine_ortho(res_ortho, -res_ortho, window_all.pt1.x, window_all.pt2.y, 0.0);
-            image_writer->setGeoreference(affine_ortho);
+            tl::Path ortho_final(ortho_path);
+            ortho_final.append("ortho.tif");
+            std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(ortho_final);
+            image_writer->open();
+            int cols = static_cast<int>(std::round(window_all.width() / res_ortho));
+            int rows = static_cast<int>(std::round(window_all.height() / res_ortho));
 
-            for (size_t r = 0; r < grid.size(); r++) {
-                for (size_t c = 0; c < grid[r].size(); c++) {
+            if (image_writer->isOpen()) {
+                image_writer->create(rows, cols, 3, tl::DataType::TL_8U);
+                image_writer->setCRS(crs.toWktFormat());
+                tl::Affine<double, 2> affine_ortho(res_ortho, -res_ortho, window_all.pt1.x, window_all.pt2.y, 0.0);
+                image_writer->setGeoreference(affine_ortho);
 
-                    try {
-                        const auto &window = grid[r][c];
-                        tl::Path tile(ortho_path);
-                        tile.append(std::to_string(r));
-                        tile.append(std::to_string(c));
-                        tile.append("t.tif");
-                        if (!tile.exists()) continue;
-                        auto image_reader = tl::ImageReaderFactory::create(tile/*orthos[r][c].begin()->second*/);
-                        image_reader->open();
-                        if (!image_reader->isOpen()) {
-                            tl::Message::error("Image open error :{}", orthos[r][c].begin()->second);
-                            continue;
+                for (size_t r = 0; r < grid.size(); r++) {
+                    for (size_t c = 0; c < grid[r].size(); c++) {
+
+                        try {
+                            const auto &window = grid[r][c];
+                            tl::Path tile(ortho_path);
+                            tile.append(std::to_string(r));
+                            tile.append(std::to_string(c));
+                            tile.append("t.tif");
+                            if (!tile.exists()) continue;
+                            auto image_reader = tl::ImageReaderFactory::create(tile/*orthos[r][c].begin()->second*/);
+                            image_reader->open();
+                            if (!image_reader->isOpen()) {
+                                tl::Message::error("Image open error :{}", orthos[r][c].begin()->second);
+                                continue;
+                            }
+
+                            auto tile_window = image_reader->window();
+
+                            if (!intersectWindows(tile_window, window) /*||
+                                !intersectWindows(image_reader_seam->window(), window)*/) continue;
+
+                            auto georef = image_reader->georeference();
+
+                            //double scale_x = georef.scale().x();
+                            //double scale_y = georef.scale().y();
+                            //double read_scale_x = scale_x / res_ortho;
+                            //double read_scale_y = scale_y / res_ortho;
+
+                            //auto inverse_transform = georef.inverse();
+                            //tl::Point<double> p1 = inverse_transform.transform(window.pt1);
+                            //tl::Point<double> p2 = inverse_transform.transform(window.pt2);
+                            //tl::WindowI window_to_read(static_cast<tl::Point<int>>(p1), static_cast<tl::Point<int>>(p2));
+                            //window_to_read.normalized();
+
+                            //tl::Affine<int, 2> affine;
+                            //cv::Mat compensate_image = image_reader->read(window, read_scale_x, read_scale_y, &affine);
+                            // Leo toda la imagen asi que lo anterior no tiene sentido
+                            cv::Mat compensate_image = image_reader->read();
+                            // Relleno de pixeles negros
+                            cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 1024);
+                            cv::inpaint(compensate_image, blackPixelMask, compensate_image, 3, cv::INPAINT_TELEA);
+
+                            auto affine_ortho_inverse = affine_ortho.inverse();
+                            tl::Point<double> p1_ortho = affine_ortho_inverse.transform(tile_window.pt1);
+                            tl::Point<double> p2_ortho = affine_ortho_inverse.transform(tile_window.pt2);
+                            tl::WindowI window_to_write(static_cast<tl::Point<int>>(p1_ortho), static_cast<tl::Point<int>>(p2_ortho));
+                            window_to_write.normalized();
+                            if (window_to_write.isValid())
+                                image_writer->write(compensate_image, window_to_write);
+                        } catch (std::exception &e) {
+                            tl::printException(e);
                         }
-
-                        auto tile_window = image_reader->window();
-
-                        if (!intersectWindows(tile_window, window) /*||
-                            !intersectWindows(image_reader_seam->window(), window)*/) continue;
-
-                        auto georef = image_reader->georeference();
-
-                        //double scale_x = georef.scale().x();
-                        //double scale_y = georef.scale().y();
-                        //double read_scale_x = scale_x / res_ortho;
-                        //double read_scale_y = scale_y / res_ortho;
-
-                        //auto inverse_transform = georef.inverse();
-                        //tl::Point<double> p1 = inverse_transform.transform(window.pt1);
-                        //tl::Point<double> p2 = inverse_transform.transform(window.pt2);
-                        //tl::WindowI window_to_read(static_cast<tl::Point<int>>(p1), static_cast<tl::Point<int>>(p2));
-                        //window_to_read.normalized();
-
-                        //tl::Affine<int, 2> affine;
-                        //cv::Mat compensate_image = image_reader->read(window, read_scale_x, read_scale_y, &affine);
-                        // Leo toda la imagen asi que lo anterior no tiene sentido
-                        cv::Mat compensate_image = image_reader->read();
-                        // Relleno de pixeles negros
-                        cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 1024);
-                        cv::inpaint(compensate_image, blackPixelMask, compensate_image, 3, cv::INPAINT_TELEA);
-
-                        auto affine_ortho_inverse = affine_ortho.inverse();
-                        tl::Point<double> p1_ortho = affine_ortho_inverse.transform(tile_window.pt1);
-                        tl::Point<double> p2_ortho = affine_ortho_inverse.transform(tile_window.pt2);
-                        tl::WindowI window_to_write(static_cast<tl::Point<int>>(p1_ortho), static_cast<tl::Point<int>>(p2_ortho));
-                        window_to_write.normalized();
-                        if (window_to_write.isValid())
-                            image_writer->write(compensate_image, window_to_write);
-                    } catch (std::exception &e) {
-                        tl::printException(e);
                     }
                 }
-            }
 
+            }
+        } catch (std::exception &e) {
+            tl::printException(e);
         }
 
     } catch(std::exception &e){
@@ -1816,22 +1823,22 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
         dsm_path.replaceBaseName("dsm_enu");
 
 
-        OrthoimageTask orthoimage_task(mPhotos,
-                                       mCameras,
-                                       dsm_path,
-                                       mOrthoPath,
-                                       graph_orthos,
-                                       //ecef_to_enu,
-                                       //crs_transfom,
-                                       mEnuCrs,
-                                       mEpsg,
-                                       footprint_file,
-                                       mGSD,
-                                       mInterpolation,
-                                       1.0,
-                                       bCuda);
+        //OrthoimageTask orthoimage_task(mPhotos,
+        //                               mCameras,
+        //                               dsm_path,
+        //                               mOrthoPath,
+        //                               graph_orthos,
+        //                               //ecef_to_enu,
+        //                               //crs_transfom,
+        //                               mEnuCrs,
+        //                               mEpsg,
+        //                               footprint_file,
+        //                               mGSD,
+        //                               mInterpolation,
+        //                               1.0,
+        //                               bCuda);
 
-        orthoimage_task.run(progressBar);
+        //orthoimage_task.run(progressBar);
 
         //std::vector<tl::WindowD> grid = findGrid(graph_orthos);
         //std::vector<tl::WindowD> grid = this->findGrid(mMdt, mGSD);

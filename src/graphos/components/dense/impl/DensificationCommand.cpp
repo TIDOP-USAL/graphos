@@ -50,11 +50,12 @@ DensificationCommand::DensificationCommand()
     std::vector<std::string> methods{"mvs", "pmvs", "smvs"};
     arg_method->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(methods));
     this->addArgument(arg_method);
-    this->addArgument<int>("mvs:resolution_level", "Resolution Level (default = 1)", 1);
-    this->addArgument<int>("mvs:min_resolution", "Min Resolution (default = 640)", 640);
-    this->addArgument<int>("mvs:max_resolution", "Max Resolution (default = 3200)", 3200);
-    this->addArgument<int>("mvs:number_views", "Number Views (default = 5)", 5);
-    this->addArgument<int>("mvs:number_views_fuse", "Number Views Fuse (default = 3)", 3);
+    Mvs mvs_properties;
+    this->addArgument<int>("mvs:resolution_level", "Resolution Level", mvs_properties.resolutionLevel());
+    this->addArgument<int>("mvs:min_resolution", "Min Resolution", mvs_properties.minResolution());
+    this->addArgument<int>("mvs:max_resolution", "Max Resolution", mvs_properties.maxResolution());
+    this->addArgument<int>("mvs:number_views", "Number Views", mvs_properties.numberViews());
+    this->addArgument<int>("mvs:number_views_fuse", "Number Views Fuse", mvs_properties.numberViewsFuse());
     this->addArgument<bool>("mvs:estimate-colors", "Estimate color (default = true)", true);
     this->addArgument<bool>("mvs:estimate-normals", "Estimate normals (default = true)", true);
     this->addArgument<bool>("pmvs:visibility", "Use Visibility Information (default = true)", true);

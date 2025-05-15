@@ -436,6 +436,21 @@ int main(int argc, char *argv[])
 
 #ifdef GRAPHOS_HAVE_IMPORT_CAMERAS
         componentsManager.registerComponent(&import_cameras_component);
+
+#   ifdef GRAPHOS_HAVE_CRS
+        QObject::connect(&import_cameras_component, &ImportCamerasComponent::select_crs, [&]() {
+
+            QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+                &import_cameras_component, &ImportCamerasComponent::setCrs);
+
+            crs_component.open();
+
+            QObject::disconnect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+                &import_cameras_component, &ImportCamerasComponent::setCrs);
+
+            });
+#   endif // GRAPHOS_HAVE_CRS
+
 #endif // GRAPHOS_HAVE_IMPORT_CAMERAS
 
 #ifdef GRAPHOS_HAVE_CAMERAS
@@ -529,6 +544,7 @@ int main(int argc, char *argv[])
                                 &gcps_component, &GroundControlPointsComponent::setCRS);
         });
 #   endif // GRAPHOS_HAVE_CRS
+
 #endif // GRAPHOS_HAVE_GCPS
 
 #ifdef GRAPHOS_HAVE_SCALE

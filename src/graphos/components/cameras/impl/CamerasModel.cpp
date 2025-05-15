@@ -299,7 +299,7 @@ void CamerasModelImp::calibrationImport(const QString &file,
 
                             if (stream.name() == "projection") {
                                 stream.readElementText();
-                                TL_TODO("Comprobar tipo de c�mara")
+                                TL_TODO("Comprobar tipo de cámara")
                             } else if (stream.name() == "width") {
                                     mCameraCache[mActiveCameraId].setWidth(stream.readElementText().toInt());
                                 } else if (stream.name() == "height") {
@@ -444,7 +444,7 @@ void CamerasModelImp::calibrationExport(const QString &file,
         }
     }
 
-    std::ofstream stream(file.toStdString(), std::ios::trunc);
+    std::ofstream stream(file.toStdWString(), std::ios::trunc);
     if (stream.is_open()) {
 
         if (format.compare("Pix4D") == 0) {

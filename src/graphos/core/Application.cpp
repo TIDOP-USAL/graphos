@@ -218,7 +218,7 @@ void Application::addToHistory(const QString &project)
 {
     tl::Path path(project.toStdString());
     path.normalize();
-    QString normalize_path = QString::fromStdString(path.toString());
+    QString normalize_path = QString::fromStdWString(path.toWString());
     mHistory.removeAll(normalize_path);
     mHistory.prepend(normalize_path);
 

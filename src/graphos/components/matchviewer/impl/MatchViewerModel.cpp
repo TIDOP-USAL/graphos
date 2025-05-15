@@ -130,7 +130,7 @@ auto MatchViewerModelImp::loadMatches(size_t imageId1, size_t imageId2) const ->
 
     TL_ASSERT(database_path.exists(), "Database not found");
 
-    colmap::Database database(database_path.toString());
+    colmap::Database database(database_path.toUtf8());
 
     if (!database.ExistsImageWithName(image_left.path().toStdString()))
         throw std::runtime_error(std::string("Image not found in database: ").append(image_left.name().toStdString()));

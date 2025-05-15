@@ -181,10 +181,10 @@ void PoissonReconTask::poissonRecon(const tl::Path &app_path) const
         _app_path.append("PoissonRecon");
 
         std::string cmd("\"");
-        cmd.append(_app_path.toString());
+        cmd.append(_app_path.toUtf8());
         cmd.append("\" ");
-        cmd.append("--in \"").append(input.toString());
-        cmd.append("\" --out \"").append(mOutput.toString());
+        cmd.append("--in \"").append(input.toUtf8());
+        cmd.append("\" --out \"").append(mOutput.toUtf8());
         cmd.append("\" --depth ").append(std::to_string(depth()));
         //cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));
         cmd.append(" --bType ").append(boundary_type);
@@ -220,10 +220,10 @@ void PoissonReconTask::surfaceTrimmer(const tl::Path &app_path) const
         _app_path.append("SurfaceTrimmer");
 
         std::string cmd("\"");
-        cmd.append(_app_path.toString());
+        cmd.append(_app_path.toUtf8());
         cmd.append("\" ");
-        cmd.append("--in \"").append(mOutput.toString());
-        cmd.append("\" --out \"").append(mOutput.toString());
+        cmd.append("--in \"").append(mOutput.toUtf8());
+        cmd.append("\" --out \"").append(mOutput.toUtf8());
         cmd.append("\" --trim 7");
 
         tl::Process process(cmd);

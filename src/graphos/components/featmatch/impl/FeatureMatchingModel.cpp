@@ -115,7 +115,7 @@ auto FeatureMatchingModelImp::geodeticCoordinates() const -> bool
 void FeatureMatchingModelImp::writeMatchPairs()
 {
 
-    colmap::Database database(mProject->database().toString());
+    colmap::Database database(mProject->database().toUtf8());
     std::vector<colmap::Image> db_images = database.ReadAllImages();
     colmap::image_t colmap_image_id_l = 0;
     colmap::image_t colmap_image_id_r = 0;
@@ -170,7 +170,7 @@ void FeatureMatchingModelImp::writeMatchPairs()
 
 void FeatureMatchingModelImp::cleanProject()
 {
-    colmap::Database database(mProject->database().toString());
+    colmap::Database database(mProject->database().toUtf8());
     database.ClearMatches();
     database.ClearTwoViewGeometries();
     database.Close();

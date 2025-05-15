@@ -31,6 +31,7 @@
 
 #include <QFileDialog>
 #include <QApplication>
+#include <QStandardPaths>
 
 
 namespace graphos
@@ -70,8 +71,8 @@ void ImportCamerasPresenterImp::open()
 {
     QString selected_filter;
     QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
-                                                QApplication::translate("ImportCamerasComponent", "Orientation cameras file"),
-                                                "",
+                                                QApplication::translate("ImportCamerasComponent", "Orientation cameras file", nullptr),
+                                                QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
                                                 QApplication::translate("ImportCamerasComponent", "MRK File (*.mrk);;Comma-separated values (*.csv);;Plain text (*.txt)"),
                                                 &selected_filter);
     if (!file.isEmpty()) {

@@ -71,8 +71,8 @@ void ExportPointCloudTask::execute(tl::Progress *progressBar)
 
     try {
 
-        TL_ASSERT(mPointCloud.exists(), "Point cloud file not exist: '{}'", mPointCloud.toString().c_str());
-        TL_ASSERT(mPointCloud.isFile(), "The path is not valid: '{}'", mPointCloud.toString().c_str());
+        TL_ASSERT(mPointCloud.exists(), "Point cloud file not exist: '{}'", mPointCloud.toUtf8());
+        TL_ASSERT(mPointCloud.isFile(), "The path is not valid: '{}'", mPointCloud.toUtf8());
 
         mExportPointCloud.parentPath().createDirectories();
 
@@ -184,7 +184,7 @@ void ExportPointCloudTask::execute(tl::Progress *progressBar)
                 writer = factory.createStage("writers.las");
 
             pdal::Options writerOptions;
-            writerOptions.add("filename", mExportPointCloud.toString());
+            writerOptions.add("filename", mExportPointCloud.toUtf8());
             if (!mCrsEnu.empty() && !mCrs.empty()) {
                 writerOptions.add("a_srs", mCrs);
                 if (ptrGeoTools->ptrCRSsTools()->getIsCRSGeographic(mCrs)) {

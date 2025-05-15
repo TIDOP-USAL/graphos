@@ -327,7 +327,7 @@ void SmvsDensifier::densify()
         app_path.append("smvsrecon_SSE41");
 
         std::string cmd("\"");
-        cmd.append(app_path.toString());
+        cmd.append(app_path.toUtf8());
         cmd.append("\" ");
         cmd.append("--scale=").append(std::to_string(Smvs::inputImageScale()));
         cmd.append(" --output-scale=").append(std::to_string(Smvs::outputDepthScale()));
@@ -337,7 +337,7 @@ void SmvsDensifier::densify()
             cmd.append(" --no-sgm ");
         if (Smvs::shadingBasedOptimization())
             cmd.append(" --shading ");
-        cmd.append("\"").append(outputPath().toString());
+        cmd.append("\"").append(outputPath().toUtf8());
 
         tl::Process process(cmd);
 

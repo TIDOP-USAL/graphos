@@ -230,6 +230,14 @@ else()
 	set(GRAPHOS_GUI NO)
 endif()
 
+if(BUILD_TRANSLATION)
+    message(STATUS "  [GRAPHOS] Build translation")
+    set(GRAPHOS_TRANSLATION YES)
+else()
+    message(STATUS "  [GRAPHOS] Translation disabled")
+	set(GRAPHOS_TRANSLATION NO)
+endif()
+
 
 
 

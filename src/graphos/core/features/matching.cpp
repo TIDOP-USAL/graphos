@@ -136,7 +136,7 @@ void FeatureMatchingTask::execute(tl::Progress *progressBar)
         sift_matching_options.use_gpu = bUseCuda;
         sift_matching_options.min_num_inliers = 15;// 100;
 
-        colmap::Database database(mDatabase.toString());
+        colmap::Database database(mDatabase.toUtf8());
         TL_ASSERT(database.NumKeypoints() > 0, "Keypoints not found in the database");
 
         colmap::ExhaustiveMatchingOptions exhaustive_matching_options;
@@ -282,7 +282,7 @@ void SpatialMatchingTask::execute(tl::Progress *progressBar)
         sift_matching_options.use_gpu = bUseCuda;
         sift_matching_options.min_num_inliers = 15;// 100;
 
-        colmap::Database database(mDatabase.toString());
+        colmap::Database database(mDatabase.toUtf8());
         TL_ASSERT(database.NumKeypoints() > 0, "Keypoints not found in the database");
 
         colmap::SpatialMatchingOptions spatial_matching_options;

@@ -413,7 +413,7 @@ void MvsDensifier::exportToColmap() const
     try {
 
         colmap::Database database;
-        database.Open(mDatabase.toString());
+        database.Open(mDatabase.toUtf8());
         const auto &colmap_images = database.ReadAllImages();
 
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
@@ -462,7 +462,7 @@ void MvsDensifier::writeNvmFile() const
     try {
 
         colmap::Database database;
-        database.Open(mDatabase.toString());
+        database.Open(mDatabase.toUtf8());
         const auto &colmap_images = database.ReadAllImages();
 
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
@@ -595,10 +595,10 @@ void MvsDensifier::exportToMvs() const
         images_path.append("images");
 
         std::string cmd_mvs("\"");
-        cmd_mvs.append(app_path.toString());
-        cmd_mvs.append("\" -v 2 -i \"").append(input_path.toString()).append("\"");
-        cmd_mvs.append(" -o \"").append(output_path.toString()).append("\"");
-        cmd_mvs.append(" --image-folder \"").append(images_path.toString()).append("\"");
+        cmd_mvs.append(app_path.toUtf8());
+        cmd_mvs.append("\" -v 2 -i \"").append(input_path.toUtf8()).append("\"");
+        cmd_mvs.append(" -o \"").append(output_path.toUtf8()).append("\"");
+        cmd_mvs.append(" --image-folder \"").append(images_path.toUtf8()).append("\"");
         tl::Message::info("Process: {}", cmd_mvs);
         tl::Process process(cmd_mvs);
 
@@ -629,9 +629,9 @@ void MvsDensifier::densify()
         output_path.append("temp");
 
         std::string cmd_mvs("\"");
-        cmd_mvs.append(app_path.toString());
+        cmd_mvs.append(app_path.toUtf8());
         cmd_mvs.append("\" -w \"");
-        cmd_mvs.append(output_path.toString());
+        cmd_mvs.append(output_path.toUtf8());
         cmd_mvs.append("\" -i model.mvs -o model_dense.mvs -v 2");
         cmd_mvs.append(" --resolution-level ").append(std::to_string(Mvs::resolutionLevel()));
         cmd_mvs.append(" --min-resolution ").append(std::to_string(Mvs::minResolution()));
@@ -672,7 +672,7 @@ void MvsDensifier::densify()
 
         setDenseModel(path);
 
-        tl::Message::info("Dense model write at: {}", path.toString());
+        tl::Message::info("Dense model write at: {}", path.toUtf8());
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");

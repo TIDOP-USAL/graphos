@@ -49,7 +49,6 @@ ImageLoaderCommand::ImageLoaderCommand()
     this->addArgument<tl::Path>("prj", 'p', "Project file");
     this->addArgument<tl::Path>("image", 'i', "Image added or removed (with option [--delete|-d]) from project.", tl::Path(""));
     this->addArgument<tl::Path>("image_list", 'l', "List of images added or removed (with option [--delete|-d]) from project.", tl::Path(""));
-    this->addArgument<bool>("delete", 'd', "Delete an image in project", false);
     auto arg_camera = tl::Argument::make<std::string>("camera", 'c', "Camera type", "OpenCV 1");
     std::vector<std::string> camera_types{"Pinhole 1",
                                           "Pinhole 2",
@@ -63,6 +62,9 @@ ImageLoaderCommand::ImageLoaderCommand()
                                           "Radial 3"};
     arg_camera->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(camera_types));
     this->addArgument(arg_camera);
+
+    this->addOption("delete", 'd', "Delete an image in project", false);
+    this->addOption("hide_progress", "Hide the progress bar", false);
 
     this->addExample("image_manager -p 253/253.xml -i image001.jpg");
     this->addExample("image_manager -p 253/253.xml -i image001.jpg -d");
@@ -78,11 +80,13 @@ bool ImageLoaderCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<tl::Path>("prj");
-        tl::Path image_path = this->value<tl::Path>("image");
-        tl::Path image_list_path = this->value<tl::Path>("image_list");
+        auto project_path = this->value<tl::Path>("prj");
+        auto image_path = this->value<tl::Path>("image");
+        auto image_list_path = this->value<tl::Path>("image_list");
+        auto image_list_path2 = this->value<std::string>("image_list");
         bool delete_image = this->value<bool>("delete");
-        std::string camera_type = this->value<std::string>("camera");
+        bool hide_progress = this->value<bool>("hide_progress");
+        auto camera_type = this->value<std::string>("camera");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
@@ -113,6 +117,7 @@ bool ImageLoaderCommand::run()
 
                 if (line.empty()) continue;
                 tl::trim(line);
+
                 Image img(line);
                 if (!project.existImage(img.id()))
                     images.push_back(img);
@@ -173,8 +178,11 @@ bool ImageLoaderCommand::run()
 
                     });
 
-            tl::ProgressBarColor progress(0, images.size());
-            image_loader_process.run(&progress);
+            if (!hide_progress) {
+                tl::ProgressBarColor progress(0, images.size());
+                image_loader_process.run(&progress);
+            } else
+                image_loader_process.run();
 
         }
 

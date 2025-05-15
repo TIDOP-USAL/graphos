@@ -73,7 +73,7 @@ Image::Image(Image &&image) noexcept
 
 auto Image::path() const -> QString
 {
-    return QString::fromStdString(mFilePath.toString());
+    return QString::fromStdString(mFilePath.toUtf8());
 }
 
 void Image::setPath(const QString &file)
@@ -89,7 +89,7 @@ void Image::setPath(const tl::Path &file)
 
 auto Image::name() const -> QString
 {
-    return QString::fromStdString(mFilePath.fileName().toString());
+    return QString::fromStdString(mFilePath.fileName().toUtf8());
 }
 
 auto Image::id() const -> size_t
