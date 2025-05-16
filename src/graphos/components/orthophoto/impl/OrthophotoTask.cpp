@@ -1823,22 +1823,20 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
         dsm_path.replaceBaseName("dsm_enu");
 
 
-        //OrthoimageTask orthoimage_task(mPhotos,
-        //                               mCameras,
-        //                               dsm_path,
-        //                               mOrthoPath,
-        //                               graph_orthos,
-        //                               //ecef_to_enu,
-        //                               //crs_transfom,
-        //                               mEnuCrs,
-        //                               mEpsg,
-        //                               footprint_file,
-        //                               mGSD,
-        //                               mInterpolation,
-        //                               1.0,
-        //                               bCuda);
+        OrthoimageTask orthoimage_task(mPhotos,
+                                       mCameras,
+                                       dsm_path,
+                                       mOrthoPath,
+                                       graph_orthos,
+                                       mEnuCrs,
+                                       mEpsg,
+                                       footprint_file,
+                                       mGSD,
+                                       mInterpolation,
+                                       1.0,
+                                       bCuda);
 
-        //orthoimage_task.run(progressBar);
+        orthoimage_task.run(progressBar);
 
         //std::vector<tl::WindowD> grid = findGrid(graph_orthos);
         //std::vector<tl::WindowD> grid = this->findGrid(mMdt, mGSD);
