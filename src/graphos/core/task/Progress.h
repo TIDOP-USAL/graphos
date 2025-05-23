@@ -31,6 +31,8 @@
 namespace graphos
 {
 
+std::unique_ptr<tl::Progress> getProgressBar(const std::string &progressBar, size_t maxValue);
+
 /*!
  * \brief Progress handler
  *

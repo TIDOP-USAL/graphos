@@ -28,7 +28,7 @@
 #include "graphos/core/features/featio.h"
 #include "graphos/core/features/featextract.h"
 #include "graphos/core/project.h"
-
+#include "graphos/core/task/Progress.h"
 
 #include <tidop/core/msg/message.h>
 
@@ -48,21 +48,24 @@ FeatureExtractorCommand::FeatureExtractorCommand()
     mDisableCuda(false)
 {
     Sift sift_properties;
-    this->addArgument<tl::Path>("prj", 'p', "Project file");
-    this->addArgument<int>("max_image_size", 's', "Maximum image size (default = 3200)", 3200);
+    this->addArgument<tl::Path>("prj", 'p', "Path to the project file");
+    this->addArgument<int>("max_image_size", 's', "Maximum image size (default: 3200)", 3200);
     this->addArgument<int>("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(sift_properties.featuresNumber())).append(")"), sift_properties.featuresNumber());
-    this->addArgument<int>("octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(sift_properties.octaveLayers())).append(")"), sift_properties.octaveLayers());
-    this->addArgument<double>("contrast_threshold", std::string("SIFT: Contrast Threshold (default = ").append(std::to_string(sift_properties.contrastThreshold())).append(")"), sift_properties.contrastThreshold());
-    this->addArgument<double>("edge_threshold", std::string("SIFT: Threshold used to filter out edge-like features (default = ").append(std::to_string(sift_properties.edgeThreshold())).append(")"), sift_properties.edgeThreshold());  
+    this->addArgument<int>("octave_resolution", std::string("SIFT: Number of layers per octave (default = ").append(std::to_string(sift_properties.octaveLayers())).append(")"), sift_properties.octaveLayers());
+    this->addArgument<double>("contrast_threshold", std::string("SIFT: Contrast threshold (default = ").append(std::to_string(sift_properties.contrastThreshold())).append(")"), sift_properties.contrastThreshold());
+    this->addArgument<double>("edge_threshold", std::string("SIFT: Edge threshold used to filter out edge-like features (default = ").append(std::to_string(sift_properties.edgeThreshold())).append(")"), sift_properties.edgeThreshold());  
     //this->addArgument<bool>("domain_size_pooling", std::string("SIFT: domain size pooling (default = true)"));  
-
+    auto arg_progress_bar = tl::Argument::make<std::string>("progress_bar", "Type of progress bar", "COLOR");
+    auto progress_bar_validator = tl::ValuesValidator<std::string>::create({"NORMAL", "COLOR", "PERCENT", "SPINNER", "DISABLE"});
+    arg_progress_bar->setValidator(progress_bar_validator);
+    this->addArgument(arg_progress_bar);
 
 #ifdef HAVE_CUDA
     tl::Message::pauseMessages();
     bool cuda_enabled = cudaEnabled(10.0, 3.0);
     tl::Message::resumeMessages();
     if (cuda_enabled)
-        this->addArgument<bool>("disable_cuda", "If true disable CUDA (default = false)", mDisableCuda);
+        this->addArgument<bool>("disable_cuda", "Disable CUDA acceleration (default = false)", mDisableCuda);
     else mDisableCuda = true;
 #else
     mDisableCuda = true;
@@ -90,6 +93,7 @@ bool FeatureExtractorCommand::run()
         double contrast_threshold = this->value<double>("contrast_threshold");
         double edge_threshold = this->value<double>("edge_threshold");
         //bool domain_size_pooling = this->value<bool>("domain_size_pooling");
+        auto progress_bar = this->value<std::string>("progress_bar");
 
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
@@ -137,8 +141,8 @@ bool FeatureExtractorCommand::run()
                     project.addFeatures(imageId, featuresFile);
                 });
 
-        ProgressBarColor progress(0, project.images().size());
-        feature_extractor_task.run(&progress);
+        auto progress = getProgressBar(progress_bar, project.images().size());
+        feature_extractor_task.run(progress.get());
 
         project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
         project.setFeatureExtractorReport(feature_extractor_task.report());

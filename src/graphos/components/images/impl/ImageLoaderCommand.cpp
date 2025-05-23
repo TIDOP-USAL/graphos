@@ -25,6 +25,7 @@
 #include "ImageLoaderCommand.h"
 
 #include "graphos/components/images/impl/ImageLoaderTask.h"
+#include "graphos/core/task/Progress.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/progress.h>
@@ -40,15 +41,18 @@
 #include <fstream>
 #include <tidop/core/log.h>
 
+
 namespace graphos
 {
+
+
 
 ImageLoaderCommand::ImageLoaderCommand()
   : Command("image_manager", "Image manager")
 {
-    this->addArgument<tl::Path>("prj", 'p', "Project file");
-    this->addArgument<tl::Path>("image", 'i', "Image added or removed (with option [--delete|-d]) from project.", tl::Path(""));
-    this->addArgument<tl::Path>("image_list", 'l', "List of images added or removed (with option [--delete|-d]) from project.", tl::Path(""));
+    this->addArgument<tl::Path>("prj", 'p', "Path to the project file");
+    this->addArgument<tl::Path>("image", 'i', "Image to add to or remove from the project (use with [--delete | -d])", tl::Path(""));
+    this->addArgument<tl::Path>("image_list", 'l', "File containing a list of images to add to or remove from the project (use with [--delete | -d])", tl::Path(""));
     auto arg_camera = tl::Argument::make<std::string>("camera", 'c', "Camera type", "OpenCV 1");
     std::vector<std::string> camera_types{"Pinhole 1",
                                           "Pinhole 2",
@@ -62,9 +66,11 @@ ImageLoaderCommand::ImageLoaderCommand()
                                           "Radial 3"};
     arg_camera->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(camera_types));
     this->addArgument(arg_camera);
-
-    this->addOption("delete", 'd', "Delete an image in project", false);
-    this->addOption("hide_progress", "Hide the progress bar", false);
+    this->addOption("delete", 'd', "Remove the specified image(s) from the project", false);
+    auto arg_progress_bar = tl::Argument::make<std::string>("progress_bar", "Type of progress bar", "COLOR");
+    auto progress_bar_validator = tl::ValuesValidator<std::string>::create({"NORMAL", "COLOR", "PERCENT", "SPINNER", "DISABLE"});
+    arg_progress_bar->setValidator(progress_bar_validator);
+    this->addArgument(arg_progress_bar);
 
     this->addExample("image_manager -p 253/253.xml -i image001.jpg");
     this->addExample("image_manager -p 253/253.xml -i image001.jpg -d");
@@ -85,7 +91,7 @@ bool ImageLoaderCommand::run()
         auto image_list_path = this->value<tl::Path>("image_list");
         auto image_list_path2 = this->value<std::string>("image_list");
         bool delete_image = this->value<bool>("delete");
-        bool hide_progress = this->value<bool>("hide_progress");
+        auto progress_bar = this->value<std::string>("progress_bar");
         auto camera_type = this->value<std::string>("camera");
 
         tl::Path log_path = project_path;
@@ -178,11 +184,8 @@ bool ImageLoaderCommand::run()
 
                     });
 
-            if (!hide_progress) {
-                tl::ProgressBarColor progress(0, images.size());
-                image_loader_process.run(&progress);
-            } else
-                image_loader_process.run();
+            auto progress = getProgressBar(progress_bar, images.size());
+            image_loader_process.run(progress.get());
 
         }
 

@@ -930,29 +930,33 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
                         /// Aplicar un factor de escala para el calculo de la compensación de exposición
                         for (size_t i = 0; i < n_orthos; i++) {
 
-                            std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::create(orthos[i]);
-                            image_reader->open();
-                            if (image_reader->isOpen()) {
-                                cv::Mat image = image_reader->read(exposure_compensator_factor, exposure_compensator_factor);
-                                mat_orthos[i] = image.clone();
-                                double scale = image_reader->georeference().scale().x();
+                            try {
+                                std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::create(orthos[i]);
+                                image_reader->open();
+                                if (image_reader->isOpen()) {
+                                    cv::Mat image = image_reader->read(exposure_compensator_factor, exposure_compensator_factor);
+                                    mat_orthos[i] = image.clone();
+                                    double scale = image_reader->georeference().scale().x();
 
-                                /// Esquinas
-                                corners[i].x = tl::roundToInteger((windows[i].pt1.x - window_all.pt1.x) * exposure_compensator_factor / scale);
-                                corners[i].y = tl::roundToInteger((window_all.pt2.y - windows[i].pt2.y) * exposure_compensator_factor / scale);
+                                    /// Esquinas
+                                    corners[i].x = tl::roundToInteger((windows[i].pt1.x - window_all.pt1.x) * exposure_compensator_factor / scale);
+                                    corners[i].y = tl::roundToInteger((window_all.pt2.y - windows[i].pt2.y) * exposure_compensator_factor / scale);
 
-                                /// La mascara debería leerse si se creó en la generación del MDS.
-                                ortho_masks[i].create(image.size(), CV_8U);
-                                cv::Mat gray;
-                                if (image.channels() != 1) {
-                                    cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-                                } else {
-                                    gray = image;
+                                    /// La mascara debería leerse si se creó en la generación del MDS.
+                                    ortho_masks[i].create(image.size(), CV_8U);
+                                    cv::Mat gray;
+                                    if (image.channels() != 1) {
+                                        cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+                                    } else {
+                                        gray = image;
+                                    }
+
+                                    ortho_masks[i].setTo(cv::Scalar::all(0));
+                                    ortho_masks[i].setTo(cv::Scalar::all(255), gray > 0);
+
                                 }
-
-                                ortho_masks[i].setTo(cv::Scalar::all(0));
-                                ortho_masks[i].setTo(cv::Scalar::all(255), gray > 0);
-
+                            } catch (std::exception &e) {
+                                tl::printException(e);
                             }
                         }
 
@@ -1088,8 +1092,8 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
 
                 for (auto &ortho : orthos[r][c]) {
 
-                    //tl::Message::info("Imagen: {}", ortho.second);
-                    //tl::Message::info("Distancia mejor imagen: {}", ortho.first);
+                    tl::Message::info("Imagen: {}", ortho.second);
+                    tl::Message::info("Distancia mejor imagen: {}", ortho.first);
 
                     auto image_reader = tl::ImageReaderFactory::create(ortho.second/*orthos[r][c]*/);
                     image_reader->open();

@@ -291,6 +291,9 @@ public:
         std::string line;
         std::getline(ifs, line);
 
+        line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+        line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
+
         std::string projection = line;
         setEPSGCode(projection);
         ///TODO: hay que ver si la proyección viene por codigo EPSG o en formato PROJ

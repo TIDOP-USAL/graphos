@@ -56,8 +56,8 @@ DensificationCommand::DensificationCommand()
     this->addArgument<int>("mvs:max_resolution", "Max Resolution", mvs_properties.maxResolution());
     this->addArgument<int>("mvs:number_views", "Number Views", mvs_properties.numberViews());
     this->addArgument<int>("mvs:number_views_fuse", "Number Views Fuse", mvs_properties.numberViewsFuse());
-    this->addArgument<bool>("mvs:estimate-colors", "Estimate color (default = true)", true);
-    this->addArgument<bool>("mvs:estimate-normals", "Estimate normals (default = true)", true);
+    this->addArgument<bool>("mvs:estimate_colors", "Estimate color (default = true)", true);
+    this->addArgument<bool>("mvs:estimate_normals", "Estimate normals (default = true)", true);
     this->addArgument<bool>("pmvs:visibility", "Use Visibility Information (default = true)", true);
     this->addArgument<int>("pmvs:images_per_cluster", "Images per cluster (default = 100)", 100);
     this->addArgument<int>("pmvs:level", "Level (default = 1)", 1);
@@ -119,8 +119,8 @@ bool DensificationCommand::run()
 	    auto mvs_max_resolution = this->value<int>("mvs:max_resolution");
 	    auto mvs_number_views = this->value<int>("mvs:number_views");
 	    auto mvs_number_views_fuse = this->value<int>("mvs:number_views_fuse");
-        auto mvs_estimate_colors = this->value<int>("mvs:estimate-colors");
-        auto mvs_estimate_normals = this->value<int>("mvs:estimate-normals");
+        auto mvs_estimate_colors = this->value<int>("mvs:estimate_colors");
+        auto mvs_estimate_normals = this->value<int>("mvs:estimate_normals");
         auto auto_segment = this->value<bool>("segment");
 
 

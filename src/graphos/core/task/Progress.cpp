@@ -26,6 +26,21 @@
 namespace graphos
 {
 
+std::unique_ptr<tl::Progress> getProgressBar(const std::string& progressBar, size_t maxValue)
+{
+    if (progressBar == "NORMAL") {
+        return std::make_unique<tl::ProgressBar>(0, maxValue);
+    } else if (progressBar == "COLOR") {
+        return std::make_unique<tl::ProgressBarColor>(0, maxValue);
+    } else if (progressBar == "PERCENT") {
+        return std::make_unique<tl::ProgressPercent>(0, maxValue);
+    } /*else if (progressBar == "SPINNER") {
+        return std::make_unique<tl::ProgressBarSpinner>(0, maxValue);
+    }*/ else {
+        return nullptr;
+    }
+}
+
 ProgressHandler::ProgressHandler(QObject *parent)
   : QObject(parent)
 {

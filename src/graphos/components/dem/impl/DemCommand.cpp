@@ -28,6 +28,7 @@
 #include "graphos/core/project.h"
 #include "graphos/core/sfm/posesio.h"
 #include "graphos/components/dem/impl/DemTask.h"
+#include "graphos/core/task/Progress.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/log.h>
@@ -54,6 +55,10 @@ DemCommand::DemCommand()
     this->addArgument<bool>("dsm", "Create a Digital Surface Model", true);
     this->addArgument<bool>("dtm", "Create a Digital Terrain Model", false);
     this->addArgument<std::string>("crs", "Coordinate Reference System", "");
+    //auto arg_progress_bar = tl::Argument::make<std::string>("progress_bar", "Type of progress bar", "COLOR");
+    //auto progress_bar_validator = tl::ValuesValidator<std::string>::create({"NORMAL", "COLOR", "PERCENT", "SPINNER", "DISABLE"});
+    //arg_progress_bar->setValidator(progress_bar_validator);
+    //this->addArgument(arg_progress_bar);
 
     this->addExample("dem -p 253/253.xml --gsd 0.1");
 
@@ -104,6 +109,7 @@ bool DemCommand::run()
         auto dsm =  this->value<bool>("dsm");
         auto dtm =  this->value<bool>("dtm");
         auto crs =  this->value<std::string>("crs");
+        //auto progress_bar = this->value<std::string>("progress_bar");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
@@ -125,8 +131,9 @@ bool DemCommand::run()
 
         if (crs.empty()) crs = this->crs();
 
+        //auto progress = getProgressBar(progress_bar, 100);
         DemTask dem_task(mProject->denseModel(), mProject->enuCrs().toStdString(), crs, dem_path, gsd, dsm, dtm);
-        dem_task.run();
+        dem_task.run(/*progress.get()*/);
 
         tl::Path dsm_file = dem_path;
         dsm_file.append("dsm.tif");

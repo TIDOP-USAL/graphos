@@ -81,7 +81,6 @@ OrientationCommand::OrientationCommand()
 
     this->addArgument<tl::Path>("prj", 'p', "Project file");
     this->addArgument<bool>("fix_calibration", 'c', "Fix calibration", false);
-    this->addArgument<bool>("use_rtk_accuracy", "Use RTK positioning accuracy", false);
     this->addArgument<bool>("use_gcp", "Use Ground Control Points for absolute orientation", true);
     this->addArgument<bool>("use_poses", "Use camera poses for absolute orientation", true);
     this->addArgument<bool>("use_rtk_accuracy", "Use RTK positioning accuracy", false);

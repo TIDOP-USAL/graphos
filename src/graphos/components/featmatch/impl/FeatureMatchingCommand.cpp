@@ -26,6 +26,7 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/features/matching.h"
 #include "graphos/core/project.h"
+#include "graphos/core/task/Progress.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/progress.h>
@@ -52,20 +53,24 @@ FeatureMatchingCommand::FeatureMatchingCommand()
 	auto confidence = feature_matching_properties.confidence();
 	auto cross_check = feature_matching_properties.crossCheck();
 
-    this->addArgument<tl::Path>("prj", 'p', "Project file");
-    this->addArgument<double>("ratio", 'r', std::string("Ratio (default = ").append(std::to_string(ratio)).append(")"), ratio);
-    this->addArgument<double>("distance", 'd', std::string("Distance (default = ").append(std::to_string(distance)).append(")"), distance);
-    this->addArgument<double>("max_error", 'e', std::string("Maximun error (default = ").append(std::to_string(max_error)).append(")"), max_error);
-    this->addArgument<double>("confidence", 'c', "Confidence", confidence);
-    this->addArgument<bool>("cross_check", 'x', std::string("If true, cross checking is enabled (default = ").append(cross_check ? "true)" : "false)"), cross_check);
-    this->addArgument<bool>("exhaustive_matching", "Force exhaustive matching (default = false)", false);
+    this->addArgument<tl::Path>("prj", 'p', "Path to the project file");
+    this->addArgument<double>("ratio", 'r', std::string("Lowe's ratio threshold (default = ").append(std::to_string(ratio)).append(")"), ratio);
+    this->addArgument<double>("distance", 'd', std::string("Distance threshold (default = ").append(std::to_string(distance)).append(")"), distance);
+    this->addArgument<double>("max_error", 'e', std::string("Maximum reprojection error (default = ").append(std::to_string(max_error)).append(")"), max_error);
+    this->addArgument<double>("confidence", 'c', "Confidence level", confidence);
+    this->addArgument<bool>("cross_check", 'x', std::string("Enable cross-checking (default = ").append(cross_check ? "true)" : "false)"), cross_check);
+    this->addArgument<bool>("exhaustive_matching", "Use exhaustive matching (default = false)", false);
+    auto arg_progress_bar = tl::Argument::make<std::string>("progress_bar", "Type of progress bar", "COLOR");
+    auto progress_bar_validator = tl::ValuesValidator<std::string>::create({"NORMAL", "COLOR", "PERCENT", "SPINNER", "DISABLE"});
+    arg_progress_bar->setValidator(progress_bar_validator);
+    this->addArgument(arg_progress_bar);
 
 #ifdef HAVE_CUDA
     tl::Message::pauseMessages();
     bool cuda_enabled = cudaEnabled(10.0, 3.0);
     tl::Message::resumeMessages();
     if (cuda_enabled)
-        this->addArgument<bool>("disable_cuda", "If true disable CUDA (default = false)", mDisableCuda);
+        this->addArgument<bool>("disable_cuda", "Disable CUDA acceleration (default = false)", mDisableCuda);
     else mDisableCuda = true;
 #else
     mDisableCuda = true;
@@ -93,6 +98,8 @@ bool FeatureMatchingCommand::run()
         double confidence = this->value<double>("confidence");
         bool cross_check = this->value<bool>("cross_check");
         bool exhaustive_matching = this->value<bool>("exhaustive_matching");
+        auto progress_bar = this->value<std::string>("progress_bar");
+
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
 
@@ -139,8 +146,8 @@ bool FeatureMatchingCommand::run()
                                                      !mDisableCuda,
                                                      feature_matching_properties);
 
-            ProgressBarColor progress(0, project.images().size());
-            featmatching_process.run(&progress);
+            auto progress = getProgressBar(progress_bar, project.images().size());
+            featmatching_process.run(progress.get());
 
             project.setFeatureMatchingReport(featmatching_process.report());
 
@@ -151,8 +158,8 @@ bool FeatureMatchingCommand::run()
 
             size_t block_size = 50;
             size_t num_blocks = static_cast<size_t>(std::ceil(static_cast<double>(project.images().size()) / block_size));
-            ProgressBarColor progress(0, num_blocks * num_blocks);
-            feature_matching_task.run(&progress);
+            auto progress = getProgressBar(progress_bar, num_blocks * num_blocks);
+            feature_matching_task.run(progress.get());
 
             project.setFeatureMatchingReport(feature_matching_task.report());
         }
