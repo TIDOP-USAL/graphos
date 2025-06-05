@@ -35,6 +35,7 @@
 #include <QFileInfo>
 #include <tidop/geospatial/util.h>
 
+#include "graphos/core/task/Progress.h"
 
 
 using namespace tl;
@@ -55,6 +56,10 @@ ExportPointCloudCommand::ExportPointCloudCommand()
     this->addOption("save_colors", "Export point cloud colors", true);
     this->addOption("save_normals", "Export point cloud normals", true);
     this->addArgument<std::string>("crs", "CRS of the point cloud", "");
+    auto arg_progress_bar = tl::Argument::make<std::string>("progress_bar", "Type of progress bar", "COLOR");
+    auto progress_bar_validator = tl::ValuesValidator<std::string>::create({"NORMAL", "COLOR", "PERCENT", "SPINNER", "DISABLE"});
+    arg_progress_bar->setValidator(progress_bar_validator);
+    this->addArgument(arg_progress_bar);
 
     this->addExample("export_point_cloud -p 253/253.xml --file point_cloud.ply");
 
@@ -102,6 +107,7 @@ bool ExportPointCloudCommand::run()
         auto ply_format = this->value<std::string>("ply:format");
         auto colors = this->value<bool>("save_colors");
         auto normals = this->value<bool>("save_normals");
+        auto progress_bar = this->value<std::string>("progress_bar");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
@@ -135,8 +141,8 @@ bool ExportPointCloudCommand::run()
 
         size_t size = static_cast<size_t>(mProject->denseReport().points / 80.) * 20 + mProject->denseReport().points;
 
-        ProgressBarColor progress(0, size);
-        export_point_cloud_task->run(&progress);
+        auto progress = getProgressBar(progress_bar, size);
+        export_point_cloud_task->run(progress.get());
 
     } catch (const std::exception &e) {
 

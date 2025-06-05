@@ -389,6 +389,44 @@ cv::Mat combineImages(const std::vector<cv::Mat> &images)
 
     return result;
 }
+//cv::Mat combineImages(const std::vector<cv::Mat> &images)
+//{
+//    if (images.empty()) return cv::Mat();
+//
+//    // Nueva versión: Multi-band blending
+//    cv::Ptr<cv::detail::Blender> blender = cv::makePtr<cv::detail::MultiBandBlender>(false, 5);
+//    cv::Rect boundingBox;
+//
+//    // Preparar blender con el bounding box de todas las imágenes
+//    for (const auto &img : images) {
+//        boundingBox |= cv::Rect(0, 0, img.cols, img.rows);
+//    }
+//    blender->prepare(boundingBox);
+//
+//    for (size_t i = 0; i < images.size(); ++i) {
+//        cv::Mat mask(images[i].size(), CV_8U, cv::Scalar::all(255));
+//        blender->feed(images[i], mask, cv::Point(0, 0));
+//    }
+//
+//    cv::Mat result, result_mask;
+//    blender->blend(result, result_mask);
+//
+//    if (result.depth() != CV_8U) {
+//        double minVal, maxVal;
+//        cv::minMaxLoc(result, &minVal, &maxVal);
+//        if (maxVal > 1.0) maxVal = 1.0; // Asegurar rango típico
+//        if (maxVal > 0.0) {
+//            result.convertTo(result, CV_8U, 255.0 / maxVal);
+//        } else {
+//            result.convertTo(result, CV_8U);
+//        }
+//    }
+//    if (result.channels() != 3) {
+//        cv::cvtColor(result, result, cv::COLOR_GRAY2BGR);
+//    }
+//
+//    return result;
+//}
 
 //cv::Mat combineImages(const std::vector<cv::Mat> &images)
 //{
@@ -845,13 +883,15 @@ void orthoMosaic(const tl::Path &graph_orthos,
     }
 }
 
+#define EXPOSURE_COMPENSATOR
+
 void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
                                         const tl::Path &ortho_path, 
                                         double res_ortho, 
                                         const tl::Crs &crs, 
                                         const std::vector<std::vector<tl::WindowD>> &grid)
 {
-
+#ifdef EXPOSURE_COMPENSATOR
     try {
 
         tl::Message::info("Exposure compensator");
@@ -1019,6 +1059,7 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
     }
+#endif
 
     try {
 
@@ -1059,8 +1100,10 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
                             auto orto_center = window_orto.center();
                             auto dist = tl::distance(orto_center, window_center);
                             tl::Path orto_compensate(polygon->data()->value(0));
+#ifdef EXPOSURE_COMPENSATOR
                             std::string name = orto_compensate.baseName().toUtf8() + "_compensate.png";
                             orto_compensate.replaceFileName(name);
+#endif
                             orthos[r][c][dist] = orto_compensate.toUtf8();
                         }
 
@@ -1092,8 +1135,8 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
 
                 for (auto &ortho : orthos[r][c]) {
 
-                    tl::Message::info("Imagen: {}", ortho.second);
-                    tl::Message::info("Distancia mejor imagen: {}", ortho.first);
+                    //tl::Message::info("Imagen: {}", ortho.second);
+                    //tl::Message::info("Distancia mejor imagen: {}", ortho.first);
 
                     auto image_reader = tl::ImageReaderFactory::create(ortho.second/*orthos[r][c]*/);
                     image_reader->open();
@@ -1117,6 +1160,12 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
                         image.copyTo(image_roi);
                         image = aux;
                     }
+
+                    // Relleno de pixeles negros
+                    cv::Mat blackPixelMask = createBlackPixelMask(image, 512);
+                    //cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 512);
+                    cv::inpaint(image, blackPixelMask, image, 3, cv::INPAINT_TELEA);
+                    //cv::inpaint(compensate_image, blackPixelMask, compensate_image, 5, cv::INPAINT_NS);
 
                     images.push_back(image);
 
@@ -1245,7 +1294,9 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
                             cv::Mat compensate_image = image_reader->read();
                             // Relleno de pixeles negros
                             cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 1024);
+                            //cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 512);
                             cv::inpaint(compensate_image, blackPixelMask, compensate_image, 3, cv::INPAINT_TELEA);
+                            //cv::inpaint(compensate_image, blackPixelMask, compensate_image, 5, cv::INPAINT_NS);
 
                             auto affine_ortho_inverse = affine_ortho.inverse();
                             tl::Point<double> p1_ortho = affine_ortho_inverse.transform(tile_window.pt1);

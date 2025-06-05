@@ -38,13 +38,13 @@ namespace graphos
 
 Orthorectification::Orthorectification(const tl::Path &dtm,
                                        const Camera &camera,
-                                       const CameraPose &cameraPose, 
+                                       CameraPose cameraPose, 
                                        double zIni)
-  : mDtmReader(tl::ImageReaderFactory::create(dtm)),
-    mCamera(camera),
-    mCameraPose(cameraPose),
+  : mCamera(camera),
+    mCameraPose(std::move(cameraPose)),
+    mDtmReader(tl::ImageReaderFactory::create(dtm)),
     mIniZ(zIni),
-    mNoDataValue(-std::numeric_limits<double>().max()),
+    mNoDataValue(-std::numeric_limits<double>::max()),
     bCuda(false)
 {
     init();
