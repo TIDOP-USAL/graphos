@@ -57,8 +57,8 @@ add_files_to_project(${PROJECT_NAME}
                          settings/FeatViewerSettingsWidget.cpp
                          settings/MatchViewerSettingsWidget.cpp
                          ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.cpp
-						 MapViewer.cpp
-						 MapItem.cpp
+						 #MapViewer.cpp
+						 #MapItem.cpp
                      HEADER_FILES
                          GraphosWidget.h
                          SiftWidget.h
@@ -85,8 +85,8 @@ add_files_to_project(${PROJECT_NAME}
                          ProgressBarWidget.h
                          settings/FeatViewerSettingsWidget.h
                          settings/MatchViewerSettingsWidget.h
-						 MapViewer.h
-						 MapItem.h
+						 #MapViewer.h
+						 #MapItem.h
                          ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.h)
 
 
