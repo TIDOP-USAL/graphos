@@ -112,7 +112,7 @@ auto DemPresenterImp::createTask() -> std::unique_ptr<tl::Task>
                                                                    dem_path,
                                                                    mView->gsd(),
                                                                    mView->isDsmEnable(),
-                                                                   mView->isDsmEnable());
+                                                                   mView->isDtmEnable());
 
 
     dtm_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
