@@ -951,6 +951,8 @@ void MainWindowView::onSelectionChanged()
     } else if (item[0]->data(0, Qt::UserRole) == graphos::dsm || 
                item[0]->data(0, Qt::UserRole) == graphos::dtm) {
         emit select_dem();
+    } else if (item[0]->data(0, Qt::UserRole) == graphos::ortho) {
+        emit select_orthophoto();
     } else if (item[0]->data(0, Qt::UserRole) == graphos::images) {
 
     } else if (item[0]->data(0, Qt::UserRole) == graphos::image ||

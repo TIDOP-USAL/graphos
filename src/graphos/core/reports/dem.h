@@ -31,10 +31,11 @@ struct DemReport
 {
     double time = 0.0;
 	double gsd = 0.0;
+	QString epsg = "";
 	
     bool isEmpty() const
     {
-        return time == 0. && gsd == 0.;
+        return time == 0. && gsd == 0. && epsg == "";
     }
 };
 

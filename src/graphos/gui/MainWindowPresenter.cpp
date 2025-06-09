@@ -29,7 +29,7 @@
 #include "graphos/widgets/StartPageWidget.h"
 #include "graphos/widgets/TabWidget.h"
 #include "graphos/widgets/GraphicViewer.h"
-#include "graphos/widgets/MapViewer.h"
+//#include "graphos/widgets/MapViewer.h"
 #include "graphos/widgets/Viewer3d.h"
 #include "graphos/gui/MainWindowView.h"
 #include "graphos/gui/MainWindowModel.h"

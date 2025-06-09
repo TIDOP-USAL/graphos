@@ -56,6 +56,7 @@ add_files_to_project(${PROJECT_NAME}
                          ProgressBarWidget.cpp
                          settings/FeatViewerSettingsWidget.cpp
                          settings/MatchViewerSettingsWidget.cpp
+                         formats/raster/TiffFormatWidget.cpp
                          ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.cpp
 						 #MapViewer.cpp
 						 #MapItem.cpp
@@ -83,6 +84,7 @@ add_files_to_project(${PROJECT_NAME}
                          TabWidget.h
                          ProgressBarDialog.h
                          ProgressBarWidget.h
+                         formats/raster/TiffFormatWidget.h
                          settings/FeatViewerSettingsWidget.h
                          settings/MatchViewerSettingsWidget.h
 						 #MapViewer.h

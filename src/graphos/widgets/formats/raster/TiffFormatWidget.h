@@ -21,25 +21,81 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_ORTHOPHOTO_REPORT_H
-#define GRAPHOS_CORE_ORTHOPHOTO_REPORT_H
+#ifndef GRAPHOS_TIFF_FORMAT_WIDGET_H
+#define GRAPHOS_TIFF_FORMAT_WIDGET_H
+
+#include "graphos/widgets/GraphosWidget.h"
+
+class QDialogButtonBox;
+class QCheckBox;
+class QComboBox;
+class QLabel;
+class QSpinBox;
 
 namespace graphos
 {
-
-struct OrthophotoReport
+	
+class TiffFormatWidget
+  : public GraphosWidgetView
 {
-    double time = 0.0;
-	double gsd = 0.0;
-    QString epsg = "";
+    Q_OBJECT
 
-    bool isEmpty() const
-    {
-        return time == 0. && gsd == 0. && epsg == "";
-    }
+public:
+
+    TiffFormatWidget(QWidget *parent = nullptr);
+    ~TiffFormatWidget() override;
+	
+public:
+
+    QString bigTiff() const;
+    QString compress() const;
+    bool tiled() const;
+    int blockXSize() const;
+    int blockYSize() const;
+    int jpegQuality() const;
+	
+public slots:
+  
+    void setBigtiff(const QString& value);
+    void setCompress(const QString& value);
+    void setTiled(bool value);
+    void setBlockxsize(int value);
+    void setBlockysize(int value);
+    void setJpegquality(int value);
+
+// GraphosWidgetView interface
+
+private:
+
+    void initUI() override;
+    void initSignalAndSlots() override;
+
+public slots:
+
+    void clear() override;
+
+private slots:
+
+    void update() override;
+    void retranslate() override;
+
+protected:
+
+    QLabel *mLabelBigtiff;
+    QLabel *mLabelCompress;
+    QLabel *mLabelBlockxsize;
+    QLabel *mLabelBlockysize;
+    QLabel *mLabelJpegquality;
+    QComboBox *mBigtiff;
+    QComboBox *mCompress;
+    QCheckBox *mTiled;
+    QSpinBox *mBlockxsize;
+    QSpinBox *mBlockysize;
+    QSpinBox *mJpegquality;
+    QDialogButtonBox *mButtonBox;
+
 };
-
 
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_ORTHOPHOTO_REPORT_H
+#endif // GRAPHOS_TIFF_FORMAT_WIDGET_H

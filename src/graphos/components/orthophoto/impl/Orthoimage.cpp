@@ -305,15 +305,22 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
             }
         });
 
+        int interpolation = cv::INTER_NEAREST; // Default to Nearest
+        if (mInterpolation == "Bilinear") {
+            interpolation = cv::INTER_LINEAR;
+        } else if (mInterpolation == "Bicubic") {
+            interpolation = cv::INTER_CUBIC;
+        }
+
 #ifdef HAVE_OPENCV_CUDAARITHM
         cv::cuda::GpuMat g_map_x(map_x), g_map_y(map_y), g_output;
         cv::cuda::GpuMat g_undistort(undistort_image);
-        cv::cuda::remap(g_undistort, g_output, g_map_x, g_map_y, cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
+        cv::cuda::remap(g_undistort, g_output, g_map_x, g_map_y, interpolation, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
         cv::Mat ortho_image;
         g_output.download(ortho_image);
 #else
         cv::Mat ortho_image;
-        cv::remap(undistort_image, ortho_image, map_x, map_y, cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
+        cv::remap(undistort_image, ortho_image, map_x, map_y, interpolation, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
 #endif
 
         /// Mascara
