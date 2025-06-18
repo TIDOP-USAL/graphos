@@ -76,9 +76,19 @@ public:
 
 private:
 
-    std::vector<tl::WindowD> findGrid(const tl::Path &mdt, double gsd);
-    std::vector<std::vector<tl::WindowD>> findGrid2(const tl::Path &mdt, double gsd, int gridSize);
+    //std::vector<tl::WindowD> findGrid(const tl::Path &mdt, double gsd);
+    std::vector<std::vector<tl::WindowD>> findGrid(int gridSize) const;
 
+
+
+    void orthoimageExposureCompensator(const tl::Path &graph_orthos);
+    auto searchTiles(const tl::Path &graph_orthos,
+                     const std::vector<std::vector<tl::WindowD>> &grid) -> std::vector<std::vector<std::map<double, std::string>>>;
+    void generateTiles(const std::vector<std::vector<tl::WindowD>> &grid, 
+                       std::vector<std::vector<std::map<double, std::string>>> &orthos);
+    void tilesExposureCompensator(const std::vector<std::vector<tl::WindowD>> &grid);
+    void writeOrthomosaic(const std::vector<std::vector<tl::WindowD>> &grid);
+    void blendTileBlock(int r, int c, const std::vector<std::vector<tl::WindowD>> &grid);
 // tl::TaskBase interface
 
 protected:
@@ -97,7 +107,8 @@ private:
     std::string mInterpolation;
     OrthophotoReport mOrthophotoReport;
     bool bCuda;
-
+    // Por ahora se calcula internamente pero se podría establecer la región de la ortofoto externamente
+    tl::WindowD mWindowAll;
 };
 
 } // namespace graphos

@@ -34,6 +34,9 @@
 #ifdef HAVE_OPENCV_CUDAWARPING
 #include <opencv2/cudawarping.hpp>
 #endif
+#ifdef HAVE_OPENCV_CUDAARITHM
+#include <opencv2/cudaarithm.hpp>
+#endif
 
 #include <unordered_map>
 #include <memory>
@@ -357,12 +360,14 @@ public:
                          const std::map<int, Camera> *cameras,
                          tl::Path undistortPath,
                          std::string extension,
+                         bool useGPU,
                          tl::Task *parentTask = nullptr)
         : tl::Producer<UndistortQueueData>(queue),
           mImages(images),
           mCameras(cameras),
           mUndistortPath(std::move(undistortPath)),
           mExtension(std::move(extension)),
+          bUseGPU(useGPU),
           mParentTask(parentTask)
     {
     }
@@ -466,7 +471,7 @@ private:
     void normalizeImage(cv::Mat &mat)
     {
         if (mat.depth() != CV_8U) {
-#ifdef HAVE_CUDA
+#ifdef HAVE_OPENCV_CUDAARITHM
             if (bUseGPU) {
                 cv::cuda::GpuMat gImgIn(mat);
                 cv::cuda::GpuMat gImgOut;
@@ -475,7 +480,7 @@ private:
             } else {
 #endif
                 cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
-#ifdef HAVE_CUDA
+#ifdef HAVE_OPENCV_CUDAARITHM
             }
 #endif
         }
@@ -488,6 +493,7 @@ protected:
     std::map<int, std::shared_ptr<Undistort>> mUndistort;
     tl::Path mUndistortPath;
     std::string mExtension;
+    bool bUseGPU;
     tl::Task *mParentTask;
 };
 
@@ -639,6 +645,7 @@ void UndistortImages::execute(tl::Progress *progressBar)
                                                 &mCameras,
                                                 undistort_path,
                                                 extension,
+                                                mUseCuda,
                                                 this);
         internal::UndistortConsumerImp consumer(&queue,
                                                 &mImages,

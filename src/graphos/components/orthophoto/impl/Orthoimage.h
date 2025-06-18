@@ -65,18 +65,23 @@ public:
 	void run(const tl::Path &ortho,
 			 const cv::Mat &visibilityMap = cv::Mat());
 
+protected:
+
+	cv::Mat readImage();
+	void normalizeImage(cv::Mat &mat) const;
+
 private:
 
-	std::unique_ptr<tl::ImageReader> mImageReader;
+	tl::Path mImage;
 	Orthorectification *mOrthorectification;
 	std::string mEnuCrs;
 	std::string mCrs;
 	tl::Rect<int> mRectOrtho;
 	tl::Affine<double, 2> mGeoreference;
-	std::unique_ptr<tl::ImageWriter> mOrthophotoWriter;
 	tl::Window<tl::Point<double>> mWindowOrthoTerrain;
 	std::string mInterpolation;
 	bool bCuda;
+	bool mReadWithOpenCV;
 };
 
 

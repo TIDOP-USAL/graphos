@@ -122,14 +122,15 @@ Orthoimage::Orthoimage(const tl::Path &image,
                        const tl::Affine<double, 2> &georeference,
                        const std::string &interpolation,
                        bool cuda)
-  : mImageReader(tl::ImageReaderFactory::create(image)),
+  : mImage(image),
     mOrthorectification(orthorectification),
     mEnuCrs(enuCrs),
     mCrs(crs),
     mRectOrtho(rectOrtho),
     mGeoreference(georeference),
     mInterpolation(interpolation),
-    bCuda(cuda)
+    bCuda(cuda),
+    mReadWithOpenCV(true)
 {
 }
 
@@ -140,6 +141,8 @@ Orthoimage::~Orthoimage()
 void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
 {
     TL_TODO("Comprobar que visibilityMap tenga el tamaño adecuado")
+
+    tl::ChronoAuto chrono("Orthoimage");
 
     tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
 
@@ -162,40 +165,29 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         tl::Rect<int> rect_image = mOrthorectification->rectImage();
         tl::Rect<int> rect_dtm = mOrthorectification->rectDtm();
 
+        //tl::Chrono chrono_grid("Read image");
+        //chrono_grid.run();
+
         //// Carga de la imagen
+        cv::Mat image = readImage();
 
-        mImageReader->open();
-        if (!mImageReader->isOpen()) throw std::runtime_error("Image open error");
-        cv::Mat image = mImageReader->read();
+        //chrono_grid.stop();
 
-        if (mImageReader->depth() != 8) {
-#ifdef HAVE_OPENCV_CUDAARITHM
-            if (bCuda) {
-                cv::cuda::GpuMat gImgIn(image);
-                cv::cuda::GpuMat gImgOut;
-                cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-                gImgOut.download(image);
-            } else {
-#endif
-
-                cv::normalize(image, image, 0., 255., cv::NORM_MINMAX, CV_8U);
-
-#ifdef HAVE_OPENCV_CUDAARITHM
-            }
-#endif
-        }
+        //chrono_grid.reset();
+        //chrono_grid.setMessage("Undistort image");
+        //chrono_grid.run();
 
         /// Undistort
-
+        //Esto no tiene que estar en Orthorectification
         cv::Mat undistort_image = mOrthorectification->undistort(image);
         image.release();
 
         /// georeferencia orto
 
-        mOrthophotoWriter = tl::ImageWriterFactory::create(ortho);
-        mOrthophotoWriter->open();
-        if (!mOrthophotoWriter->isOpen()) throw std::runtime_error("Image open error");
-        int channels_ortho = mImageReader->channels();
+        auto orthophoto_writer = tl::ImageWriterFactory::create(ortho);
+        orthophoto_writer->open();
+        if (!orthophoto_writer->isOpen()) throw std::runtime_error("Image open error");
+        int channels_ortho = image.channels();
         tl::DataType data_type_ortho = tl::DataType::TL_8U;// mImageReader->dataType();
 
         /// Ortoimagen en coordenadas proyectadas
@@ -219,23 +211,22 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         tl::Affine<double, 2> affine_ortho_projected(mGeoreference.scale().x(), -mGeoreference.scale().y(),
                                                        window_projected.pt1.x,
                                                        window_projected.pt2.y, 0.0);
-        
-        int out_width = tl::numberCast<int>(window_projected.width() / mGeoreference.scale().x());
-        int out_height = tl::numberCast<int>(window_projected.height() / mGeoreference.scale().y());
-        tl::Rect<int> ortho_rect(0, 0, out_width, out_height);
 
-        mOrthophotoWriter->create(out_height, out_width, channels_ortho, data_type_ortho);
-        //cv::Mat mat_ortho(out_height, out_width, CV_MAKETYPE(dataTypeToOpenCVDataType(data_type_ortho), channels_ortho));
-        //mat_ortho = cv::Scalar(0, 0, 0);
+        orthophoto_writer->create(mRectOrtho.height, mRectOrtho.width, channels_ortho, data_type_ortho);
 
-        //cv::Mat distances = cv::Mat::zeros(rect_image.height, rect_image.width, CV_32F);
-        cv::Mat map_x(out_height, out_width, CV_32F, cv::Scalar(-1));
-        cv::Mat map_y(out_height, out_width, CV_32F, cv::Scalar(-1));
+        cv::Mat map_x(mRectOrtho.height, mRectOrtho.width, CV_32F, cv::Scalar(-1));
+        cv::Mat map_y(mRectOrtho.height, mRectOrtho.width, CV_32F, cv::Scalar(-1));
+
+        //chrono_grid.stop();
+
+        //chrono_grid.reset();
+        //chrono_grid.setMessage("Grid iteration");
+        //chrono_grid.run();
 
         // Iteración sobre la cuadrícula de la ortofoto
-        tl::parallel_for(0, out_height, [&](size_t r) {
+        tl::parallel_for(0, mRectOrtho.height, [&](size_t r) {
         //for(int r = 0; r < out_height; ++r){
-            for (int c = 0; c < out_width; c++) {
+            for (int c = 0; c < mRectOrtho.width; c++) {
 
                 // Coordenadas de la ortofoto en el grid
                 tl::Point<double> ortho_grid_coord(c, r);
@@ -243,30 +234,18 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
                 // Se pasan a coordenadas terreno
                 auto terrain_coordinates = affine_ortho_projected.transform(ortho_grid_coord);
 
-                // Las coordenadas terreno se tienen que convertir a coordenadas ENU
-                
-                //auto dtm_pixel_coordinates = mGeoreference.inverse().transform(terrain_coordinates);
-                //auto dtm_pixel_coordinates = mOrthorectification->terrainToDTMImageCoordinates(terrain_coordinates);
-
                 // Coordenadas de la ortofoto en el sistema de terreno
                 tl::Point3<double> enu_coordinates = convertProjectedToEnu(terrain_coordinates);
-                //if (!window_total_enu.containsPoint(enu_coordinates)) continue;
-                tl::Point<int> dtm_pixel_coordinates;
-                // Chapuza...
-                auto check = mOrthorectification->terrainToDTMImageCoordinates(enu_coordinates);
-                //if (check.x < 0 || check.y < 0 || check.x > rect_dtm.width || check.y > rect_dtm.height) continue;
 
-                if (!rect_dtm.contains(check)) continue;
-
-                enu_coordinates.z = mOrthorectification->z(enu_coordinates);
-                dtm_pixel_coordinates = mOrthorectification->terrainToDTMImageCoordinates(enu_coordinates);
-
-                //auto dtm_pixel_coordinates = mOrthorectification->terrainToDTMImageCoordinates(enu_coordinates);
+                auto dtm_pixel_coordinates = mOrthorectification->terrainToDTMImageCoordinates(enu_coordinates);
 
                 auto y = dtm_pixel_coordinates.y - rect_dtm.y;
                 auto x = dtm_pixel_coordinates.x - rect_dtm.x;
                 if (x < 0 || y < 0 || x >= visibilityMap.cols || y >= visibilityMap.rows) continue;  // visibilityMap tiene el tamaño del trozo del DTM cargado con lo cual esto debería ser redundante con -> if (!rect_dtm.contains(check)) continue;
                 if (!visibilityMap.empty() && visibilityMap.at<uchar>(y, x) == 0) continue;
+
+                enu_coordinates.z = mOrthorectification->z(enu_coordinates);
+                if (mOrthorectification->nodataValue() == enu_coordinates.z) continue;
 
                 // Coordenadas fotogrametricas
                 tl::Point<double> photo_photocoord = mOrthorectification->terrainToPhotoCoordinates(enu_coordinates);
@@ -274,36 +253,17 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
                 tl::Point<double> photo_image_coord = mOrthorectification->photoCoordinatesToImageCoordinates(photo_photocoord);
 
                 if (rect_image.contains(photo_image_coord)) {
-
-                    //double distance = tl::distance3D(enu_coordinates, mOrthorectification->orientation().position());
-                    //double z_buffer_distance = distances.at<float>(photo_image_coord.y, photo_image_coord.x);
-
-                    //if (z_buffer_distance == 0. || distance < z_buffer_distance + mGeoreference.scale().x() * 5./*0.25*/) {
-                    //    distances.at<float>(static_cast<int>(r), c) = static_cast<float>(distance);
-                        map_x.at<float>(static_cast<int>(r), c) = static_cast<float>(photo_image_coord.x);
-                        map_y.at<float>(static_cast<int>(r), c) = static_cast<float>(photo_image_coord.y);
-                    //}
-
-                    //try {
-                    //    
-                    //    cv::Mat interpolated_pixel;
-                    //    if (mInterpolation == "Bilinear") {
-                    //        cv::getRectSubPix(undistort_image, cv::Size(1, 1), cv::Point2f(photo_image_coord.x, photo_image_coord.y), interpolated_pixel);
-                    //    } else { // Nearest or Bicubic
-                    //        cv::Mat map_x(1, 1, CV_32F, photo_image_coord.x);
-                    //        cv::Mat map_y(1, 1, CV_32F, photo_image_coord.y);
-                    //        cv::remap(undistort_image, interpolated_pixel, map_x, map_y, mInterpolation == "Nearest" ? cv::INTER_NEAREST : cv::INTER_CUBIC);
-                    //    }
-                    //    cv::Vec3b pixel_value = interpolated_pixel.at<cv::Vec3b>(0, 0);
-
-                    //    // Escribir el valor en la ortofoto
-                    //    mat_ortho.at<cv::Vec3b>(r, c) = pixel_value;
-                    //} catch (...) {
-                    //    TL_THROW_EXCEPTION_WITH_NESTED("");
-                    //}
+                    map_x.at<float>(static_cast<int>(r), c) = static_cast<float>(photo_image_coord.x);
+                    map_y.at<float>(static_cast<int>(r), c) = static_cast<float>(photo_image_coord.y);
                 }
             }
         });
+
+        //chrono_grid.stop();
+
+        //chrono_grid.reset();
+        //chrono_grid.setMessage("Remap");
+        //chrono_grid.run();
 
         int interpolation = cv::INTER_NEAREST; // Default to Nearest
         if (mInterpolation == "Bilinear") {
@@ -322,6 +282,12 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         cv::Mat ortho_image;
         cv::remap(undistort_image, ortho_image, map_x, map_y, interpolation, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
 #endif
+
+        //chrono_grid.stop();
+
+        //chrono_grid.reset();
+        //chrono_grid.setMessage("Mask orthoimage");
+        //chrono_grid.run();
 
         /// Mascara
         cv::Mat gray;
@@ -344,24 +310,79 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
 
         //cv::erode(mask, mask, element);
 
+        //chrono_grid.stop();
+
+        //chrono_grid.reset();
+        //chrono_grid.setMessage("Apply mask");
+        //chrono_grid.run();
+
         cv::Mat ortho_with_mask = cv::Mat::zeros(ortho_image.size(), ortho_image.type());
         ortho_image.copyTo(ortho_with_mask, mask);
-        //mat_ortho.copyTo(ortho_with_mask, mask);
 
-        //cv::Mat blackPixelMask = createBlackPixelMask(ortho_image, 50);
-        //cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 512);
-        //cv::inpaint(ortho_image, blackPixelMask, ortho_image, 3, cv::INPAINT_TELEA);
-        //cv::inpaint(compensate_image, blackPixelMask, compensate_image, 5, cv::INPAINT_NS);
+        //chrono_grid.stop();
+
+        //chrono_grid.reset();
+        //chrono_grid.setMessage("Write ortoimage");
+        //chrono_grid.run();
 
         tl::Crs crs(mCrs);
-        mOrthophotoWriter->setCRS(crs.toWktFormat());
-        mOrthophotoWriter->setGeoreference(affine_ortho_projected);
-        mOrthophotoWriter->write(ortho_with_mask);
-        mOrthophotoWriter->close();
+        orthophoto_writer->setCRS(crs.toWktFormat());
+        orthophoto_writer->setGeoreference(affine_ortho_projected);
+        orthophoto_writer->write(ortho_with_mask);
+        orthophoto_writer->close();
+        
+        //chrono_grid.stop();
 
     } catch (...) {
-        if (mOrthophotoWriter) mOrthophotoWriter->close();
         TL_THROW_EXCEPTION_WITH_NESTED("Error generating the orthoimage: {}", ortho.fileName().toString());
+    }
+}
+
+cv::Mat Orthoimage::readImage() 
+{
+    cv::Mat mat;
+
+    //if (mReadWithOpenCV) {
+    //
+    //    mat = cv::imread(mImage.toString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_COLOR | cv::IMREAD_ANYDEPTH);
+    //   
+    //    if (mat.empty()) {
+    //        mReadWithOpenCV = false;
+    //    }
+    //}
+
+    //if (!mReadWithOpenCV) {
+
+        auto image_reader = tl::ImageReaderFactory::create(mImage);
+        image_reader->open();
+        if (!image_reader->isOpen()) throw std::runtime_error("Image open error");
+
+        mat = image_reader->read();
+        image_reader->close();
+    //}
+
+    normalizeImage(mat);
+
+    return mat;
+}
+
+void Orthoimage::normalizeImage(cv::Mat &mat) const
+{
+    if (mat.depth() != CV_8U) {
+#ifdef HAVE_OPENCV_CUDAARITHM
+        if (bCuda) {
+            cv::cuda::GpuMat gImgIn(mat);
+            cv::cuda::GpuMat gImgOut;
+            cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+            gImgOut.download(mat);
+        } else {
+#endif
+
+            cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
+
+#ifdef HAVE_OPENCV_CUDAARITHM
+        }
+#endif
     }
 }
 

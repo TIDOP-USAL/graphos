@@ -43,7 +43,7 @@ if(BUILD_ORTHOPHOTO_COMPONENT)
                              impl/OrthophotoTask.cpp
                              impl/OrthoimageTask.cpp
                              impl/OrthophotoCommand.cpp
-                             impl/Footprint.cpp
+                             #impl/Footprint.cpp
                              impl/Orthoimage.cpp
                              impl/Orthorectification.cpp
                              impl/ZBuffer.cpp
@@ -52,7 +52,7 @@ if(BUILD_ORTHOPHOTO_COMPONENT)
                              impl/OrthophotoTask.h
                              impl/OrthoimageTask.h
                              impl/OrthophotoCommand.h
-                             impl/Footprint.h
+                             #impl/Footprint.h
                              impl/Orthoimage.h
                              impl/Orthorectification.h
                              impl/ZBuffer.h)

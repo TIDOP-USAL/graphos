@@ -37,11 +37,15 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core.hpp>
-#ifdef HAVE_CUDA
+#ifdef HAVE_OPENCV_CUDAIMGPROC
 #include <opencv2/cudaimgproc.hpp>
+#endif // HAVE_OPENCV_CUDAIMGPROC
+#ifdef HAVE_OPENCV_CUDAWARPING
 #include <opencv2/cudawarping.hpp>
+#endif // HAVE_OPENCV_CUDAWARPING
+#ifdef HAVE_OPENCV_CUDAARITHM
 #include <opencv2/cudaarithm.hpp>
-#endif // HAVE_CUDA
+#endif // HAVE_OPENCV_CUDAARITHM
 
 #include <colmap/base/database.h>
 #include <colmap/base/camera_models.h>
@@ -277,7 +281,7 @@ private:
      */
     void convertRgbToGray(cv::Mat &mat) const
     {
-#ifdef HAVE_CUDA
+#ifdef HAVE_OPENCV_CUDAIMGPROC
         if (bUseGPU) {
             cv::cuda::GpuMat gImgIn(mat);
             cv::cuda::GpuMat gImgGray;
@@ -288,7 +292,7 @@ private:
 
             cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
 
-#ifdef HAVE_CUDA
+#ifdef HAVE_OPENCV_CUDAIMGPROC
         }
 #endif
         //cv::Mat color_boost;
@@ -309,7 +313,7 @@ private:
     void normalizeImage(cv::Mat &mat) const
     {
         if (mat.depth() != CV_8U) {
-#ifdef HAVE_CUDA
+#ifdef HAVE_OPENCV_CUDAARITHM
             if (bUseGPU) {
                 cv::cuda::GpuMat gImgIn(mat);
                 cv::cuda::GpuMat gImgOut;
@@ -318,7 +322,7 @@ private:
             } else {
 #endif
                 cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
-#ifdef HAVE_CUDA
+#ifdef HAVE_OPENCV_CUDAARITHM
             }
 #endif
         }
@@ -326,7 +330,7 @@ private:
 
     void resizeImage(cv::Mat &mat, const cv::Size &size) const
     {
-#ifdef HAVE_CUDA
+#ifdef HAVE_OPENCV_CUDAWARPING
         if (bUseGPU) {
             cv::cuda::GpuMat gImgIn(mat);
             cv::cuda::GpuMat gImgResize;
@@ -335,7 +339,7 @@ private:
         } else {
 #endif
             cv::resize(mat, mat, size);
-#ifdef HAVE_CUDA
+#ifdef HAVE_OPENCV_CUDAWARPING
         }
 #endif
     }

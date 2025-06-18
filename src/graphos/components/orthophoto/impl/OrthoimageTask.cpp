@@ -34,6 +34,13 @@
 #include <tidop/geotools/GeoTools.h>
 #include <tidop/geotools/CRSsTools.h>
 
+#ifdef HAVE_OPENCV_CUDAWARPING
+#include <opencv2/cudawarping.hpp>
+#endif
+#ifdef HAVE_OPENCV_CUDAARITHM
+#include <opencv2/cudaarithm.hpp>
+#endif
+
 namespace graphos
 {
 
@@ -155,10 +162,13 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
             z_ini = zmean(0);
         }
 
+        std::map<int, std::shared_ptr<Undistort>> undistort;
 
         for (const auto &image : mImages) {
 
             try {
+
+                if (status() == Status::stopping)  break;
 
                 tl::Chrono chrono;
                 chrono.run();
@@ -173,12 +183,87 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
                     continue;
                 }
 
+                                    
+                auto _undistort = undistort.find(image.cameraId());
+                if (_undistort == undistort.end()) {
+
+                    const auto &camera = mCameras.find(image.cameraId());
+                    if (camera != mCameras.end()) {
+                        undistort[camera->first] = std::make_shared<Undistort>(camera->second);
+                    }
+
+                }
+ 
+                // No se nota mejoría al corregir la distorsión de las imágenes aqui
+                // Tampoco cuando se vuelve a procesar con las imagenes corregidas ya calculadas
+//                tl::Path undistort_path = mOrthoPath.parentPath();
+//                undistort_path.append("undistort");
+//                undistort_path.createDirectories();
+//                undistort_path.append(file_name);
+//                undistort_path.replaceExtension(".tif");
+//
+//                if (!undistort_path.exists()) {
+//
+//                    auto _undistort = undistort.find(image.cameraId());
+//                    if (_undistort == undistort.end()) {
+//
+//                        const auto &camera = mCameras.find(image.cameraId());
+//                        if (camera != mCameras.end()) {
+//                            undistort[camera->first] = std::make_shared<Undistort>(camera->second);
+//                        }
+//
+//                    }
+//
+//                    cv::Mat mat;
+//
+//                    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image.path().toStdString());
+//                    imageReader->open();
+//                    if (imageReader->isOpen()) {
+//
+//                        mat = imageReader->read();
+//
+//                        imageReader->close();
+//                    }
+//
+//                    if (mat.depth() != CV_8U) {
+//#ifdef HAVE_OPENCV_CUDAARITHM
+//                        if (bCuda) {
+//                            cv::cuda::GpuMat gImgIn(mat);
+//                            cv::cuda::GpuMat gImgOut;
+//                            cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+//                            gImgOut.download(mat);
+//                        } else {
+//#endif
+//                            cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
+//#ifdef HAVE_OPENCV_CUDAARITHM
+//                        }
+//#endif
+//                    }
+//
+//                    cv::Mat undistort_image = undistort[image.cameraId()]->undistortImage(mat, bCuda);
+//                    mat.release();
+//
+//                    std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(undistort_path);
+//                    image_writer->open();
+//                    if (image_writer->isOpen()) {
+//                        image_writer->create(undistort_image.rows,
+//                            undistort_image.cols,
+//                            undistort_image.channels(),
+//                            tl::openCVDataTypeToDataType(undistort_image.type()));
+//                        image_writer->write(undistort_image);
+//
+//                        image_writer->close();
+//                    }
+//                }
+
                 ortho_file = mOrthoPath;
                 ortho_file.append(file_name).replaceExtension(".png");
 
+
                 Orthorectification orthorectification(mDtm,
-                                                      mCameras[image.cameraId()],
+                                                      //mCameras[image.cameraId()],
                                                       image.cameraPose(),
+                                                      undistort[image.cameraId()],
                                                       z_ini);
                 orthorectification.setCuda(bCuda);
                 if (!orthorectification.isValid()) continue;
@@ -287,11 +372,11 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
                     layer.push_back(entity);
                 }
 
-                tl::Message::info("Write orthoimage {} in {:.2} minutes", ortho_file.fileName().toUtf8(), chrono.stop() / 60.);
+                tl::Message::info("Orthoimage {} generated in {:.2} minutes", ortho_file.fileName().toUtf8(), chrono.stop() / 60.);
 
             } catch (const std::exception &e) {
                 tl::printException(e);
-                tl::Message::error("Write orthoimage error: {}", ortho_file.fileName().toUtf8());
+                tl::Message::error("Orthoimage error: {}", ortho_file.fileName().toUtf8());
             }
 
             if (progressBar) (*progressBar)();

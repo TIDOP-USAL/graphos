@@ -45,6 +45,9 @@
 namespace graphos
 {
 
+/*! Forward declaration */
+class Undistort;
+
 /*!
  * \brief Orthorectification
  */
@@ -54,8 +57,8 @@ class Orthorectification
 public:
 
     Orthorectification(const tl::Path &dtm,
-                       const Camera &camera,
                        CameraPose cameraPose,
+                       std::shared_ptr<Undistort> &undistort,
                        double zIni = 0.);
 
     ~Orthorectification() = default;
@@ -90,7 +93,6 @@ public:
 private:
 
     void init();
-    void initUndistortCamera();
 
     float focal() const;
     tl::Point<float> principalPoint() const;
@@ -98,16 +100,15 @@ private:
 
 private:
 
-    Camera mCamera;
-    Camera mUndistortCamera;
+    tl::Path mDtmPath;
     CameraPose mCameraPose;
-    std::unique_ptr<tl::ImageReader> mDtmReader;
+    std::shared_ptr<Undistort> mUndistort;
     cv::Mat mDtm;
     tl::Window<tl::Point<double>> mWindowDtmTerrainExtension;
-    //tl::geom::Affine<tl::Point<int>> mAffineImageToPhotocoordinates;
     tl::Affine<double, 2> mAffineImageToPhotocoordinates;
-    //tl::geom::Affine<tl::Point<double>> mAffineDtmImageToTerrain;
+    tl::Affine<double, 2> mAffinePhotocoordinatesToImage;
     tl::Affine<double, 2> mAffineDtmImageToTerrain;
+    tl::Affine<double, 2> mAffineTerrainToDtmImage;
     std::unique_ptr<tl::DifferentialRectification> mDifferentialRectification;
     double mIniZ;
     tl::Rect<int> mRectImage;

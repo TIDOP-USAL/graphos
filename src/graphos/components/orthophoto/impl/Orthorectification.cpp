@@ -37,12 +37,12 @@ namespace graphos
 {
 
 Orthorectification::Orthorectification(const tl::Path &dtm,
-                                       const Camera &camera,
                                        CameraPose cameraPose, 
+                                       std::shared_ptr<Undistort> &undistort,
                                        double zIni)
-  : mCamera(camera),
+  : mDtmPath(dtm),
     mCameraPose(std::move(cameraPose)),
-    mDtmReader(tl::ImageReaderFactory::create(dtm)),
+    mUndistort(undistort),
     mIniZ(zIni),
     mNoDataValue(-std::numeric_limits<double>::max()),
     bCuda(false)
@@ -110,25 +110,21 @@ tl::Point3<double> Orthorectification::photocoordinatesToTerrain(const tl::Point
 
         while (it > 0) {
 
-            tl::Point<int> image_point = terrainToDTMImageCoordinates(terrain_coordinates);
-            tl::Rect<int> rect_full(tl::Point<int>(), mDtmReader->cols(), mDtmReader->rows());
+            tl::Point<int> dtm_point = terrainToDTMImageCoordinates(terrain_coordinates);
 
-            tl::Point<double> pt(terrain_coordinates.x, terrain_coordinates.y);
-            if (rect_full.contains(image_point)) {
-                tl::Rect<int> rect(image_point, 1, 1);
-                cv::Mat image = mDtmReader->read(rect);
-                if (!image.empty()) {
-                    z2 = image.at<float>(0, 0);
-                    if (std::abs(z2 - z) > 0.01 && z2 != mNoDataValue) {
-                        terrain_coordinates = mDifferentialRectification->forwardProjection(photocoordinates, z2);
-                        z = z2;
-                    } else {
-                        break;
-                    }
+            if (mRectDtm.contains(dtm_point)) {
+                z2 = mDtm.at<float>(dtm_point.y - mRectDtm.y, dtm_point.x - mRectDtm.x);
+                if (std::abs(z2 - z) > 0.01 && z2 != mNoDataValue) {
+                    terrain_coordinates = mDifferentialRectification->forwardProjection(photocoordinates, z2);
+                    z = z2;
+                } else {
+                    break;
                 }
             } else {
+                // If the point is outside the DTM rectangle, we stop the iteration
                 break;
             }
+
             it--;
         }
 
@@ -146,7 +142,7 @@ tl::Point<double> Orthorectification::imageToPhotocoordinates(const tl::Point<in
 
 tl::Point<double> Orthorectification::photoCoordinatesToImageCoordinates(const tl::Point<double> &photocoordinates) const
 {
-    return mAffineImageToPhotocoordinates.inverse().transform(photocoordinates);
+    return mAffinePhotocoordinatesToImage.transform(photocoordinates);
 }
 
 tl::Point3<double> Orthorectification::dtmImageCoordinatesToTerrain(const tl::Point<int> &imagePoint) const
@@ -167,9 +163,7 @@ tl::Point3<double> Orthorectification::dtmImageCoordinatesToTerrain(const tl::Po
 
 tl::Point<int> Orthorectification::terrainToDTMImageCoordinates(const tl::Point3<double> &terrainPoint) const
 {
-    auto inverse_transform = mAffineDtmImageToTerrain.inverse();
-    return inverse_transform.transform(static_cast<tl::Point<double>>(terrainPoint));
-    //return mAffineDtmImageToTerrain.transform(terrainPoint, tl::geom::Transform::Order::inverse);
+    return mAffineTerrainToDtmImage.transform(static_cast<tl::Point<double>>(terrainPoint));
 }
 
 double Orthorectification::z(const tl::Point<double> &terrainPoint) const
@@ -178,10 +172,9 @@ double Orthorectification::z(const tl::Point<double> &terrainPoint) const
 
     try {
 
-        tl::Rect<int> rect(terrainToDTMImageCoordinates(terrainPoint), 1, 1);
-        cv::Mat image = mDtmReader->read(rect);
-        if (!image.empty()) {
-            z = image.at<float>(0, 0);
+        tl::Point<int> dtm_point = terrainToDTMImageCoordinates(terrainPoint);
+        if (mRectDtm.contains(dtm_point)) {
+            z = mDtm.at<float>(dtm_point.y - mRectDtm.y, dtm_point.x - mRectDtm.x);
         }
 
     } catch (...) {
@@ -213,12 +206,12 @@ CameraPose Orthorectification::orientation() const
 
 Camera Orthorectification::camera() const
 {
-    return mCamera;
+    return mUndistort->camera();
 }
 
 Camera Orthorectification::undistortCamera() const
 {
-    return mUndistortCamera;
+    return mUndistort->undistortCamera();
 }
 
 bool Orthorectification::hasNodataValue() const
@@ -233,21 +226,70 @@ double Orthorectification::nodataValue() const
 
 void Orthorectification::init()
 {
+
+    auto image_to_terrain = [&](const tl::Point<int> &imageCoordinates, tl::ImageReader *dtmReader) -> tl::Point3<double>
+    {
+        tl::Point3<double> terrain_coordinates;
+
+        try {
+
+            tl::Point<double> photocoordinates = imageToPhotocoordinates(imageCoordinates);
+
+            double z = mIniZ;
+            int it = 10;
+            double z2;
+
+            terrain_coordinates = mDifferentialRectification->forwardProjection(photocoordinates, z);
+
+            while (it > 0) {
+
+                tl::Point<int> image_point = terrainToDTMImageCoordinates(terrain_coordinates);
+
+                tl::Rect<int> rect_full(tl::Point<int>(), dtmReader->cols(), dtmReader->rows());
+
+                tl::Point<double> pt(terrain_coordinates.x, terrain_coordinates.y);
+                if (rect_full.contains(image_point)) {
+                    tl::Rect<int> rect(image_point, 1, 1);
+                    cv::Mat image = dtmReader->read(rect);
+                    if (!image.empty()) {
+                        z2 = image.at<float>(0, 0);
+                        if (std::abs(z2 - z) > 0.01 && z2 != mNoDataValue) {
+                            terrain_coordinates = mDifferentialRectification->forwardProjection(photocoordinates, z2);
+                            z = z2;
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    break;
+                }
+                it--;
+            }
+
+        } catch (...) {
+            TL_THROW_EXCEPTION_WITH_NESTED("");
+        }
+
+        return terrain_coordinates;
+    };
+
     try {
 
-        initUndistortCamera();
+        std::unique_ptr<tl::ImageReader> dtm_reader = tl::ImageReaderFactory::create(mDtmPath);
 
-        mDtmReader->open();
+        dtm_reader->open();
 
-        mAffineDtmImageToTerrain = mDtmReader->georeference();
+        mAffineDtmImageToTerrain = dtm_reader->georeference();
+        mAffineTerrainToDtmImage = mAffineDtmImageToTerrain.inverse();
 
         tl::Point<float> principal_point = this->principalPoint();
 
         mAffineImageToPhotocoordinates = tl::Affine<double, 2>(1., -1., -principal_point.x, principal_point.y, 0.);
+        mAffinePhotocoordinatesToImage = mAffineImageToPhotocoordinates.inverse();
 
         mWindowDtmTerrainExtension.pt1.x = mAffineDtmImageToTerrain.translation().x();
         mWindowDtmTerrainExtension.pt1.y = mAffineDtmImageToTerrain.translation().y();
-        mWindowDtmTerrainExtension.pt2 = mAffineDtmImageToTerrain.transform(tl::Point<double>(mDtmReader->cols(), mDtmReader->rows()));
+        mWindowDtmTerrainExtension.pt2 = mAffineDtmImageToTerrain.transform(tl::Point<double>(dtm_reader->cols(), dtm_reader->rows()));
         mWindowDtmTerrainExtension.normalized();
 
         mDifferentialRectification = std::make_unique<tl::DifferentialRectification>(mCameraPose.rotationMatrix(),
@@ -255,26 +297,26 @@ void Orthorectification::init()
                                                                                      focal());
 
         bool exist_nodata = false;
-        double nodata_value = mDtmReader->noDataValue(&exist_nodata);
+        double nodata_value = dtm_reader->noDataValue(&exist_nodata);
         if (exist_nodata) mNoDataValue = nodata_value;
 
-        mRectImage = tl::Rect<int>(0, 0, mCamera.width(), mCamera.height());
+        mRectImage = tl::Rect<int>(0, 0, camera().width(), camera().height());
 
         // Se necesita un primera aproximación de mIniZ
         if (mIniZ == 0.) {
-            cv::Mat dem = mDtmReader->read(0.1, 0.1);
+            cv::Mat dem = dtm_reader->read(0.1, 0.1);
             cv::Mat mask = cv::Mat::zeros(dem.rows, dem.cols, CV_8U);
             mask.setTo(cv::Scalar::all(255), dem > -9999.);
             cv::Scalar zmean = cv::mean(dem, mask);
             mIniZ = zmean(0);
         }
 
-        tl::Point<double> center_project = imageToTerrain(mRectImage.window().center());
+        tl::Point<double> center_project = image_to_terrain(mRectImage.window().center(), dtm_reader.get());
 
         // Lo compruebo antes
         if (mWindowDtmTerrainExtension.containsPoint(center_project)) {
             tl::WindowD w(center_project, mAffineDtmImageToTerrain.scale().x(), mAffineDtmImageToTerrain.scale().y());
-            cv::Mat image = mDtmReader->read(w);
+            cv::Mat image = dtm_reader->read(w);
             mIniZ = image.at<float>(0, 0);
         } /*else {
             // ¿Buscar la z media del DTM?, ¿la mas próxima? o ¿ir buscando en las diferentes esquinas de la imagen?
@@ -290,12 +332,12 @@ void Orthorectification::init()
             } else return; // No intersecta con el DTM
         }*/
 
-        tl::Rect<int> rect_full(tl::Point<int>(), mDtmReader->cols(), mDtmReader->rows());
+        tl::Rect<int> rect_full(tl::Point<int>(), dtm_reader->cols(), dtm_reader->rows());
 
-        mFootprint.push_back(imageToTerrain(mRectImage.topLeft()));
-        mFootprint.push_back(imageToTerrain(mRectImage.topRight()));
-        mFootprint.push_back(imageToTerrain(mRectImage.bottomRight()));
-        mFootprint.push_back(imageToTerrain(mRectImage.bottomLeft()));
+        mFootprint.push_back(image_to_terrain(mRectImage.topLeft(), dtm_reader.get()));
+        mFootprint.push_back(image_to_terrain(mRectImage.topRight(), dtm_reader.get()));
+        mFootprint.push_back(image_to_terrain(mRectImage.bottomRight(), dtm_reader.get()));
+        mFootprint.push_back(image_to_terrain(mRectImage.bottomLeft(), dtm_reader.get()));
 
         tl::WindowD window_terrain = mFootprint.window();
 
@@ -305,7 +347,8 @@ void Orthorectification::init()
         tl::Rect<int> rect(window_dtm_image_pt1, window_dtm_image_pt2);
         rect.normalized();
         mRectDtm = intersect(rect, rect_full);
-        mDtm = mDtmReader->read(mRectDtm);
+        mDtm = dtm_reader->read(mRectDtm);
+        dtm_reader->close();
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
@@ -313,35 +356,12 @@ void Orthorectification::init()
     
 }
 
-void Orthorectification::initUndistortCamera()
-{
-    std::shared_ptr<Calibration> calibration = mCamera.calibration();
-
-    cv::Mat cameraMatrix = openCvCameraMatrix(*calibration);
-    cv::Mat dist_coeffs = openCvDistortionCoefficients(*calibration);
-
-    cv::Size imageSize(static_cast<int>(mCamera.width()),
-                       static_cast<int>(mCamera.height()));
-
-    cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, dist_coeffs, imageSize, 1, imageSize, nullptr);
-
-    mUndistortCamera = mCamera;
-    mUndistortCamera.setFocal((optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.);
-    std::shared_ptr<Calibration> undistort_calibration = CalibrationFactory::create(calibration->cameraModel());
-    undistort_calibration->setParameter(Calibration::Parameters::focal, (optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.);
-    undistort_calibration->setParameter(Calibration::Parameters::focalx, optCameraMat.at<float>(0, 0));
-    undistort_calibration->setParameter(Calibration::Parameters::focaly, optCameraMat.at<float>(1, 1));
-    undistort_calibration->setParameter(Calibration::Parameters::cx, optCameraMat.at<float>(0, 2));
-    undistort_calibration->setParameter(Calibration::Parameters::cy, optCameraMat.at<float>(1, 2));
-    mUndistortCamera.setCalibration(undistort_calibration);
-}
-
 float Orthorectification::focal() const
 {
     float focal_x = 1.f;
     float focal_y = 1.f;
 
-    std::shared_ptr<Calibration> calibration = mUndistortCamera.calibration();
+    std::shared_ptr<Calibration> calibration = undistortCamera().calibration();
 
     if (calibration->existParameter(Calibration::Parameters::focal)) {
         focal_x = static_cast<float>(calibration->parameter(Calibration::Parameters::focal));
@@ -358,7 +378,7 @@ tl::Point<float> Orthorectification::principalPoint() const
 {
     tl::Point<float> principal_point;
 
-    std::shared_ptr<Calibration> calibration = mUndistortCamera.calibration();
+    std::shared_ptr<Calibration> calibration = undistortCamera().calibration();
 
     principal_point.x = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
     principal_point.y = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
@@ -368,7 +388,7 @@ tl::Point<float> Orthorectification::principalPoint() const
 
 cv::Mat Orthorectification::distCoeffs() const
 {
-    std::shared_ptr<Calibration> calibration = mUndistortCamera.calibration();
+    std::shared_ptr<Calibration> calibration = undistortCamera().calibration();
 
     cv::Mat dist_coeffs = openCvDistortionCoefficients(*calibration);
 
@@ -382,49 +402,7 @@ void Orthorectification::setCuda(bool active)
 
 cv::Mat Orthorectification::undistort(const cv::Mat &image)
 {
-    TL_TODO("Reemplazar con la clase Undistort")
-
-    cv::Mat img_undistort;
-
-    TL_TODO("No debería calcular la cámara y los coeficientes de distorsión cada vez")
-
-        try {
-
-        std::shared_ptr<Calibration> calibration = mCamera.calibration();
-
-        cv::Mat cameraMatrix = openCvCameraMatrix(*calibration);
-        cv::Mat distCoeffs = openCvDistortionCoefficients(*calibration);
-        cv::Size imageSize(static_cast<int>(mCamera.width()),
-                           static_cast<int>(mCamera.height()));
-
-        cv::Mat map1;
-        cv::Mat map2;
-        cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
-        cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
-
-#ifdef HAVE_OPENCV_CUDAWARPING
-        if (bCuda) {
-            cv::cuda::GpuMat gMap1(map1);
-            cv::cuda::GpuMat gMap2(map2);
-            cv::cuda::GpuMat gImgOut(image);
-            cv::cuda::GpuMat gImgUndistort;
-
-            cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar());
-            gImgUndistort.download(img_undistort);
-        } else {
-#endif
-
-            cv::remap(image, img_undistort, map1, map2, cv::INTER_LINEAR);
-
-#ifdef HAVE_OPENCV_CUDAWARPING
-        }
-#endif
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("");
-    }
-
-    return img_undistort;
+    return mUndistort->undistortImage(image);
 }
 
 bool Orthorectification::isValid() const
