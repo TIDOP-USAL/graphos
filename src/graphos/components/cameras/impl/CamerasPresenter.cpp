@@ -185,6 +185,7 @@ void CamerasPresenterImp::clear()
 
 void CamerasPresenterImp::loadCameras()
 {
+    QSignalBlocker blocker(mView);
 
     bool first_camera_load = false;
     for (const auto &map_camera : mModel->cameras()) {

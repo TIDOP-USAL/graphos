@@ -21,74 +21,49 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
-#define GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
+#ifndef GRAPHOS_CORE_CAMERA_CALIBRATION_WRITER_H
+#define GRAPHOS_CORE_CAMERA_CALIBRATION_WRITER_H
 
-#include "graphos/components/export/cameras/ExportCamerasPresenter.h"
+#include <memory>
+#include <string>
+
+#include <tidop/core/path.h>
+
+#include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
 
-class NvmFormatWidget;
-class BundlerFormatWidget;
-class MveFormatWidget;
-class OriTxtFormatWidget;
-class ExportCamerasView;
-class ExportCamerasModel;
+/* Calibration writer */
 
-class ExportCamerasPresenterImp
-  : public ExportCamerasPresenter
+class CalibrationWriter
 {
-    Q_OBJECT
 
 public:
 
-    ExportCamerasPresenterImp(ExportCamerasView *view,
-                              ExportCamerasModel *model);
-    ~ExportCamerasPresenterImp() override;
+    CalibrationWriter();
+    virtual ~CalibrationWriter() = default;
 
-// ExportCamerasPresenter interface
+    virtual void write(const tl::Path &path,
+                       const Camera &camera) = 0;
+    virtual auto format() const -> std::string = 0;
 
-public slots:
+};
 
-    void setCurrentFormat(const QString &format) override;
 
-// TaskPresenter interface
-
-protected:
-
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
-    auto createTask() -> std::unique_ptr<tl::Task> override;
-
-public slots:
-
-    void cancel() override;
-
-// Presenter interface
-
-public slots:
-
-    void open() override;
+class CalibrationWriterFactory
+{
 
 private:
 
-    void init() override;
-    void initSignalAndSlots() override;
+    CalibrationWriterFactory() = default;
 
-private:
+public:
 
-    ExportCamerasView *mView;
-    ExportCamerasModel *mModel;
-    //NvmFormatWidget *mNvmFormatWidget;
-    //BundlerFormatWidget *mBundlerFormatWidget;
-    //MveFormatWidget *mMveFormatWidget;
-    OriTxtFormatWidget *mOriTxtFormatWidget;
-    QString mExportFile;
-    QString mExportFormat;
+    static auto create(const std::string& format) -> std::unique_ptr<CalibrationWriter>;
 
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
+#endif // GRAPHOS_CORE_CAMERA_CALIBRATION_WRITER_H

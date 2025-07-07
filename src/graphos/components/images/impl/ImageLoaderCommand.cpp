@@ -33,13 +33,14 @@
 #include <tidop/img/metadata.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
+#include <tidop/core/log.h>
 
 #include <QFileInfo>
 #include <QSqlQuery>
 #include <QSqlError>
 
 #include <fstream>
-#include <tidop/core/log.h>
+
 
 
 namespace graphos

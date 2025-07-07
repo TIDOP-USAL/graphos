@@ -41,6 +41,17 @@
 namespace graphos
 {
 
+bool isLikelyFisheye(double focal_mm, double sensor_width_mm)
+{
+    if (focal_mm <= 0.0 || sensor_width_mm <= 0.0)
+        return false;
+
+    double fov_rad = 2.0 * std::atan(sensor_width_mm / (2.0 * focal_mm));
+    double fov_deg = fov_rad * tl::consts::rad_to_deg<double>;
+
+    return fov_deg > 150.0; // Umbral aproximado para fisheye
+}
+
 LoadImagesTask::LoadImagesTask(std::vector<Image> *images,
                                std::vector<Camera> *cameras,
                                std::string cameraType/*,
@@ -51,11 +62,11 @@ LoadImagesTask::LoadImagesTask(std::vector<Image> *images,
     //mEPSG(std::move(epsg)),
     mCameraType(std::move(cameraType))
 {
-#ifdef _DEBUG
-    mDatabaseCamerasPath = QString(GRAPHOS_SOURCE_PATH).append("/res");
-#else
+//#ifdef _DEBUG
+//    mDatabaseCamerasPath = QString(GRAPHOS_SOURCE_PATH).append("/res");
+//#else
     mDatabaseCamerasPath = qApp->applicationDirPath();
-#endif
+//#endif
     mDatabaseCamerasPath.append("/cameras.db");
 }
 
@@ -348,6 +359,13 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
         camera.setFocal(focal);
         if (sensor_width_mm > 0.)
             camera.setSensorSize(sensor_width_mm);
+
+        if (sensor_width_mm > 0.) {
+            double focal_mm_estimate = focal * sensor_width_mm / std::max(width, height);
+            if (isLikelyFisheye(focal_mm_estimate, sensor_width_mm)) {
+                camera.setType("OpenCV Fisheye");
+            }
+        }
 
         camera_id = static_cast<int>(mCameras->size());
         mCameras->push_back(camera);

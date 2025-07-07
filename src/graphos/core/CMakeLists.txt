@@ -66,6 +66,16 @@ add_files_to_project(${PROJECT_NAME}
                          camera/Colmap.cpp
                          camera/Database.cpp
                          camera/Undistort.cpp
+                         camera/io/CalibrationReader.cpp
+                         camera/io/CalibrationWriter.cpp
+                         camera/io/impl/AgisoftCalibrationReader.cpp
+                         camera/io/impl/AgisoftCalibrationWriter.cpp
+                         camera/io/impl/OpenCVCalibrationReader.cpp
+                         camera/io/impl/OpenCVCalibrationWriter.cpp
+                         camera/io/impl/OpenDroneMapCalibrationReader.cpp
+                         camera/io/impl/OpenDroneMapCalibrationWriter.cpp
+                         camera/io/impl/Pix4DCalibrationReader.cpp
+                         camera/io/impl/Pix4DCalibrationWriter.cpp
                          #[[ortho/Orthorectification.cpp
                          ortho/ZBuffer.cpp
                          ortho/Footprint.cpp
@@ -117,6 +127,16 @@ add_files_to_project(${PROJECT_NAME}
                          camera/Colmap.h
                          camera/Database.h
                          camera/Undistort.h
+                         camera/io/CalibrationReader.h
+                         camera/io/CalibrationWriter.h
+                         camera/io/impl/AgisoftCalibrationReader.h
+                         camera/io/impl/AgisoftCalibrationWriter.h
+                         camera/io/impl/OpenCVCalibrationReader.h
+                         camera/io/impl/OpenCVCalibrationWriter.h
+                         camera/io/impl/OpenDroneMapCalibrationReader.h
+                         camera/io/impl/OpenDroneMapCalibrationWriter.h
+                         camera/io/impl/Pix4DCalibrationReader.h
+                         camera/io/impl/Pix4DCalibrationWriter.h
                          #[[ortho/Orthorectification.h
                          ortho/ZBuffer.h
                          ortho/Footprint.h

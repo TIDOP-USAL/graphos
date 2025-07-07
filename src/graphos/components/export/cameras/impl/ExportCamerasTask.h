@@ -31,6 +31,7 @@
 #include <tidop/core/task.h>
 
 #include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
@@ -49,7 +50,8 @@ public:
     ExportCamerasTask(tl::Path file,
                       const std::unordered_map<size_t, Image> &images,
                       const std::unordered_map<size_t, CameraPose> &poses,
-                      //tl::Path enuCrs,
+                      const std::map<int, Camera> &cameras,
+                      QString enuCrs,
                       QString format);
 
     void setQuaternionRotation(bool quaternions);
@@ -57,6 +59,7 @@ public:
 private:
 
     void textExport();
+    void odmExport();
 
 // tl::TaskBase interface
 
@@ -69,7 +72,8 @@ protected:
     tl::Path mFile;
     std::unordered_map<size_t, Image> mImages;
     std::unordered_map<size_t, CameraPose> mPoses;
-    //tl::Path mEnuCrs;
+    std::map<int, Camera> mCameras;
+    QString mEnuCrs;
     QString mFormat;
     bool mQuaternions;
 };

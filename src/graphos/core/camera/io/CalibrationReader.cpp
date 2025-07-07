@@ -21,74 +21,47 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
-#define GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
+#include "graphos/core/camera/io/CalibrationReader.h"
+#include "graphos/core/camera/io/impl/AgisoftCalibrationReader.h"
+#include "graphos/core/camera/io/impl/OpenCVCalibrationReader.h"
+#include "graphos/core/camera/io/impl/Pix4DCalibrationReader.h"
+#include "graphos/core/camera/io/impl/OpenDroneMapCalibrationReader.h"
 
-#include "graphos/components/export/cameras/ExportCamerasPresenter.h"
+#include <tidop/core/exception.h>
 
 namespace graphos
 {
 
-class NvmFormatWidget;
-class BundlerFormatWidget;
-class MveFormatWidget;
-class OriTxtFormatWidget;
-class ExportCamerasView;
-class ExportCamerasModel;
 
-class ExportCamerasPresenterImp
-  : public ExportCamerasPresenter
+/* Calibration reader */
+
+CalibrationReader::CalibrationReader() = default;
+
+/* Calibration reader factory */
+
+auto CalibrationReaderFactory::create(const std::string& format) -> std::unique_ptr<CalibrationReader>
 {
-    Q_OBJECT
+    std::unique_ptr<CalibrationReader> reader;
 
-public:
+    try {	
+	    if (format == "Agisoft") {
+            reader = std::make_unique<AgisoftCalibrationReader>();
+        } else if (format == "OpenCV") {
+            reader = std::make_unique<OpenCVCalibrationReader>();
+        } else if (format == "Pix4D") {
+            reader = std::make_unique<Pix4DCalibrationReader>();
+        } else if (format == "ODM") {
+            reader = std::make_unique<OpenDroneMapCalibrationReader>();
+        } else {
+            TL_THROW_EXCEPTION("Invalid format: {}", format.c_str());
+        }
 
-    ExportCamerasPresenterImp(ExportCamerasView *view,
-                              ExportCamerasModel *model);
-    ~ExportCamerasPresenterImp() override;
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }	
 
-// ExportCamerasPresenter interface
+    return reader;
+}
 
-public slots:
-
-    void setCurrentFormat(const QString &format) override;
-
-// TaskPresenter interface
-
-protected:
-
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
-    auto createTask() -> std::unique_ptr<tl::Task> override;
-
-public slots:
-
-    void cancel() override;
-
-// Presenter interface
-
-public slots:
-
-    void open() override;
-
-private:
-
-    void init() override;
-    void initSignalAndSlots() override;
-
-private:
-
-    ExportCamerasView *mView;
-    ExportCamerasModel *mModel;
-    //NvmFormatWidget *mNvmFormatWidget;
-    //BundlerFormatWidget *mBundlerFormatWidget;
-    //MveFormatWidget *mMveFormatWidget;
-    OriTxtFormatWidget *mOriTxtFormatWidget;
-    QString mExportFile;
-    QString mExportFormat;
-
-};
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_CAMERAS_PRESENTER_H

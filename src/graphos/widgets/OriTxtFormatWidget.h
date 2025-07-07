@@ -51,21 +51,21 @@ public:
 
 public:
 
-    QString file() const;
+    //QString file() const;
     QString rotation() const;
 
 public slots:
 
-    void setFile(const QString &file);
+    //void setFile(const QString &file);
     void setRotation(const QString &rotation);
 
 protected slots:
 
-    void onPushButtonSelectPath();
+    //void onPushButtonSelectPath();
 
 signals:
 
-    void fileChanged(QString);
+    //void fileChanged(QString);
     void rotationChanged(QString);
 
 // GraphosWidgetView interface
@@ -89,9 +89,9 @@ protected:
     QGroupBox *mGroupBox;
     QLabel *mLabelRotation;
     QComboBox *mComboBoxRotation;
-    QLabel *mLabelFile;
-    QLineEdit *mLineEditFile;
-    QPushButton *mPushButtonSelectPath;
+    //QLabel *mLabelFile;
+    //QLineEdit *mLineEditFile;
+    //QPushButton *mPushButtonSelectPath;
 };
 
 } // namespace graphos

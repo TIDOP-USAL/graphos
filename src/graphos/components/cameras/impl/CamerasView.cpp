@@ -55,21 +55,22 @@ CamerasViewImp::CamerasViewImp(QWidget *parent)
 void CamerasViewImp::onCalibrationImport()
 {
     QString selected_filter;
-    QString path_name = QFileDialog::getOpenFileName(nullptr,
+    QString path_name = QFileDialog::getOpenFileName(this,
                                                     QApplication::translate("CamerasComponent", "Import calibration", nullptr),
                                                     QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-                                                    //tr("Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
-                                                    QApplication::translate("CamerasComponent", "Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)", nullptr),
+                                                    QApplication::translate("CamerasComponent", "Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml);;ODM Camera Calibration (*.json)"),
                                                     &selected_filter);
 
     if (!path_name.isEmpty()) {
         QString format;
-        /*if (selectedFilter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
+        if (selected_filter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
           format = "Pix4D";
-        } else */if (selected_filter.compare(QApplication::translate("CamerasComponent", "Agisoft Camera Calibration (*.xml)", nullptr)) == 0) {
+        } else if (selected_filter.compare(QApplication::translate("CamerasComponent", "Agisoft Camera Calibration (*.xml)", nullptr)) == 0) {
             format = "Agisoft";
         } else if (selected_filter.compare(QApplication::translate("CamerasComponent", "OpenCV Camera Calibration (*.xml)", nullptr)) == 0) {
             format = "OpenCV";
+        } else if (selected_filter.compare(QApplication::translate("CamerasComponent", "ODM Camera Calibration (*.json)", nullptr)) == 0) {
+            format = "ODM";
         } else {
             tl::Message::error("Unsupported format");
         }
@@ -81,22 +82,23 @@ void CamerasViewImp::onCalibrationImport()
 void CamerasViewImp::onCalibrationExport()
 {
     QString selected_filter;
-    QString path_name = QFileDialog::getSaveFileName(nullptr,
+    QString path_name = QFileDialog::getSaveFileName(this,
                                                     QApplication::translate("CamerasComponent", "Export Calibration", nullptr),
                                                     QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-                                                    //tr("Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
-                                                    QApplication::translate("CamerasComponent", "Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)", nullptr),
+                                                    QApplication::translate("CamerasComponent", "Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml);;ODM Camera Calibration (*.json)"),
                                                     &selected_filter);
 
     if (!path_name.isEmpty()) {
 
         QString format;
-        /*if (selectedFilter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
+        if (selected_filter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
           format = "Pix4D";
-        } else */if (selected_filter.compare(QApplication::translate("CamerasComponent", "Agisoft Camera Calibration (*.xml)", nullptr)) == 0) {
+        } else if (selected_filter.compare(QApplication::translate("CamerasComponent", "Agisoft Camera Calibration (*.xml)", nullptr)) == 0) {
             format = "Agisoft";
         } else if (selected_filter.compare(QApplication::translate("CamerasComponent", "OpenCV Camera Calibration (*.xml)", nullptr)) == 0) {
             format = "OpenCV";
+        } else if (selected_filter.compare(QApplication::translate("CamerasComponent", "ODM Camera Calibration (*.json)", nullptr)) == 0) {
+            format = "ODM";
         } else {
             tl::Message::error("Unsupported format");
         }
@@ -159,16 +161,16 @@ void CamerasViewImp::initUI()
     mLabelType = new QLabel(mGroupBoxCamera);
     gridLayout3->addWidget(mLabelType, 7, 0, 1, 1);
     mComboBoxType = new QComboBox(mGroupBoxCamera);
-    mComboBoxType->addItem(QString());
-    mComboBoxType->addItem(QString());
-    //mComboBoxType->addItem(QString());
-    mComboBoxType->addItem(QString());
-    mComboBoxType->addItem(QString());
-    mComboBoxType->addItem(QString());
-    mComboBoxType->addItem(QString());
-    mComboBoxType->addItem(QString());
-    mComboBoxType->addItem(QString());
-    mComboBoxType->addItem(QString());
+    mComboBoxType->addItem("Radial 1");
+    mComboBoxType->addItem("Radial 2");
+    mComboBoxType->addItem("Pinhole 1");
+    mComboBoxType->addItem("Pinhole 2");
+    mComboBoxType->addItem("OpenCV 1");
+    mComboBoxType->addItem("OpenCV 2");
+    mComboBoxType->addItem("OpenCV Fisheye");
+    mComboBoxType->addItem("Radial Fisheye 1");
+    mComboBoxType->addItem("Radial Fisheye 2");
+
     gridLayout3->addWidget(mComboBoxType, 7, 1, 1, 5);
 
     mPushButtonEditCamera = new QPushButton(mGroupBoxCamera);
@@ -486,15 +488,15 @@ void CamerasViewImp::retranslate()
     mLabelWidth->setText(QApplication::translate("CamerasComponent", "Width (pixels)", nullptr));
     mLabelSensorSize->setText(QApplication::translate("CamerasComponent", "Sensor size (mm)", nullptr));
     mLabelFocal->setText(QApplication::translate("CamerasComponent", "Focal", nullptr));
-    mComboBoxType->setItemText(radial_1, QApplication::translate("CamerasComponent", "Radial 1", nullptr));
-    mComboBoxType->setItemText(radial_2, QApplication::translate("CamerasComponent", "Radial 2", nullptr));
-    mComboBoxType->setItemText(pinhole_1, QApplication::translate("CamerasComponent", "Pinhole 1", nullptr));
-    mComboBoxType->setItemText(pinhole_2, QApplication::translate("CamerasComponent", "Pinhole 2", nullptr));
-    mComboBoxType->setItemText(opencv_1, QApplication::translate("CamerasComponent", "OpenCV 1", nullptr));
-    mComboBoxType->setItemText(opencv_2, QApplication::translate("CamerasComponent", "OpenCV 2", nullptr));
-    mComboBoxType->setItemText(opencv_fisheye, QApplication::translate("CamerasComponent", "OpenCV Fisheye", nullptr));
-    mComboBoxType->setItemText(radial_fisheye_1, QApplication::translate("CamerasComponent", "Radial Fisheye 1", nullptr));
-    mComboBoxType->setItemText(radial_fisheye_2, QApplication::translate("CamerasComponent", "Radial Fisheye 2", nullptr));
+    //mComboBoxType->setItemText(radial_1, QApplication::translate("CamerasComponent", "Radial 1", nullptr));
+    //mComboBoxType->setItemText(radial_2, QApplication::translate("CamerasComponent", "Radial 2", nullptr));
+    //mComboBoxType->setItemText(pinhole_1, QApplication::translate("CamerasComponent", "Pinhole 1", nullptr));
+    //mComboBoxType->setItemText(pinhole_2, QApplication::translate("CamerasComponent", "Pinhole 2", nullptr));
+    //mComboBoxType->setItemText(opencv_1, QApplication::translate("CamerasComponent", "OpenCV 1", nullptr));
+    //mComboBoxType->setItemText(opencv_2, QApplication::translate("CamerasComponent", "OpenCV 2", nullptr));
+    //mComboBoxType->setItemText(opencv_fisheye, QApplication::translate("CamerasComponent", "OpenCV Fisheye", nullptr));
+    //mComboBoxType->setItemText(radial_fisheye_1, QApplication::translate("CamerasComponent", "Radial Fisheye 1", nullptr));
+    //mComboBoxType->setItemText(radial_fisheye_2, QApplication::translate("CamerasComponent", "Radial Fisheye 2", nullptr));
 
     mLabelMake->setText(QApplication::translate("CamerasComponent", "Make", nullptr));
     mLabelModel->setText(QApplication::translate("CamerasComponent", "Model", nullptr));

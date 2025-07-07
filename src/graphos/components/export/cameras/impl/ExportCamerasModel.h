@@ -46,6 +46,7 @@ public:
     
     auto images() const -> const std::unordered_map<size_t, Image>& override;
     auto poses() const -> const std::unordered_map<size_t, CameraPose>& override;
+    auto cameras() const -> const std::map<int, Camera> & override;
     auto enuCrs() const -> QString override;
 
 // Model interface

@@ -27,6 +27,7 @@
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/chrono.h>
+#include <tidop/geospatial/util.h>
 
 #ifdef GRAPHOS_GUI
 #include <FileIOFilter.h>
@@ -450,6 +451,15 @@ void transformModel(const tl::Matrix<double> &transform, const std::string &mode
         TL_THROW_EXCEPTION_WITH_NESTED("Transform model error");
     }
 #endif // GRAPHOS_GUI
+}
+
+QString enuCrsToEpsg(const QString &enuCRS)
+{
+    auto v = tl::split<std::string>(enuCRS.toStdString(), ';');
+    auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
+    QString epsg_code("EPSG:326");
+    epsg_code.append(QString::number(zone.first));
+    return epsg_code;
 }
 
 

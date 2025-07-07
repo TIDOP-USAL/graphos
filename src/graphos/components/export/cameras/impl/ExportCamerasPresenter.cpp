@@ -36,6 +36,8 @@
 #include <tidop/geometry/entities/point.h>
 
 #include <QApplication>
+#include <QFileDialog>
+#include <QStandardPaths>
 
 namespace graphos
 {
@@ -79,8 +81,32 @@ ExportCamerasPresenterImp::~ExportCamerasPresenterImp()
 
 void ExportCamerasPresenterImp::open()
 {
-    mView->setCurrentFormat(mOriTxtFormatWidget->windowTitle());
-    mView->exec();
+    mExportFormat.clear();
+
+    QString filters("TXT (*.txt);;ODM (*.json)");
+
+    QString selected_filter;
+    mExportFile = QFileDialog::getSaveFileName(nullptr,
+                                               QApplication::translate("ExportPointCloudComponent", "Point Cloud Export"),
+                                               QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+                                               filters,
+                                               &selected_filter);
+
+    if (!mExportFile.isEmpty()) {
+
+        if (selected_filter.compare("TXT (*.txt)") == 0) {
+            mView->setCurrentFormat(mOriTxtFormatWidget->windowTitle());
+        } else if (selected_filter.compare("ODM (*.json)") == 0) {
+            mExportFormat = "ODM";
+            run();
+            return;
+        } else {
+            tl::Message::error("Unsupported format");
+            return;
+        }
+
+        mView->exec();
+    }
 }
 
 void ExportCamerasPresenterImp::init()
@@ -129,15 +155,17 @@ auto ExportCamerasPresenterImp::createTask() -> std::unique_ptr<tl::Task>
         progressHandler()->setDescription(QApplication::translate("ExportCamerasComponent", "Exporting camera poses..."));
     }
 
-    tl::Path export_file_path(mOriTxtFormatWidget->file().toStdString());
+    //tl::Path export_file_path(mOriTxtFormatWidget->file().toStdString());
 
-    QString format = mView->format();
-    export_task = std::make_unique<ExportCamerasTask>(export_file_path,
+    if (mExportFormat.isEmpty()) mExportFormat = mView->format();
+
+    export_task = std::make_unique<ExportCamerasTask>(tl::Path(mExportFile.toStdWString()),
                                                       mModel->images(),
                                                       mModel->poses(),
-                                                      //mModel->enuCrs(),
-                                                      format);
-    if (format.compare("TXT") == 0) {
+                                                      mModel->cameras(),
+                                                      mModel->enuCrs(),
+                                                      mExportFormat);
+    if (mExportFormat.compare("TXT") == 0) {
         dynamic_cast<ExportCamerasTask *>(export_task.get())->setQuaternionRotation(mOriTxtFormatWidget->rotation() == "Quaternions");
     }
 

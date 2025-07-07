@@ -128,6 +128,7 @@ tl::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const st
 
 void transformModel(const tl::Matrix<double> &transform, const std::string &model);
 
+QString enuCrsToEpsg(const QString &enuCRS);
 
 } // end namespace graphos
 

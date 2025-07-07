@@ -24,18 +24,29 @@
 #include "ExportCamerasTask.h"
 
 #include "graphos/core/sfm/orientationexport.h"
+#include "graphos/core/utils.h"
 
 /* TidopLib */
 #include <tidop/core/chrono.h>
 #include <tidop/core/progress.h>
 #include <tidop/math/algebra/rotation_convert.h>
 #include <tidop/math/algebra/quaternion.h>
-
+#include <tidop/geospatial/crstransf.h>
+#include <tidop/geotools/CRSsTools.h>
+#include <tidop/geotools/GeoTools.h>
 
 /* COLMAP */
-#include <colmap/base/reconstruction.h>
+//#include <colmap/base/reconstruction.h>
+
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
 
 #include <fstream>
+
 
 using namespace tl;
 
@@ -45,13 +56,15 @@ namespace graphos
 ExportCamerasTask::ExportCamerasTask(tl::Path file,
                                      const std::unordered_map<size_t, Image> &images,
                                      const std::unordered_map<size_t, CameraPose> &poses,
-                                     //tl::Path enuCrs,
+                                     const std::map<int, Camera> &cameras,
+                                     QString enuCrs,
                                      QString format)
     : tl::TaskBase(),
       mFile(std::move(file)),
       mImages(images),
       mPoses(poses),
-      //mEnuCrs(std::move(enuCrs)),
+      mCameras(cameras),
+      mEnuCrs(std::move(enuCrs)),
       mFormat(std::move(format)),
       mQuaternions(false)
 {
@@ -102,6 +115,93 @@ void ExportCamerasTask::textExport()
     stream << std::endl;
 }
 
+void ExportCamerasTask::odmExport()
+{
+    QJsonArray featuresArray;
+
+    tl::GeoTools *ptrGeoTools = tl::GeoTools::getInstance();
+
+    auto enu = mEnuCrs.toStdString();
+    auto epsg = enuCrsToEpsg(mEnuCrs).toStdString();
+
+    for (auto &pose : mPoses) {
+        size_t image_id = pose.first;
+        const auto &camera_pose = pose.second;
+        const auto &image = mImages.at(image_id);
+
+        auto position = camera_pose.position();
+        auto quaternion = camera_pose.quaternion();
+
+        EulerAngles<double> angles = quaternion;
+
+        tl::Point3<double> pose_utm;
+        if (!enu.empty() && !epsg.empty())
+            pose_utm = ptrGeoTools->ptrCRSsTools()->crsOperation(enu, epsg, position);
+
+        tl::Point3<double> pose_geo;
+        if (!enu.empty() && !epsg.empty())
+            pose_geo = ptrGeoTools->ptrCRSsTools()->crsOperation(enu, "EPSG:4326", position);
+        
+
+        Camera camera = mCameras.at(image.cameraId());
+
+        QJsonObject properties;
+        properties["filename"] = image.name();
+        properties["camera"] = QString::fromStdString(camera.make()).append(" ").
+            append(QString::fromStdString(camera.model())).
+            append(" ").append(QString::number(camera.width())).
+            append(" ").append(QString::number(camera.height())).
+            append(" ").append("brown ").append("0.6666");
+        //"v2 generic 6000 4000 brown 0.6666";
+
+        auto calibration = camera.calibration();
+
+        auto focal = calibration->existParameter(Calibration::Parameters::focal) ?
+            calibration->parameter(Calibration::Parameters::focal) :
+            (calibration->parameter(Calibration::Parameters::focalx) + calibration->parameter(Calibration::Parameters::focaly))/2.;
+
+        properties["focal"] = focal / static_cast<double>(camera.width());
+        properties["width"] = camera.width();
+        properties["height"] = camera.height();
+        properties["capture_time"] = 0.0;
+
+        QJsonArray translationArray;
+        translationArray << pose_utm.x << pose_utm.y << pose_utm.z;
+        properties["translation"] = translationArray;
+
+        QJsonArray rotationArray;
+        rotationArray << angles.x << angles.y << angles.z;
+        properties["rotation"] = rotationArray;
+
+        QJsonObject geometry;
+        geometry["type"] = "Point";
+
+        QJsonArray coordinatesArray;
+        coordinatesArray << pose_geo.x << pose_geo.y << pose_geo.z;
+        geometry["coordinates"] = coordinatesArray;
+
+        QJsonObject feature;
+        feature["type"] = "Feature";
+        feature["properties"] = properties;
+        feature["geometry"] = geometry;
+
+        featuresArray.append(feature);
+    }
+
+    QJsonObject root;
+    root["type"] = "FeatureCollection";
+    root["features"] = featuresArray;
+
+    QFile file(QString::fromStdString(mFile.toUtf8()));
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        TL_THROW_EXCEPTION("No se pudo abrir el archivo para escribir shots.geojson");
+    }
+
+    QJsonDocument doc(root);
+    file.write(doc.toJson(QJsonDocument::Indented));
+    file.close();
+}
+
 void ExportCamerasTask::execute(tl::Progress *progressBar)
 {
     try {
@@ -114,6 +214,8 @@ void ExportCamerasTask::execute(tl::Progress *progressBar)
         } else if (mFormat.compare("MVE") == 0) {
         } else if (mFormat.compare("TXT") == 0) {
             textExport();
+        } else if (mFormat.compare("ODM") == 0) {
+            odmExport();
         }
 
         if (progressBar) (*progressBar)();

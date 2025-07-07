@@ -220,7 +220,14 @@ auto Undistort::undistortPoint(const tl::Point<float>& point) const -> tl::Point
 {
     std::vector<cv::Point2f> cv_point{cv::Point2f(point.x, point.y)};
     std::vector<cv::Point2f> cv_point_out;
-    cv::undistortPoints(cv_point, cv_point_out, mCameraMatrix, mDistCoeffs, cv::Mat(), mOptimalNewCameraMatrix);
+    bool b_fisheye = mCamera.calibration()->checkCameraType(Calibration::CameraType::fisheye);
+
+    if (b_fisheye) {
+        cv::fisheye::undistortPoints(cv_point, cv_point_out, mCameraMatrix, mDistCoeffs, cv::Mat(), mOptimalNewCameraMatrix);
+    } else {
+        cv::undistortPoints(cv_point, cv_point_out, mCameraMatrix, mDistCoeffs, cv::Mat(), mOptimalNewCameraMatrix);
+    }
+    
     return {cv_point_out[0].x, cv_point_out[0].y};
 }
 

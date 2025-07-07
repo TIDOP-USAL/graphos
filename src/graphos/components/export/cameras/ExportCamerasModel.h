@@ -34,6 +34,7 @@ namespace graphos
 
 class Image;
 class CameraPose;
+class Camera;
 
 class ExportCamerasModel
   : public Model
@@ -47,6 +48,7 @@ public:
 
     virtual auto poses() const -> const std::unordered_map<size_t, CameraPose>& = 0;
     virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
+    virtual auto cameras() const -> const std::map<int, Camera> & = 0;
     virtual auto enuCrs() const -> QString = 0;
 };
 

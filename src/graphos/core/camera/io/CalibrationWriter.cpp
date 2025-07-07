@@ -21,74 +21,48 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
-#define GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
+#include "graphos/core/camera/io/CalibrationWriter.h"
+#include "graphos/core/camera/io/impl/AgisoftCalibrationWriter.h"
+#include "graphos/core/camera/io/impl/OpenCVCalibrationWriter.h"
+#include "graphos/core/camera/io/impl/Pix4DCalibrationWriter.h"
+#include "graphos/core/camera/io/impl/OpenDroneMapCalibrationWriter.h"
 
-#include "graphos/components/export/cameras/ExportCamerasPresenter.h"
+#include <tidop/core/exception.h>
 
 namespace graphos
 {
 
-class NvmFormatWidget;
-class BundlerFormatWidget;
-class MveFormatWidget;
-class OriTxtFormatWidget;
-class ExportCamerasView;
-class ExportCamerasModel;
 
-class ExportCamerasPresenterImp
-  : public ExportCamerasPresenter
+/* Calibration writer */
+
+CalibrationWriter::CalibrationWriter() = default;
+
+
+/* Camera Poses Writer Factory */
+
+auto CalibrationWriterFactory::create(const std::string &format) -> std::unique_ptr<CalibrationWriter>
 {
-    Q_OBJECT
+    std::unique_ptr<CalibrationWriter> writer;
 
-public:
+    try {
 
-    ExportCamerasPresenterImp(ExportCamerasView *view,
-                              ExportCamerasModel *model);
-    ~ExportCamerasPresenterImp() override;
+        if (format == "Agisoft") {
+            writer = std::make_unique<AgisoftCalibrationWriter>();
+        } else if (format == "OpenCV") {
+            writer = std::make_unique<OpenCVCalibrationWriter>();
+        } else if (format == "Pix4D") {
+            writer = std::make_unique<Pix4DCalibrationWriter>();
+        } else if (format == "ODM") {
+            writer = std::make_unique<OpenDroneMapCalibrationWriter>();
+        } else {
+            TL_THROW_EXCEPTION("Invalid format: {}", format);
+        }
 
-// ExportCamerasPresenter interface
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
 
-public slots:
-
-    void setCurrentFormat(const QString &format) override;
-
-// TaskPresenter interface
-
-protected:
-
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
-    auto createTask() -> std::unique_ptr<tl::Task> override;
-
-public slots:
-
-    void cancel() override;
-
-// Presenter interface
-
-public slots:
-
-    void open() override;
-
-private:
-
-    void init() override;
-    void initSignalAndSlots() override;
-
-private:
-
-    ExportCamerasView *mView;
-    ExportCamerasModel *mModel;
-    //NvmFormatWidget *mNvmFormatWidget;
-    //BundlerFormatWidget *mBundlerFormatWidget;
-    //MveFormatWidget *mMveFormatWidget;
-    OriTxtFormatWidget *mOriTxtFormatWidget;
-    QString mExportFile;
-    QString mExportFormat;
-
-};
+    return writer;
+}
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_CAMERAS_PRESENTER_H

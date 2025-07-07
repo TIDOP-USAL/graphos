@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_CAMERAS_COMPONENT  AND BUILD_GUI)
+if(BUILD_CAMERAS_COMPONENT)
 
     project(Cameras LANGUAGES CXX)
     
@@ -40,18 +40,26 @@ if(BUILD_CAMERAS_COMPONENT  AND BUILD_GUI)
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              CamerasComponent.cpp
+                             impl/CamerasCommand.cpp
+                         HEADER_FILES
+                             CamerasComponent.h
+                             impl/CamerasCommand.h)
+
+if (BUILD_GUI)   
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
                              impl/CamerasModel.cpp
                              impl/CamerasView.cpp
                              impl/CamerasPresenter.cpp
                          HEADER_FILES
-                             CamerasComponent.h
                              CamerasModel.h
                              CamerasView.h
                              CamerasPresenter.h
                              impl/CamerasModel.h
                              impl/CamerasView.h
                              impl/CamerasPresenter.h)
-        
+endif(BUILD_GUI)
+
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -93,4 +101,4 @@ else()
 
     message(STATUS "  Graphos::Cameras disabled")
     
-endif(BUILD_CAMERAS_COMPONENT AND BUILD_GUI)
+endif(BUILD_CAMERAS_COMPONENT)

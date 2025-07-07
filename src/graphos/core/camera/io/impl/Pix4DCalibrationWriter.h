@@ -21,74 +21,28 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
-#define GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
+#ifndef GRAPHOS_CORE_CAMERA_PIX4D_CALIBRATION_WRITER_H
+#define GRAPHOS_CORE_CAMERA_PIX4D_CALIBRATION_WRITER_H
 
-#include "graphos/components/export/cameras/ExportCamerasPresenter.h"
+#include "graphos/core/camera/io/CalibrationWriter.h"
 
 namespace graphos
 {
 
-class NvmFormatWidget;
-class BundlerFormatWidget;
-class MveFormatWidget;
-class OriTxtFormatWidget;
-class ExportCamerasView;
-class ExportCamerasModel;
-
-class ExportCamerasPresenterImp
-  : public ExportCamerasPresenter
+class Pix4DCalibrationWriter 
+  : public CalibrationWriter
 {
-    Q_OBJECT
 
 public:
 
-    ExportCamerasPresenterImp(ExportCamerasView *view,
-                              ExportCamerasModel *model);
-    ~ExportCamerasPresenterImp() override;
+    Pix4DCalibrationWriter() = default;
+    ~Pix4DCalibrationWriter() override = default;
 
-// ExportCamerasPresenter interface
-
-public slots:
-
-    void setCurrentFormat(const QString &format) override;
-
-// TaskPresenter interface
-
-protected:
-
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
-    auto createTask() -> std::unique_ptr<tl::Task> override;
-
-public slots:
-
-    void cancel() override;
-
-// Presenter interface
-
-public slots:
-
-    void open() override;
-
-private:
-
-    void init() override;
-    void initSignalAndSlots() override;
-
-private:
-
-    ExportCamerasView *mView;
-    ExportCamerasModel *mModel;
-    //NvmFormatWidget *mNvmFormatWidget;
-    //BundlerFormatWidget *mBundlerFormatWidget;
-    //MveFormatWidget *mMveFormatWidget;
-    OriTxtFormatWidget *mOriTxtFormatWidget;
-    QString mExportFile;
-    QString mExportFormat;
-
+    void write(const tl::Path &path,
+               const Camera &camera) override;
+    auto format() const -> std::string override { return "Pix4D"; }
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
+#endif // GRAPHOS_CORE_CAMERA_PIX4D_CALIBRATION_WRITER_H

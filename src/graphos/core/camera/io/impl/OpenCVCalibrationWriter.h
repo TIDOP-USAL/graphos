@@ -21,55 +21,28 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CAMERA_CALIBRATION_IO_H
-#define GRAPHOS_CAMERA_CALIBRATION_IO_H
+#ifndef GRAPHOS_CORE_CAMERA_OPENCV_CALIBRATION_WRITER_H
+#define GRAPHOS_CORE_CAMERA_OPENCV_CALIBRATION_WRITER_H
 
-#include "graphos/graphos_global.h"
-
-#include <memory>
-
-#include <QString>
-
-#include <tidop/geospatial/camera.h>
+#include "graphos/core/camera/io/CalibrationWriter.h"
 
 namespace graphos
 {
 
-
-class GRAPHOS_EXPORT CalibrationIO
+class OpenCVCalibrationWriter
+  : public CalibrationWriter
 {
 
 public:
 
-  CalibrationIO();
-  virtual ~CalibrationIO() = default;
+    OpenCVCalibrationWriter() = default;
+    ~OpenCVCalibrationWriter() override = default;
 
-  virtual bool write(std::shared_ptr<tl::Calibration> &calibration, 
-                     const QString &file) = 0;
-  virtual std::shared_ptr<tl::Calibration> read(const QString &file) = 0;
-
-};
-
-
-
-/*----------------------------------------------------------------*/
-
-
-
-class GRAPHOS_EXPORT CalibrationIOFactory
-{
-
-private:
-
-  CalibrationIOFactory() {}
-
-public:
-
-  static std::unique_ptr<CalibrationIO> create(const QString &format);
-
+    void write(const tl::Path &path,
+               const Camera &camera) override;
+    auto format() const -> std::string override { return "OpenCV"; }
 };
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_CAMERA_CALIBRATION_IO_H
+#endif // GRAPHOS_CORE_CAMERA_OPENCV_CALIBRATION_WRITER_H

@@ -44,10 +44,10 @@ OriTxtFormatWidget::OriTxtFormatWidget(QWidget *parent)
   : GraphosWidgetView(parent),
     mGroupBox(new QGroupBox(this)),
     mLabelRotation(new QLabel(this)),
-    mComboBoxRotation(new QComboBox(this)),
+    mComboBoxRotation(new QComboBox(this))/*,
     mLabelFile(new QLabel(this)),
     mLineEditFile(new QLineEdit(this)),
-    mPushButtonSelectPath(new QPushButton(this))
+    mPushButtonSelectPath(new QPushButton(this))*/
 {
     OriTxtFormatWidget::initUI();
     OriTxtFormatWidget::initSignalAndSlots();
@@ -72,11 +72,11 @@ void OriTxtFormatWidget::initUI()
     mComboBoxRotation->addItem("Quaternions");
     properties_layout->addWidget(mComboBoxRotation, 0, 1, 1, 1);
 
-    properties_layout->addWidget(mLabelFile, 1, 0, 1, 1);
-    properties_layout->addWidget(mLineEditFile, 1, 1, 1, 1);
-    mPushButtonSelectPath->setMaximumSize(QSize(23, 16777215));
-    mPushButtonSelectPath->setText("...");
-    properties_layout->addWidget(mPushButtonSelectPath, 1, 2, 1, 1);
+    //properties_layout->addWidget(mLabelFile, 1, 0, 1, 1);
+    //properties_layout->addWidget(mLineEditFile, 1, 1, 1, 1);
+    //mPushButtonSelectPath->setMaximumSize(QSize(23, 16777215));
+    //mPushButtonSelectPath->setText("...");
+    //properties_layout->addWidget(mPushButtonSelectPath, 1, 2, 1, 1);
 
     OriTxtFormatWidget::retranslate();
     OriTxtFormatWidget::clear(); /// set default values
@@ -86,17 +86,17 @@ void OriTxtFormatWidget::initUI()
 void OriTxtFormatWidget::initSignalAndSlots()
 {
     connect(mComboBoxRotation, &QComboBox::currentTextChanged, this, &OriTxtFormatWidget::rotationChanged);
-    connect(mLineEditFile, &QLineEdit::textChanged, this, &OriTxtFormatWidget::fileChanged);
-    connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &OriTxtFormatWidget::onPushButtonSelectPath);
+    //connect(mLineEditFile, &QLineEdit::textChanged, this, &OriTxtFormatWidget::fileChanged);
+    //connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &OriTxtFormatWidget::onPushButtonSelectPath);
 }
 
 void OriTxtFormatWidget::clear()
 {
-    const QSignalBlocker blocker(mLineEditFile);
+    //const QSignalBlocker blocker(mLineEditFile);
     const QSignalBlocker blocker2(mComboBoxRotation);
 
     mComboBoxRotation->setCurrentText("Omega Phi Kappa");
-    mLineEditFile->clear();
+    //mLineEditFile->clear();
 }
 
 void OriTxtFormatWidget::update()
@@ -105,19 +105,19 @@ void OriTxtFormatWidget::update()
 
 void OriTxtFormatWidget::retranslate()
 {
-    mLabelFile->setText(QApplication::translate("OriTxtFormatWidget", "File", nullptr));
+    //mLabelFile->setText(QApplication::translate("OriTxtFormatWidget", "File", nullptr));
 }
 
-void OriTxtFormatWidget::setFile(const QString &file)
-{
-    const QSignalBlocker blocker(mLineEditFile);
-    mLineEditFile->setText(file);
-}
-
-QString OriTxtFormatWidget::file() const
-{
-    return mLineEditFile->text();
-}
+//void OriTxtFormatWidget::setFile(const QString &file)
+//{
+//    const QSignalBlocker blocker(mLineEditFile);
+//    mLineEditFile->setText(file);
+//}
+//
+//QString OriTxtFormatWidget::file() const
+//{
+//    return mLineEditFile->text();
+//}
 
 QString OriTxtFormatWidget::rotation() const
 {
@@ -130,19 +130,19 @@ void OriTxtFormatWidget::setRotation(const QString &rotation)
     mComboBoxRotation->setCurrentText(rotation);
 }
 
-void OriTxtFormatWidget::onPushButtonSelectPath()
-{
-    QString file_path = QFileDialog::getSaveFileName(nullptr,
-                                                    QApplication::translate("OriTxtFormatWidget", "Txt file"),
-                                                    QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-                                                    QApplication::translate("OriTxtFormatWidget", "Plain text (*.txt)"));
-
-    if (!file_path.isEmpty()) {
-        mLineEditFile->setText(file_path);
-    }
-
-    update();
-}
+//void OriTxtFormatWidget::onPushButtonSelectPath()
+//{
+//    QString file_path = QFileDialog::getSaveFileName(nullptr,
+//                                                    QApplication::translate("OriTxtFormatWidget", "Txt file"),
+//                                                    QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+//                                                    QApplication::translate("OriTxtFormatWidget", "Plain text (*.txt)"));
+//
+//    if (!file_path.isEmpty()) {
+//        mLineEditFile->setText(file_path);
+//    }
+//
+//    update();
+//}
 
 
 } // namespace graphos

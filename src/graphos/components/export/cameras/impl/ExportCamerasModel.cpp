@@ -48,6 +48,11 @@ auto ExportCamerasModelImp::poses() const -> const std::unordered_map<size_t, Ca
     return mProject->poses();
 }
 
+auto ExportCamerasModelImp::cameras() const -> const std::map<int, Camera> &
+{
+    return mProject->cameras();
+}
+
 auto ExportCamerasModelImp::enuCrs() const -> QString
 {
     return mProject->enuCrs();

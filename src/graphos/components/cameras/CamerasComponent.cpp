@@ -23,9 +23,12 @@
 
 #include "CamerasComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/cameras/impl/CamerasModel.h"
 #include "graphos/components/cameras/impl/CamerasView.h"
 #include "graphos/components/cameras/impl/CamerasPresenter.h"
+#endif // GRAPHOS_GUI
+#include "graphos/components/cameras/impl/CamerasCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -51,6 +54,8 @@ void CamerasComponent::init()
     setMenu("tools");
     setToolbar("tools");
     setIcon(QIcon::fromTheme("cameras"));
+
+    createCommand();
 }
 
 void CamerasComponent::onUpdateCameras() const
@@ -65,24 +70,31 @@ void CamerasComponent::onUpdateCameras() const
 
 void CamerasComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new CamerasModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void CamerasComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new CamerasViewImp());
+#endif // GRAPHOS_GUI
 }
 
 void CamerasComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new CamerasPresenterImp(dynamic_cast<CamerasView *>(view()),
                                          dynamic_cast<CamerasModel *>(model())));
     connect(dynamic_cast<CamerasPresenter *>(presenter()), &CamerasPresenter::updateCameras,
             this, &CamerasComponent::onUpdateCameras);
+#endif // GRAPHOS_GUI
 }
 
 void CamerasComponent::createCommand()
 {
+    setCommand(std::make_shared<CamerasCommand>());
 }
 
 void CamerasComponent::update()
