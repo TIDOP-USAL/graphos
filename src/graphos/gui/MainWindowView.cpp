@@ -86,8 +86,8 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionStartPage(new QAction(this)),
     mActionCameras(new QAction(this)),
     mActionHelp(new QAction(this)),
-    mActionImportCameras(new QAction(this)),
-    mActionExportCameras(new QAction(this)),
+    mActionImportCameraPoses(new QAction(this)),
+    mActionExportCameraPoses(new QAction(this)),
     mActionExportTiePoints(new QAction(this)),
     mActionExportMatches(new QAction(this)),
     mActionExportPointCloud(new QAction(this)),
@@ -1300,12 +1300,12 @@ void MainWindowView::initMenuFile()
     ui->menuFile->addSeparator();
     mMenuImport = new QMenu(this);
     mMenuImport->setIcon(QIcon::fromTheme("import"));
-    mMenuImport->addAction(mActionImportCameras);
+    mMenuImport->addAction(mActionImportCameraPoses);
     ui->menuFile->addMenu(mMenuImport);
     ui->menuFile->addSeparator();
     mMenuExport = new QMenu(this);
     mMenuExport->setIcon(QIcon::fromTheme("export"));
-    mMenuExport->addAction(mActionExportCameras);
+    mMenuExport->addAction(mActionExportCameraPoses);
     //mMenuExport->addAction(mActionExportTiePoints);
     //mMenuExport->addAction(mActionExportMatches);
     //mMenuExport->addAction(mActionExportOrientations);
@@ -1634,8 +1634,8 @@ void MainWindowView::retranslate()
     mActionOpenProject->setText(QApplication::translate("MainWindowView", "Open Project", nullptr));
     mActionSaveProject->setText(QApplication::translate("MainWindowView", "Save Project", nullptr));
     mActionSaveProjectAs->setText(QApplication::translate("MainWindowView", "Save Project As...", nullptr));
-    mActionImportCameras->setText(QApplication::translate("MainWindowView", "Import Cameras", nullptr));
-    mActionExportCameras->setText(QApplication::translate("MainWindowView", "Export Cameras", nullptr));
+    mActionImportCameraPoses->setText(QApplication::translate("MainWindowView", "Import Camera Poses", nullptr));
+    mActionExportCameraPoses->setText(QApplication::translate("MainWindowView", "Export Camera Poses", nullptr));
     mActionExportTiePoints->setText(QApplication::translate("MainWindowView", "Export tie points", nullptr));
     mActionExportMatches->setText(QApplication::translate("MainWindowView", "Export Matches", nullptr));
     mActionExportPointCloud->setText(QApplication::translate("MainWindowView", "Export Point Cloud", nullptr));

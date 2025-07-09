@@ -26,6 +26,7 @@
 #include <tidop/core/log.h>
 #include <tidop/core/exception.h>
 
+#include "graphos/core/project.h"
 #include "graphos/core/camera/io/CalibrationReader.h"
 #include "graphos/core/camera/io/CalibrationWriter.h"
 

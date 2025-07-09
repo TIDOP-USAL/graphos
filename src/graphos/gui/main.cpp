@@ -102,7 +102,7 @@
 #include "graphos/components/matchviewer/MatchViewerComponent.h"
 #endif // GRAPHOS_HAVE_MATCH_VIEWER
 #ifdef GRAPHOS_HAVE_EXPORT_CAMERAS
-#include "graphos/components/export/cameras/ExportCamerasComponent.h"
+#include "graphos/components/export/cameraposes/ExportCameraPosesComponent.h"
 #endif // GRAPHOS_HAVE_EXPORT_CAMERAS
 #ifdef GRAPHOS_HAVE_EXPORT_POINT_CLOUD
 #include "graphos/components/export/pointcloud/ExportPointCloudComponent.h"
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
 #endif // GRAPHOS_HAVE_CAMERAS
 
 #ifdef GRAPHOS_HAVE_EXPORT_CAMERAS
-    ExportCamerasComponent export_cameras_component(&app);
+    ExportCameraPosesComponent export_camera_poses_component(&app);
 #endif // GRAPHOS_HAVE_EXPORT_CAMERAS
 
 #ifdef GRAPHOS_HAVE_EXPORT_POINT_CLOUD
@@ -458,7 +458,7 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef GRAPHOS_HAVE_EXPORT_CAMERAS
-        componentsManager.registerComponent(&export_cameras_component);
+        componentsManager.registerComponent(&export_camera_poses_component);
 #endif
 
 #ifdef GRAPHOS_HAVE_EXPORT_POINT_CLOUD

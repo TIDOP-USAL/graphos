@@ -21,50 +21,29 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERAS_MODEL_H
-#define GRAPHOS_EXPORT_CAMERAS_MODEL_H
+#ifndef GRAPHOS_EXPORT_CAMERA_POSES_PRESENTER_INTERFACE_H
+#define GRAPHOS_EXPORT_CAMERA_POSES_PRESENTER_INTERFACE_H
 
-#include "graphos/components/export/cameras/ExportCamerasModel.h"
+#include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
 {
 
-class Project;
-
-class ExportCamerasModelImp
-    : public ExportCamerasModel
+class ExportCameraPosesPresenter
+  : public TaskPresenter
 {
 
-public:
-
-    ExportCamerasModelImp(Project *project,
-                          QObject *parent = nullptr);
-
-// ExportCamerasModel interface
+    Q_OBJECT
 
 public:
-    
-    auto images() const -> const std::unordered_map<size_t, Image>& override;
-    auto poses() const -> const std::unordered_map<size_t, CameraPose>& override;
-    auto cameras() const -> const std::map<int, Camera> & override;
-    auto enuCrs() const -> QString override;
 
-// Model interface
-
-private:
-
-    void init() override;
+    ExportCameraPosesPresenter() = default;
 
 public slots:
 
-    void clear() override;
-
-protected:
-
-    Project *mProject;
-
+    virtual void setCurrentFormat(const QString &format) = 0;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_ORIENTATIONS_MODEL_H
+#endif // GRAPHOS_EXPORT_CAMERA_POSES_PRESENTER_INTERFACE_H

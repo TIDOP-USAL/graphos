@@ -21,11 +21,11 @@
  *                                                                      *
  ************************************************************************/
 
-#include "ExportCamerasPresenter.h"
+#include "ExportCameraPosesPresenter.h"
 
-#include "graphos/components/export/cameras/ExportCamerasModel.h"
-#include "graphos/components/export/cameras/ExportCamerasView.h"
-#include "graphos/components/export/cameras/impl/ExportCamerasTask.h"
+#include "graphos/components/export/cameraposes/ExportCameraPosesModel.h"
+#include "graphos/components/export/cameraposes/ExportCameraPosesView.h"
+#include "graphos/components/export/cameraposes/impl/ExportCameraPosesTask.h"
 #include "graphos/widgets/NvmFormatWidget.h"
 #include "graphos/widgets/BundlerFormatWidget.h"
 #include "graphos/widgets/MveFormatWidget.h"
@@ -42,9 +42,9 @@
 namespace graphos
 {
 
-ExportCamerasPresenterImp::ExportCamerasPresenterImp(ExportCamerasView *view,
-                                                     ExportCamerasModel *model)
-  : ExportCamerasPresenter(),
+ExportCameraPosesPresenterImp::ExportCameraPosesPresenterImp(ExportCameraPosesView *view,
+                                                             ExportCameraPosesModel *model)
+  : ExportCameraPosesPresenter(),
     mView(view),
     mModel(model),
     //mNvmFormatWidget(new NvmFormatWidget),
@@ -52,11 +52,11 @@ ExportCamerasPresenterImp::ExportCamerasPresenterImp(ExportCamerasView *view,
     //mMveFormatWidget(new MveFormatWidget),
     mOriTxtFormatWidget(new OriTxtFormatWidget)
 {
-    ExportCamerasPresenterImp::init();
-    ExportCamerasPresenterImp::initSignalAndSlots();
+    ExportCameraPosesPresenterImp::init();
+    ExportCameraPosesPresenterImp::initSignalAndSlots();
 }
 
-ExportCamerasPresenterImp::~ExportCamerasPresenterImp()
+ExportCameraPosesPresenterImp::~ExportCameraPosesPresenterImp()
 {
     //if (mNvmFormatWidget) {
     //    delete mNvmFormatWidget;
@@ -79,7 +79,7 @@ ExportCamerasPresenterImp::~ExportCamerasPresenterImp()
     }
 }
 
-void ExportCamerasPresenterImp::open()
+void ExportCameraPosesPresenterImp::open()
 {
     mExportFormat.clear();
 
@@ -87,7 +87,7 @@ void ExportCamerasPresenterImp::open()
 
     QString selected_filter;
     mExportFile = QFileDialog::getSaveFileName(nullptr,
-                                               QApplication::translate("ExportPointCloudComponent", "Point Cloud Export"),
+                                               QApplication::translate("ExportCameraPosesPresenter", "Camera Poses Export"),
                                                QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
                                                filters,
                                                &selected_filter);
@@ -109,7 +109,7 @@ void ExportCamerasPresenterImp::open()
     }
 }
 
-void ExportCamerasPresenterImp::init()
+void ExportCameraPosesPresenterImp::init()
 {
     //mView->addFormatWidget(mNvmFormatWidget);
     //mView->addFormatWidget(mBundlerFormatWidget);
@@ -117,56 +117,56 @@ void ExportCamerasPresenterImp::init()
     //mView->setCurrentFormat(mNvmFormatWidget->windowTitle());
 }
 
-void ExportCamerasPresenterImp::initSignalAndSlots()
+void ExportCameraPosesPresenterImp::initSignalAndSlots()
 {
-    connect(mView, &ExportCamerasView::formatChange, this, &ExportCamerasPresenterImp::setCurrentFormat);
-    connect(mView, &ExportCamerasView::run, this, &ExportCamerasPresenterImp::run);
+    connect(mView, &ExportCameraPosesView::formatChange, this, &ExportCameraPosesPresenterImp::setCurrentFormat);
+    connect(mView, &ExportCameraPosesView::run, this, &ExportCameraPosesPresenterImp::run);
     connect(mView, &DialogView::help, [&]() {
         emit help("export_cameras.html");
     });
 }
 
-void ExportCamerasPresenterImp::onError(tl::TaskErrorEvent *event)
+void ExportCameraPosesPresenterImp::onError(tl::TaskErrorEvent *event)
 {
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(QApplication::translate("ExportCamerasComponent", "Task error"));
+        progressHandler()->setDescription(QApplication::translate("ExportCameraPosesPresenter", "Task error"));
     }
 }
 
-void ExportCamerasPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void ExportCameraPosesPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(QApplication::translate("ExportCamerasComponent", "Task finished"));
+        progressHandler()->setDescription(QApplication::translate("ExportCameraPosesPresenter", "Task finished"));
     }
 }
 
-auto ExportCamerasPresenterImp::createTask() -> std::unique_ptr<tl::Task>
+auto ExportCameraPosesPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
     std::unique_ptr<tl::Task> export_task;
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);
         progressHandler()->setCloseAuto(true);
-        progressHandler()->setTitle(QApplication::translate("ExportCamerasComponent", "Export Cameras"));
-        progressHandler()->setDescription(QApplication::translate("ExportCamerasComponent", "Exporting camera poses..."));
+        progressHandler()->setTitle(QApplication::translate("ExportCameraPosesPresenter", "Export Camera Poses"));
+        progressHandler()->setDescription(QApplication::translate("ExportCameraPosesPresenter", "Exporting camera poses..."));
     }
 
     //tl::Path export_file_path(mOriTxtFormatWidget->file().toStdString());
 
     if (mExportFormat.isEmpty()) mExportFormat = mView->format();
 
-    export_task = std::make_unique<ExportCamerasTask>(tl::Path(mExportFile.toStdWString()),
-                                                      mModel->images(),
-                                                      mModel->poses(),
-                                                      mModel->cameras(),
-                                                      mModel->enuCrs(),
-                                                      mExportFormat);
-    if (mExportFormat.compare("TXT") == 0) {
-        dynamic_cast<ExportCamerasTask *>(export_task.get())->setQuaternionRotation(mOriTxtFormatWidget->rotation() == "Quaternions");
+    export_task = std::make_unique<ExportCameraPosesTask>(tl::Path(mExportFile.toStdWString()),
+                                                          mModel->images(),
+                                                          mModel->poses(),
+                                                          mModel->cameras(),
+                                                          mModel->enuCrs(),
+                                                          mExportFormat);
+    if (mExportFormat == "TXT") {
+        dynamic_cast<ExportCameraPosesTask *>(export_task.get())->setQuaternionRotation(mOriTxtFormatWidget->rotation() == "Quaternions");
     }
 
     mView->hide();
@@ -174,14 +174,14 @@ auto ExportCamerasPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     return export_task;
 }
 
-void ExportCamerasPresenterImp::cancel()
+void ExportCameraPosesPresenterImp::cancel()
 {
     TaskPresenter::cancel();
 
     tl::Message::warning("Processing has been canceled by the user");
 }
 
-void ExportCamerasPresenterImp::setCurrentFormat(const QString &format)
+void ExportCameraPosesPresenterImp::setCurrentFormat(const QString &format)
 {
     mView->setCurrentFormat(format);
 }

@@ -21,63 +21,50 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERAS_TASK_H
-#define GRAPHOS_EXPORT_CAMERAS_TASK_H
+#ifndef GRAPHOS_EXPORT_CAMERA_POSES_MODEL_H
+#define GRAPHOS_EXPORT_CAMERA_POSES_MODEL_H
 
-#include <unordered_map>
-
-#include <QObject>
-
-#include <tidop/core/task.h>
-
-#include "graphos/core/image.h"
-#include "graphos/core/camera/Camera.h"
+#include "graphos/components/export/cameraposes/ExportCameraPosesModel.h"
 
 namespace graphos
 {
 
-class Camera;
+class Project;
 
-class ExportCamerasTask
-  : public QObject,
-    public tl::TaskBase
+class ExportCameraPosesModelImp
+    : public ExportCameraPosesModel
 {
-
-    Q_OBJECT
 
 public:
 
-    ExportCamerasTask(tl::Path file,
-                      const std::unordered_map<size_t, Image> &images,
-                      const std::unordered_map<size_t, CameraPose> &poses,
-                      const std::map<int, Camera> &cameras,
-                      QString enuCrs,
-                      QString format);
+    ExportCameraPosesModelImp(Project *project,
+                              QObject *parent = nullptr);
 
-    void setQuaternionRotation(bool quaternions);
+// ExportCameraPosesModel interface
+
+public:
+    
+    auto images() const -> const std::unordered_map<size_t, Image>& override;
+    auto poses() const -> const std::unordered_map<size_t, CameraPose>& override;
+    auto cameras() const -> const std::map<int, Camera> & override;
+    auto enuCrs() const -> QString override;
+
+// Model interface
 
 private:
 
-    void textExport();
-    void odmExport();
+    void init() override;
 
-// tl::TaskBase interface
+public slots:
 
-protected:
-
-    void execute(tl::Progress *progressBar) override;
+    void clear() override;
 
 protected:
 
-    tl::Path mFile;
-    std::unordered_map<size_t, Image> mImages;
-    std::unordered_map<size_t, CameraPose> mPoses;
-    std::map<int, Camera> mCameras;
-    QString mEnuCrs;
-    QString mFormat;
-    bool mQuaternions;
+    Project *mProject;
+
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_CAMERAS_TASK_H
+#endif // GRAPHOS_EXPORT_ORIENTATIONS_MODEL_H

@@ -23,10 +23,9 @@
 
 include(TidopUtils)
 
+if(BUILD_EXPORT_CAMERA_POSES_COMPONENT)
 
-if(BUILD_EXPORT_CAMERAS_COMPONENT AND BUILD_GUI)
-
-    project(ExportCameras LANGUAGES CXX)
+    project(ExportCameraPoses LANGUAGES CXX)
     
     
     # Find includes in corresponding build directories
@@ -40,21 +39,29 @@ if(BUILD_EXPORT_CAMERAS_COMPONENT AND BUILD_GUI)
         
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
-                             ExportCamerasComponent.cpp
-                             impl/ExportCamerasModel.cpp
-                             impl/ExportCamerasView.cpp
-                             impl/ExportCamerasPresenter.cpp
-							 impl/ExportCamerasTask.cpp
+                             ExportCameraPosesComponent.cpp
+                             impl/ExportCameraPosesCommand.cpp
+							 impl/ExportCameraPosesTask.cpp
                          HEADER_FILES
-                             ExportCamerasComponent.h
-                             ExportCamerasModel.h
-                             ExportCamerasView.h
-                             ExportCamerasPresenter.h
-                             impl/ExportCamerasModel.h
-                             impl/ExportCamerasView.h
-                             impl/ExportCamerasPresenter.h
-							 impl/ExportCamerasTask.h)
-            
+                             ExportCameraPosesComponent.h
+                             impl/ExportCameraPosesCommand.h
+							 impl/ExportCameraPosesTask.h)
+							 
+if (BUILD_GUI)   
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             impl/ExportCameraPosesModel.cpp
+                             impl/ExportCameraPosesView.cpp
+                             impl/ExportCameraPosesPresenter.cpp
+                         HEADER_FILES
+                             ExportCameraPosesModel.h
+                             ExportCameraPosesView.h
+                             ExportCameraPosesPresenter.h
+                             impl/ExportCameraPosesModel.h
+                             impl/ExportCameraPosesView.h
+                             impl/ExportCameraPosesPresenter.h)
+endif(BUILD_GUI)
+							 
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -77,17 +84,17 @@ if(BUILD_EXPORT_CAMERAS_COMPONENT AND BUILD_GUI)
             ARCHIVE DESTINATION lib)
                         
     install(DIRECTORY .
-            DESTINATION include/graphos/components/export/cameras
+            DESTINATION include/graphos/components/export/cameraposes
             FILES_MATCHING PATTERN "*.h"
             PATTERN "impl" EXCLUDE)
         
         
-    set(GRAPHOS_HAVE_EXPORT_CAMERAS YES CACHE INTERNAL "")
+    set(GRAPHOS_HAVE_EXPORT_CAMERA_POSES YES CACHE INTERNAL "")
     
-    message(STATUS "  Graphos::ExportCameras enabled")
+    message(STATUS "  Graphos::ExportCameraPoses enabled")
 
 else()
 
-    message(STATUS "  Graphos::ExportCameras disabled")
+    message(STATUS "  Graphos::ExportCameraPoses disabled")
     
-endif(BUILD_EXPORT_CAMERAS_COMPONENT AND BUILD_GUI)
+endif(BUILD_EXPORT_CAMERA_POSES_COMPONENT)

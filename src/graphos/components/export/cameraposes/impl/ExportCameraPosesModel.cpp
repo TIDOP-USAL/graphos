@@ -21,37 +21,49 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERAS_VIEW_INTERFACE_H
-#define GRAPHOS_EXPORT_CAMERAS_VIEW_INTERFACE_H
+#include "ExportCameraPosesModel.h"
 
-#include "graphos/core/mvp.h"
+#include "graphos/core/project.h"
+#include "graphos/core/sfm/posesio.h"
+
 
 namespace graphos
 {
 
-class ExportCamerasView
-  : public DialogView
+ExportCameraPosesModelImp::ExportCameraPosesModelImp(Project *project,
+                                                     QObject *parent)
+  : ExportCameraPosesModel(parent),
+    mProject(project)
 {
+    ExportCameraPosesModelImp::init();
+}
 
-    Q_OBJECT
+auto ExportCameraPosesModelImp::images() const -> const std::unordered_map<size_t, Image>&
+{
+    return mProject->images();
+}
 
-public:
+auto ExportCameraPosesModelImp::poses() const -> const std::unordered_map<size_t, CameraPose>&
+{
+    return mProject->poses();
+}
 
-    ExportCamerasView(QWidget *parent) : DialogView(parent) {}
+auto ExportCameraPosesModelImp::cameras() const -> const std::map<int, Camera> &
+{
+    return mProject->cameras();
+}
 
-    virtual void addFormatWidget(QWidget *formatWidget) = 0;
-    virtual auto format() const -> QString = 0;
+auto ExportCameraPosesModelImp::enuCrs() const -> QString
+{
+    return mProject->enuCrs();
+}
 
-public slots:
+void ExportCameraPosesModelImp::init()
+{
+}
 
-    virtual void setCurrentFormat(const QString &format) = 0;
-
-signals:
-
-    void formatChange(const QString &);
-    void run();
-};
+void ExportCameraPosesModelImp::clear()
+{
+}
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_CAMERAS_VIEW_INTERFACE_H

@@ -21,65 +21,63 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERAS_VIEW_H
-#define GRAPHOS_EXPORT_CAMERAS_VIEW_H
+#ifndef GRAPHOS_EXPORT_CAMERA_POSES_TASK_H
+#define GRAPHOS_EXPORT_CAMERA_POSES_TASK_H
 
-#include "graphos/components/export/cameras/ExportCamerasView.h"
+#include <unordered_map>
 
-class QLabel;
-class QComboBox;
-class QDialogButtonBox;
-class QGridLayout;
+#include <QObject>
+
+#include <tidop/core/task.h>
+
+#include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
 
-class ExportCamerasViewImp
-  : public ExportCamerasView
+class Camera;
+
+class ExportCameraPosesTask
+  : public QObject,
+    public tl::TaskBase
 {
 
     Q_OBJECT
 
 public:
 
-    ExportCamerasViewImp(QWidget *parent = nullptr);
+    ExportCameraPosesTask(tl::Path file,
+                          const std::unordered_map<size_t, Image> &images,
+                          const std::unordered_map<size_t, CameraPose> &poses,
+                          const std::map<int, Camera> &cameras,
+                          QString enuCrs,
+                          QString format);
 
-// ExportCamerasView interface
-
-public:
-
-    void addFormatWidget(QWidget *formatWidget) override;
-    auto format() const -> QString override;
-
-public slots:
-
-    void setCurrentFormat(const QString &format) override;
-
-// DialogView interface
+    void setQuaternionRotation(bool quaternions);
 
 private:
 
-    void initUI() override;
-    void initSignalAndSlots() override;
+    void textExport();
+    void odmExport();
 
-public slots:
-
-    void clear() override;
-
-private slots:
-
-    void update() override;
-    void retranslate() override;
+// tl::TaskBase interface
 
 protected:
 
-    QLabel *mLabelFormat;
-    QComboBox *mComboBoxFormat;
-    QGridLayout *mGridLayoutFormat;
-    QDialogButtonBox *mButtonBox;
+    void execute(tl::Progress *progressBar) override;
 
+protected:
+
+    tl::Path mFile;
+    std::unordered_map<size_t, Image> mImages;
+    std::unordered_map<size_t, CameraPose> mPoses;
+    std::map<int, Camera> mCameras;
+    QString mEnuCrs;
+    QString mFormat;
+    bool mQuaternions;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_ORIENTATIONS_VIEW_H
+#endif // GRAPHOS_EXPORT_CAMERA_POSES_TASK_H

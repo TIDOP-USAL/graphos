@@ -157,7 +157,7 @@ unset(GRAPHOS_HAVE_SCALE CACHE)
 unset(GRAPHOS_HAVE_FLOOR_LEVEL CACHE)
 unset(GRAPHOS_HAVE_IMAGE_LOAD CACHE)
 unset(GRAPHOS_HAVE_IMPORT_CAMERAS CACHE)
-unset(GRAPHOS_HAVE_EXPORT_CAMERAS CACHE)
+unset(GRAPHOS_HAVE_EXPORT_CAMERA_POSES CACHE)
 unset(GRAPHOS_HAVE_EXPORT_POINT_CLOUD CACHE)
 unset(GRAPHOS_HAVE_EXPORT_MESH CACHE)
 unset(GRAPHOS_HAVE_MATCH_VIEWER CACHE)
@@ -189,7 +189,7 @@ option(BUILD_SCALE_COMPONENT "Build Scale Component"  ON)
 option(BUILD_FLOOR_LEVEL_COMPONENT "Build Floor Level Component"  ON)
 option(BUILD_IMAGE_LOAD_COMPONENT "Build Image Load Component"  ON)
 option(BUILD_IMPORT_CAMERAS_COMPONENT "Build Import Cameras Component"  ON)
-option(BUILD_EXPORT_CAMERAS_COMPONENT "Build Export Cameras"  ON)
+option(BUILD_EXPORT_CAMERA_POSES_COMPONENT "Build Export Camera Poses"  ON)
 option(BUILD_EXPORT_POINT_CLOUD_COMPONENT "Build Point Cloud"  ON)
 option(BUILD_EXPORT_MESH_COMPONENT "Build Export Mesh"  ON)
 option(BUILD_MATCH_VIEWER_COMPONENT "Build Match Viewer Component"  ON)
@@ -221,6 +221,9 @@ option (WITH_VLD     "Include Visual Leak Detector Support"    OFF)
 endif(MSVC)
 #option(WITH_PIXKIT   "Include PixKit"                  OFF)
 option (WITH_CUDA     "Include Cuda Support"    ON)
+
+
+message(STATUS "\nGRAPHOS configuration:\n")
 
 if(BUILD_GUI)
     message(STATUS "  [GRAPHOS] Build GUI")
@@ -263,10 +266,12 @@ message(STATUS "\nDependency loading:\n")
 # TidopLib (REQUIRED)                                                    #
 ##########################################################################      
 
+set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
 find_package(TidopLib 3.2 REQUIRED)
+set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
 
 if(TidopLib_FOUND)
-    message(STATUS "  TidopLib version: ${TidopLib_VERSION}")
+    message(STATUS "  Found TidopLib (version ${TidopLib_VERSION})")
 else()
     message(STATUS "Not Found TidopLib")
 endif()
@@ -281,9 +286,12 @@ set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME     OFF)
  	
+set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")	
 find_package(Boost COMPONENTS filesystem system unit_test_framework REQUIRED)
+set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+
 if(Boost_FOUND)
-    message(STATUS "  Boost version: ${Boost_VERSION}")
+    message(STATUS "  Found Boost (version ${Boost_VERSION})")
     include_directories(${Boost_INCLUDE_DIRS})
     set(HAVE_BOOST YES)
 else()
@@ -299,18 +307,21 @@ endif()
 
 if (WITH_CUDA)
 
+set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
     find_package(CUDA)
-    
+set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+  
     if (CUDA_FOUND)
         set(HAVE_CUDA YES)
         include_directories(${CUDA_INCLUDE_DIRS})
-        message(STATUS "  ${CUDA_INCLUDE_DIRS}")
+        message(STATUS "  Found Cuda (version ${CUDA_VERSION})")
     else()
         set(HAVE_CUDA NO)
     endif()
 
 endif()
 
+set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
 find_package(OpenCV REQUIRED
              COMPONENTS
                  core
@@ -324,18 +335,19 @@ find_package(OpenCV REQUIRED
                  flann
                  objdetect
                  stitching)
-
+	
 if (HAVE_CUDA)
  find_package(OpenCV REQUIRED
               COMPONENTS
                  cudaimgproc
                  cudawarping)
 endif(HAVE_CUDA)
+set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
 
 if(NOT OPENCV_FOUND)
     set(HAVE_OPENCV NO)
 else()
-    message(STATUS "  OpenCV version: ${OpenCV_VERSION}")
+    message(STATUS "  Found OpenCV (version ${OpenCV_VERSION})")
     set(HAVE_OPENCV YES)
     include_directories(${OpenCV_INCLUDE_DIRS})
 endif()
@@ -346,13 +358,18 @@ endif()
 # Colmap (REQUIRED)                                                      #
 ##########################################################################   
 
-
+set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
 find_package(COLMAP REQUIRED)
+set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
 
-set(HAVE_COLMAP YES)
-include_directories(${COLMAP_INCLUDE_DIRS})
-link_directories(${COLMAP_LINK_DIRS})
-        
+if(NOT COLMAP_FOUND)
+    set(HAVE_COLMAP NO)
+else()
+    set(HAVE_COLMAP YES)
+    include_directories(${COLMAP_INCLUDE_DIRS})
+    link_directories(${COLMAP_LINK_DIRS})
+    message(STATUS "  Found COLMAP")        
+endif()
 
 if(MSVC)
   # Some fixes for the Glog library.
@@ -375,6 +392,8 @@ find_package(GLEW REQUIRED)
 ##########################################################################
 # QT (REQUIRED)                                                          #
 ##########################################################################
+
+set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
 
 find_package(Qt5 REQUIRED 
              COMPONENTS 
@@ -401,25 +420,15 @@ endif(BUILD_TEST)
 find_package(Qt5 REQUIRED
              COMPONENTS
                OpenGLExtensions)
-  
+			   
+set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+	
 if (Qt5_POSITION_INDEPENDENT_CODE)
   SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
 if(Qt5_FOUND)
-    message(STATUS "Found Qt")
-    message(STATUS "  Module : ${Qt5Core_DIR}")
-    message(STATUS "  Module : ${Qt5OpenGL_DIR}")
-    message(STATUS "  Module : ${Qt5Widgets_DIR}")
-    message(STATUS "  Module : ${Qt5Help_DIR}")
-    message(STATUS "  Module : ${Qt5Sql_DIR}")
-    message(STATUS "  Module : ${Qt5Concurrent_DIR}")
-    message(STATUS "  Module : ${Qt5LinguistTools_DIR}")
-    if(BUILD_TEST)
-      message(STATUS "  Module : ${Qt5Test_DIR}")
-    endif(BUILD_TEST)
-    message(STATUS "  Module : ${Qt5OpenGLExtensions_DIR}")
-
+    message(STATUS "  Found Qt (version ${Qt5_VERSION})")
 
 	include_directories(${Qt5Core_INCLUDE_DIRS}
                         ${Qt5OpenGL_INCLUDE_DIRS}
@@ -437,13 +446,16 @@ endif()
 
 
 if(BUILD_GUI)
+set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
 find_package(CloudCompare REQUIRED)
+set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
 
 if (NOT CloudCompare_FOUND)
     set(HAVE_CloudCompare NO)
 else()
     set(HAVE_CloudCompare YES)
     include_directories(${CloudCompare_INCLUDE_DIR})
+	message(STATUS "  Found CloudCompare")
 endif()
 endif(BUILD_GUI)
 
@@ -455,13 +467,16 @@ endif(BUILD_GUI)
 
 if(WITH_VLD)
 
+    set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
     find_package(VLD)
-
+    set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+	
     if(NOT VLD_FOUND)
         set(HAVE_VLD NO)
     else()
         set(HAVE_VLD YES)
         include_directories(${VLD_INCLUDE_DIRS})
+	    message(STATUS "  Found VLD")
     endif()
 
 endif(WITH_VLD)
@@ -482,7 +497,10 @@ endif(WITH_PIXKIT)
 
 if (BUILD_DEM_COMPONENT)
 
+    set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
     find_package(CGAL REQUIRED)
+	set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+		
     message(STATUS "  CGAL version: ${CGAL_VERSION}")
     #find_package(Boost OPTIONAL_COMPONENTS serialization iostreams)
     #

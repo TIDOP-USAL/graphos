@@ -21,51 +21,37 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERAS_COMPONENT_H
-#define GRAPHOS_EXPORT_CAMERAS_COMPONENT_H
+#ifndef GRAPHOS_EXPORT_CAMERA_POSES_MODEL_INTERFACE_H
+#define GRAPHOS_EXPORT_CAMERA_POSES_MODEL_INTERFACE_H
 
-#include "graphos/core/Component.h"
+#include "graphos/core/mvp.h"
 
+#include <unordered_map>
+#include <tidop/geometry/entities/point.h>
 
 namespace graphos
 {
 
-class ExportCamerasComponent
-  : public TaskComponent
+class Image;
+class CameraPose;
+class Camera;
+
+class ExportCameraPosesModel
+  : public Model
 {
 
     Q_OBJECT
 
 public:
 
-    ExportCamerasComponent(Application *application);
-    ~ExportCamerasComponent() override;
+    ExportCameraPosesModel(QObject *parent = nullptr) : Model(parent) {}
 
-private:
-
-    void init();
-
-
-// ComponentBase
-
-protected:
-
-    void createModel() override;
-    void createView() override;
-    void createPresenter() override;
-    void createCommand() override;
-    void update() override;
-
-// TaskComponent
-
-protected slots:
-
-    void onRunning() override;
-    void onFinished() override;
-    void onFailed() override;
+    virtual auto poses() const -> const std::unordered_map<size_t, CameraPose>& = 0;
+    virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
+    virtual auto cameras() const -> const std::map<int, Camera> & = 0;
+    virtual auto enuCrs() const -> QString = 0;
 };
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_EXPORT_CAMERAS_COMPONENT_H
+#endif // GRAPHOS_EXPORT_CAMERA_POSES_MODEL_INTERFACE_H

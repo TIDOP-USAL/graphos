@@ -21,29 +21,34 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERAS_PRESENTER_INTERFACE_H
-#define GRAPHOS_EXPORT_CAMERAS_PRESENTER_INTERFACE_H
+#ifndef GRAPHOS_EXPORT_CAMERA_POSES_COMMAND_H
+#define GRAPHOS_EXPORT_CAMERA_POSES_COMMAND_H
 
-#include "graphos/core/task/TaskPresenter.h"
+#include "graphos/core/command.h"
 
 namespace graphos
 {
 
-class ExportCamerasPresenter
-  : public TaskPresenter
-{
+class Project;
 
-    Q_OBJECT
+class ExportCameraPosesCommand
+  : public Command
+{
 
 public:
 
-    ExportCamerasPresenter() = default;
+    ExportCameraPosesCommand();
+    ~ExportCameraPosesCommand() override;
 
-public slots:
+// Command
 
-    virtual void setCurrentFormat(const QString &format) = 0;
+public:
+
+    bool run() override;
+
 };
+
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_CAMERAS_PRESENTER_INTERFACE_H
+#endif // GRAPHOS_EXPORT_CAMERA_POSES_COMMAND_H

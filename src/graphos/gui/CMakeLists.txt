@@ -161,7 +161,7 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_FLOOR_LEVEL}>:Graphos::FloorLevel>
                       $<$<BOOL:${GRAPHOS_HAVE_IMAGE_LOAD}>:Graphos::ImageLoad>
                       $<$<BOOL:${GRAPHOS_HAVE_IMPORT_CAMERAS}>:Graphos::ImportCameras>
-                      $<$<BOOL:${GRAPHOS_HAVE_EXPORT_CAMERAS}>:Graphos::ExportCameras>
+                      $<$<BOOL:${GRAPHOS_HAVE_EXPORT_CAMERA_POSES}>:Graphos::ExportCameraPoses>
                       $<$<BOOL:${GRAPHOS_HAVE_EXPORT_POINT_CLOUD}>:Graphos::ExportPointCloud>
                       $<$<BOOL:${GRAPHOS_HAVE_EXPORT_MESH}>:Graphos::ExportMesh>
                       $<$<BOOL:${GRAPHOS_HAVE_MATCH_VIEWER}>:Graphos::MatchViewer>

@@ -21,11 +21,14 @@
  *                                                                      *
  ************************************************************************/
 
-#include "ExportCamerasComponent.h"
+#include "ExportCameraPosesComponent.h"
 
-#include "graphos/components/export/cameras/impl/ExportCamerasModel.h"
-#include "graphos/components/export/cameras/impl/ExportCamerasView.h"
-#include "graphos/components/export/cameras/impl/ExportCamerasPresenter.h"
+#ifdef GRAPHOS_GUI
+#include "graphos/components/export/cameraposes/impl/ExportCameraPosesModel.h"
+#include "graphos/components/export/cameraposes/impl/ExportCameraPosesView.h"
+#include "graphos/components/export/cameraposes/impl/ExportCameraPosesPresenter.h"
+#endif // GRAPHOS_GUI
+#include "graphos/components/export/cameraposes/impl/ExportCameraPosesCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -36,45 +39,52 @@ namespace graphos
 {
 
 
-ExportCamerasComponent::ExportCamerasComponent(Application *application)
+ExportCameraPosesComponent::ExportCameraPosesComponent(Application *application)
   : TaskComponent(application)
 {
     init();
 }
 
-ExportCamerasComponent::~ExportCamerasComponent()
+ExportCameraPosesComponent::~ExportCameraPosesComponent()
 {
 }
 
-void ExportCamerasComponent::init()
+void ExportCameraPosesComponent::init()
 {
-    setName(QApplication::translate("ExportCamerasComponent", "Export Cameras"));
+    setName(QApplication::translate("ExportCameraPosesComponent", "Export Camera Poses"));
     setMenu("file_export");
 
     createCommand();
 }
 
-void ExportCamerasComponent::createModel()
+void ExportCameraPosesComponent::createModel()
 {
-    setModel(new ExportCamerasModelImp(app()->project()));
+#ifdef GRAPHOS_GUI
+    setModel(new ExportCameraPosesModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
-void ExportCamerasComponent::createView()
+void ExportCameraPosesComponent::createView()
 {
-    setView(new ExportCamerasViewImp());
+#ifdef GRAPHOS_GUI
+    setView(new ExportCameraPosesViewImp());
+#endif // GRAPHOS_GUI
 }
 
-void ExportCamerasComponent::createPresenter()
+void ExportCameraPosesComponent::createPresenter()
 {
-    setPresenter(new ExportCamerasPresenterImp(dynamic_cast<ExportCamerasView *>(view()),
-                                               dynamic_cast<ExportCamerasModel *>(model())));
+#ifdef GRAPHOS_GUI
+    setPresenter(new ExportCameraPosesPresenterImp(dynamic_cast<ExportCameraPosesView *>(view()),
+                                                   dynamic_cast<ExportCameraPosesModel *>(model())));
+#endif // GRAPHOS_GUI
 }
 
-void ExportCamerasComponent::createCommand()
+void ExportCameraPosesComponent::createCommand()
 {
+    setCommand(std::make_shared<ExportCameraPosesCommand>());
 }
 
-void ExportCamerasComponent::update()
+void ExportCameraPosesComponent::update()
 {
     Application *app = this->app();
     TL_ASSERT(app != nullptr, "Application is null");
@@ -88,12 +98,12 @@ void ExportCamerasComponent::update()
     action()->setEnabled(project_exists && images_loaded && !processing);
 }
 
-void ExportCamerasComponent::onRunning()
+void ExportCameraPosesComponent::onRunning()
 {
     TaskComponent::onRunning();
 }
 
-void ExportCamerasComponent::onFinished()
+void ExportCameraPosesComponent::onFinished()
 {
     Application *app = this->app();
     TL_ASSERT(app != nullptr, "Application is null");
@@ -106,7 +116,7 @@ void ExportCamerasComponent::onFinished()
     app_status->activeFlag(AppStatus::Flag::feature_matching, true);
 }
 
-void ExportCamerasComponent::onFailed()
+void ExportCameraPosesComponent::onFailed()
 {
     Application *app = this->app();
     TL_ASSERT(app != nullptr, "Application is null");

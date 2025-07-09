@@ -21,49 +21,65 @@
  *                                                                      *
  ************************************************************************/
 
-#include "ExportCamerasModel.h"
+#ifndef GRAPHOS_EXPORT_CAMERA_POSES_VIEW_H
+#define GRAPHOS_EXPORT_CAMERA_POSES_VIEW_H
 
-#include "graphos/core/project.h"
-#include "graphos/core/sfm/posesio.h"
+#include "graphos/components/export/cameraposes/ExportCameraPosesView.h"
 
+class QLabel;
+class QComboBox;
+class QDialogButtonBox;
+class QGridLayout;
 
 namespace graphos
 {
 
-ExportCamerasModelImp::ExportCamerasModelImp(Project *project,
-                                             QObject *parent)
-  : ExportCamerasModel(parent),
-    mProject(project)
+class ExportCameraPosesViewImp
+  : public ExportCameraPosesView
 {
-    ExportCamerasModelImp::init();
-}
 
-auto ExportCamerasModelImp::images() const -> const std::unordered_map<size_t, Image>&
-{
-    return mProject->images();
-}
+    Q_OBJECT
 
-auto ExportCamerasModelImp::poses() const -> const std::unordered_map<size_t, CameraPose>&
-{
-    return mProject->poses();
-}
+public:
 
-auto ExportCamerasModelImp::cameras() const -> const std::map<int, Camera> &
-{
-    return mProject->cameras();
-}
+    ExportCameraPosesViewImp(QWidget *parent = nullptr);
 
-auto ExportCamerasModelImp::enuCrs() const -> QString
-{
-    return mProject->enuCrs();
-}
+// ExportCameraPosesView interface
 
-void ExportCamerasModelImp::init()
-{
-}
+public:
 
-void ExportCamerasModelImp::clear()
-{
-}
+    void addFormatWidget(QWidget *formatWidget) override;
+    auto format() const -> QString override;
+
+public slots:
+
+    void setCurrentFormat(const QString &format) override;
+
+// DialogView interface
+
+private:
+
+    void initUI() override;
+    void initSignalAndSlots() override;
+
+public slots:
+
+    void clear() override;
+
+private slots:
+
+    void update() override;
+    void retranslate() override;
+
+protected:
+
+    QLabel *mLabelFormat;
+    QComboBox *mComboBoxFormat;
+    QGridLayout *mGridLayoutFormat;
+    QDialogButtonBox *mButtonBox;
+
+};
 
 } // namespace graphos
+
+#endif // GRAPHOS_EXPORT_CAMERA_POSES_VIEW_H

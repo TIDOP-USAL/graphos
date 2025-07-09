@@ -1,3 +1,3 @@
-add_subdirectory(cameras)
+add_subdirectory(cameraposes)
 add_subdirectory(pointcloud)
 add_subdirectory(mesh)

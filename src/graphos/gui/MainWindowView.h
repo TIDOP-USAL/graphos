@@ -276,8 +276,8 @@ private:
     QAction *mActionLoadImages;
     QAction *mActionCameras;
     QAction *mActionHelp;
-    QAction *mActionImportCameras;
-    QAction *mActionExportCameras;
+    QAction *mActionImportCameraPoses;
+    QAction *mActionExportCameraPoses;
     QAction *mActionExportTiePoints;
     QAction *mActionExportMatches;
     QAction *mActionExportPointCloud;

@@ -21,74 +21,51 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
-#define GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
+#ifndef GRAPHOS_EXPORT_CAMERA_POSES_COMPONENT_H
+#define GRAPHOS_EXPORT_CAMERA_POSES_COMPONENT_H
 
-#include "graphos/components/export/cameras/ExportCamerasPresenter.h"
+#include "graphos/core/Component.h"
+
 
 namespace graphos
 {
 
-class NvmFormatWidget;
-class BundlerFormatWidget;
-class MveFormatWidget;
-class OriTxtFormatWidget;
-class ExportCamerasView;
-class ExportCamerasModel;
-
-class ExportCamerasPresenterImp
-  : public ExportCamerasPresenter
+class ExportCameraPosesComponent
+  : public TaskComponent
 {
+
     Q_OBJECT
 
 public:
 
-    ExportCamerasPresenterImp(ExportCamerasView *view,
-                              ExportCamerasModel *model);
-    ~ExportCamerasPresenterImp() override;
+    ExportCameraPosesComponent(Application *application);
+    ~ExportCameraPosesComponent() override;
 
-// ExportCamerasPresenter interface
+private:
 
-public slots:
+    void init();
 
-    void setCurrentFormat(const QString &format) override;
 
-// TaskPresenter interface
+// ComponentBase
 
 protected:
 
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
-    auto createTask() -> std::unique_ptr<tl::Task> override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
-public slots:
+// TaskComponent
 
-    void cancel() override;
+protected slots:
 
-// Presenter interface
-
-public slots:
-
-    void open() override;
-
-private:
-
-    void init() override;
-    void initSignalAndSlots() override;
-
-private:
-
-    ExportCamerasView *mView;
-    ExportCamerasModel *mModel;
-    //NvmFormatWidget *mNvmFormatWidget;
-    //BundlerFormatWidget *mBundlerFormatWidget;
-    //MveFormatWidget *mMveFormatWidget;
-    OriTxtFormatWidget *mOriTxtFormatWidget;
-    QString mExportFile;
-    QString mExportFormat;
-
+    void onRunning() override;
+    void onFinished() override;
+    void onFailed() override;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
+
+#endif // GRAPHOS_EXPORT_CAMERA_POSES_COMPONENT_H

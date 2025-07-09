@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "ExportCamerasTask.h"
+#include "ExportCameraPosesTask.h"
 
 #include "graphos/core/sfm/orientationexport.h"
 #include "graphos/core/utils.h"
@@ -35,9 +35,7 @@
 #include <tidop/geotools/CRSsTools.h>
 #include <tidop/geotools/GeoTools.h>
 
-/* COLMAP */
-//#include <colmap/base/reconstruction.h>
-
+/* Qt */
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonArray>
@@ -53,29 +51,29 @@ using namespace tl;
 namespace graphos
 {
 
-ExportCamerasTask::ExportCamerasTask(tl::Path file,
-                                     const std::unordered_map<size_t, Image> &images,
-                                     const std::unordered_map<size_t, CameraPose> &poses,
-                                     const std::map<int, Camera> &cameras,
-                                     QString enuCrs,
-                                     QString format)
-    : tl::TaskBase(),
-      mFile(std::move(file)),
-      mImages(images),
-      mPoses(poses),
-      mCameras(cameras),
-      mEnuCrs(std::move(enuCrs)),
-      mFormat(std::move(format)),
-      mQuaternions(false)
+ExportCameraPosesTask::ExportCameraPosesTask(tl::Path file,
+                                             const std::unordered_map<size_t, Image> &images,
+                                             const std::unordered_map<size_t, CameraPose> &poses,
+                                             const std::map<int, Camera> &cameras,
+                                             QString enuCrs,
+                                             QString format)
+  : tl::TaskBase(),
+    mFile(std::move(file)),
+    mImages(images),
+    mPoses(poses),
+    mCameras(cameras),
+    mEnuCrs(std::move(enuCrs)),
+    mFormat(std::move(format)),
+    mQuaternions(false)
 {
 }
 
-void ExportCamerasTask::setQuaternionRotation(bool quaternions)
+void ExportCameraPosesTask::setQuaternionRotation(bool quaternions)
 {
     mQuaternions = quaternions;
 }
 
-void ExportCamerasTask::textExport()
+void ExportCameraPosesTask::textExport()
 {
     std::ofstream stream(mFile.toString(), std::ios::trunc);
     TL_ASSERT(stream.is_open(), "Can't open {}", mFile.toUtf8());
@@ -115,7 +113,7 @@ void ExportCamerasTask::textExport()
     stream << std::endl;
 }
 
-void ExportCamerasTask::odmExport()
+void ExportCameraPosesTask::odmExport()
 {
     QJsonArray featuresArray;
 
@@ -144,6 +142,16 @@ void ExportCamerasTask::odmExport()
         
 
         Camera camera = mCameras.at(image.cameraId());
+        auto calibration = camera.calibration();
+        auto width = camera.width();
+        auto height = camera.height();
+        auto sensor_size = camera.sensorSize();
+        auto focal = calibration->existParameter(Calibration::Parameters::focal) ?
+                     calibration->parameter(Calibration::Parameters::focal) :
+                     (calibration->parameter(Calibration::Parameters::focalx) + calibration->parameter(Calibration::Parameters::focaly)) / 2.;
+
+        double focal_mm = focal * sensor_size / width;
+        double focal_ratio = std::round((focal_mm / sensor_size) * 10000.0) / 10000.0;
 
         QJsonObject properties;
         properties["filename"] = image.name();
@@ -151,18 +159,11 @@ void ExportCamerasTask::odmExport()
             append(QString::fromStdString(camera.model())).
             append(" ").append(QString::number(camera.width())).
             append(" ").append(QString::number(camera.height())).
-            append(" ").append("brown ").append("0.6666");
-        //"v2 generic 6000 4000 brown 0.6666";
+            append(" ").append("brown ").append(QString::number(focal_ratio));
 
-        auto calibration = camera.calibration();
-
-        auto focal = calibration->existParameter(Calibration::Parameters::focal) ?
-            calibration->parameter(Calibration::Parameters::focal) :
-            (calibration->parameter(Calibration::Parameters::focalx) + calibration->parameter(Calibration::Parameters::focaly))/2.;
-
-        properties["focal"] = focal / static_cast<double>(camera.width());
-        properties["width"] = camera.width();
-        properties["height"] = camera.height();
+        properties["focal"] = focal_ratio;
+        properties["width"] = width;
+        properties["height"] = height;
         properties["capture_time"] = 0.0;
 
         QJsonArray translationArray;
@@ -202,11 +203,11 @@ void ExportCamerasTask::odmExport()
     file.close();
 }
 
-void ExportCamerasTask::execute(tl::Progress *progressBar)
+void ExportCameraPosesTask::execute(tl::Progress *progressBar)
 {
     try {
 
-        tl::Chrono chrono("Exported cameras");
+        tl::Chrono chrono("Exported camera poses");
         chrono.run();
 
         if (mFormat.compare("NVM") == 0) {
@@ -227,7 +228,7 @@ void ExportCamerasTask::execute(tl::Progress *progressBar)
         }
 
     } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("Export cameras error");
+        TL_THROW_EXCEPTION_WITH_NESTED("Export camera poses error");
     }
 
 }

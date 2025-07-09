@@ -21,37 +21,37 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERAS_MODEL_INTERFACE_H
-#define GRAPHOS_EXPORT_CAMERAS_MODEL_INTERFACE_H
+#ifndef GRAPHOS_EXPORT_CAMERA_POSES_VIEW_INTERFACE_H
+#define GRAPHOS_EXPORT_CAMERA_POSES_VIEW_INTERFACE_H
 
 #include "graphos/core/mvp.h"
-
-#include <unordered_map>
-#include <tidop/geometry/entities/point.h>
 
 namespace graphos
 {
 
-class Image;
-class CameraPose;
-class Camera;
-
-class ExportCamerasModel
-  : public Model
+class ExportCameraPosesView
+  : public DialogView
 {
 
     Q_OBJECT
 
 public:
 
-    ExportCamerasModel(QObject *parent = nullptr) : Model(parent) {}
+    ExportCameraPosesView(QWidget *parent) : DialogView(parent) {}
 
-    virtual auto poses() const -> const std::unordered_map<size_t, CameraPose>& = 0;
-    virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
-    virtual auto cameras() const -> const std::map<int, Camera> & = 0;
-    virtual auto enuCrs() const -> QString = 0;
+    virtual void addFormatWidget(QWidget *formatWidget) = 0;
+    virtual auto format() const -> QString = 0;
+
+public slots:
+
+    virtual void setCurrentFormat(const QString &format) = 0;
+
+signals:
+
+    void formatChange(const QString &);
+    void run();
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_CAMERAS_MODEL_INTERFACE_H
+#endif // GRAPHOS_EXPORT_CAMERA_POSES_VIEW_INTERFACE_H

@@ -21,31 +21,74 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CAMERAS_COMMAND_H
-#define GRAPHOS_CAMERAS_COMMAND_H
+#ifndef GRAPHOS_EXPORT_CAMERA_POSES_PRESENTER_H
+#define GRAPHOS_EXPORT_CAMERA_POSES_PRESENTER_H
 
-#include "graphos/core/command.h"
+#include "graphos/components/export/cameraposes/ExportCameraPosesPresenter.h"
 
 namespace graphos
 {
 
-class CamerasCommand
-  : public Command
+class NvmFormatWidget;
+class BundlerFormatWidget;
+class MveFormatWidget;
+class OriTxtFormatWidget;
+class ExportCameraPosesView;
+class ExportCameraPosesModel;
+
+class ExportCameraPosesPresenterImp
+  : public ExportCameraPosesPresenter
 {
+    Q_OBJECT
 
 public:
 
-    CamerasCommand();
-    ~CamerasCommand() override;
+    ExportCameraPosesPresenterImp(ExportCameraPosesView *view,
+                                  ExportCameraPosesModel *model);
+    ~ExportCameraPosesPresenterImp() override;
 
-// Command
+// ExportCameraPosesPresenter interface
+
+public slots:
+
+    void setCurrentFormat(const QString &format) override;
+
+// TaskPresenter interface
+
+protected:
+
+    void onError(tl::TaskErrorEvent *event) override;
+    void onFinished(tl::TaskFinalizedEvent *event) override;
+    auto createTask() -> std::unique_ptr<tl::Task> override;
+
+public slots:
+
+    void cancel() override;
+
+// Presenter interface
+
+public slots:
+
+    void open() override;
 
 private:
 
-    bool run() override;
+    void init() override;
+    void initSignalAndSlots() override;
+
+private:
+
+    ExportCameraPosesView *mView;
+    ExportCameraPosesModel *mModel;
+    //NvmFormatWidget *mNvmFormatWidget;
+    //BundlerFormatWidget *mBundlerFormatWidget;
+    //MveFormatWidget *mMveFormatWidget;
+    OriTxtFormatWidget *mOriTxtFormatWidget;
+    QString mExportFile;
+    QString mExportFormat;
 
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_CAMERAS_COMMAND_H
+#endif // GRAPHOS_EXPORT_CAMERA_POSES_PRESENTER_H

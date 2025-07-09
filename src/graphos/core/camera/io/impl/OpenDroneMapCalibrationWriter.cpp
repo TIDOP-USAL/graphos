@@ -66,8 +66,8 @@ void OpenDroneMapCalibrationWriter::write(const tl::Path &path,
             odmModel = "brown";
         }
 
-        double focalMm = fx * sensorSize / width;
-        double focalRatio = std::round((focalMm / sensorSize) * 10000.0) / 10000.0;
+        double focal_mm = fx * sensorSize / width;
+        double focal_ratio = std::round((focal_mm / sensorSize) * 10000.0) / 10000.0;
 
         QString key = QString("%1 %2 %3 %4 %5 %6")
                             .arg(QString::fromStdString(camera.make()))
@@ -75,7 +75,7 @@ void OpenDroneMapCalibrationWriter::write(const tl::Path &path,
                             .arg(width)
                             .arg(height)
                             .arg(odmModel)
-                            .arg(focalRatio, 0, 'f', 4);
+                            .arg(focal_ratio, 0, 'f', 4);
 
         //QJsonObject cameraObj;
         //cameraObj["projection_type"] = odmModel;
