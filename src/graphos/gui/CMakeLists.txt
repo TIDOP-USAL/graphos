@@ -190,6 +190,7 @@ target_link_libraries(${PROJECT_NAME}
                       ${GDAL_LIBRARY} 
                       ${PROJ4_LIBRARY}
                       ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                      ${QGeoView_LIBRARY}
                       #$<$<BOOL:${GRAPHOS_GUI}>:${CLOUDCOMPARE_LIBRARIES}>
                       $<$<BOOL:${HAVE_VLD}>:${VLD_LIBRARY}>)
 
