@@ -23,10 +23,14 @@
 
 #include "graphos/widgets/MapViewer.h"
 
+#include "graphos/core/utils.h"
+
 #include <tidop/math/geometry/affine.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/geometry/size.h>
 #include <tidop/geometry/entities/point.h>
+#include <tidop/geotools/CRSsTools.h>
+#include <tidop/geotools/GeoTools.h>
 
 #include <QVBoxLayout>
 #include <QFileInfo>
@@ -44,12 +48,13 @@
 #include <gdal.h>
 #include <gdal_priv.h>
 #include <ogrsf_frmts.h>
-
+#include <gdalwarper.h>
 
 #include <QBrush>
 #include <QPen>
 #include <QTimer>
 #include <QPainter>
+
 
 
 QGVPolygon::QGVPolygon(const PointList &geoPoints, QColor stroke, QColor fill)
@@ -225,7 +230,7 @@ RasterTiledLayer::RasterTiledLayer(const QString &tifPath)
 
         OGRCoordinateTransformation *transform = nullptr;
 
-        // Obtener CRS del shapefile
+        // Obtener CRS del GeoTiff
         const OGRSpatialReference *sourceRef = mDataset->GetSpatialRef();
         OGRSpatialReference targetRef;
         targetRef.importFromEPSG(4326);
@@ -244,6 +249,8 @@ RasterTiledLayer::RasterTiledLayer(const QString &tifPath)
     }
 
     setZValue(-1);
+
+    // Reemplazar lo anterior por esto
 
     reader = tl::ImageReaderFactory::create(tl::Path(tifPath.toStdString()));
     reader->open();
@@ -308,9 +315,241 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
     affine(1, 1) = geoTransform[5];
     affine(1, 2) = geoTransform[3];
 
+
+    tl::GeoTools *ptrGeoTools = tl::GeoTools::getInstance();
+    OGRCoordinateTransformation *transform_to_raster = nullptr;
+    OGRCoordinateTransformation *transform_to_3857 = nullptr;
+    OGRSpatialReference targetRef;
+    // Comprobar si hay cambio de CRS
+    {
+        // Obtener CRS del shapefile
+        const OGRSpatialReference *sourceRef = mDataset->GetSpatialRef();
+        if (sourceRef) { // Si no tiene CRS tendría que devolver un error
+
+            const char *auth_name = sourceRef->GetAuthorityName(nullptr);
+            const char *auth_code = sourceRef->GetAuthorityCode(nullptr);
+
+            if (auth_name && std::string(auth_name) == "EPSG" && auth_code) {
+
+                int src_epsg = std::stoi(auth_code);
+                int dst_epsg = 3857;
+
+                if (src_epsg != dst_epsg) {
+
+                    targetRef.importFromEPSG(4326);
+
+                    transform_to_raster = OGRCreateCoordinateTransformation(sourceRef, &targetRef);
+                    //transform_to_3857 = OGRCreateCoordinateTransformation(&targetRef, sourceRef);
+
+                }
+            }
+        }
+    }
+
+    int tileSize = 256; // Tamaño del tile en píxeles
+    int tile_size_x = tileSize;
+    int tile_size_y = tileSize;
+
+    if (transform_to_raster) {
+
+        // QGeoView tiene un error en la transformación entre geograficas y EPSG:3857 y 
+        // la Y sale con el signo cambiado
+        tl::Point3d pt1(tile_proj_rect.left(), -tile_proj_rect.top(), 0.);
+        tl::Point3d pt2(tile_proj_rect.right(), -tile_proj_rect.bottom(), 0.);
+
+        //double x1 = tile_proj_rect.left();
+        //double y1 = tile_proj_rect.top();
+        //double x2 = tile_proj_rect.right();
+        //double y2 = tile_proj_rect.bottom();
+
+        //TL_ASSERT(transform_to_3857->Transform(1, &x1, &y1) && transform_to_3857->Transform(1, &x2, &y2), "");
+        pt1 = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", "EPSG:25830", pt1);
+        pt2 = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", "EPSG:25830", pt2);
+
+        auto p1 = affine.inverse().transform(static_cast<tl::Point2d>(pt1));
+        auto p2 = affine.inverse().transform(static_cast<tl::Point2d>(pt2));
+
+        int xOffset = std::floor(std::min(p1.x, p2.x));
+        int yOffset = std::floor(std::min(p1.y, p2.y));
+        int xSize = std::ceil(std::abs(p2.x - p1.x));
+        int ySize = std::ceil(std::abs(p2.y - p1.y));
+
+        double sx = tile_size_x / static_cast<double>(xSize);
+        double sy = tile_size_y / static_cast<double>(ySize);
+
+        tl::Rect<int> rect(xOffset, yOffset, xSize, ySize);
+        tl::Affine<int, 2> affine_out;
+        cv::Mat mat1 = reader->read(sx, sy, rect, &affine_out);
+
+
+        // 1. Crear dataset MEM temporal de origen
+        GDALDriver *memDriver = GetGDALDriverManager()->GetDriverByName("MEM");
+        if (memDriver == nullptr) {
+            std::cerr << "Error: El driver 'MEM' no está disponible." << std::endl;
+            return;
+        }
+
+        GDALDataset *srcDS = memDriver->Create("", xSize, ySize, 3 /* Número de bandas */, GDT_Byte, nullptr);
+        if (srcDS == nullptr) {
+            std::cerr << "Error: No se pudo crear el dataset en memoria para la región." << std::endl;
+            return;
+        }
+
+        // 3. Calcular las coordenadas geográficas de la esquina superior izquierda de la región
+        double dfOriginXRegion = geoTransform[0] + affine_out.translation().x() * geoTransform[1] + affine_out.translation().y() * geoTransform[2];
+        double dfOriginYRegion = geoTransform[3] + affine_out.translation().x() * geoTransform[4] + affine_out.translation().y() * geoTransform[5];
+
+        double adfGeoTransformRegion[6];
+        adfGeoTransformRegion[0] = dfOriginXRegion;
+        adfGeoTransformRegion[1] = geoTransform[1];
+        adfGeoTransformRegion[2] = geoTransform[2];
+        adfGeoTransformRegion[3] = dfOriginYRegion;
+        adfGeoTransformRegion[4] = geoTransform[4];
+        adfGeoTransformRegion[5] = geoTransform[5];
+
+        srcDS->SetGeoTransform(adfGeoTransformRegion);
+        srcDS->SetProjection(mDataset->GetProjectionRef());
+
+        std::vector<int> band_order{3, 2, 1};
+        srcDS->RasterIO(GF_Write, 0, 0, mat1.cols, mat1.rows, 
+            mat1.ptr(), mat1.cols, mat1.rows,
+            GDT_Byte, 3, band_order.data(), 3, 3 * mat1.cols, 1);
+
+        //// Leer desde disco
+        //mDataset->RasterIO(GF_Read, xOffset, yOffset, xSize, ySize,
+        //    srcDS->GetRasterBand(1)->GetWritableBlockRef(0, 0), // Esto se lo ha inventado
+        //    xSize, ySize, GDT_Byte, 3, nullptr,
+        //    3, xSize * 3, 1);
+
+        // 6. Definir el nuevo sistema de referencia de coordenadas de destino
+        //OGRSpatialReference oTargetSRS;
+        //oTargetSRS.importFromEPSG(nTargetEPSG);
+        //char *pszTargetWKT = nullptr;
+        //oTargetSRS.exportToWkt(&pszTargetWKT);
+
+        //if (pszTargetWKT == nullptr) {
+        //    std::cerr << "Error: No se pudo exportar el WKT del CRS de destino." << std::endl;
+        //    return;
+        //}
+
+        GDALDataset *warpedDS = static_cast<GDALDataset *>(GDALAutoCreateWarpedVRT(srcDS,
+                                                                                   mDataset->GetProjectionRef(),  // fuente WKT
+                                                                                   "EPSG:3857",                   // destino 
+                                                                                    GRA_Bilinear, 0.0, nullptr));
+
+        TL_ASSERT(warpedDS != nullptr, "Failed to reproject: {}", CPLGetLastErrorMsg());
+
+
+        // Ahora creamos un dataset final en memoria para escribir los datos reproyectados
+        // Necesitamos obtener las dimensiones finales del VRT
+        int nDstWidth = warpedDS->GetRasterXSize();
+        int nDstHeight = warpedDS->GetRasterYSize();
+
+        GDALDataset *poDstMemDS = memDriver->Create("", nDstWidth, nDstHeight, 3/*nBands*/, GDT_Byte/*eDataType*/, nullptr);
+        if (poDstMemDS == nullptr) {
+            std::cerr << "Error: No se pudo crear el dataset de destino en memoria." << std::endl;
+            //CPLFree(pszTargetWKT);
+            //GDALClose(warpedDS);
+            //GDALClose(srcDS);
+            //GDALClose(poSrcDS);
+            return;
+        }
+
+        // Asignar el CRS y geotransformación del VRT al dataset final en memoria
+        double geoTransform[6];
+        if (warpedDS->GetGeoTransform(geoTransform) == CE_None) {
+            poDstMemDS->SetGeoTransform(geoTransform);
+        }
+        poDstMemDS->SetProjection(warpedDS->GetProjectionRef());
+
+        // 8. Realizar la reproyección real de datos
+    // GDALWarpOptions (GDAL 2.x+) es la forma moderna de configurar GDALWarp
+        GDALWarpOptions *psWarpOptions = GDALCreateWarpOptions();
+        psWarpOptions->papszWarpOptions = CSLAddNameValue(psWarpOptions->papszWarpOptions, "NUM_THREADS", "ALL_CPUS");
+        psWarpOptions->eResampleAlg = GRA_Bilinear; // Ajusta según necesites (GRA_Bilinear, GRA_Cubic)
+        //psWarpOptions->papszSrcSRS = CSLAddString(nullptr, pszProjectionOriginalWKT);
+        //psWarpOptions->papszDstSRS = CSLAddString(nullptr, pszTargetWKT);
+        psWarpOptions->hSrcDS = srcDS;
+        psWarpOptions->hDstDS = poDstMemDS;
+        // psWarpOptions->pfnProgress = GDALTermProgress; // Para ver el progreso en consola
+
+        GDALProgressFunc pfnProgress = GDALTermProgress; // Puedes usar nullptr para no progreso
+        void *pProgressArg = nullptr; // Puedes usar nullptr si no usas pfnProgress
+
+        GDALWarpOperation oWarp;
+        CPLErr eWarpErr = oWarp.Initialize(psWarpOptions);
+        if (eWarpErr != CE_None) {
+            std::cerr << "Error: Falló la inicialización de GDALWarp." << std::endl;
+            GDALDestroyWarpOptions(psWarpOptions);
+            //CPLFree(pszTargetWKT);
+            GDALClose(poDstMemDS);
+            GDALClose(warpedDS);
+            GDALClose(srcDS);
+            //GDALClose(poSrcDS);
+            return;
+        }
+
+        eWarpErr = oWarp.ChunkAndWarpImage(0, 0, nDstWidth, nDstHeight);
+        if (eWarpErr != CE_None) {
+            std::cerr << "Error: Falló la operación de GDALWarp." << std::endl;
+            GDALDestroyWarpOptions(psWarpOptions);
+            //CPLFree(pszTargetWKT);
+            GDALClose(poDstMemDS);
+            GDALClose(warpedDS);
+            //GDALClose(poSrcMemDS);
+            //GDALClose(poSrcDS);
+            return;
+        }
+
+        GDALDestroyWarpOptions(psWarpOptions);
+        //CPLFree(pszTargetWKT); // Liberar el WKT generado
+
+        // 9. Leer los datos del dataset reproyectado en memoria
+        result.nWidth = nDstWidth;
+        result.nHeight = nDstHeight;
+        result.nBands = nBands;
+        result.eDataType = eDataType;
+
+        for (int i = 0; i < 6; ++i) {
+            result.adfGeoTransform[i] = poDstMemDS->GetGeoTransform()[i];
+        }
+        result.pszProjectionWKT = CPLStrdup(poDstMemDS->GetProjectionRef()); // Copiar el WKT
+
+        size_t nTotalPixels = (size_t)nDstWidth * nDstHeight * nBands;
+        result.data.resize(nTotalPixels * nPixelSize); // Ajustar el tamaño del vector
+
+        // Leer todas las bandas
+        for (int i = 0; i < nBands; ++i) {
+            GDALRasterBand *poBandDst = poDstMemDS->GetRasterBand(i + 1);
+            CPLErr eReadErr = poBandDst->ReadRaster(0, 0, nDstWidth, nDstHeight,
+                result.data.data() + (i * (size_t)nDstWidth * nDstHeight * nPixelSize),
+                nDstWidth, nDstHeight, eDataType, 0, 0);
+            if (eReadErr != CE_None) {
+                std::cerr << "Error: Falló la lectura de la banda " << i + 1 << " del dataset de destino." << std::endl;
+                GDALClose(poDstMemDS);
+                GDALClose(warpedDS);
+                GDALClose(srcDS);
+                GDALClose(poSrcDS);
+                return TransformedRegion(); // Devuelve un objeto vacío
+            }
+        }
+
+        // 10. Liberar los recursos de GDAL
+        GDALClose(poDstMemDS); // Cierra el dataset de destino en memoria
+        GDALClose(warpedDS); // Cierra el VRT
+        GDALClose(poSrcMemDS); // Cierra el dataset de origen en memoria
+        GDALClose(poSrcDS);    // Cierra el dataset original
+
+
+
+        OCTDestroyCoordinateTransformation(transform_to_3857);
+
+        return;
+    }
+
     // QGeoView tiene un error en la transformación entre geograficas y EPSG:3857 y 
     // la Y sale con el signo cambiado
-    auto p1 =affine.inverse().transform({tile_proj_rect.left(), -tile_proj_rect.top()}); 
+    auto p1 = affine.inverse().transform({tile_proj_rect.left(), -tile_proj_rect.top()}); 
     auto p2 = affine.inverse().transform({tile_proj_rect.right(), -tile_proj_rect.bottom()});
 
     int xOffset = std::floor(std::min(p1.x, p2.x));
@@ -318,11 +557,14 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
     int xSize = std::ceil(std::abs(p2.x - p1.x));
     int ySize = std::ceil(std::abs(p2.y - p1.y));
 
-    int tileSize = 256; // Tamaño del tile en píxeles
-    int tile_size_x = tileSize;
-    int tile_size_y = tileSize;
+
     double sx = tile_size_x / static_cast<double>(xSize);
     double sy = tile_size_y / static_cast<double>(ySize);
+
+    // Con esto se lee la imagen y en affine_out esta el offset
+    //tl::Rect<int> rect(xOffset, yOffset, xSize, ySize);
+    //tl::Affine<int, 2> affine_out;
+    //cv::Mat mat1 = reader->read(sx, sy, rect, &affine_out);
 
     int tile_offset_x = 0;
     int tile_offset_y = 0;
@@ -363,8 +605,7 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
     //double scale_x = window.width() / 256.;
     //double scale_y = window.height() / 256.;
 
-    //tl::Affine<int, 2> affine_out;
-    //reader->read(window, scale_x, scale_y, &affine_out);
+
     // Calcular tamaño en píxeles del tile
     QImage tileImage(tileSize, tileSize, QImage::Format_RGBA8888);
     tileImage.fill(Qt::transparent);
@@ -396,6 +637,8 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
         delete[] buffer;
         return;
     }
+
+    //cv::Mat mat2 = graphos::qImageToCvMat(tileImage);
 
     auto *imageItem = new QGVImage();
     imageItem->setGeometry(tile_proj_rect);

@@ -502,7 +502,7 @@ if (BUILD_DEM_COMPONENT)
     find_package(CGAL REQUIRED)
 	set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
 		
-    message(STATUS "  CGAL version: ${CGAL_VERSION}")
+    message(STATUS "  Found CGAL (version ${CGAL_VERSION})")
     #find_package(Boost OPTIONAL_COMPONENTS serialization iostreams)
     #
     #include(CGAL_Eigen3_support)

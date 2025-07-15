@@ -46,7 +46,7 @@ find_package_handle_standard_args(QGeoView
 if(QGeoView_FOUND)
   set(QGeoView_INCLUDE_DIRS ${QGeoView_INCLUDE_DIR})
   set(QGeoView_LIBRARIES debug ${QGeoView_LIBRARY_DEBUG} 
-                     optimized ${QGeoView_LIBRARY})
+                         optimized ${QGeoView_LIBRARY})
 else()
   set(QGeoView_INCLUDE_DIR "")
   set(QGeoView_LIBRARY_RELEASE "")
