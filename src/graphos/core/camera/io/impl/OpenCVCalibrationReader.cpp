@@ -55,7 +55,7 @@ void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera)
                 while (stream.readNextStartElement()) {
                     if (stream.name() == "data") {
 
-                        QStringList values = stream.readElementText().trimmed().split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+                        QStringList values = stream.readElementText().trimmed().split(QRegExp("\\s+"), QString::SkipEmptyParts);
                         TL_ASSERT(values.size() == 9, "Invalid camera matrix size in OpenCV file (expected 3x3 = 9 elements).");
 
                         fx = values[0].toDouble();
@@ -78,7 +78,7 @@ void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera)
                 while (stream.readNextStartElement()) {
                     if (stream.name() == "data") {
 
-                        QStringList values = stream.readElementText().trimmed().split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+                        QStringList values = stream.readElementText().trimmed().split(QRegExp("\\s+"), QString::SkipEmptyParts);
                         for (const auto &v : values) {
                             distortion_coefficients.push_back(v.toDouble());
                         }
