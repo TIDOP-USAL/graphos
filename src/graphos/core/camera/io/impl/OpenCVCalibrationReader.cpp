@@ -26,6 +26,7 @@
 
 #include <QXmlStreamReader>
 #include <QFile>
+#include <QRegularExpression>
 
 namespace graphos
 {
@@ -55,7 +56,12 @@ void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera)
                 while (stream.readNextStartElement()) {
                     if (stream.name() == "data") {
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+                        QStringList values = stream.readElementText().trimmed().split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+#else
                         QStringList values = stream.readElementText().trimmed().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+#endif
+
                         TL_ASSERT(values.size() == 9, "Invalid camera matrix size in OpenCV file (expected 3x3 = 9 elements).");
 
                         fx = values[0].toDouble();
@@ -78,7 +84,12 @@ void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera)
                 while (stream.readNextStartElement()) {
                     if (stream.name() == "data") {
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+                        QStringList values = stream.readElementText().trimmed().split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+#else
                         QStringList values = stream.readElementText().trimmed().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+#endif
+
                         for (const auto &v : values) {
                             distortion_coefficients.push_back(v.toDouble());
                         }

@@ -27,6 +27,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QFile>
+#include <QTextStream>
 
 namespace graphos
 {
