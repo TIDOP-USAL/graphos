@@ -31,6 +31,8 @@
 #include <QGeoView/QGVDrawItem.h>
 #include <QGeoView/QGVLayerTiles.h>
 
+#include <tidop/math/geometry/affine.h>
+
 typedef QList<QGV::GeoPos> PointList;
 
 class QGVPolygon : public QGVDrawItem
@@ -99,6 +101,8 @@ private:
     QRect mTileGridBounds;
     QGV::GeoRect mGeoExtent;
     std::unique_ptr<tl::ImageReader> reader;
+    tl::Affine<double, 2> mGeoreference;
+    double mScaleMin;
 };
 
 
