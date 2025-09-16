@@ -96,7 +96,6 @@ private:
 
     float focal() const;
     tl::Point<float> principalPoint() const;
-    cv::Mat distCoeffs() const;
 
 private:
 

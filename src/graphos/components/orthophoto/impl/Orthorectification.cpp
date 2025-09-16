@@ -361,7 +361,7 @@ float Orthorectification::focal() const
     float focal_x = 1.f;
     float focal_y = 1.f;
 
-    std::shared_ptr<Calibration> calibration = undistortCamera().calibration();
+    std::shared_ptr<Calibration> calibration = mUndistort->undistortCamera().calibration();
 
     if (calibration->existParameter(Calibration::Parameters::focal)) {
         focal_x = static_cast<float>(calibration->parameter(Calibration::Parameters::focal));
@@ -378,21 +378,12 @@ tl::Point<float> Orthorectification::principalPoint() const
 {
     tl::Point<float> principal_point;
 
-    std::shared_ptr<Calibration> calibration = undistortCamera().calibration();
+    std::shared_ptr<Calibration> calibration = mUndistort->undistortCamera().calibration();
 
     principal_point.x = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
     principal_point.y = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
 
     return principal_point;
-}
-
-cv::Mat Orthorectification::distCoeffs() const
-{
-    std::shared_ptr<Calibration> calibration = undistortCamera().calibration();
-
-    cv::Mat dist_coeffs = openCvDistortionCoefficients(*calibration);
-
-    return dist_coeffs;
 }
 
 void Orthorectification::setCuda(bool active)

@@ -130,7 +130,8 @@ Orthoimage::Orthoimage(const tl::Path &image,
     mGeoreference(georeference),
     mInterpolation(interpolation),
     bCuda(cuda),
-    mReadWithOpenCV(true)
+    mReadWithOpenCV(true),
+    mDataType(tl::DataType::TL_8U)
 {
 }
 
@@ -188,7 +189,7 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         orthophoto_writer->open();
         if (!orthophoto_writer->isOpen()) throw std::runtime_error("Image open error");
         int channels_ortho = image.channels();
-        tl::DataType data_type_ortho = tl::DataType::TL_8U;// mImageReader->dataType();
+        tl::DataType data_type_ortho = mDataType;
 
         /// Ortoimagen en coordenadas proyectadas
             
@@ -358,10 +359,12 @@ cv::Mat Orthoimage::readImage()
         if (!image_reader->isOpen()) throw std::runtime_error("Image open error");
 
         mat = image_reader->read();
+
+        mDataType = image_reader->dataType();
         image_reader->close();
     //}
 
-    normalizeImage(mat);
+    //normalizeImage(mat);
 
     return mat;
 }

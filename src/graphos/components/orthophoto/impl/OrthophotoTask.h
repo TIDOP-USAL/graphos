@@ -32,6 +32,7 @@
 #include <tidop/core/task.h>
 #include <tidop/core/path.h>
 #include <tidop/geometry/entities/window.h>
+#include <tidop/img/img.h>
 
 #include "graphos/core/reports/orthophoto.h"
 
@@ -89,6 +90,7 @@ private:
     void tilesExposureCompensator(const std::vector<std::vector<tl::WindowD>> &grid);
     void writeOrthomosaic(const std::vector<std::vector<tl::WindowD>> &grid);
     void blendTileBlock(int r, int c, const std::vector<std::vector<tl::WindowD>> &grid);
+
 // tl::TaskBase interface
 
 protected:
@@ -109,6 +111,8 @@ private:
     bool bCuda;
     // Por ahora se calcula internamente pero se podría establecer la región de la ortofoto externamente
     tl::WindowD mWindowAll;
+    tl::DataType mDataType;
+    int mChannels;
 };
 
 } // namespace graphos

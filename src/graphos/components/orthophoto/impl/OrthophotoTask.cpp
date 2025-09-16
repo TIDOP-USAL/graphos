@@ -333,7 +333,9 @@ OrthophotoTask::OrthophotoTask(double gsd,
     mEnuCrs(enuCrs),
     mEpsg(epsg),
     mInterpolation(interpolation),
-    bCuda(cuda)
+    bCuda(cuda),
+    mDataType(tl::DataType::TL_8U),
+    mChannels(3)
 {
 }
 
@@ -418,6 +420,16 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 {
 
     try {
+        
+        for (const auto &photo : mPhotos) {
+            auto image_reader = tl::ImageReaderFactory::create(photo.path().toStdString());
+            image_reader->open();
+            if (!image_reader->isOpen()) continue;
+
+            mDataType = image_reader->dataType();
+            mChannels = image_reader->channels();
+            break;
+        }
 
         tl::Path footprint_file(mOrthoPath);
         footprint_file.append("footprint.shp");
@@ -561,6 +573,7 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
 
                 tl::Affine<int, 2> affine;
                 auto image = image_reader->read(window_aux, 1., 1., &affine);
+                auto data_type = image_reader->dataType();
                 image_reader->close();
 
                 if (image.rows != image_size || image.cols != image_size) {
@@ -595,7 +608,7 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
                     int cols = static_cast<int>(std::round(window_aux.width() / mGSD));
                     int rows = static_cast<int>(std::round(window_aux.height() / mGSD));
 
-                    image_writer->create(rows, cols, 3, tl::DataType::TL_8U);
+                    image_writer->create(rows, cols, image.channels(), data_type);
                     tl::Crs crs(mEpsg);
                     image_writer->setCRS(crs.toWktFormat());
                     tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, window_aux.pt1.x, window_aux.pt2.y, 0.0);
@@ -630,7 +643,26 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
 
                 auto image_writer = tl::ImageWriterFactory::create(tile);
                 image_writer->open();
-                image_writer->create(read_image.rows, read_image.cols, 3, tl::DataType::TL_8U);
+
+                //tl::DataType data_type = tl::DataType::TL_8U;
+                //auto opencv_depth = read_image.depth();
+                //if (opencv_depth == CV_8U) {
+                //    data_type = tl::DataType::TL_8U;
+                //} else if (opencv_depth == CV_8S) {
+                //    data_type = tl::DataType::TL_8S;
+                //} else if (opencv_depth == CV_16U) {
+                //    data_type = tl::DataType::TL_16U;
+                //} else if (opencv_depth == CV_16S) {
+                //    data_type = tl::DataType::TL_16S;
+                //} else if (opencv_depth == CV_32S) {
+                //    data_type = tl::DataType::TL_32S;
+                //} else if (opencv_depth == CV_32F) {
+                //    data_type = tl::DataType::TL_32F;
+                //} else if (opencv_depth == CV_64F) {
+                //    data_type = tl::DataType::TL_64F;
+                //}
+
+                image_writer->create(read_image.rows, read_image.cols, read_image.channels(), mDataType);
                 tl::Crs crs(mEpsg);
                 image_writer->setCRS(crs.toWktFormat());
                 tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, window_aux.pt1.x, window_aux.pt2.y, 0.0);
@@ -802,7 +834,7 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::WindowD>
         options->setCompress(tl::TiffOptions::Compress::lzw);
 
         if (image_writer->isOpen()) {
-            image_writer->create(rows, cols, 3, tl::DataType::TL_8U, options);
+            image_writer->create(rows, cols, mChannels, mDataType, options);
 
             auto metadata = tl::ImageMetadataFactory::create("GTiff");
             metadata->setMetadata("TIFFTAG_DOCUMENTNAME", "Orthomosaic");

@@ -82,6 +82,8 @@ private:
 	std::string mInterpolation;
 	bool bCuda;
 	bool mReadWithOpenCV;
+	tl::DataType mDataType;
+
 };
 
 
