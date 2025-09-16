@@ -24,6 +24,8 @@
 #ifndef GRAPHOS_MAP_VIEWER_H
 #define GRAPHOS_MAP_VIEWER_H
 
+#include <mutex>
+
 #include <QWidget>
 
 #include <QGeoView/QGVMap.h>
@@ -32,6 +34,9 @@
 #include <QGeoView/QGVLayerTiles.h>
 
 #include <tidop/math/geometry/affine.h>
+#include <tidop/core/task.h>
+
+
 
 typedef QList<QGV::GeoPos> PointList;
 
@@ -68,10 +73,50 @@ private:
 
 
 class GDALDataset;
+class OGRCoordinateTransformation;
+
 namespace tl
 {
 class ImageReader;
 }
+
+namespace graphos
+{
+
+class ImageContextMenu;
+
+
+
+class RasterTileTask
+  : public tl::TaskBase
+{
+public:
+
+    RasterTileTask(const QRectF &tileProjRect,
+                   const std::string &epsgSource,
+                   tl::ImageReader *reader);
+    ~RasterTileTask() override;
+    
+    QImage getImage() const;
+
+// TaskBase
+
+protected:
+
+    void execute(tl::Progress *progressBar) override;
+
+private:
+
+    QRectF mTileProjRect;
+    tl::ImageReader *mReader;
+    tl::Affine<double, 2> mGeoreference;
+    double mGSD;
+    std::string mEpsgSource;
+    QImage mImage;
+    OGRCoordinateTransformation *transform;
+    static std::mutex mtx;
+};
+
 
 
 class RasterTiledLayer 
@@ -86,6 +131,10 @@ public:
 
     QGV::GeoRect maxGeoExtent() const;
 
+private:
+
+    void removeTask(const QGV::GeoTilePos &tilePos);
+
 protected:
 
     void onProjection(QGVMap *geoMap) override;
@@ -96,18 +145,17 @@ protected:
 
 private:
 
-    QString mTifPath;
     GDALDataset *mDataset;
     QRect mTileGridBounds;
     QGV::GeoRect mGeoExtent;
     std::unique_ptr<tl::ImageReader> reader;
     tl::Affine<double, 2> mGeoreference;
-    double mScaleMin;
+    double mGSD;
+    bool mCrsTransform;
+    std::string mEpsgSource;
+
+    QMap<QGV::GeoTilePos, std::shared_ptr<RasterTileTask>> mRequest;
 };
-
-
-namespace graphos
-{
 
 
 class MapViewer 
@@ -126,16 +174,29 @@ public:
     void loadShapefile(const QString &shapefilePath);
     void loadGeoTiff(const QString &tifPath);
     //void setProjection(const QString &epsgCode);
-    void zoomExtend() const;
+
+public slots:
+
+    void zoomExtend();
+    void zoom11();
+    void zoomIn();
+    void zoomOut();
+
+protected slots:
+
+    void showContextMenu(const QPoint &position);
 
 private:
 
+    void init();
+    void initSignalsAndSlots();
     QGV::GeoRect maxGeoExtent() const;
 
 private:
 
     QGVMap *mMap;
     QRectF mVectorExtent;
+    ImageContextMenu *mContextMenu;
 };
 
 

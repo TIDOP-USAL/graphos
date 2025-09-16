@@ -29,7 +29,7 @@
 #include "graphos/widgets/StartPageWidget.h"
 #include "graphos/widgets/TabWidget.h"
 #include "graphos/widgets/GraphicViewer.h"
-#include "graphos/widgets/MapViewer.h"
+#include "graphos/widgets/mapviewer/MapViewer.h"
 #include "graphos/widgets/Viewer3d.h"
 #include "graphos/gui/MainWindowView.h"
 #include "graphos/gui/MainWindowModel.h"
@@ -625,15 +625,23 @@ void MainWindowPresenter::openDsm()
             tab_widget->setCurrentIndex(tab_id);
         } else {
 
-            GraphicViewer *graphic_viewer = new GraphicViewer(mView);
-            graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
-            graphic_viewer->setImage(mModel->readImage(mModel->dsm()));
-            tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(dsm).fileName());
+            //GraphicViewer *graphic_viewer = new GraphicViewer(mView);
+            //graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
+            //graphic_viewer->setImage(mModel->readImage(mModel->dsm()));
+            //tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(dsm).fileName());
+            //tab_widget->setCurrentIndex(tab_id);
+            //tab_widget->setTabToolTip(tab_id, dsm);
+            //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+
+            //graphic_viewer->zoomExtend();
+
+            MapViewer *map_viewer = new MapViewer(mView);
+            map_viewer->loadGeoTiff(dsm);
+            tab_id = tab_widget->addTab(map_viewer, QFileInfo(dsm).fileName());
             tab_widget->setCurrentIndex(tab_id);
             tab_widget->setTabToolTip(tab_id, dsm);
             tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
-
-            graphic_viewer->zoomExtend();
+            map_viewer->zoomExtend();
         }
 
         AppStatus *status = Application::instance().status();
@@ -656,40 +664,11 @@ void MainWindowPresenter::openOrthophoto(const QString &orthophoto)
             tab_widget->setCurrentIndex(tab_id);
         } else {
 
-            //GraphicViewer *graphic_viewer = new GraphicViewer(mView);
-            //graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
-            //graphic_viewer->setImage(mModel->readImage(orthophoto.toStdString()));
-            //tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(orthophoto).fileName());
-            //tab_widget->setCurrentIndex(tab_id);
-            //tab_widget->setTabToolTip(tab_id, orthophoto);
-            //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
-
-            //graphic_viewer->zoomExtend();
-
             MapViewer *map_viewer = new MapViewer(mView);
             //map_viewer->loadShapefile("C://Users//Tidop//Documents//GRAPHOS//Projects//avila//ortho//footprint.shp");
             //map_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
             map_viewer->loadGeoTiff(orthophoto);
             tab_id = tab_widget->addTab(map_viewer, QFileInfo(orthophoto).fileName());
-            //tab_widget->setCurrentIndex(tab_id);
-            //tab_widget->setTabToolTip(tab_id, orthophoto);
-            //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
-
-            //TiledGeoTiffViewer *map_viewer = new TiledGeoTiffViewer(mView);
-            //map_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
-            //tab_id = tab_widget->addTab(map_viewer, QFileInfo(orthophoto).fileName());
-            //map_viewer->loadGeoTiff(orthophoto);
-            //tab_widget->setCurrentIndex(tab_id);
-            //tab_widget->setTabToolTip(tab_id, orthophoto);
-            //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
-
-            //MapViewer *map_viewer = new MapViewer(mView);
-            //map_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
-            //map_viewer->addRasterLayer(orthophoto);
-            //tab_id = tab_widget->addTab(map_viewer, QFileInfo(orthophoto).fileName());
-            //tab_widget->setCurrentIndex(tab_id);
-            //tab_widget->setTabToolTip(tab_id, orthophoto);
-            //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
             map_viewer->zoomExtend();
         }
 

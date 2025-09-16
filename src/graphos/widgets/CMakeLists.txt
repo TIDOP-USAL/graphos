@@ -58,8 +58,11 @@ add_files_to_project(${PROJECT_NAME}
                          settings/MatchViewerSettingsWidget.cpp
                          formats/raster/TiffFormatWidget.cpp
                          ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.cpp
-						 MapViewer.cpp
+						 #MapViewer.cpp
 						 #MapItem.cpp
+                         mapviewer/MapPolygon.cpp
+                         mapviewer/MapViewer.cpp
+                         mapviewer/RasterTiledLayer.cpp
                      HEADER_FILES
                          GraphosWidget.h
                          SiftWidget.h
@@ -87,8 +90,11 @@ add_files_to_project(${PROJECT_NAME}
                          formats/raster/TiffFormatWidget.h
                          settings/FeatViewerSettingsWidget.h
                          settings/MatchViewerSettingsWidget.h
-						 MapViewer.h
+						 #MapViewer.h
 						 #MapItem.h
+                         mapviewer/MapPolygon.h
+                         mapviewer/MapViewer.h
+                         mapviewer/RasterTiledLayer.h
                          ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.h)
 
 
