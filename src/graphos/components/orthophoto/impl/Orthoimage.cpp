@@ -166,17 +166,17 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         tl::Rect<int> rect_image = mOrthorectification->rectImage();
         tl::Rect<int> rect_dtm = mOrthorectification->rectDtm();
 
-        //tl::Chrono chrono_grid("Read image");
-        //chrono_grid.run();
+        tl::Chrono chrono_grid("Read image");
+        chrono_grid.run();
 
         //// Carga de la imagen
         cv::Mat image = readImage();
 
-        //chrono_grid.stop();
+        chrono_grid.stop();
 
-        //chrono_grid.reset();
-        //chrono_grid.setMessage("Undistort image");
-        //chrono_grid.run();
+        chrono_grid.reset();
+        chrono_grid.setMessage("Undistort image");
+        chrono_grid.run();
 
         /// Undistort
         //Esto no tiene que estar en Orthorectification
@@ -218,11 +218,57 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         cv::Mat map_x(mRectOrtho.height, mRectOrtho.width, CV_32F, cv::Scalar(-1));
         cv::Mat map_y(mRectOrtho.height, mRectOrtho.width, CV_32F, cv::Scalar(-1));
 
-        //chrono_grid.stop();
+        chrono_grid.stop();
 
-        //chrono_grid.reset();
-        //chrono_grid.setMessage("Grid iteration");
-        //chrono_grid.run();
+        chrono_grid.reset();
+        chrono_grid.setMessage("Grid iteration");
+        chrono_grid.run();
+
+        //tl::Affine<double, 2> affine_projected_to_enu;
+        int step = 128;
+        int nx = 0, ny = 0;
+        std::vector<double> enuMeshX, enuMeshY;
+
+        tl::Crs crs(mCrs);
+
+        //if (crs.isProjected()) {
+
+        //    std::vector<tl::Point<double>> enu_pts = {
+        //        top_left, top_right, bottom_right, bottom_left
+        //    };
+
+        //    std::vector<tl::Point<double>> proj_pts = {
+        //        static_cast<tl::Point<double>>(top_left_projected),
+        //        static_cast<tl::Point<double>>(top_right_projected),
+        //        static_cast<tl::Point<double>>(bottom_right_projected),
+        //        static_cast<tl::Point<double>>(bottom_left_projected)
+        //    };
+
+        //    affine_projected_to_enu = tl::Affine2DEstimator<double>::estimate(proj_pts, enu_pts);
+
+        //} else {
+
+            // Precompute mesh ENU from projected coords with PROJ
+            nx = (mRectOrtho.width + step - 1) / step + 1;
+            ny = (mRectOrtho.height + step - 1) / step + 1;
+            enuMeshX.resize(nx * ny);
+            enuMeshY.resize(nx * ny);
+
+            auto idx = [&](int ix, int iy) { return iy * nx + ix; };
+
+            for (int iy = 0; iy < ny; ++iy) {
+                int r = std::min(iy * step, mRectOrtho.height);
+                for (int ix = 0; ix < nx; ++ix) {
+                    int c = std::min(ix * step, mRectOrtho.width);
+                    auto proj = affine_ortho_projected.transform({(double)c,(double)r});
+                    auto enu3 = convertProjectedToEnu(tl::Point3d(proj.x, proj.y, 0.0));
+                    enuMeshX[idx(ix, iy)] = enu3.x;
+                    enuMeshY[idx(ix, iy)] = enu3.y;
+                }
+            }
+        //}
+
+
 
         // Iteración sobre la cuadrícula de la ortofoto
         tl::parallel_for(0, mRectOrtho.height, [&](size_t r) {
@@ -236,7 +282,32 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
                 auto terrain_coordinates = affine_ortho_projected.transform(ortho_grid_coord);
 
                 // Coordenadas de la ortofoto en el sistema de terreno
-                tl::Point3<double> enu_coordinates = convertProjectedToEnu(terrain_coordinates);
+                //tl::Point3<double> enu_coordinates = convertProjectedToEnu(terrain_coordinates);
+                tl::Point3<double> enu_coordinates;
+                //if (crs.isProjected()) {
+                //    enu_coordinates = affine_projected_to_enu.transform(terrain_coordinates);
+                //} else {
+                    int ix = std::min(c / step, nx - 2);
+                    int iy = std::min(static_cast<int>(r) / step, ny - 2);
+                    double sx = (c - ix * step) / static_cast<double>(step);
+                    double sy = (r - iy * step) / static_cast<double>(step);
+
+                    auto idx = [&](int ix, int iy) { return iy * nx + ix; };
+                    double ex00 = enuMeshX[idx(ix, iy)], ey00 = enuMeshY[idx(ix, iy)];
+                    double ex10 = enuMeshX[idx(ix + 1, iy)], ey10 = enuMeshY[idx(ix + 1, iy)];
+                    double ex01 = enuMeshX[idx(ix, iy + 1)], ey01 = enuMeshY[idx(ix, iy + 1)];
+                    double ex11 = enuMeshX[idx(ix + 1, iy + 1)], ey11 = enuMeshY[idx(ix + 1, iy + 1)];
+
+                    double ex0 = ex00 * (1 - sx) + ex10 * sx;
+                    double ey0 = ey00 * (1 - sx) + ey10 * sx;
+                    double ex1 = ex01 * (1 - sx) + ex11 * sx;
+                    double ey1 = ey01 * (1 - sx) + ey11 * sx;
+
+                    double ex = ex0 * (1 - sy) + ex1 * sy;
+                    double ey = ey0 * (1 - sy) + ey1 * sy;
+
+                    enu_coordinates = {ex, ey, 0.0};
+                //}
 
                 auto dtm_pixel_coordinates = mOrthorectification->terrainToDTMImageCoordinates(enu_coordinates);
 
@@ -260,11 +331,11 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
             }
         });
 
-        //chrono_grid.stop();
+        chrono_grid.stop();
 
-        //chrono_grid.reset();
-        //chrono_grid.setMessage("Remap");
-        //chrono_grid.run();
+        chrono_grid.reset();
+        chrono_grid.setMessage("Remap");
+        chrono_grid.run();
 
         int interpolation = cv::INTER_NEAREST; // Default to Nearest
         if (mInterpolation == "Bilinear") {
@@ -284,11 +355,11 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         cv::remap(undistort_image, ortho_image, map_x, map_y, interpolation, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
 #endif
 
-        //chrono_grid.stop();
+        chrono_grid.stop();
 
-        //chrono_grid.reset();
-        //chrono_grid.setMessage("Mask orthoimage");
-        //chrono_grid.run();
+        chrono_grid.reset();
+        chrono_grid.setMessage("Mask orthoimage");
+        chrono_grid.run();
 
         /// Mascara
         cv::Mat gray;
@@ -311,28 +382,28 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
 
         //cv::erode(mask, mask, element);
 
-        //chrono_grid.stop();
+        chrono_grid.stop();
 
-        //chrono_grid.reset();
-        //chrono_grid.setMessage("Apply mask");
-        //chrono_grid.run();
+        chrono_grid.reset();
+        chrono_grid.setMessage("Apply mask");
+        chrono_grid.run();
 
         cv::Mat ortho_with_mask = cv::Mat::zeros(ortho_image.size(), ortho_image.type());
         ortho_image.copyTo(ortho_with_mask, mask);
 
-        //chrono_grid.stop();
+        chrono_grid.stop();
 
-        //chrono_grid.reset();
-        //chrono_grid.setMessage("Write ortoimage");
-        //chrono_grid.run();
+        chrono_grid.reset();
+        chrono_grid.setMessage("Write ortoimage");
+        chrono_grid.run();
 
-        tl::Crs crs(mCrs);
+        //tl::Crs crs(mCrs);
         orthophoto_writer->setCRS(crs.toWktFormat());
         orthophoto_writer->setGeoreference(affine_ortho_projected);
         orthophoto_writer->write(ortho_with_mask);
         orthophoto_writer->close();
         
-        //chrono_grid.stop();
+        chrono_grid.stop();
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Error generating the orthoimage: {}", ortho.fileName().toString());

@@ -82,11 +82,12 @@ private:
 
 
 
-    void orthoimageExposureCompensator(const tl::Path &graph_orthos);
+    void orthoimageExposureCompensator(const tl::Path &graph_orthos, tl::Progress *progressBar);
     auto searchTiles(const tl::Path &graph_orthos,
                      const std::vector<std::vector<tl::WindowD>> &grid) -> std::vector<std::vector<std::map<double, std::string>>>;
     void generateTiles(const std::vector<std::vector<tl::WindowD>> &grid, 
-                       std::vector<std::vector<std::map<double, std::string>>> &orthos);
+                       std::vector<std::vector<std::map<double, std::string>>> &orthos,
+                       tl::Progress *progressBar);
     void tilesExposureCompensator(const std::vector<std::vector<tl::WindowD>> &grid);
     void writeOrthomosaic(const std::vector<std::vector<tl::WindowD>> &grid);
     void blendTileBlock(int r, int c, const std::vector<std::vector<tl::WindowD>> &grid);
