@@ -50,6 +50,15 @@ public:
         return std::string{"Radial 1"};
     }
 
+    auto toVector() const -> std::vector<double> override
+    {
+        std::vector<double> v(4);
+        v[0] = this->parameter(Calibration::Parameters::focal);
+        v[1] = this->parameter(Calibration::Parameters::cx);
+        v[2] = this->parameter(Calibration::Parameters::cy);
+        v[3] = this->parameter(Calibration::Parameters::k1);
+        return v;
+    }
 };
 
 class CalibrationRadial2 final
@@ -70,6 +79,16 @@ public:
         return {"Radial 2"};
     }
 
+    auto toVector() const -> std::vector<double> override
+    {
+        std::vector<double> v(5);
+        v[0] = this->parameter(Calibration::Parameters::focal);
+        v[1] = this->parameter(Calibration::Parameters::cx);
+        v[2] = this->parameter(Calibration::Parameters::cy);
+        v[3] = this->parameter(Calibration::Parameters::k1);
+        v[4] = this->parameter(Calibration::Parameters::k2);
+        return v;
+    }
 };
 
 class CalibrationRadial3 final
@@ -90,6 +109,19 @@ public:
         return {"Radial 3"};
     }
 
+    auto toVector() const -> std::vector<double> override
+    {
+        std::vector<double> v(8);
+        v[0] = this->parameter(Calibration::Parameters::focal);
+        v[1] = this->parameter(Calibration::Parameters::cx);
+        v[2] = this->parameter(Calibration::Parameters::cy);
+        v[3] = this->parameter(Calibration::Parameters::k1);
+        v[4] = this->parameter(Calibration::Parameters::k2);
+        v[5] = this->parameter(Calibration::Parameters::k3);
+        v[6] = this->parameter(Calibration::Parameters::p1);
+        v[7] = this->parameter(Calibration::Parameters::p2);
+        return v;
+    }
 };
 
 class CalibrationSimpleRadialFisheye final
@@ -110,6 +142,15 @@ public:
         return {"Radial Fisheye 1"};
     }
 
+    auto toVector() const -> std::vector<double> override
+    {
+        std::vector<double> v(4);
+        v[0] = this->parameter(Calibration::Parameters::focal);
+        v[1] = this->parameter(Calibration::Parameters::cx);
+        v[2] = this->parameter(Calibration::Parameters::cy);
+        v[3] = this->parameter(Calibration::Parameters::k1);
+        return v;
+    }
 };
 
 
@@ -131,6 +172,16 @@ public:
         return {"Radial Fisheye 2"};
     }
 
+    auto toVector() const -> std::vector<double> override
+    {
+        std::vector<double> v(5);
+        v[0] = this->parameter(Calibration::Parameters::focal);
+        v[1] = this->parameter(Calibration::Parameters::cx);
+        v[2] = this->parameter(Calibration::Parameters::cy);
+        v[3] = this->parameter(Calibration::Parameters::k1);
+        v[4] = this->parameter(Calibration::Parameters::k2);
+        return v;
+    }
 };
 
 
@@ -152,6 +203,19 @@ public:
         return {"OpenCV 1"};
     }
 
+    auto toVector() const -> std::vector<double> override
+    {
+        std::vector<double> v(8);
+        v[0] = this->parameter(Calibration::Parameters::focalx);
+        v[1] = this->parameter(Calibration::Parameters::focaly);
+        v[2] = this->parameter(Calibration::Parameters::cx);
+        v[3] = this->parameter(Calibration::Parameters::cy);
+        v[4] = this->parameter(Calibration::Parameters::k1);
+        v[5] = this->parameter(Calibration::Parameters::k2);
+        v[6] = this->parameter(Calibration::Parameters::p1);
+        v[7] = this->parameter(Calibration::Parameters::p2);
+        return v;
+    }
 };
 
 
@@ -173,6 +237,19 @@ public:
         return {"OpenCV Fisheye"};
     }
 
+    auto toVector() const -> std::vector<double> override
+    {
+        std::vector<double> v(8);
+        v[0] = this->parameter(Calibration::Parameters::focalx);
+        v[1] = this->parameter(Calibration::Parameters::focaly);
+        v[2] = this->parameter(Calibration::Parameters::cx);
+        v[3] = this->parameter(Calibration::Parameters::cy);
+        v[4] = this->parameter(Calibration::Parameters::k1);
+        v[5] = this->parameter(Calibration::Parameters::k2);
+        v[6] = this->parameter(Calibration::Parameters::k3);
+        v[7] = this->parameter(Calibration::Parameters::k4);
+        return v;
+    }
 };
 
 
@@ -194,6 +271,24 @@ public:
         return {"OpenCV 2"};
     }
 
+    auto toVector() const -> std::vector<double> override
+    {
+        std::vector<double> v(12);
+        v[0] = this->parameter(Calibration::Parameters::focalx);
+        v[1] = this->parameter(Calibration::Parameters::focaly);
+        v[2] = this->parameter(Calibration::Parameters::cx);
+        v[3] = this->parameter(Calibration::Parameters::cy);
+        v[4] = this->parameter(Calibration::Parameters::k1);
+        v[5] = this->parameter(Calibration::Parameters::k2);
+        v[6] = this->parameter(Calibration::Parameters::p1);
+        v[7] = this->parameter(Calibration::Parameters::p2);
+        v[8] = this->parameter(Calibration::Parameters::k3);
+        v[9] = this->parameter(Calibration::Parameters::k4);
+        v[10] = this->parameter(Calibration::Parameters::k5);
+        v[11] = this->parameter(Calibration::Parameters::k6);
+
+        return v;
+    }
 };
 
 
@@ -215,6 +310,14 @@ public:
         return {"Pinhole 1"};
     }
 
+    auto toVector() const -> std::vector<double> override
+    {
+        std::vector<double> v(3);
+        v[0] = this->parameter(Calibration::Parameters::focal);
+        v[1] = this->parameter(Calibration::Parameters::cx);
+        v[2] = this->parameter(Calibration::Parameters::cy);
+        return v;
+    }
 };
 
 
@@ -235,6 +338,16 @@ public:
     auto name() const -> std::string override
     {
         return {"Pinhole 2"};
+    }
+
+    auto toVector() const -> std::vector<double> override
+    {
+        std::vector<double> v(4);
+        v[0] = this->parameter(Calibration::Parameters::focalx);
+        v[1] = this->parameter(Calibration::Parameters::focaly);
+        v[2] = this->parameter(Calibration::Parameters::cx);
+        v[3] = this->parameter(Calibration::Parameters::cy);
+        return v;
     }
 
 };
@@ -361,6 +474,11 @@ auto Calibration::end() const -> const_iterator
 }
 
 auto Calibration::name() const -> std::string
+{
+    return {};
+}
+
+auto Calibration::toVector() const -> std::vector<double>
 {
     return {};
 }

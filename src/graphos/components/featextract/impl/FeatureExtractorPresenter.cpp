@@ -201,11 +201,11 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createTask()
     }
 
     feat_extract_task = std::make_unique<FeatureExtractorTask>(images,
-                                                                  mModel->cameras(),
-                                                                  mModel->database(),
-                                                                  maxSize,
-                                                                  mModel->useCuda(),
-                                                                  feature_extractor);
+                                                               mModel->cameras(),
+                                                               mModel->database(),
+                                                               maxSize,
+                                                               mModel->useCuda(),
+                                                               feature_extractor);
 
     connect(dynamic_cast<FeatureExtractorTask*>(feat_extract_task.get()), &FeatureExtractorTask::features_extracted,
             this, &FeatureExtractorPresenterImp::onFeaturesExtracted);

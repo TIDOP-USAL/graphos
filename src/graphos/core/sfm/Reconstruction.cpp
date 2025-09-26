@@ -133,6 +133,72 @@ ReconstructionTask::ReconstructionTask(tl::Path database,
             mOptions.disable(Options::absolute_orientation);
         }
     }
+
+
+    // Calibration options
+    colmap::Database colmap_database(mDatabase.toUtf8());
+
+    for (auto &camera : mCameras) {
+
+        auto graphos_camera_id = camera.first;
+        auto &graphos_camera = camera.second;
+        auto colmap_camera_id = static_cast<colmap::image_t>(graphos_camera_id);
+
+        TL_ASSERT(colmap_database.ExistsCamera(colmap_camera_id), "Camera not found in database");
+        colmap::Camera camera_colmap = colmap_database.ReadCamera(colmap_camera_id);
+
+        auto &adjusted_calibration = graphos_camera.calibration();
+        auto &prior_calibration = graphos_camera.priorCalibration();
+
+        if (adjusted_calibration == nullptr && prior_calibration == nullptr) {
+            continue;
+        }
+
+
+        if (mOptions.isEnabled(Options::use_adjusted_calibration) && adjusted_calibration) {
+
+            auto params = adjusted_calibration->toVector();
+            if (params.size() == camera_colmap.NumParams()) {
+                camera_colmap.SetParams(params);
+                camera_colmap.SetPriorFocalLength(true);
+            }
+
+        } else if (mOptions.isEnabled(Options::use_prior_calibration)) {
+
+            std::vector<double> params;
+            if (prior_calibration) {
+                params = prior_calibration->toVector();
+            } else if (adjusted_calibration) {
+                params = adjusted_calibration->toVector();
+            } else {
+                continue;
+            }
+
+            if (params.size() == camera_colmap.NumParams()) {
+                camera_colmap.SetParams(params);
+                camera_colmap.SetPriorFocalLength(true);
+            }
+
+        } else {
+
+            double focal_lenght = graphos_camera.focal();
+            size_t width = static_cast<size_t>(graphos_camera.width());
+            size_t height = static_cast<size_t>(graphos_camera.height());
+            if (focal_lenght > 0.) {
+                camera_colmap.SetPriorFocalLength(true);
+            } else {
+                focal_lenght = 1.2 * std::max(width, height);
+                camera_colmap.SetPriorFocalLength(false);
+            }
+            camera_colmap.SetFocalLength(focal_lenght);
+            camera_colmap.SetWidth(width);
+            camera_colmap.SetHeight(height);
+        }
+
+        colmap_database.UpdateCamera(camera_colmap);
+    }
+
+    colmap_database.Close();
 }
 
 ReconstructionTask::~ReconstructionTask()

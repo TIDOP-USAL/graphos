@@ -110,7 +110,7 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
         if (image_reader->isOpen()) {
 
             std::shared_ptr<tl::ImageMetadata> image_metadata = image_reader->metadata();
-            std::map<std::string, std::string> metadata = image_metadata->activeMetadata();
+
             std::string name;
             std::string value;
 
@@ -760,7 +760,7 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
 
             /// XMP
 
-            value = image_metadata->metadata("XMP_AbsoluteAltitude", active);
+            value = image_metadata->metadata("XMP_DJI_AbsoluteAltitude", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Absolute Altitude"), QString::fromStdString(value));
             }
@@ -770,62 +770,62 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
                 exif["XMP"].emplace_back(QString("Relative Altitude"), QString::fromStdString(value));
             }
 
-            value = image_metadata->metadata("XMP_GimbalRollDegree", active);
+            value = image_metadata->metadata("XMP_DJI_GimbalRollDegree", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Gimbal Roll Degree"), QString::fromStdString(value));
             }
 
-            value = image_metadata->metadata("XMP_GimbalYawDegree", active);
+            value = image_metadata->metadata("XMP_DJI_GimbalYawDegree", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Gimbal Yaw Degree"), QString::fromStdString(value));
             }
 
-            value = image_metadata->metadata("XMP_GimbalPitchDegree", active);
+            value = image_metadata->metadata("XMP_DJI_GimbalPitchDegree", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Gimbal Pitch Degree"), QString::fromStdString(value));
             }
 
-            value = image_metadata->metadata("XMP_FlightRollDegree", active);
+            value = image_metadata->metadata("XMP_DJI_FlightRollDegree", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Flight Roll Degree"), QString::fromStdString(value));
             }
 
-            value = image_metadata->metadata("XMP_FlightYawDegree", active);
+            value = image_metadata->metadata("XMP_DJI_FlightYawDegree", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Flight Yaw Degree"), QString::fromStdString(value));
             }
 
-            value = image_metadata->metadata("XMP_FlightPitchDegree", active);
+            value = image_metadata->metadata("XMP_DJI_FlightPitchDegree", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Flight Pitch Degree"), QString::fromStdString(value));
             }
 
-            value = image_metadata->metadata("XMP_CamReverse", active);
+            value = image_metadata->metadata("XMP_DJI_CamReverse", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("CamReverse"), QString::fromStdString(value));
             }
 
-            value = image_metadata->metadata("XMP_GimbalReverse", active);
+            value = image_metadata->metadata("XMP_DJI_GimbalReverse", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Gimbal Reverse"), QString::fromStdString(value));
             }
 
-            value = image_metadata->metadata("XMP_RtkFlag", active);
+            value = image_metadata->metadata("XMP_DJI_RtkFlag", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Rtk Flag"), QString::fromStdString(value));
             }
 
-            value = image_metadata->metadata("XMP_RtkStdLon", active);
+            value = image_metadata->metadata("XMP_DJI_RtkStdLon", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Longitude Accuracy"), QString::fromStdString(value));
             }
 
-            value = image_metadata->metadata("XMP_RtkStdLat", active);
+            value = image_metadata->metadata("XMP_DJI_RtkStdLat", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Latitude Accuracy"), QString::fromStdString(value));
             }
 
-            value = image_metadata->metadata("XMP_RtkStdHgt", active);
+            value = image_metadata->metadata("XMP_DJI_RtkStdHgt", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Altitude Accuracy"), QString::fromStdString(value));
             }

@@ -48,9 +48,17 @@ void OrientationModelImp::clear()
 
 }
 
-bool OrientationModelImp::calibratedCamera() const
+auto OrientationModelImp::hasPriorCalibration() const -> bool
 {
-    TL_TODO("Deberia contemplarse cámaras calibradas y sin calibrar")
+    bool calibrated = false;
+    for (const auto &camera : mProject->cameras()) {
+        if (camera.second.priorCalibration()) calibrated = true;
+    }
+    return calibrated;
+}
+
+bool OrientationModelImp::hasAdjustedCalibration() const
+{
     bool calibrated = false;
     for (const auto &camera : mProject->cameras()) {
         if (camera.second.calibration()) calibrated = true;

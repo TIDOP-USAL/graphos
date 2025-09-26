@@ -145,13 +145,15 @@ public:
 
     auto calibration() const -> std::shared_ptr<Calibration>;
     void setCalibration(std::shared_ptr<Calibration> &calibration);
+    auto priorCalibration() const -> std::shared_ptr<Calibration>;
+    void setPriorCalibration(std::shared_ptr<Calibration> &calibration);
 
     /*!
      * \brief Assignment operator
      * \param[in] camera Object to assign
      * \return Reference to the Camera object
      */
-    auto operator =(const Camera& camera) -> Camera&;
+    auto operator =(const Camera &camera) -> Camera&;
 
 private:
 
@@ -167,7 +169,7 @@ protected:
     int mHeight;
     double mSensorSize;
     std::shared_ptr<Calibration> mCalibration;
-
+    std::shared_ptr<Calibration> mPriorCalibration;
 };
 
 } // namespace graphos

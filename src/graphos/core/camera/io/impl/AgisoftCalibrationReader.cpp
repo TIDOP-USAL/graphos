@@ -63,9 +63,9 @@ void AgisoftCalibrationReader::read(const tl::Path &path, Camera &camera)
             } else if (name == "f") {
                 f = text.toDouble();
             } else if (name == "cx") {
-                cx = text.toDouble();
+                cx = text.toDouble() + static_cast<double>(camera.width()) / 2.;
             } else if (name == "cy") {
-                cy = text.toDouble();
+                cy = text.toDouble() + static_cast<double>(camera.height()) / 2.;
             } else if (name == "k1") {
                 k1 = text.toDouble();
             } else if (name == "k2") {

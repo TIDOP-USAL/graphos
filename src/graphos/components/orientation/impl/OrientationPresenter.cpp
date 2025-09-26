@@ -57,8 +57,9 @@ void OrientationPresenterImp::open()
 {
     TL_TODO("mSettingsModel->refinePrincipalPoint();")
 
-    mView->setCalibration(mModel->calibratedCamera());
-    mView->enabledCalibration(mModel->calibratedCamera());
+    mView->enabledFixCalibration(mModel->hasAdjustedCalibration() || mModel->hasPriorCalibration());
+    mView->enablePriorCalibration(mModel->hasPriorCalibration());
+    mView->enableAdjustedCalibration(mModel->hasAdjustedCalibration());
 
     if (mModel->hasCameraPoses() || mModel->hasGroundControlPoints()) {
         mView->enabledAbsoluteOrientation(true);
@@ -260,6 +261,14 @@ ReconstructionTask::Options OrientationPresenterImp::reconstructionOptions() con
                 options |= ReconstructionTask::Options::use_rtk_positioning_accuracy;
             }
         }
+    }
+
+    if (mView->usePriorCalibration()) {
+        options |= ReconstructionTask::Options::use_prior_calibration;
+    } else if (mView->useAdjustedCalibration()) {
+        options |= ReconstructionTask::Options::use_adjusted_calibration;
+    } else {
+        options |= ReconstructionTask::Options::reset_calibration;
     }
 
     if (mView->fixCalibration()) {

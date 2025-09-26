@@ -155,8 +155,16 @@ private:
                         focal_lenght = 1.2 * std::max(width, height);
                         camera_colmap.SetPriorFocalLength(false);
                     }
-
+                    /// ¿Reemplazar por SetModelId si existe calibración?
                     camera_colmap.InitializeWithId(camera_model_id, focal_lenght, width, height);
+                    if (camera.priorCalibration()) {
+                        auto params = camera.priorCalibration()->toVector();
+                        if (params.size() == camera_colmap.NumParams()) {
+                            camera_colmap.SetParams(params);
+                            camera_colmap.SetPriorFocalLength(true);
+                        }
+                    }
+
                     camera_id = mDatabase->WriteCamera(camera_colmap);
                     camera_colmap.SetCameraId(camera_id);
                 }

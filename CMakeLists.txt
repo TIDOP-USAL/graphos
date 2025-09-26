@@ -267,7 +267,7 @@ message(STATUS "\nDependency loading:\n")
 ##########################################################################      
 
 set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
-find_package(TidopLib 3.2 REQUIRED)
+find_package(TidopLib 3.3 REQUIRED)
 set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
 
 if(TidopLib_FOUND)

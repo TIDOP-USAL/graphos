@@ -368,7 +368,7 @@ RUN git clone https://github.com/PDAL/PDAL.git /tmp/PDAL && \
 
 RUN git clone https://github.com/TIDOP-USAL/tidoplib.git /tmp/tidoplib && \
     cd /tmp/tidoplib && \
-    git checkout 3.2.0 && \ 
+    git checkout 3.3.0 && \ 
     mkdir build && \
     cd build && \
     cmake .. -GNinja  \

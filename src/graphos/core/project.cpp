@@ -1007,6 +1007,8 @@ Camera ProjectImp::readCamera(QXmlStreamReader &stream)
             camera.setHeight(readInt(stream));
         } else if (stream.name() == "SensorSize") {
             camera.setSensorSize(readDouble(stream));
+        } else if (stream.name() == "PriorCalibration") {
+            this->readPriorCalibration(stream, camera);
         } else if (stream.name() == "Calibration") {
             this->readCalibration(stream, camera);
         } else
@@ -1015,9 +1017,10 @@ Camera ProjectImp::readCamera(QXmlStreamReader &stream)
     return camera;
 }
 
-void ProjectImp::readCalibration(QXmlStreamReader &stream, Camera &camera)
+void ProjectImp::readPriorCalibration(QXmlStreamReader &stream, Camera &camera)
 {
     try {
+
         std::shared_ptr<Calibration> calibration;
         calibration = CalibrationFactory::create(camera.type());
         while (stream.readNextStartElement()) {
@@ -1050,7 +1053,53 @@ void ProjectImp::readCalibration(QXmlStreamReader &stream, Camera &camera)
             } else
                 stream.skipCurrentElement();
         }
+
+        camera.setPriorCalibration(calibration);
+
+    } catch (std::exception &e) {
+        tl::printException(e);
+    }
+}
+
+void ProjectImp::readCalibration(QXmlStreamReader &stream, Camera &camera)
+{
+    try {
+
+        std::shared_ptr<Calibration> calibration;
+        calibration = CalibrationFactory::create(camera.type());
+        while (stream.readNextStartElement()) {
+            if (stream.name().compare(QString("f")) == 0) {
+                calibration->setParameter(Calibration::Parameters::focal, readDouble(stream));
+            } else if (stream.name() == "fx") {
+                calibration->setParameter(Calibration::Parameters::focalx, readDouble(stream));
+            } else if (stream.name() == "fy") {
+                calibration->setParameter(Calibration::Parameters::focaly, readDouble(stream));
+            } else if (stream.name() == "cx") {
+                calibration->setParameter(Calibration::Parameters::cx, readDouble(stream));
+            } else if (stream.name() == "cy") {
+                calibration->setParameter(Calibration::Parameters::cy, readDouble(stream));
+            } else if (stream.name() == "k1") {
+                calibration->setParameter(Calibration::Parameters::k1, readDouble(stream));
+            } else if (stream.name() == "k2") {
+                calibration->setParameter(Calibration::Parameters::k2, readDouble(stream));
+            } else if (stream.name() == "k3") {
+                calibration->setParameter(Calibration::Parameters::k3, readDouble(stream));
+            } else if (stream.name() == "k4") {
+                calibration->setParameter(Calibration::Parameters::k4, readDouble(stream));
+            } else if (stream.name() == "k5") {
+                calibration->setParameter(Calibration::Parameters::k5, readDouble(stream));
+            } else if (stream.name() == "k6") {
+                calibration->setParameter(Calibration::Parameters::k6, readDouble(stream));
+            } else if (stream.name() == "p1") {
+                calibration->setParameter(Calibration::Parameters::p1, readDouble(stream));
+            } else if (stream.name() == "p2") {
+                calibration->setParameter(Calibration::Parameters::p2, readDouble(stream));
+            } else
+                stream.skipCurrentElement();
+        }
+
         camera.setCalibration(calibration);
+
     } catch (std::exception &e) {
         tl::printException(e);
     }
@@ -1598,10 +1647,24 @@ void ProjectImp::writeCamera(QXmlStreamWriter &stream, int id, const Camera &cam
         stream.writeTextElement("Width", QString::number(camera.width()));
         stream.writeTextElement("Height", QString::number(camera.height()));
         stream.writeTextElement("SensorSize", QString::number(camera.sensorSize()));
+        writePriorCalibration(stream, camera.priorCalibration());
         writeCalibration(stream, camera.calibration());
 
     }
     stream.writeEndElement(); // Camera
+}
+
+void ProjectImp::writePriorCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const
+{
+    if (calibration) {
+        stream.writeStartElement("PriorCalibration");
+        {
+            for (auto param = calibration->begin(); param != calibration->end(); param++) {
+                stream.writeTextElement(calibration->parameterName(param->first).c_str(), QString::number(param->second, 'f', 10));
+            }
+        }
+        stream.writeEndElement(); // PriorCalibration
+    }
 }
 
 void ProjectImp::writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const

@@ -69,7 +69,6 @@ cv::Mat visibilityMap(const Orthorectification &orthorectification,
     return visibility_map;
 }
 
-
 /* OrthoimageTask */
 
 OrthoimageTask::OrthoimageTask(const std::vector<Image> &images,

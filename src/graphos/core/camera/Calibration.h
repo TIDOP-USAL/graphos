@@ -209,6 +209,8 @@ public:
      */
     virtual auto name() const -> std::string;
 
+    virtual auto toVector() const -> std::vector<double>;
+
     /*!
      * \brief Check if the parameter exists for the camera model
      * \param[in] parameter Parameter
