@@ -30,7 +30,7 @@
 namespace graphos
 {
 
-void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera)
+void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera, bool prior)
 {
     try {
 
@@ -165,7 +165,10 @@ void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera)
                 calibration->setParameter(Calibration::Parameters::k6, distortion_coefficients[7]);
         }
 
-        camera.setCalibration(calibration);
+        if (prior)
+            camera.setPriorCalibration(calibration);
+        else
+            camera.setCalibration(calibration);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Failed to read OpenCV calibration file: {}", path.toUtf8());

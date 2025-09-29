@@ -398,7 +398,7 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
 
         bool active_dewarped;
         std::string dewarp_flag = image_metadata->metadata("XMP_DJI_DewarpFlag", active_dewarped);
-        if (active_dewarped && dewarp_flag == "0") {
+        if (active_dewarped) {
 
             bool active_dewarp_data;
             std::string dewarp_data = image_metadata->metadata("XMP_DJI_DewarpData", active_dewarp_data);
@@ -422,6 +422,7 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
                             calibration->setParameter(Calibration::Parameters::k2, params[5]);
                             calibration->setParameter(Calibration::Parameters::p1, params[6]);
                             calibration->setParameter(Calibration::Parameters::p2, params[7]);
+                            camera.setType("OpenCV 1");
                         } else if (dewarp_flag == "1") {
                             calibration = CalibrationFactory::create(Calibration::CameraModel::pinhole);
                             calibration->setParameter(Calibration::Parameters::focalx, params[0]);
@@ -429,6 +430,7 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
                             calibration->setParameter(Calibration::Parameters::focal, (params[0] + params[1]) / 2.0);
                             calibration->setParameter(Calibration::Parameters::cx, params[2] + static_cast<double>(camera.width()) / 2.);
                             calibration->setParameter(Calibration::Parameters::cy, params[3] + static_cast<double>(camera.height()) / 2.);
+                            camera.setType("Pinhole 2");
                         }
 
                         if (calibration) camera.setPriorCalibration(calibration);

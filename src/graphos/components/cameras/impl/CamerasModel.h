@@ -87,10 +87,12 @@ public slots:
     void updateCurrentCameraCalibP1(double p1) override;
     void updateCurrentCameraCalibP2(double p2) override;
 
-    void calibrationImport(const QString &file,
-                           const QString &format) override;
-    void calibrationExport(const QString &file,
-                           const QString &format) override;
+    void priorCalibrationImport(const QString &file,
+                                const QString &format) override;
+    void priorCalibrationExport(const QString &file,
+                                const QString &format) override;
+    void adjustCalibrationExport(const QString &file,
+                                 const QString &format) override;
 
 // Model interface
 

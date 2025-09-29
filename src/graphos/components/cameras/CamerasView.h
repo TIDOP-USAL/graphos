@@ -148,19 +148,32 @@ public:
     virtual void setImages(const QStringList &images) = 0;
 
     // Calibration parameters setters
-    virtual void setCalibCx(double cx) = 0;
-    virtual void setCalibCy(double cy) = 0;
-    virtual void setCalibF(double f) = 0;
-    virtual void setCalibFx(double fx) = 0;
-    virtual void setCalibFy(double fy) = 0;
-    virtual void setCalibK1(double k1) = 0;
-    virtual void setCalibK2(double k2) = 0;
-    virtual void setCalibK3(double k3) = 0;
-    virtual void setCalibK4(double k4) = 0;
-    virtual void setCalibK5(double k5) = 0;
-    virtual void setCalibK6(double k6) = 0;
-    virtual void setCalibP1(double p1) = 0;
-    virtual void setCalibP2(double p2) = 0;
+    virtual void setPriorCalibCx(double cx) = 0;
+    virtual void setPriorCalibCy(double cy) = 0;
+    virtual void setPriorCalibF(double f) = 0;
+    virtual void setPriorCalibFx(double fx) = 0;
+    virtual void setPriorCalibFy(double fy) = 0;
+    virtual void setPriorCalibK1(double k1) = 0;
+    virtual void setPriorCalibK2(double k2) = 0;
+    virtual void setPriorCalibK3(double k3) = 0;
+    virtual void setPriorCalibK4(double k4) = 0;
+    virtual void setPriorCalibK5(double k5) = 0;
+    virtual void setPriorCalibK6(double k6) = 0;
+    virtual void setPriorCalibP1(double p1) = 0;
+    virtual void setPriorCalibP2(double p2) = 0;
+    virtual void setAdjustCalibCx(double cx) = 0;
+    virtual void setAdjustCalibCy(double cy) = 0;
+    virtual void setAdjustCalibF(double f) = 0;
+    virtual void setAdjustCalibFx(double fx) = 0;
+    virtual void setAdjustCalibFy(double fy) = 0;
+    virtual void setAdjustCalibK1(double k1) = 0;
+    virtual void setAdjustCalibK2(double k2) = 0;
+    virtual void setAdjustCalibK3(double k3) = 0;
+    virtual void setAdjustCalibK4(double k4) = 0;
+    virtual void setAdjustCalibK5(double k5) = 0;
+    virtual void setAdjustCalibK6(double k6) = 0;
+    virtual void setAdjustCalibP1(double p1) = 0;
+    virtual void setAdjustCalibP2(double p2) = 0;
 
 signals:
 
@@ -173,23 +186,38 @@ signals:
     void typeChange(QString);
 
     // Signals for calibration import/export
-    void calibrationImport(QString, QString);
-    void calibrationExport(QString, QString);
+    void priorCalibrationImport(QString, QString);
+    void priorCalibrationExport(QString, QString);
+    void adjustCalibrationExport(QString, QString);
 
     // Calibration parameter change signals
-    void calibCxChange(double);
-    void calibCyChange(double);
-    void calibFChange(double);
-    void calibFxChange(double);
-    void calibFyChange(double);
-    void calibK1Change(double);
-    void calibK2Change(double);
-    void calibK3Change(double);
-    void calibK4Change(double);
-    void calibK5Change(double);
-    void calibK6Change(double);
-    void calibP1Change(double);
-    void calibP2Change(double);
+    void calibPriorCxChange(double);
+    void calibPriorCyChange(double);
+    void calibPriorFChange(double);
+    void calibPriorFxChange(double);
+    void calibPriorFyChange(double);
+    void calibPriorK1Change(double);
+    void calibPriorK2Change(double);
+    void calibPriorK3Change(double);
+    void calibPriorK4Change(double);
+    void calibPriorK5Change(double);
+    void calibPriorK6Change(double);
+    void calibPriorP1Change(double);
+    void calibPriorP2Change(double);
+
+    //void calibAdjustCxChange(double);
+    //void calibAdjustCyChange(double);
+    //void calibAdjustFChange(double);
+    //void calibAdjustFxChange(double);
+    //void calibAdjustFyChange(double);
+    //void calibAdjustK1Change(double);
+    //void calibAdjustK2Change(double);
+    //void calibAdjustK3Change(double);
+    //void calibAdjustK4Change(double);
+    //void calibAdjustK5Change(double);
+    //void calibAdjustK6Change(double);
+    //void calibAdjustP1Change(double);
+    //void calibAdjustP2Change(double);
 
 protected slots:
 

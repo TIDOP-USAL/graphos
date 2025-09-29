@@ -31,7 +31,7 @@
 namespace graphos
 {
 
-void Pix4DCalibrationReader::read(const tl::Path &path, Camera &camera)
+void Pix4DCalibrationReader::read(const tl::Path &path, Camera &camera, bool prior)
 {
     try {
 
@@ -76,7 +76,10 @@ void Pix4DCalibrationReader::read(const tl::Path &path, Camera &camera)
         calibration->setParameter(Calibration::Parameters::p1, t1);
         calibration->setParameter(Calibration::Parameters::p2, t2);
 
-        camera.setCalibration(calibration);
+        if (prior)
+            camera.setPriorCalibration(calibration);
+        else
+            camera.setCalibration(calibration);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Failed to read Pix4D calibration file: {}", path.toUtf8());

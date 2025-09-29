@@ -256,25 +256,34 @@ void CamerasModelImp::updateCurrentCameraCalibP2(double p2)
     updateCalibrationParameter(Calibration::Parameters::p2, p2);
 }
 
-void CamerasModelImp::calibrationImport(const QString &file,
-                                        const QString &format)
+void CamerasModelImp::priorCalibrationImport(const QString &file,
+                                             const QString &format)
 {
     try {
         auto calibration_reader = CalibrationReaderFactory::create(format.toStdString());
-        calibration_reader->read(tl::Path(file.toStdString()),
-                                          mCameraCache[mActiveCameraId]);
+        calibration_reader->read(tl::Path(file.toStdString()), mCameraCache[mActiveCameraId], true);
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Failed to import calibration to file: {}", file.toStdString());
     }
 }
 
-void CamerasModelImp::calibrationExport(const QString &file,
-                                        const QString &format)
+void CamerasModelImp::priorCalibrationExport(const QString &file,
+                                             const QString &format)
 {
     try {
         auto calibration_writer = CalibrationWriterFactory::create(format.toStdString());
-        calibration_writer->write(tl::Path(file.toStdString()),
-                                  mCameraCache[mActiveCameraId]);
+        calibration_writer->write(tl::Path(file.toStdString()), mCameraCache[mActiveCameraId], true);
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Failed to export calibration to file: {}", file.toStdString());
+    }
+}
+
+void CamerasModelImp::adjustCalibrationExport(const QString &file,
+                                              const QString &format)
+{
+    try {
+        auto calibration_writer = CalibrationWriterFactory::create(format.toStdString());
+        calibration_writer->write(tl::Path(file.toStdString()), mCameraCache[mActiveCameraId]);
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Failed to export calibration to file: {}", file.toStdString());
     }
@@ -330,11 +339,13 @@ void CamerasModelImp::updateCalibrationParameter(Calibration::Parameters param, 
 {
     auto it = mCameraCache.find(mActiveCameraId);
     if (it != mCameraCache.end()) {
-        auto calibration = mCameraCache[mActiveCameraId].calibration();
-        if (calibration) {
-            calibration->setParameter(param, value);
-            mModifiedProject = true;
+        auto calibration = mCameraCache[mActiveCameraId].priorCalibration();
+        if (!calibration) {
+            calibration = CalibrationFactory::create(mCameraCache[mActiveCameraId].type());
+            mCameraCache[mActiveCameraId].setPriorCalibration(calibration);
         }
+        calibration->setParameter(param, value);
+        mModifiedProject = true;
     }
 }
 

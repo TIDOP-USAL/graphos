@@ -38,7 +38,7 @@ public:
     Pix4DCalibrationReader() = default;
     ~Pix4DCalibrationReader() override = default;
 
-    void read(const tl::Path &path, Camera &camera) override;
+    void read(const tl::Path &path, Camera &camera, bool prior) override;
     auto format() const -> std::string override { return "Pix4D"; }
 };
 

@@ -38,7 +38,7 @@ public:
     OpenCVCalibrationReader() = default;
     ~OpenCVCalibrationReader() override = default;
 
-    void read(const tl::Path &path, Camera &camera) override;
+    void read(const tl::Path &path, Camera &camera, bool prior) override;
     auto format() const -> std::string override { return "OpenCV"; }
 };
 

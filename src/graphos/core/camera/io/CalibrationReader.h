@@ -42,7 +42,7 @@ public:
 
     virtual ~CalibrationReader() = default;
 
-    virtual void read(const tl::Path &path, Camera &camera) = 0;
+    virtual void read(const tl::Path &path, Camera &camera, bool prior = false) = 0;
     virtual auto format() const -> std::string = 0;
 
 };

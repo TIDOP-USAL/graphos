@@ -39,7 +39,8 @@ public:
     ~AgisoftCalibrationWriter() override = default;
 
     void write(const tl::Path &path,
-               const Camera &camera) override;
+               const Camera &camera, 
+               bool prior) override;
     auto format() const -> std::string override { return "Agisoft"; }
 };
 

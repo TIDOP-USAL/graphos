@@ -52,8 +52,8 @@ private:
 
 private slots:
 
-    void calibrationImport(const QString &file,
-                           const QString &format);
+    void priorCalibrationImport(const QString &file,
+                                const QString &format);
 
 // Presenter interface
 
