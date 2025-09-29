@@ -638,10 +638,12 @@ void MvsDensifier::densify()
         cmd_mvs.append(" --max-resolution ").append(std::to_string(Mvs::maxResolution()));
         cmd_mvs.append(" --number-views ").append(std::to_string(Mvs::numberViews()));
         cmd_mvs.append(" --number-views-fuse ").append(std::to_string(Mvs::numberViewsFuse()));
+#ifdef HAVE_CUDA
         if (isCudaEnabled())
             cmd_mvs.append(" --cuda-device -1");
         else
             cmd_mvs.append(" --cuda-device -2");
+#endif
         if (!Mvs::estimateColors())
             cmd_mvs.append(" --estimate-colors 0");
         if (!Mvs::estimateNormals())

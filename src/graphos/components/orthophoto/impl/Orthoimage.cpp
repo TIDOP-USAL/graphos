@@ -34,7 +34,9 @@
 #ifdef HAVE_OPENCV_CUDAARITHM
 #include <opencv2/cudaarithm.hpp>
 #endif
+#ifdef HAVE_OPENCV_CUDAWARPING
 #include <opencv2/cudawarping.hpp>
+#endif
 #include <opencv2/imgproc.hpp>
 #include <opencv2/photo.hpp>
 #include <opencv2/imgcodecs.hpp>
