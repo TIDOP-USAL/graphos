@@ -190,7 +190,7 @@ void LoadImagesTask::loadImage(size_t imageId)
             camera_pose.setSource("EXIF");
 
             bool active = false;
-            std::string rtk_flag = image_metadata->metadata("XMP_RtkFlag", active);
+            std::string rtk_flag = image_metadata->metadata("XMP_DJI_RtkFlag", active);
             if (active) {
                 camera_pose.setRtkFlag(tl::stringToNumber<int>(rtk_flag));
             }
@@ -198,24 +198,50 @@ void LoadImagesTask::loadImage(size_t imageId)
             tl::Vector3d accuracy;
 
             bool active_std_lon = false;
-            std::string rtk_std_lon = image_metadata->metadata("XMP_RtkStdLon", active_std_lon);
+            std::string rtk_std_lon = image_metadata->metadata("XMP_DJI_RtkStdLon", active_std_lon);
             if (active_std_lon) {
                 accuracy[0] = tl::stringToNumber<double>(rtk_std_lon);
             }
 
             bool active_std_lat = false;
-            std::string rtk_std_lat = image_metadata->metadata("XMP_RtkStdLat", active_std_lat);
+            std::string rtk_std_lat = image_metadata->metadata("XMP_DJI_RtkStdLat", active_std_lat);
             if (active_std_lat) {
                 accuracy[1] = tl::stringToNumber<double>(rtk_std_lat);
             }
 
             bool active_std_hgt = false;
-            std::string rtk_std_hgt = image_metadata->metadata("XMP_RtkStdHgt", active_std_hgt);
+            std::string rtk_std_hgt = image_metadata->metadata("XMP_DJI_RtkStdHgt", active_std_hgt);
             if (active_std_hgt) {
                 accuracy[2] = tl::stringToNumber<double>(rtk_std_hgt);
             }
 
-            if (active_std_lon && active_std_lat && active_std_hgt) {
+            if (!(active_std_lon && active_std_lat && active_std_hgt)) {
+
+                // No viene RtkFlag, intentamos estimarlo a partir de GPSXY/Z Accuracy
+                bool active_xy = false, active_z = false;
+                std::string gps_xy_str = image_metadata->metadata("XMP_CAMERA_GPSXYAccuracy", active_xy);
+                std::string gps_z_str = image_metadata->metadata("XMP_CAMERA_GPSZAccuracy", active_z);
+
+                double gps_xy = active_xy ? tl::stringToNumber<double>(gps_xy_str) : -1.0;
+                double gps_z = active_z ? tl::stringToNumber<double>(gps_z_str) : -1.0;
+
+                if (gps_xy > 0.0 && gps_z > 0.0) {
+                    accuracy[0] = gps_xy;
+                    accuracy[1] = gps_xy;
+                    accuracy[2] = gps_z;
+
+                    if (gps_xy < 0.10 && gps_z < 0.15) {
+                        camera_pose.setRtkFlag(50);
+                    } else if (gps_xy < 0.50 && gps_z < 1.00) {
+                        camera_pose.setRtkFlag(34);
+                    } else {
+                        camera_pose.setRtkFlag(16);
+                    }
+                }
+                
+            }
+
+            if (accuracy[0] > 0.0 || accuracy[1] > 0.0 || accuracy[2] > 0.0) {
                 camera_pose.setAccuracy(accuracy);
             }
 
@@ -245,6 +271,7 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
         std::shared_ptr<tl::ImageMetadata> image_metadata = imageReader->metadata();
         bool bActiveCameraName = false;
         bool bActiveCameraModel = false;
+        // Habría que comprobar Serial Number / Camera Serial Number ya que puede ser distinta cámara del mismo modelo
         std::string camera_make = image_metadata->metadata("EXIF_Make", bActiveCameraName);
         std::string camera_model = image_metadata->metadata("EXIF_Model", bActiveCameraModel);
         tl::Message::resumeMessages();
@@ -293,7 +320,7 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
 
         double focal = -1.;
 
-        if (bActiveCameraName && bActiveCameraModel) {
+        //if (bActiveCameraName && bActiveCameraModel) {
             bool bActive = false;
             int max_size = std::max(width, height);
 
@@ -350,7 +377,7 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
 
                 }
             }
-        }
+        //}
 
         if (focal < 0.) {
             focal = 0.;
@@ -364,6 +391,51 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
             double focal_mm_estimate = focal * sensor_width_mm / std::max(width, height);
             if (isLikelyFisheye(focal_mm_estimate, sensor_width_mm)) {
                 camera.setType("OpenCV Fisheye");
+            }
+        }
+
+        // Calibration
+
+        bool active_dewarped;
+        std::string dewarp_flag = image_metadata->metadata("XMP_DJI_DewarpFlag", active_dewarped);
+        if (active_dewarped) {
+
+            bool active_dewarp_data;
+            std::string dewarp_data = image_metadata->metadata("XMP_DJI_DewarpData", active_dewarp_data);
+            if (active_dewarp_data) {
+
+                auto v = tl::split<std::string>(dewarp_data, ';');
+                if (v.size() == 2) {
+                    //Fecha -> v[0];
+                    auto params = tl::split<double>(v[1], ',');
+                    if (params.size() == 9 && params[0] > 0.) {
+                        std::shared_ptr<Calibration> calibration;
+                        //if (params[8] == 0)
+                        if (dewarp_flag == "0") {
+                            calibration = CalibrationFactory::create(Calibration::CameraModel::opencv);
+                            calibration->setParameter(Calibration::Parameters::focalx, params[0]);
+                            calibration->setParameter(Calibration::Parameters::focaly, params[1]);
+                            calibration->setParameter(Calibration::Parameters::focal, (params[0] + params[1]) / 2.0);
+                            calibration->setParameter(Calibration::Parameters::cx, params[2] + static_cast<double>(camera.width()) / 2.);
+                            calibration->setParameter(Calibration::Parameters::cy, params[3] + static_cast<double>(camera.height()) / 2.);
+                            calibration->setParameter(Calibration::Parameters::k1, params[4]);
+                            calibration->setParameter(Calibration::Parameters::k2, params[5]);
+                            calibration->setParameter(Calibration::Parameters::p1, params[6]);
+                            calibration->setParameter(Calibration::Parameters::p2, params[7]);
+                            camera.setType("OpenCV 1");
+                        } else if (dewarp_flag == "1") {
+                            calibration = CalibrationFactory::create(Calibration::CameraModel::pinhole);
+                            calibration->setParameter(Calibration::Parameters::focalx, params[0]);
+                            calibration->setParameter(Calibration::Parameters::focaly, params[1]);
+                            calibration->setParameter(Calibration::Parameters::focal, (params[0] + params[1]) / 2.0);
+                            calibration->setParameter(Calibration::Parameters::cx, params[2] + static_cast<double>(camera.width()) / 2.);
+                            calibration->setParameter(Calibration::Parameters::cy, params[3] + static_cast<double>(camera.height()) / 2.);
+                            camera.setType("Pinhole 2");
+                        }
+
+                        if (calibration) camera.setPriorCalibration(calibration);
+                    }
+                }
             }
         }
 

@@ -45,7 +45,8 @@ public:
     virtual ~CalibrationWriter() = default;
 
     virtual void write(const tl::Path &path,
-                       const Camera &camera) = 0;
+                       const Camera &camera, 
+                       bool prior = false) = 0;
     virtual auto format() const -> std::string = 0;
 
 };

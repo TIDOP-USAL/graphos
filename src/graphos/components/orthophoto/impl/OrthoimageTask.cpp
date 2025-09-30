@@ -69,7 +69,6 @@ cv::Mat visibilityMap(const Orthorectification &orthorectification,
     return visibility_map;
 }
 
-
 /* OrthoimageTask */
 
 OrthoimageTask::OrthoimageTask(const std::vector<Image> &images,
@@ -113,6 +112,9 @@ OrthoimageTask::~OrthoimageTask()
 void OrthoimageTask::execute(tl::Progress *progressBar)
 {
     try {
+
+        tl::Chrono chrono;
+        chrono.run();
 
         tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
 
@@ -170,8 +172,8 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
 
                 if (status() == Status::stopping)  break;
 
-                tl::Chrono chrono;
-                chrono.run();
+                tl::Chrono chrono_orthoimage;
+                chrono_orthoimage.run();
 
                 tl::Path file(image.path().toStdWString());
                 tl::Path file_name = file.fileName();
@@ -257,7 +259,8 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
 //                }
 
                 ortho_file = mOrthoPath;
-                ortho_file.append(file_name).replaceExtension(".png");
+                //ortho_file.append(file_name).replaceExtension(".png");
+                ortho_file.append(file_name).replaceExtension(".tif");
 
 
                 Orthorectification orthorectification(mDtm,
@@ -372,7 +375,7 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
                     layer.push_back(entity);
                 }
 
-                tl::Message::info("Orthoimage {} generated in {:.2} minutes", ortho_file.fileName().toUtf8(), chrono.stop() / 60.);
+                tl::Message::info("Orthoimage {} generated in {:.2} minutes", ortho_file.fileName().toUtf8(), chrono_orthoimage.stop() / 60.);
 
             } catch (const std::exception &e) {
                 tl::printException(e);
@@ -387,6 +390,8 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
 
         mGraphOrthosWriter->write(layer_ortho_graph);
         mGraphOrthosWriter->close();
+
+        tl::Message::info("Orthoimages generated in {:.2} minutes", chrono.stop() / 60.);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");

@@ -32,7 +32,7 @@
 namespace graphos
 {
 
-void OpenDroneMapCalibrationReader::read(const tl::Path &path, Camera &camera)
+void OpenDroneMapCalibrationReader::read(const tl::Path &path, Camera &camera, bool prior)
 {
     try {
 
@@ -86,7 +86,10 @@ void OpenDroneMapCalibrationReader::read(const tl::Path &path, Camera &camera)
             if (obj.contains("p2")) calibration->setParameter(Calibration::Parameters::p2, obj["p2"].toDouble());
             if (obj.contains("k3")) calibration->setParameter(Calibration::Parameters::k3, obj["k3"].toDouble());
 
-            camera.setCalibration(calibration);
+            if (prior)
+                camera.setPriorCalibration(calibration);
+            else
+                camera.setCalibration(calibration);
 
         }
 

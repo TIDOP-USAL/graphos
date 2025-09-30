@@ -27,18 +27,24 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QFile>
+#include <QTextStream>
 
 namespace graphos
 {
 
 void OpenDroneMapCalibrationWriter::write(const tl::Path &path,
-                                     const Camera &camera)
+                                          const Camera &camera,
+                                          bool prior)
 {
     try {
 
         QJsonObject odmCameras;
 
-        auto calibration = camera.calibration();
+        std::shared_ptr<Calibration> calibration;
+        if (prior)
+            calibration = camera.priorCalibration();
+        else
+            calibration = camera.calibration();
 
         TL_ASSERT(calibration != nullptr, "No calibration data to write.");
 

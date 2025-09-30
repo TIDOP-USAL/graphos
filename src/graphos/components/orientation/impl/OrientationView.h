@@ -28,6 +28,9 @@
 
 class QCheckBox;
 class QDialogButtonBox;
+class QGroupBox;
+class QComboBox;
+class QLabel;
 
 namespace graphos
 {
@@ -45,14 +48,20 @@ public:
 
 public:
 
+    //auto useAutoCalibration() const -> bool override;
+    auto usePriorCalibration() const -> bool override;
+    auto useAdjustedCalibration() const -> bool override;
     auto fixCalibration() const -> bool override;
     auto absoluteOrientation() const -> bool override;
     auto rtkPositioningAccuracy() const -> bool override;
 
 public slots:
 
-    void setCalibration(bool active) override;
-    void enabledCalibration(bool enabled) override;
+    void setFixCalibration(bool active) override;
+    void enabledFixCalibration(bool enabled) override;
+    void enablePriorCalibration(bool enabled) override;
+    void enableAdjustedCalibration(bool enabled) override;
+    //void enabledCalibration(bool enabled) override;
     void setAbsoluteOrientation(bool active) override;
     void enabledAbsoluteOrientation(bool enabled) override;
     void setRtkPositioningAccuracy(bool active) override;
@@ -76,6 +85,9 @@ private slots:
 
 protected:
 
+    QGroupBox *mGroupCalibration;
+    QLabel *mLabelCalibrationSource;
+    QComboBox *mComboCalibration;
     QCheckBox *mCheckBoxFixCalibration;
     QCheckBox *mCheckBoxAbsoluteOrientation;
     QCheckBox *mCheckBoxRtkPositioningAccuracy;

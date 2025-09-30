@@ -26,11 +26,12 @@
 
 #include <QXmlStreamReader>
 #include <QFile>
+#include <QRegularExpression>
 
 namespace graphos
 {
 
-void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera)
+void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera, bool prior)
 {
     try {
 
@@ -55,7 +56,12 @@ void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera)
                 while (stream.readNextStartElement()) {
                     if (stream.name() == "data") {
 
-                        QStringList values = stream.readElementText().trimmed().split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+                        QStringList values = stream.readElementText().trimmed().split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+#else
+                        QStringList values = stream.readElementText().trimmed().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+#endif
+
                         TL_ASSERT(values.size() == 9, "Invalid camera matrix size in OpenCV file (expected 3x3 = 9 elements).");
 
                         fx = values[0].toDouble();
@@ -78,7 +84,12 @@ void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera)
                 while (stream.readNextStartElement()) {
                     if (stream.name() == "data") {
 
-                        QStringList values = stream.readElementText().trimmed().split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+                        QStringList values = stream.readElementText().trimmed().split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+#else
+                        QStringList values = stream.readElementText().trimmed().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+#endif
+
                         for (const auto &v : values) {
                             distortion_coefficients.push_back(v.toDouble());
                         }
@@ -165,7 +176,10 @@ void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera)
                 calibration->setParameter(Calibration::Parameters::k6, distortion_coefficients[7]);
         }
 
-        camera.setCalibration(calibration);
+        if (prior)
+            camera.setPriorCalibration(calibration);
+        else
+            camera.setCalibration(calibration);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Failed to read OpenCV calibration file: {}", path.toUtf8());

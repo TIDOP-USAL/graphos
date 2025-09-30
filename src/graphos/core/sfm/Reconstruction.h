@@ -60,11 +60,14 @@ public:
 
     enum class Options
     {
-        fix_calibration = (1 << 0),
-        absolute_orientation = (1 << 1),
-        use_rtk_positioning_accuracy = (1 << 2),
-        use_poses = (1 << 3),
-        use_gcp = (1 << 4)
+        reset_calibration = (1 << 0),
+        use_prior_calibration = (1 << 1),
+        use_adjusted_calibration = (1 << 2),
+        fix_calibration = (1 << 3),
+        absolute_orientation = (1 << 10),
+        use_rtk_positioning_accuracy = (1 << 11),
+        use_poses = (1 << 12),
+        use_gcp = (1 << 13)
     };
 
 public:

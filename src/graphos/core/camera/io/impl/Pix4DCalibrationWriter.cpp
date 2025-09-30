@@ -31,11 +31,16 @@ namespace graphos
 {
 
 void Pix4DCalibrationWriter::write(const tl::Path &path,
-                                   const Camera &camera)
+                                   const Camera &camera,
+                                   bool prior)
 {
     try {
 
-        auto calibration = camera.calibration();
+        std::shared_ptr<Calibration> calibration;
+        if (prior)
+            calibration = camera.priorCalibration();
+        else
+            calibration = camera.calibration();
         auto width = camera.width();
         auto height = camera.height();
 
@@ -44,11 +49,11 @@ void Pix4DCalibrationWriter::write(const tl::Path &path,
         std::ofstream out(path.toString());
         TL_ASSERT(out.is_open(), "Cannot open file for writing Pix4D format.");
 
-        size_t sensor_width_px = std::max(camera.width(), camera.height());
+        size_t sensor_width_px = std::max(width, height);
         size_t sensor_width_mm = static_cast<size_t>(camera.sensorSize());
         double scale = sensor_width_mm == 1 ? 1. : static_cast<double>(sensor_width_mm) / static_cast<double>(sensor_width_px);
-        double w = camera.width() * scale;
-        double h = camera.height() * scale;
+        double w = width * scale;
+        double h = height * scale;
 
         auto focal = calibration->existParameter(Calibration::Parameters::focal) ?
                      calibration->parameter(Calibration::Parameters::focal) :

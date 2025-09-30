@@ -45,7 +45,8 @@ public:
 
 public:
 
-    auto calibratedCamera() const -> bool override;
+    auto hasPriorCalibration() const -> bool override;
+    auto hasAdjustedCalibration() const -> bool override;
     void setSparseModel(const tl::Path &sparseModel) override;
     void setEnuCrs(const QString &enuCrs) override;
     void setGroundPoints(const tl::Path &groundPoints) override;

@@ -208,15 +208,24 @@ cv::Mat combineImages(const std::vector<cv::Mat> &images)
     cv::Mat result = images[0].clone(); // Clona la imagen base como resultado
 
     for (size_t i = 1; i < images.size(); ++i) {
-        cv::Mat mask;
+        cv::Mat maskResult;
         // Crear máscara para los píxeles negros en la imagen resultante
-        cv::inRange(result, cv::Scalar(0, 0, 0), cv::Scalar(0, 0, 0), mask);
-        if (cv::countNonZero(mask) == 0)
+        cv::inRange(result, cv::Scalar(0, 0, 0), cv::Scalar(0, 0, 0), maskResult);
+        if (cv::countNonZero(maskResult) == 0)
             break;
+
+        cv::Mat maskImage;
+        cv::inRange(images[i], cv::Scalar(0, 0, 0), cv::Scalar(0, 0, 0), maskImage);
+        cv::bitwise_not(maskImage, maskImage);
+
+        cv::Mat mask;
+        cv::bitwise_and(maskResult, maskImage, mask);
 
         // Dilatación de la máscara para cubrir bordes y suavizar uniones
         cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2, 2));
         cv::dilate(mask, mask, element);
+
+
         // Solo copiar los píxeles de la imagen actual donde result es negro
         images[i].copyTo(result, mask);
 
@@ -224,6 +233,7 @@ cv::Mat combineImages(const std::vector<cv::Mat> &images)
 
     return result;
 }
+
 //cv::Mat combineImages(const std::vector<cv::Mat> &images)
 //{
 //    if (images.empty()) return cv::Mat();
@@ -333,7 +343,9 @@ OrthophotoTask::OrthophotoTask(double gsd,
     mEnuCrs(enuCrs),
     mEpsg(epsg),
     mInterpolation(interpolation),
-    bCuda(cuda)
+    bCuda(cuda),
+    mDataType(tl::DataType::TL_8U),
+    mChannels(3)
 {
 }
 
@@ -418,6 +430,16 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 {
 
     try {
+        
+        for (const auto &photo : mPhotos) {
+            auto image_reader = tl::ImageReaderFactory::create(photo.path().toStdString());
+            image_reader->open();
+            if (!image_reader->isOpen()) continue;
+
+            mDataType = image_reader->dataType();
+            mChannels = image_reader->channels();
+            break;
+        }
 
         tl::Path footprint_file(mOrthoPath);
         footprint_file.append("footprint.shp");
@@ -450,9 +472,11 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 
         std::vector<std::vector<tl::WindowD>> grid = findGrid(500);
 
-        orthoimageExposureCompensator(graph_orthos);
+        //TODO: Para imagenes térmicas no se debe aplicar compensación de exposición
+        orthoimageExposureCompensator(graph_orthos, progressBar);
         auto orthos = searchTiles(graph_orthos, grid);
-        generateTiles(grid, orthos);
+
+        generateTiles(grid, orthos, progressBar);
         // Intento de compesar de exposición los tiles pero no funciona bien
         //tilesExposureCompensator(grid);
         //for (int r = 0; r < grid.size(); ++r) {
@@ -461,6 +485,8 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
         //    }
         //}
         writeOrthomosaic(grid);
+
+        if (progressBar) (*progressBar)();
 
         mOrthophotoReport.time = this->time();
         mOrthophotoReport.gsd = mGSD;
@@ -517,7 +543,8 @@ auto OrthophotoTask::searchTiles(const tl::Path &graph_orthos,
                         auto dist = tl::distance(orto_center, window_center);
                         tl::Path orto_compensate(polygon->data()->value(0));
 #ifdef EXPOSURE_COMPENSATOR
-                        std::string name = orto_compensate.baseName().toUtf8() + "_compensate.png";
+                        //std::string name = orto_compensate.baseName().toUtf8() + "_compensate.png";
+                        std::string name = orto_compensate.baseName().toUtf8() + "_compensate.tif";
                         orto_compensate.replaceFileName(name);
 #endif
                         orthos[r][c][dist] = orto_compensate.toUtf8();
@@ -533,10 +560,29 @@ auto OrthophotoTask::searchTiles(const tl::Path &graph_orthos,
 }
 
 void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &grid, 
-                                   std::vector<std::vector<std::map<double, std::string>>> &orthos)
+                                   std::vector<std::vector<std::map<double, std::string>>> &orthos, 
+                                   tl::Progress *progressBar)
 {
+    double step = 0;
+    if (progressBar) {
+        auto max = progressBar->maximum() / 2 - 1;
+        step = (progressBar->maximum() / 2 - 1) / static_cast<double>(grid.size() * grid[0].size());
+    }
+    double progress_value = 0;
+
     for (size_t r = 0; r < grid.size(); r++) {
         for (size_t c = 0; c < grid[r].size(); c++) {
+
+
+            if (progressBar) {
+
+                progress_value += step;
+                int value = static_cast<int>(trunc(progress_value));
+                if (value >= 1) {
+                    (*progressBar)(value);
+                    progress_value -= value;
+                }
+            }
 
             const auto &window = grid[r][c];
 
@@ -557,10 +603,13 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
                 }
 
                 // Por ahora solo se utilizan las imagenes que contienen el grid. Se omiten las que intersectan
-                if (!image_reader->window().containsWindow(window)) continue;
+                //if (!image_reader->window().containsWindow(window)) continue;
+                if (!tl::intersectWindows(image_reader->window(), window)) continue;
 
                 tl::Affine<int, 2> affine;
                 auto image = image_reader->read(window_aux, 1., 1., &affine);
+                //auto image = image_reader->read(tl::windowIntersection(window, image_reader->window()), 1., 1., &affine);
+                auto data_type = image_reader->dataType();
                 image_reader->close();
 
                 if (image.rows != image_size || image.cols != image_size) {
@@ -573,8 +622,8 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
                 }
 
                 // Relleno de pixeles negros
-                cv::Mat blackPixelMask = createBlackPixelMask(image, 512);
-                cv::inpaint(image, blackPixelMask, image, 3, cv::INPAINT_TELEA);
+                //cv::Mat blackPixelMask = createBlackPixelMask(image, 512);
+                //cv::inpaint(image, blackPixelMask, image, 3, cv::INPAINT_TELEA);
 
                 images.push_back(image);
 
@@ -595,7 +644,7 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
                     int cols = static_cast<int>(std::round(window_aux.width() / mGSD));
                     int rows = static_cast<int>(std::round(window_aux.height() / mGSD));
 
-                    image_writer->create(rows, cols, 3, tl::DataType::TL_8U);
+                    image_writer->create(rows, cols, image.channels(), data_type);
                     tl::Crs crs(mEpsg);
                     image_writer->setCRS(crs.toWktFormat());
                     tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, window_aux.pt1.x, window_aux.pt2.y, 0.0);
@@ -618,6 +667,10 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
                 read_image = combineImages(images);
             }
 
+            // Relleno de pixeles negros
+            //cv::Mat blackPixelMask = createBlackPixelMask(read_image, 512);
+            //cv::inpaint(read_image, blackPixelMask, read_image, 3, cv::INPAINT_TELEA);
+
 
             if (read_image.empty()) continue;
 
@@ -630,7 +683,26 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
 
                 auto image_writer = tl::ImageWriterFactory::create(tile);
                 image_writer->open();
-                image_writer->create(read_image.rows, read_image.cols, 3, tl::DataType::TL_8U);
+
+                //tl::DataType data_type = tl::DataType::TL_8U;
+                //auto opencv_depth = read_image.depth();
+                //if (opencv_depth == CV_8U) {
+                //    data_type = tl::DataType::TL_8U;
+                //} else if (opencv_depth == CV_8S) {
+                //    data_type = tl::DataType::TL_8S;
+                //} else if (opencv_depth == CV_16U) {
+                //    data_type = tl::DataType::TL_16U;
+                //} else if (opencv_depth == CV_16S) {
+                //    data_type = tl::DataType::TL_16S;
+                //} else if (opencv_depth == CV_32S) {
+                //    data_type = tl::DataType::TL_32S;
+                //} else if (opencv_depth == CV_32F) {
+                //    data_type = tl::DataType::TL_32F;
+                //} else if (opencv_depth == CV_64F) {
+                //    data_type = tl::DataType::TL_64F;
+                //}
+
+                image_writer->create(read_image.rows, read_image.cols, read_image.channels(), mDataType);
                 tl::Crs crs(mEpsg);
                 image_writer->setCRS(crs.toWktFormat());
                 tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, window_aux.pt1.x, window_aux.pt2.y, 0.0);
@@ -802,9 +874,9 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::WindowD>
         options->setCompress(tl::TiffOptions::Compress::lzw);
 
         if (image_writer->isOpen()) {
-            image_writer->create(rows, cols, 3, tl::DataType::TL_8U, options);
+            image_writer->create(rows, cols, mChannels, mDataType, options);
 
-            auto metadata = tl::ImageMetadataFactory::create("GTiff");
+            auto metadata = std::make_shared<tl::ImageMetadata>();
             metadata->setMetadata("TIFFTAG_DOCUMENTNAME", "Orthomosaic");
             metadata->setMetadata("TIFFTAG_IMAGEDESCRIPTION", "Orthomosaic generated by GRAPHOS");
             metadata->setMetadata("TIFFTAG_SOFTWARE", "GRAPHOS");
@@ -1026,14 +1098,14 @@ void OrthophotoTask::blendTileBlock(int r, int c, const std::vector<std::vector<
     }
 }
 
-void OrthophotoTask::orthoimageExposureCompensator(const tl::Path &graph_orthos)
+void OrthophotoTask::orthoimageExposureCompensator(const tl::Path &graph_orthos, tl::Progress *progressBar)
 {
 
 #ifdef EXPOSURE_COMPENSATOR
 
     try {
 
-        tl::Message::info("Exposure compensator");
+        tl::ChronoAuto chrono("Exposure compensator");
 
         tl::WindowD window_all;
         std::vector<cv::Point> corners;
@@ -1177,7 +1249,8 @@ void OrthophotoTask::orthoimageExposureCompensator(const tl::Path &graph_orthos)
                             compensator->apply(0, corner, compensate_image, mask_full_size);
 
                             tl::Path orto_compensate(ortho_to_compensate);
-                            std::string name = orto_compensate.baseName().toUtf8() + "_compensate.png";
+                            //std::string name = orto_compensate.baseName().toUtf8() + "_compensate.png";
+                            std::string name = orto_compensate.baseName().toUtf8() + "_compensate.tif";
                             orto_compensate.replaceFileName(name);
                             std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(orto_compensate);
                             image_writer->open();
@@ -1191,6 +1264,8 @@ void OrthophotoTask::orthoimageExposureCompensator(const tl::Path &graph_orthos)
                                 //compensated_orthos.push_back(orto_compensate.toString());
                             }
                         }
+
+                        if (progressBar) (*progressBar)();
                     }
                 }
             }

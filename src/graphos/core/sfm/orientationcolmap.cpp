@@ -1025,7 +1025,7 @@ auto ColmapReconstructionConvert::readCalibration(size_t cameraId) const -> std:
 //            std::shared_ptr<Calibration> calibration = convert.readCalibration(camera.first);
 //
 //            if (calibration) {
-//                camera.second.setCalibration(calibration);
+//                camera.second.setFixCalibration(calibration);
 //            }
 //        }
 //
@@ -1574,7 +1574,7 @@ auto ColmapReconstructionConvert::readCalibration(size_t cameraId) const -> std:
 //                std::shared_ptr<Calibration> calibration = convert.readCalibration(camera.first);
 //
 //                if (calibration) {
-//                    camera.second.setCalibration(calibration);
+//                    camera.second.setFixCalibration(calibration);
 //                }
 //            }
 //

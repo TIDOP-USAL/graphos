@@ -138,7 +138,7 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
     });
 
     if(progressHandler()) {
-        progressHandler()->setRange(0, 0);
+        progressHandler()->setRange(0, mModel->images().size()*4);
         progressHandler()->setTitle(QApplication::translate("OrthophotoComponent", "Orthophoto"));
         progressHandler()->setDescription(QApplication::translate("OrthophotoComponent", "Orthophoto generation..."));
     }

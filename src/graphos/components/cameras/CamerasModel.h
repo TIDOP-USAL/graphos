@@ -169,10 +169,12 @@ public slots:
     virtual void updateCurrentCameraCalibP2(double p2) = 0;
 
     // Methods for calibration import/export
-    virtual void calibrationImport(const QString &file,
-                                   const QString &format) = 0;
-    virtual void calibrationExport(const QString &file,
-                                   const QString &format) = 0;
+    virtual void priorCalibrationImport(const QString &file,
+                                        const QString &format) = 0;
+    virtual void priorCalibrationExport(const QString &file,
+                                        const QString &format) = 0;
+    virtual void adjustCalibrationExport(const QString &file,
+                                         const QString &format) = 0;
 };
 
 } // namespace graphos

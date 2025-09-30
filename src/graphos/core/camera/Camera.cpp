@@ -28,38 +28,41 @@ namespace graphos
 {
 
 Camera::Camera()
-    : mType("OpenCV 1"),
-      mFocal(1.),
-      mWidth(0),
-      mHeight(0),
-      mSensorSize(1.),
-      mCalibration(nullptr)
+  : mType("OpenCV 1"),
+    mFocal(1.),
+    mWidth(0),
+    mHeight(0),
+    mSensorSize(1.),
+    mCalibration(nullptr),
+    mPriorCalibration(nullptr)
 {
     init();
 }
 
 Camera::Camera(std::string make, std::string model)
-    : mMake(std::move(make)),
-      mModel(std::move(model)),
-      mType("OpenCV 1"),
-      mFocal(1.),
-      mWidth(0),
-      mHeight(0),
-      mSensorSize(1.),
-      mCalibration(nullptr)
+  : mMake(std::move(make)),
+    mModel(std::move(model)),
+    mType("OpenCV 1"),
+    mFocal(1.),
+    mWidth(0),
+    mHeight(0),
+    mSensorSize(1.),
+    mCalibration(nullptr),
+    mPriorCalibration(nullptr)
 {
     init();
 }
 
 Camera::Camera(const Camera &camera)
-    : mMake(camera.mMake),
-      mModel(camera.mModel),
-      mType(camera.mType),
-      mFocal(camera.mFocal),
-      mWidth(camera.mWidth),
-      mHeight(camera.mHeight),
-      mSensorSize(camera.mSensorSize),
-      mCalibration(camera.mCalibration)
+  : mMake(camera.mMake),
+    mModel(camera.mModel),
+    mType(camera.mType),
+    mFocal(camera.mFocal),
+    mWidth(camera.mWidth),
+    mHeight(camera.mHeight),
+    mSensorSize(camera.mSensorSize),
+    mCalibration(camera.mCalibration),
+    mPriorCalibration(camera.mPriorCalibration)
 {
 }
 
@@ -143,6 +146,16 @@ void Camera::setCalibration(std::shared_ptr<Calibration> &calibration)
     mCalibration = calibration;
 }
 
+auto Camera::priorCalibration() const -> std::shared_ptr<Calibration>
+{
+    return mPriorCalibration;
+}
+
+void Camera::setPriorCalibration(std::shared_ptr<Calibration> &calibration)
+{
+    mPriorCalibration = calibration;
+}
+
 auto Camera::operator =(const Camera& camera) -> Camera&
 {
     if (this != &camera) {
@@ -154,6 +167,7 @@ auto Camera::operator =(const Camera& camera) -> Camera&
         this->mHeight = camera.mHeight;
         this->mSensorSize = camera.mSensorSize;
         this->mCalibration = camera.mCalibration;
+        this->mPriorCalibration = camera.mPriorCalibration;
     }
     return *this;
 }

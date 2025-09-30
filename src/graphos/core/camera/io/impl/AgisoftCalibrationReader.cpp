@@ -30,7 +30,7 @@
 namespace graphos
 {
 
-void AgisoftCalibrationReader::read(const tl::Path &path, Camera &camera)
+void AgisoftCalibrationReader::read(const tl::Path &path, Camera &camera, bool prior)
 {
     try {
 
@@ -63,9 +63,9 @@ void AgisoftCalibrationReader::read(const tl::Path &path, Camera &camera)
             } else if (name == "f") {
                 f = text.toDouble();
             } else if (name == "cx") {
-                cx = text.toDouble();
+                cx = text.toDouble() + static_cast<double>(camera.width()) / 2.;
             } else if (name == "cy") {
-                cy = text.toDouble();
+                cy = text.toDouble() + static_cast<double>(camera.height()) / 2.;
             } else if (name == "k1") {
                 k1 = text.toDouble();
             } else if (name == "k2") {
@@ -106,7 +106,10 @@ void AgisoftCalibrationReader::read(const tl::Path &path, Camera &camera)
         calibration->setParameter(Calibration::Parameters::p1, p1);
         calibration->setParameter(Calibration::Parameters::p2, p2);
 
-        camera.setCalibration(calibration);
+        if (prior)
+            camera.setPriorCalibration(calibration);
+        else
+            camera.setCalibration(calibration);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Failed to read Agisoft calibration file: {}", path.toUtf8());

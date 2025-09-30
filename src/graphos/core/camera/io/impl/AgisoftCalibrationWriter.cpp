@@ -31,11 +31,17 @@ namespace graphos
 {
 
 void AgisoftCalibrationWriter::write(const tl::Path &path,
-                                     const Camera &camera)
+                                     const Camera &camera, 
+                                     bool prior)
 {
     try {
 
-        auto calibration = camera.calibration();
+        std::shared_ptr<Calibration> calibration;
+        if (prior)
+            calibration = camera.priorCalibration();
+        else
+            calibration = camera.calibration();
+
         auto width = camera.width();
         auto height = camera.height();
 

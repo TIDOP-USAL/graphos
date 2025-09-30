@@ -37,6 +37,7 @@
 #include <QToolBar>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QTabWidget>
 
 #include <tidop/core/defs.h>
 #include <tidop/core/msg/message.h>
@@ -52,7 +53,7 @@ CamerasViewImp::CamerasViewImp(QWidget *parent)
     CamerasViewImp::initSignalAndSlots();
 }
 
-void CamerasViewImp::onCalibrationImport()
+void CamerasViewImp::onPriorCalibrationImport()
 {
     QString selected_filter;
     QString path_name = QFileDialog::getOpenFileName(this,
@@ -75,11 +76,11 @@ void CamerasViewImp::onCalibrationImport()
             tl::Message::error("Unsupported format");
         }
 
-        emit calibrationImport(path_name, format);
+        emit priorCalibrationImport(path_name, format);
     }
 }
 
-void CamerasViewImp::onCalibrationExport()
+void CamerasViewImp::onPriorCalibrationExport()
 {
     QString selected_filter;
     QString path_name = QFileDialog::getSaveFileName(this,
@@ -103,7 +104,35 @@ void CamerasViewImp::onCalibrationExport()
             tl::Message::error("Unsupported format");
         }
 
-        emit calibrationExport(path_name, format);
+        emit priorCalibrationExport(path_name, format);
+    }
+}
+
+void CamerasViewImp::onAdjustCalibrationExport()
+{
+    QString selected_filter;
+    QString path_name = QFileDialog::getSaveFileName(this,
+        QApplication::translate("CamerasComponent", "Export Calibration", nullptr),
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+        QApplication::translate("CamerasComponent", "Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml);;ODM Camera Calibration (*.json)"),
+        &selected_filter);
+
+    if (!path_name.isEmpty()) {
+
+        QString format;
+        if (selected_filter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
+            format = "Pix4D";
+        } else if (selected_filter.compare(QApplication::translate("CamerasComponent", "Agisoft Camera Calibration (*.xml)", nullptr)) == 0) {
+            format = "Agisoft";
+        } else if (selected_filter.compare(QApplication::translate("CamerasComponent", "OpenCV Camera Calibration (*.xml)", nullptr)) == 0) {
+            format = "OpenCV";
+        } else if (selected_filter.compare(QApplication::translate("CamerasComponent", "ODM Camera Calibration (*.json)", nullptr)) == 0) {
+            format = "ODM";
+        } else {
+            tl::Message::error("Unsupported format");
+        }
+
+        emit adjustCalibrationExport(path_name, format);
     }
 }
 
@@ -117,13 +146,22 @@ void CamerasViewImp::initUI()
     this->setLayout(layout);
 
     mLabelCameras = new QLabel(this);
+    mLabelCameras->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     layout->addWidget(mLabelCameras, 0, 0, 1, 1);
 
     mListWidgetCameras = new QListWidget(this);
     mListWidgetCameras->setMaximumSize(QSize(250, 16777215));
-    layout->addWidget(mListWidgetCameras, 1, 0, 4, 1);
+    layout->addWidget(mListWidgetCameras, 1, 0, 2, 1);
 
-    mGroupBoxCamera = new QGroupBox(this);
+    mTabWidget = new QTabWidget(this);
+    layout->addWidget(mTabWidget, 0, 1, 3, 1);
+
+    // Tab 1: Camera information + images
+    //
+    mTabInfo = new QWidget();
+    QVBoxLayout *tabInfoLayout = new QVBoxLayout(mTabInfo);
+
+    mGroupBoxCamera = new QGroupBox(mTabInfo);
     QGridLayout *gridLayout3 = new QGridLayout(mGroupBoxCamera);
 
     mLabelMake = new QLabel(mGroupBoxCamera);
@@ -177,20 +215,38 @@ void CamerasViewImp::initUI()
     mPushButtonEditCamera->setCheckable(true);
     gridLayout3->addWidget(mPushButtonEditCamera, 8, 1);
 
-    layout->addWidget(mGroupBoxCamera, 1, 1, 2, 4);
+    tabInfoLayout->addWidget(mGroupBoxCamera);
 
-    mGroupBoxCalibrationParameters = new QGroupBox(this);
-    QGridLayout *gridLayout2 = new QGridLayout(mGroupBoxCalibrationParameters);
+    mLabelImages = new QLabel(mTabInfo);
+    tabInfoLayout->addWidget(mLabelImages);
+    mListWidgetImages = new QListWidget(mTabInfo);
+    tabInfoLayout->addWidget(mListWidgetImages);
+
+    mTabWidget->addTab(mTabInfo, "");
+
+    //layout->addWidget(mGroupBoxCamera, 1, 1, 2, 4);
+
+    // Tab 2: Calibrations
+
+    mTabCalibration = new QWidget();
+    QVBoxLayout *tabCalibLayout = new QVBoxLayout(mTabCalibration);
+
+    // Prior Calibration
+
+    mGroupBoxPriorCalibration  = new QGroupBox(mTabCalibration);
+    QGridLayout *grid_layout_prior_calibration = new QGridLayout(mGroupBoxPriorCalibration );
 
     QToolBar *toolBar = new QToolBar(this);
 
-    mActionImportCalibration = new QAction(this);
-    mActionImportCalibration->setIcon(QIcon::fromTheme("folder"));
-    toolBar->addAction(mActionImportCalibration);
+    mActionImportPriorCalibration = new QAction(this);
+    mActionImportPriorCalibration->setIcon(QIcon::fromTheme("folder"));
+    toolBar->addAction(mActionImportPriorCalibration);
 
-    mActionExportCalibration = new QAction(this);
-    mActionExportCalibration->setIcon(QIcon::fromTheme("save"));
-    toolBar->addAction(mActionExportCalibration);
+    mActionExportPriorCalibration = new QAction(this);
+    mActionExportPriorCalibration->setIcon(QIcon::fromTheme("save"));
+    toolBar->addAction(mActionExportPriorCalibration);
+
+    grid_layout_prior_calibration->addWidget(toolBar, 0, 0, 1, 4);
 
     //toolBar->addSeparator();
 
@@ -202,126 +258,266 @@ void CamerasViewImp::initUI()
     //mActionFixCalibration->setCheckable(true);
     //toolBar->addAction(mActionFixCalibration);
 
-    gridLayout2->addWidget(toolBar, 0, 0, 1, 4);
+    grid_layout_prior_calibration->addWidget(toolBar, 0, 0, 1, 4);
 
-    mLabelF = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelF->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelF, 1, 0, 1, 1);
-    mDoubleSpinBoxF = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxF->setRange(0., 100000.);
-    mDoubleSpinBoxF->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxF, 1, 1, 1, 3);
+    mLabelPriorF = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorF->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorF, 1, 0, 1, 1);
+    mDoubleSpinBoxPriorF = new QDoubleSpinBox(mGroupBoxPriorCalibration );
+    mDoubleSpinBoxPriorF->setRange(0., 100000.);
+    mDoubleSpinBoxPriorF->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorF, 1, 1, 1, 3);
 
-    mLabelFx = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelFx->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelFx, 1, 0, 1, 1);
-    mDoubleSpinBoxFx = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxFx->setRange(0., 100000.);
-    mDoubleSpinBoxFx->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxFx, 1, 1, 1, 1);
+    mLabelPriorFx = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorFx->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorFx, 1, 0, 1, 1);
+    mDoubleSpinBoxPriorFx = new QDoubleSpinBox(mGroupBoxPriorCalibration );
+    mDoubleSpinBoxPriorFx->setRange(0., 100000.);
+    mDoubleSpinBoxPriorFx->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorFx, 1, 1, 1, 1);
 
-    mLabelFy = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelFy->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelFy, 1, 2, 1, 1);
-    mDoubleSpinBoxFy = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxFy->setRange(0., 100000.);
-    mDoubleSpinBoxFy->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxFy, 1, 3, 1, 1);
+    mLabelPriorFy = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorFy->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorFy, 1, 2, 1, 1);
+    mDoubleSpinBoxPriorFy = new QDoubleSpinBox(mGroupBoxPriorCalibration );
+    mDoubleSpinBoxPriorFy->setRange(0., 100000.);
+    mDoubleSpinBoxPriorFy->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorFy, 1, 3, 1, 1);
 
-    mLabelCx = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelCx->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelCx, 2, 0, 1, 1);
-    mDoubleSpinBoxCx = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxCx->setRange(-100000., 100000.);
-    mDoubleSpinBoxCx->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxCx, 2, 1, 1, 1);
+    mLabelPriorCx = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorCx->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorCx, 2, 0, 1, 1);
+    mDoubleSpinBoxPriorCx = new QDoubleSpinBox(mGroupBoxPriorCalibration );
+    mDoubleSpinBoxPriorCx->setRange(-100000., 100000.);
+    mDoubleSpinBoxPriorCx->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorCx, 2, 1, 1, 1);
 
-    mLabelCy = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelCy->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelCy, 2, 2, 1, 1);
-    mDoubleSpinBoxCy = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxCy->setRange(-100000., 100000.);
-    mDoubleSpinBoxCy->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxCy, 2, 3, 1, 1);
+    mLabelPriorCy = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorCy->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorCy, 2, 2, 1, 1);
+    mDoubleSpinBoxPriorCy = new QDoubleSpinBox(mGroupBoxPriorCalibration );
+    mDoubleSpinBoxPriorCy->setRange(-100000., 100000.);
+    mDoubleSpinBoxPriorCy->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorCy, 2, 3, 1, 1);
 
-    mLabelK1 = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelK1->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelK1, 4, 0, 1, 1);
-    mDoubleSpinBoxK1 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxK1->setRange(-100000., 100000.);
-    mDoubleSpinBoxK1->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxK1, 4, 1, 1, 1);
+    mLabelPriorK1 = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorK1->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorK1, 4, 0, 1, 1);
+    mDoubleSpinBoxPriorK1 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
+    mDoubleSpinBoxPriorK1->setRange(-100000., 100000.);
+    mDoubleSpinBoxPriorK1->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorK1, 4, 1, 1, 1);
 
-    mLabelK2 = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelK2->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelK2, 4, 2, 1, 1);
-    mDoubleSpinBoxK2 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxK2->setRange(-100000., 100000.);
-    mDoubleSpinBoxK2->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxK2, 4, 3, 1, 1);
+    mLabelPriorK2 = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorK2->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorK2, 4, 2, 1, 1);
+    mDoubleSpinBoxPriorK2 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
+    mDoubleSpinBoxPriorK2->setRange(-100000., 100000.);
+    mDoubleSpinBoxPriorK2->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorK2, 4, 3, 1, 1);
 
-    mLabelK3 = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelK3->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelK3, 6, 0, 1, 1);
-    mDoubleSpinBoxK3 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxK3->setRange(-100000., 100000.);
-    mDoubleSpinBoxK3->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxK3, 6, 1, 1, 1);
+    mLabelPriorK3 = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorK3->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorK3, 6, 0, 1, 1);
+    mDoubleSpinBoxPriorK3 = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxPriorK3->setRange(-100000., 100000.);
+    mDoubleSpinBoxPriorK3->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorK3, 6, 1, 1, 1);
 
-    mLabelK4 = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelK4->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelK4, 6, 2, 1, 1);
-    mDoubleSpinBoxK4 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxK4->setRange(-100000., 100000.);
-    mDoubleSpinBoxK4->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxK4, 6, 3, 1, 1);
+    mLabelPriorK4 = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorK4->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorK4, 6, 2, 1, 1);
+    mDoubleSpinBoxPriorK4 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
+    mDoubleSpinBoxPriorK4->setRange(-100000., 100000.);
+    mDoubleSpinBoxPriorK4->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorK4, 6, 3, 1, 1);
 
-    mLabelK5 = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelK5->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelK5, 7, 0, 1, 1);
-    mDoubleSpinBoxK5 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxK5->setRange(-100000., 100000.);
-    mDoubleSpinBoxK5->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxK5, 7, 1, 1, 1);
+    mLabelPriorK5 = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorK5->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorK5, 7, 0, 1, 1);
+    mDoubleSpinBoxPriorK5 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
+    mDoubleSpinBoxPriorK5->setRange(-100000., 100000.);
+    mDoubleSpinBoxPriorK5->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorK5, 7, 1, 1, 1);
 
-    mLabelK6 = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelK6->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelK6, 7, 2, 1, 1);
-    mDoubleSpinBoxK6 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxK6->setRange(-100000., 100000.);
-    mDoubleSpinBoxK6->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxK6, 7, 3, 1, 1);
+    mLabelPriorK6 = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorK6->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorK6, 7, 2, 1, 1);
+    mDoubleSpinBoxPriorK6 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
+    mDoubleSpinBoxPriorK6->setRange(-100000., 100000.);
+    mDoubleSpinBoxPriorK6->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorK6, 7, 3, 1, 1);
 
-    mLabelP1 = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelP1->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelP1, 8, 0, 1, 1);
-    mDoubleSpinBoxP1 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxP1->setRange(-100000., 100000.);
-    mDoubleSpinBoxP1->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxP1, 8, 1, 1, 1);
+    mLabelPriorP1 = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorP1->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorP1, 8, 0, 1, 1);
+    mDoubleSpinBoxPriorP1 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
+    mDoubleSpinBoxPriorP1->setRange(-100000., 100000.);
+    mDoubleSpinBoxPriorP1->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorP1, 8, 1, 1, 1);
 
-    mLabelP2 = new QLabel(mGroupBoxCalibrationParameters);
-    mLabelP2->setMaximumWidth(50);
-    gridLayout2->addWidget(mLabelP2, 8, 2, 1, 1);
-    mDoubleSpinBoxP2 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
-    mDoubleSpinBoxP2->setRange(-100000., 100000.);
-    mDoubleSpinBoxP2->setDecimals(8);
-    gridLayout2->addWidget(mDoubleSpinBoxP2, 8, 3, 1, 1);
+    mLabelPriorP2 = new QLabel(mGroupBoxPriorCalibration );
+    mLabelPriorP2->setMaximumWidth(50);
+    grid_layout_prior_calibration->addWidget(mLabelPriorP2, 8, 2, 1, 1);
+    mDoubleSpinBoxPriorP2 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
+    mDoubleSpinBoxPriorP2->setRange(-100000., 100000.);
+    mDoubleSpinBoxPriorP2->setDecimals(8);
+    grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorP2, 8, 3, 1, 1);
 
-    layout->addWidget(mGroupBoxCalibrationParameters, 4, 1, 1, 4);
+    tabCalibLayout->addWidget(mGroupBoxPriorCalibration );
 
-    mLabelImages = new QLabel(this);
-    layout->addWidget(mLabelImages, 5, 0, 1, 1);
 
-    mListWidgetImages = new QListWidget(this);
-    layout->addWidget(mListWidgetImages, 6, 0, 1, 5);
+    // Adjusted Calibration
+
+    mGroupBoxAdjustCalibration = new QGroupBox(mTabCalibration);
+    QGridLayout *grid_layout_adjust_calibration = new QGridLayout(mGroupBoxAdjustCalibration);
+
+    QToolBar *toolbar_adjust_calibration = new QToolBar(this);
+    //mActionImportCalibration = new QAction(this);
+    //mActionImportCalibration->setIcon(QIcon::fromTheme("folder"));
+    //toolbar_adjust_calibration->addAction(mActionImportCalibration);
+
+    mActionExportAdjustCalibration = new QAction(this);
+    mActionExportAdjustCalibration->setIcon(QIcon::fromTheme("save"));
+    toolbar_adjust_calibration->addAction(mActionExportAdjustCalibration);
+
+    grid_layout_adjust_calibration->addWidget(toolbar_adjust_calibration, 0, 0, 1, 4);
+
+    mLabelAdjustF = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustF->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustF, 1, 0, 1, 1);
+    mDoubleSpinBoxAdjustF = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustF->setRange(0., 100000.);
+    mDoubleSpinBoxAdjustF->setDecimals(8);
+    mDoubleSpinBoxAdjustF->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustF, 1, 1, 1, 3);
+
+    mLabelAdjustFx = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustFx->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustFx, 1, 0, 1, 1);
+    mDoubleSpinBoxAdjustFx = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustFx->setRange(0., 100000.);
+    mDoubleSpinBoxAdjustFx->setDecimals(8);
+    mDoubleSpinBoxAdjustFx->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustFx, 1, 1, 1, 1);
+
+    mLabelAdjustFy = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustFy->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustFy, 1, 2, 1, 1);
+    mDoubleSpinBoxAdjustFy = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustFy->setRange(0., 100000.);
+    mDoubleSpinBoxAdjustFy->setDecimals(8);
+    mDoubleSpinBoxAdjustFy->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustFy, 1, 3, 1, 1);
+
+    mLabelAdjustCx = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustCx->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustCx, 2, 0, 1, 1);
+    mDoubleSpinBoxAdjustCx = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustCx->setRange(-100000., 100000.);
+    mDoubleSpinBoxAdjustCx->setDecimals(8);
+    mDoubleSpinBoxAdjustCx->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustCx, 2, 1, 1, 1);
+
+    mLabelAdjustCy = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustCy->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustCy, 2, 2, 1, 1);
+    mDoubleSpinBoxAdjustCy = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustCy->setRange(-100000., 100000.);
+    mDoubleSpinBoxAdjustCy->setDecimals(8);
+    mDoubleSpinBoxAdjustCy->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustCy, 2, 3, 1, 1);
+
+    mLabelAdjustK1 = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustK1->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustK1, 4, 0, 1, 1);
+    mDoubleSpinBoxAdjustK1 = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustK1->setRange(-100000., 100000.);
+    mDoubleSpinBoxAdjustK1->setDecimals(8);
+    mDoubleSpinBoxAdjustK1->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustK1, 4, 1, 1, 1);
+
+    mLabelAdjustK2 = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustK2->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustK2, 4, 2, 1, 1);
+    mDoubleSpinBoxAdjustK2 = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustK2->setRange(-100000., 100000.);
+    mDoubleSpinBoxAdjustK2->setDecimals(8);
+    mDoubleSpinBoxAdjustK2->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustK2, 4, 3, 1, 1);
+
+    mLabelAdjustK3 = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustK3->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustK3, 6, 0, 1, 1);
+    mDoubleSpinBoxAdjustK3 = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustK3->setRange(-100000., 100000.);
+    mDoubleSpinBoxAdjustK3->setDecimals(8);
+    mDoubleSpinBoxAdjustK3->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustK3, 6, 1, 1, 1);
+
+    mLabelAdjustK4 = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustK4->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustK4, 6, 2, 1, 1);
+    mDoubleSpinBoxAdjustK4 = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustK4->setRange(-100000., 100000.);
+    mDoubleSpinBoxAdjustK4->setDecimals(8);
+    mDoubleSpinBoxAdjustK4->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustK4, 6, 3, 1, 1);
+
+    mLabelAdjustK5 = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustK5->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustK5, 7, 0, 1, 1);
+    mDoubleSpinBoxAdjustK5 = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustK5->setRange(-100000., 100000.);
+    mDoubleSpinBoxAdjustK5->setDecimals(8);
+    mDoubleSpinBoxAdjustK5->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustK5, 7, 1, 1, 1);
+
+    mLabelAdjustK6 = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustK6->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustK6, 7, 2, 1, 1);
+    mDoubleSpinBoxAdjustK6 = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustK6->setRange(-100000., 100000.);
+    mDoubleSpinBoxAdjustK6->setDecimals(8);
+    mDoubleSpinBoxAdjustK6->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustK6, 7, 3, 1, 1);
+
+    mLabelAdjustP1 = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustP1->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustP1, 8, 0, 1, 1);
+    mDoubleSpinBoxAdjustP1 = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustP1->setRange(-100000., 100000.);
+    mDoubleSpinBoxAdjustP1->setDecimals(8);
+    mDoubleSpinBoxAdjustP1->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustP1, 8, 1, 1, 1);
+
+    mLabelAdjustP2 = new QLabel(mGroupBoxPriorCalibration);
+    mLabelAdjustP2->setMaximumWidth(50);
+    grid_layout_adjust_calibration->addWidget(mLabelAdjustP2, 8, 2, 1, 1);
+    mDoubleSpinBoxAdjustP2 = new QDoubleSpinBox(mGroupBoxPriorCalibration);
+    mDoubleSpinBoxAdjustP2->setRange(-100000., 100000.);
+    mDoubleSpinBoxAdjustP2->setDecimals(8);
+    mDoubleSpinBoxAdjustP2->setEnabled(false);
+    grid_layout_adjust_calibration->addWidget(mDoubleSpinBoxAdjustP2, 8, 3, 1, 1);
+    
+    tabCalibLayout->addWidget(mGroupBoxAdjustCalibration);
+
+    mTabWidget->addTab(mTabCalibration, "");
+
+    //layout->addWidget(mGroupBoxPriorCalibration , 4, 1, 1, 4);
+
+    //mLabelImages = new QLabel(this);
+    //layout->addWidget(mLabelImages, 5, 0, 1, 1);
+
+    //mListWidgetImages = new QListWidget(this);
+    //layout->addWidget(mListWidgetImages, 6, 0, 1, 5);
 
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setObjectName(QStringLiteral("buttonBox"));
     mButtonBox->setOrientation(Qt::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Help | QDialogButtonBox::Ok);
 
-    layout->addWidget(mButtonBox, 7, 0, 1, 5);
+    layout->addWidget(mButtonBox, 3, 0, 1, 5);
 
     this->retranslate();
     this->clear();
@@ -339,22 +535,37 @@ void CamerasViewImp::initSignalAndSlots()
     connect(mComboBoxType, &QComboBox::currentTextChanged, this, &CamerasViewImp::update);
     connect(mPushButtonEditCamera, &QPushButton::toggled, this, &CamerasViewImp::enableCameraEdition);
 
-    connect(mActionImportCalibration, &QAction::triggered, this, &CamerasViewImp::onCalibrationImport);
-    connect(mActionExportCalibration, &QAction::triggered, this, &CamerasViewImp::onCalibrationExport);
+    connect(mActionImportPriorCalibration, &QAction::triggered, this, &CamerasViewImp::onPriorCalibrationImport);
+    connect(mActionExportPriorCalibration, &QAction::triggered, this, &CamerasViewImp::onPriorCalibrationExport);
+    connect(mActionExportAdjustCalibration, &QAction::triggered, this, &CamerasViewImp::onAdjustCalibrationExport);
 
-    connect(mDoubleSpinBoxCx, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibCxChange);
-    connect(mDoubleSpinBoxCy, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibCyChange);
-    connect(mDoubleSpinBoxF, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibFChange);
-    connect(mDoubleSpinBoxFx, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibFxChange);
-    connect(mDoubleSpinBoxFy, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibFyChange);
-    connect(mDoubleSpinBoxK1, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibK1Change);
-    connect(mDoubleSpinBoxK2, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibK2Change);
-    connect(mDoubleSpinBoxK3, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibK3Change);
-    connect(mDoubleSpinBoxK4, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibK4Change);
-    connect(mDoubleSpinBoxK5, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibK5Change);
-    connect(mDoubleSpinBoxK6, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibK6Change);
-    connect(mDoubleSpinBoxP1, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibP1Change);
-    connect(mDoubleSpinBoxP2, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibP2Change);
+    connect(mDoubleSpinBoxPriorCx, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorCxChange);
+    connect(mDoubleSpinBoxPriorCy, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorCyChange);
+    connect(mDoubleSpinBoxPriorF, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorFChange);
+    connect(mDoubleSpinBoxPriorFx, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorFxChange);
+    connect(mDoubleSpinBoxPriorFy, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorFyChange);
+    connect(mDoubleSpinBoxPriorK1, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorK1Change);
+    connect(mDoubleSpinBoxPriorK2, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorK2Change);
+    connect(mDoubleSpinBoxPriorK3, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorK3Change);
+    connect(mDoubleSpinBoxPriorK4, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorK4Change);
+    connect(mDoubleSpinBoxPriorK5, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorK5Change);
+    connect(mDoubleSpinBoxPriorK6, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorK6Change);
+    connect(mDoubleSpinBoxPriorP1, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorP1Change);
+    connect(mDoubleSpinBoxPriorP2, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorP2Change);
+
+    //connect(mDoubleSpinBoxAdjustCx, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustCxChange);
+    //connect(mDoubleSpinBoxAdjustCy, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustCyChange);
+    //connect(mDoubleSpinBoxAdjustF, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustFChange);
+    //connect(mDoubleSpinBoxAdjustFx, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustFxChange);
+    //connect(mDoubleSpinBoxAdjustFy, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustFyChange);
+    //connect(mDoubleSpinBoxAdjustK1, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustK1Change);
+    //connect(mDoubleSpinBoxAdjustK2, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustK2Change);
+    //connect(mDoubleSpinBoxAdjustK3, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustK3Change);
+    //connect(mDoubleSpinBoxAdjustK4, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustK4Change);
+    //connect(mDoubleSpinBoxAdjustK5, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustK5Change);
+    //connect(mDoubleSpinBoxAdjustK6, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustK6Change);
+    //connect(mDoubleSpinBoxAdjustP1, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustP1Change);
+    //connect(mDoubleSpinBoxAdjustP2, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustP2Change);
 
     connect(mButtonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked, this, &QDialog::accept);
     connect(mButtonBox->button(QDialogButtonBox::Cancel), &QAbstractButton::clicked, this, &QDialog::reject);
@@ -372,19 +583,32 @@ void CamerasViewImp::clear()
     const QSignalBlocker blocker6(mLineEditFocal);
     const QSignalBlocker blocker7(mSpinBoxWidth);
     const QSignalBlocker blocker8(mSpinBoxHeight);
-    const QSignalBlocker blocker9(mDoubleSpinBoxCx);
-    const QSignalBlocker blocker10(mDoubleSpinBoxCy);
-    const QSignalBlocker blocker11(mDoubleSpinBoxF);
-    const QSignalBlocker blocker12(mDoubleSpinBoxFx);
-    const QSignalBlocker blocker13(mDoubleSpinBoxFy);
-    const QSignalBlocker blocker14(mDoubleSpinBoxK1);
-    const QSignalBlocker blocker15(mDoubleSpinBoxK2);
-    const QSignalBlocker blocker16(mDoubleSpinBoxK3);
-    const QSignalBlocker blocker17(mDoubleSpinBoxK4);
-    const QSignalBlocker blocker18(mDoubleSpinBoxK5);
-    const QSignalBlocker blocker19(mDoubleSpinBoxK6);
-    const QSignalBlocker blocker20(mDoubleSpinBoxP1);
-    const QSignalBlocker blocker21(mDoubleSpinBoxP2);
+    const QSignalBlocker blocker9(mDoubleSpinBoxPriorCx);
+    const QSignalBlocker blocker10(mDoubleSpinBoxPriorCy);
+    const QSignalBlocker blocker11(mDoubleSpinBoxPriorF);
+    const QSignalBlocker blocker12(mDoubleSpinBoxPriorFx);
+    const QSignalBlocker blocker13(mDoubleSpinBoxPriorFy);
+    const QSignalBlocker blocker14(mDoubleSpinBoxPriorK1);
+    const QSignalBlocker blocker15(mDoubleSpinBoxPriorK2);
+    const QSignalBlocker blocker16(mDoubleSpinBoxPriorK3);
+    const QSignalBlocker blocker17(mDoubleSpinBoxPriorK4);
+    const QSignalBlocker blocker18(mDoubleSpinBoxPriorK5);
+    const QSignalBlocker blocker19(mDoubleSpinBoxPriorK6);
+    const QSignalBlocker blocker20(mDoubleSpinBoxPriorP1);
+    const QSignalBlocker blocker21(mDoubleSpinBoxPriorP2);
+    //const QSignalBlocker blocker22(mDoubleSpinBoxAdjustCx);
+    //const QSignalBlocker blocker23(mDoubleSpinBoxAdjustCy);
+    //const QSignalBlocker blocker24(mDoubleSpinBoxAdjustF);
+    //const QSignalBlocker blocker25(mDoubleSpinBoxAdjustFx);
+    //const QSignalBlocker blocker26(mDoubleSpinBoxAdjustFy);
+    //const QSignalBlocker blocker27(mDoubleSpinBoxAdjustK1);
+    //const QSignalBlocker blocker28(mDoubleSpinBoxAdjustK2);
+    //const QSignalBlocker blocker29(mDoubleSpinBoxAdjustK3);
+    //const QSignalBlocker blocker30(mDoubleSpinBoxAdjustK4);
+    //const QSignalBlocker blocker31(mDoubleSpinBoxAdjustK5);
+    //const QSignalBlocker blocker32(mDoubleSpinBoxAdjustK6);
+    //const QSignalBlocker blocker33(mDoubleSpinBoxAdjustP1);
+    //const QSignalBlocker blocker34(mDoubleSpinBoxAdjustP2);
 
     mListWidgetCameras->clear();
     mListWidgetImages->clear();
@@ -398,20 +622,33 @@ void CamerasViewImp::clear()
     mSpinBoxWidth->setEnabled(false);
     mSpinBoxHeight->setEnabled(false);
     this->enableCameraEdition(false);
-    mDoubleSpinBoxCx->setValue(0.);
-    mDoubleSpinBoxCy->setValue(0.);
-    mDoubleSpinBoxF->setValue(0.);
-    mDoubleSpinBoxFx->setValue(0.);
-    mDoubleSpinBoxFy->setValue(0.);
-    mDoubleSpinBoxK1->setValue(0.);
-    mDoubleSpinBoxK2->setValue(0.);
-    mDoubleSpinBoxK3->setValue(0.);
-    mDoubleSpinBoxK4->setValue(0.);
-    mDoubleSpinBoxK5->setValue(0.);
-    mDoubleSpinBoxK6->setValue(0.);
-    mDoubleSpinBoxP1->setValue(0.);
-    mDoubleSpinBoxP2->setValue(0.);
+    mDoubleSpinBoxPriorCx->setValue(0.);
+    mDoubleSpinBoxPriorCy->setValue(0.);
+    mDoubleSpinBoxPriorF->setValue(0.);
+    mDoubleSpinBoxPriorFx->setValue(0.);
+    mDoubleSpinBoxPriorFy->setValue(0.);
+    mDoubleSpinBoxPriorK1->setValue(0.);
+    mDoubleSpinBoxPriorK2->setValue(0.);
+    mDoubleSpinBoxPriorK3->setValue(0.);
+    mDoubleSpinBoxPriorK4->setValue(0.);
+    mDoubleSpinBoxPriorK5->setValue(0.);
+    mDoubleSpinBoxPriorK6->setValue(0.);
+    mDoubleSpinBoxPriorP1->setValue(0.);
+    mDoubleSpinBoxPriorP2->setValue(0.);
 
+    mDoubleSpinBoxAdjustCx->setValue(0.);
+    mDoubleSpinBoxAdjustCy->setValue(0.);
+    mDoubleSpinBoxAdjustF->setValue(0.);
+    mDoubleSpinBoxAdjustFx->setValue(0.);
+    mDoubleSpinBoxAdjustFy->setValue(0.);
+    mDoubleSpinBoxAdjustK1->setValue(0.);
+    mDoubleSpinBoxAdjustK2->setValue(0.);
+    mDoubleSpinBoxAdjustK3->setValue(0.);
+    mDoubleSpinBoxAdjustK4->setValue(0.);
+    mDoubleSpinBoxAdjustK5->setValue(0.);
+    mDoubleSpinBoxAdjustK6->setValue(0.);
+    mDoubleSpinBoxAdjustP1->setValue(0.);
+    mDoubleSpinBoxAdjustP2->setValue(0.);
 }
 
 void CamerasViewImp::update()
@@ -433,54 +670,97 @@ void CamerasViewImp::update()
 
     mComboBoxType->setEnabled(selected_camera);
     mPushButtonEditCamera->setEnabled(selected_camera);
+    mTabCalibration->setEnabled(selected_camera);
+    mTabInfo->setEnabled(selected_camera);
 
-    mDoubleSpinBoxF->setEnabled(selected_camera && f_enable);
-    mDoubleSpinBoxFx->setEnabled(selected_camera && fx_enable);
-    mDoubleSpinBoxFy->setEnabled(selected_camera && fy_enable);
-    mDoubleSpinBoxCx->setEnabled(selected_camera && cx_enable);
-    mDoubleSpinBoxCy->setEnabled(selected_camera && cy_enable);
-    mDoubleSpinBoxK1->setEnabled(selected_camera && k1_enable);
-    mDoubleSpinBoxK2->setEnabled(selected_camera && k2_enable);
-    mDoubleSpinBoxK3->setEnabled(selected_camera && k3_enable);
-    mDoubleSpinBoxK4->setEnabled(selected_camera && k4_enable);
-    mDoubleSpinBoxK5->setEnabled(selected_camera && k5_enable);
-    mDoubleSpinBoxK6->setEnabled(selected_camera && k6_enable);
-    mDoubleSpinBoxP1->setEnabled(selected_camera && p1_enable);
-    mDoubleSpinBoxP2->setEnabled(selected_camera && p2_enable);
+    mDoubleSpinBoxPriorF->setEnabled(selected_camera && f_enable);
+    mDoubleSpinBoxPriorFx->setEnabled(selected_camera && fx_enable);
+    mDoubleSpinBoxPriorFy->setEnabled(selected_camera && fy_enable);
+    mDoubleSpinBoxPriorCx->setEnabled(selected_camera && cx_enable);
+    mDoubleSpinBoxPriorCy->setEnabled(selected_camera && cy_enable);
+    mDoubleSpinBoxPriorK1->setEnabled(selected_camera && k1_enable);
+    mDoubleSpinBoxPriorK2->setEnabled(selected_camera && k2_enable);
+    mDoubleSpinBoxPriorK3->setEnabled(selected_camera && k3_enable);
+    mDoubleSpinBoxPriorK4->setEnabled(selected_camera && k4_enable);
+    mDoubleSpinBoxPriorK5->setEnabled(selected_camera && k5_enable);
+    mDoubleSpinBoxPriorK6->setEnabled(selected_camera && k6_enable);
+    mDoubleSpinBoxPriorP1->setEnabled(selected_camera && p1_enable);
+    mDoubleSpinBoxPriorP2->setEnabled(selected_camera && p2_enable);
 
-    mLabelF->setVisible(isFocalVisible());
-    mDoubleSpinBoxF->setVisible(isFocalVisible());
-    mLabelFx->setVisible(isFocalXYVisible());
-    mDoubleSpinBoxFx->setVisible(isFocalXYVisible());
-    mLabelFy->setVisible(isFocalXYVisible());
-    mDoubleSpinBoxFy->setVisible(isFocalXYVisible());
+    mLabelPriorF->setVisible(isFocalVisible());
+    mDoubleSpinBoxPriorF->setVisible(isFocalVisible());
+    mLabelPriorFx->setVisible(isFocalXYVisible());
+    mDoubleSpinBoxPriorFx->setVisible(isFocalXYVisible());
+    mLabelPriorFy->setVisible(isFocalXYVisible());
+    mDoubleSpinBoxPriorFy->setVisible(isFocalXYVisible());
 
-    mActionImportCalibration->setEnabled(selected_camera);
-    mActionExportCalibration->setEnabled(selected_camera);
+    //mDoubleSpinBoxAdjustF->setEnabled(selected_camera && f_enable);
+    //mDoubleSpinBoxAdjustFx->setEnabled(selected_camera && fx_enable);
+    //mDoubleSpinBoxAdjustFy->setEnabled(selected_camera && fy_enable);
+    //mDoubleSpinBoxAdjustCx->setEnabled(selected_camera && cx_enable);
+    //mDoubleSpinBoxAdjustCy->setEnabled(selected_camera && cy_enable);
+    //mDoubleSpinBoxAdjustK1->setEnabled(selected_camera && k1_enable);
+    //mDoubleSpinBoxAdjustK2->setEnabled(selected_camera && k2_enable);
+    //mDoubleSpinBoxAdjustK3->setEnabled(selected_camera && k3_enable);
+    //mDoubleSpinBoxAdjustK4->setEnabled(selected_camera && k4_enable);
+    //mDoubleSpinBoxAdjustK5->setEnabled(selected_camera && k5_enable);
+    //mDoubleSpinBoxAdjustK6->setEnabled(selected_camera && k6_enable);
+    //mDoubleSpinBoxAdjustP1->setEnabled(selected_camera && p1_enable);
+    //mDoubleSpinBoxAdjustP2->setEnabled(selected_camera && p2_enable);
+
+    mLabelAdjustF->setVisible(isFocalVisible());
+    mDoubleSpinBoxAdjustF->setVisible(isFocalVisible());
+    mLabelAdjustFx->setVisible(isFocalXYVisible());
+    mDoubleSpinBoxAdjustFx->setVisible(isFocalXYVisible());
+    mLabelAdjustFy->setVisible(isFocalXYVisible());
+    mDoubleSpinBoxAdjustFy->setVisible(isFocalXYVisible());
+
+    mActionImportPriorCalibration->setEnabled(selected_camera);
+    // Hay que comprobar que exista calibración previa
+    mActionExportPriorCalibration->setEnabled(selected_camera);
+    mActionExportAdjustCalibration->setEnabled(selected_camera);
 
 }
 
 void CamerasViewImp::retranslate()
 {
     this->setWindowTitle(QApplication::translate("CamerasComponent", "Cameras", nullptr));
-    mGroupBoxCalibrationParameters->setTitle(QApplication::translate("CamerasComponent", "Calibration parameters", nullptr));
-    mActionImportCalibration->setText(QApplication::translate("CamerasComponent", "Import Calibration", nullptr));
-    mActionImportCalibration->setStatusTip(QApplication::translate("CamerasComponent", "Import Calibration", nullptr));
-    mActionExportCalibration->setText(QApplication::translate("CamerasComponent", "Export Calibration", nullptr));
-    mActionExportCalibration->setStatusTip(QApplication::translate("CamerasComponent", "Export Calibration", nullptr));
-    mLabelF->setText(QApplication::translate("CamerasComponent", "f", nullptr));
-    mLabelFx->setText(QApplication::translate("CamerasComponent", "fx", nullptr));
-    mLabelFy->setText(QApplication::translate("CamerasComponent", "fy", nullptr));
-    mLabelCx->setText(QApplication::translate("CamerasComponent", "cx", nullptr));
-    mLabelCy->setText(QApplication::translate("CamerasComponent", "cy", nullptr));
-    mLabelK1->setText(QApplication::translate("CamerasComponent", "k1", nullptr));
-    mLabelK2->setText(QApplication::translate("CamerasComponent", "k2", nullptr));
-    mLabelK3->setText(QApplication::translate("CamerasComponent", "k3", nullptr));
-    mLabelK4->setText(QApplication::translate("CamerasComponent", "k4", nullptr));
-    mLabelK5->setText(QApplication::translate("CamerasComponent", "k5", nullptr));
-    mLabelK6->setText(QApplication::translate("CamerasComponent", "k6", nullptr));
-    mLabelP1->setText(QApplication::translate("CamerasComponent", "p1", nullptr));
-    mLabelP2->setText(QApplication::translate("CamerasComponent", "p2", nullptr));
+    mTabWidget->setTabText(0, QApplication::translate("CamerasComponent", "Camera info", nullptr));
+    mTabWidget->setTabText(1, QApplication::translate("CamerasComponent", "Calibrations", nullptr));
+    mGroupBoxPriorCalibration ->setTitle(QApplication::translate("CamerasComponent", "Prior Calibration", nullptr));
+    mGroupBoxAdjustCalibration->setTitle(QApplication::translate("CamerasComponent", "Adjusted Calibration", nullptr));
+    mActionImportPriorCalibration->setText(QApplication::translate("CamerasComponent", "Import prior calibration", nullptr));
+    mActionImportPriorCalibration->setStatusTip(QApplication::translate("CamerasComponent", "Import prior calibration", nullptr));
+    mActionExportPriorCalibration->setText(QApplication::translate("CamerasComponent", "Export prior calibration", nullptr));
+    mActionExportPriorCalibration->setStatusTip(QApplication::translate("CamerasComponent", "Export prior calibration", nullptr));
+    mActionExportPriorCalibration->setText(QApplication::translate("CamerasComponent", "Export adjusted calibration", nullptr));
+    mActionExportPriorCalibration->setStatusTip(QApplication::translate("CamerasComponent", "Export adjusted calibration", nullptr));
+    mLabelPriorF->setText(QApplication::translate("CamerasComponent", "f", nullptr));
+    mLabelPriorFx->setText(QApplication::translate("CamerasComponent", "fx", nullptr));
+    mLabelPriorFy->setText(QApplication::translate("CamerasComponent", "fy", nullptr));
+    mLabelPriorCx->setText(QApplication::translate("CamerasComponent", "cx", nullptr));
+    mLabelPriorCy->setText(QApplication::translate("CamerasComponent", "cy", nullptr));
+    mLabelPriorK1->setText(QApplication::translate("CamerasComponent", "k1", nullptr));
+    mLabelPriorK2->setText(QApplication::translate("CamerasComponent", "k2", nullptr));
+    mLabelPriorK3->setText(QApplication::translate("CamerasComponent", "k3", nullptr));
+    mLabelPriorK4->setText(QApplication::translate("CamerasComponent", "k4", nullptr));
+    mLabelPriorK5->setText(QApplication::translate("CamerasComponent", "k5", nullptr));
+    mLabelPriorK6->setText(QApplication::translate("CamerasComponent", "k6", nullptr));
+    mLabelPriorP1->setText(QApplication::translate("CamerasComponent", "p1", nullptr));
+    mLabelPriorP2->setText(QApplication::translate("CamerasComponent", "p2", nullptr));
+    mLabelAdjustF->setText(QApplication::translate("CamerasComponent", "f", nullptr));
+    mLabelAdjustFx->setText(QApplication::translate("CamerasComponent", "fx", nullptr));
+    mLabelAdjustFy->setText(QApplication::translate("CamerasComponent", "fy", nullptr));
+    mLabelAdjustCx->setText(QApplication::translate("CamerasComponent", "cx", nullptr));
+    mLabelAdjustCy->setText(QApplication::translate("CamerasComponent", "cy", nullptr));
+    mLabelAdjustK1->setText(QApplication::translate("CamerasComponent", "k1", nullptr));
+    mLabelAdjustK2->setText(QApplication::translate("CamerasComponent", "k2", nullptr));
+    mLabelAdjustK3->setText(QApplication::translate("CamerasComponent", "k3", nullptr));
+    mLabelAdjustK4->setText(QApplication::translate("CamerasComponent", "k4", nullptr));
+    mLabelAdjustK5->setText(QApplication::translate("CamerasComponent", "k5", nullptr));
+    mLabelAdjustK6->setText(QApplication::translate("CamerasComponent", "k6", nullptr));
+    mLabelAdjustP1->setText(QApplication::translate("CamerasComponent", "p1", nullptr));
+    mLabelAdjustP2->setText(QApplication::translate("CamerasComponent", "p2", nullptr));
     mLabelImages->setText(QApplication::translate("CamerasComponent", "Images:", nullptr));
     mLabelCameras->setText(QApplication::translate("CamerasComponent", "Cameras:", nullptr));
     mGroupBoxCamera->setTitle(QApplication::translate("CamerasComponent", "Camera", nullptr));
@@ -589,69 +869,134 @@ void CamerasViewImp::setImages(const QStringList &images)
     mListWidgetImages->addItems(images);
 }
 
-void CamerasViewImp::setCalibCx(double cx)
+void CamerasViewImp::setPriorCalibCx(double cx)
 {
-    mDoubleSpinBoxCx->setValue(cx);
+    mDoubleSpinBoxPriorCx->setValue(cx);
 }
 
-void CamerasViewImp::setCalibCy(double cy)
+void CamerasViewImp::setPriorCalibCy(double cy)
 {
-    mDoubleSpinBoxCy->setValue(cy);
+    mDoubleSpinBoxPriorCy->setValue(cy);
 }
 
-void CamerasViewImp::setCalibF(double f)
+void CamerasViewImp::setPriorCalibF(double f)
 {
-    mDoubleSpinBoxF->setValue(f);
+    mDoubleSpinBoxPriorF->setValue(f);
 }
 
-void CamerasViewImp::setCalibFx(double fx)
+void CamerasViewImp::setPriorCalibFx(double fx)
 {
-    mDoubleSpinBoxFx->setValue(fx);
+    mDoubleSpinBoxPriorFx->setValue(fx);
 }
 
-void CamerasViewImp::setCalibFy(double fy)
+void CamerasViewImp::setPriorCalibFy(double fy)
 {
-    mDoubleSpinBoxFy->setValue(fy);
+    mDoubleSpinBoxPriorFy->setValue(fy);
 }
 
-void CamerasViewImp::setCalibK1(double k1)
+void CamerasViewImp::setPriorCalibK1(double k1)
 {
-    mDoubleSpinBoxK1->setValue(k1);
+    mDoubleSpinBoxPriorK1->setValue(k1);
 }
 
-void CamerasViewImp::setCalibK2(double k2)
+void CamerasViewImp::setPriorCalibK2(double k2)
 {
-    mDoubleSpinBoxK2->setValue(k2);
+    mDoubleSpinBoxPriorK2->setValue(k2);
 }
 
-void CamerasViewImp::setCalibK3(double k3)
+void CamerasViewImp::setPriorCalibK3(double k3)
 {
-    mDoubleSpinBoxK3->setValue(k3);
+    mDoubleSpinBoxPriorK3->setValue(k3);
 }
 
-void CamerasViewImp::setCalibK4(double k4)
+void CamerasViewImp::setPriorCalibK4(double k4)
 {
-    mDoubleSpinBoxK4->setValue(k4);
+    mDoubleSpinBoxPriorK4->setValue(k4);
 }
 
-void CamerasViewImp::setCalibK5(double k5)
+void CamerasViewImp::setPriorCalibK5(double k5)
 {
-    mDoubleSpinBoxK5->setValue(k5);
+    mDoubleSpinBoxPriorK5->setValue(k5);
 }
 
-void CamerasViewImp::setCalibK6(double k6)
+void CamerasViewImp::setPriorCalibK6(double k6)
 {
-    mDoubleSpinBoxK6->setValue(k6);
+    mDoubleSpinBoxPriorK6->setValue(k6);
 }
 
-void CamerasViewImp::setCalibP1(double p1)
+void CamerasViewImp::setPriorCalibP1(double p1)
 {
-    mDoubleSpinBoxP1->setValue(p1);
+    mDoubleSpinBoxPriorP1->setValue(p1);
 }
 
-void CamerasViewImp::setCalibP2(double p2)
+void CamerasViewImp::setPriorCalibP2(double p2)
 {
-    mDoubleSpinBoxP2->setValue(p2);
+    mDoubleSpinBoxPriorP2->setValue(p2);
+}
+
+void CamerasViewImp::setAdjustCalibCx(double cx)
+{
+    mDoubleSpinBoxAdjustCx->setValue(cx);
+}
+
+void CamerasViewImp::setAdjustCalibCy(double cy)
+{
+    mDoubleSpinBoxAdjustCy->setValue(cy);
+}
+
+void CamerasViewImp::setAdjustCalibF(double f)
+{
+    mDoubleSpinBoxAdjustF->setValue(f);
+}
+
+void CamerasViewImp::setAdjustCalibFx(double fx)
+{
+    mDoubleSpinBoxAdjustFx->setValue(fx);
+}
+
+void CamerasViewImp::setAdjustCalibFy(double fy)
+{
+    mDoubleSpinBoxAdjustFy->setValue(fy);
+}
+
+void CamerasViewImp::setAdjustCalibK1(double k1)
+{
+    mDoubleSpinBoxAdjustK1->setValue(k1);
+}
+
+void CamerasViewImp::setAdjustCalibK2(double k2)
+{
+    mDoubleSpinBoxAdjustK2->setValue(k2);
+}
+
+void CamerasViewImp::setAdjustCalibK3(double k3)
+{
+    mDoubleSpinBoxAdjustK3->setValue(k3);
+}
+
+void CamerasViewImp::setAdjustCalibK4(double k4)
+{
+    mDoubleSpinBoxAdjustK4->setValue(k4);
+}
+
+void CamerasViewImp::setAdjustCalibK5(double k5)
+{
+    mDoubleSpinBoxAdjustK5->setValue(k5);
+}
+
+void CamerasViewImp::setAdjustCalibK6(double k6)
+{
+    mDoubleSpinBoxAdjustK6->setValue(k6);
+}
+
+void CamerasViewImp::setAdjustCalibP1(double p1)
+{
+    mDoubleSpinBoxAdjustP1->setValue(p1);
+}
+
+void CamerasViewImp::setAdjustCalibP2(double p2)
+{
+    mDoubleSpinBoxAdjustP2->setValue(p2);
 }
 
 void CamerasViewImp::onSelectionChanged()
