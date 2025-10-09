@@ -49,69 +49,199 @@ namespace graphos
 class Undistort;
 
 /*!
- * \brief Orthorectification
+ * \class Orthorectification
+ * \brief Provides geometric transformations and tools for orthorectifying aerial or terrestrial images.
+ *
+ * This class performs the geometric projection between terrain (DSM) coordinates
+ * and image coordinates using the camera orientation parameters and the digital
+ * surface model (DSM). It supports both forward and inverse projections,
+ * image undistortion, and DSM window management.
+ *
+ * The coordinate reference system follows the local ENU (East-North-Up) system
+ * defined for the project. The class is designed to be used by higher-level
+ * modules such as Orthoimage and OrthophotoTask.
+ *
+ * \see ZBuffer, Orthoimage, OrthophotoTask
  */
 class Orthorectification
 {
 
 public:
 
-    Orthorectification(const tl::Path &dtm,
+    /*!
+     * \brief Constructs an Orthorectification object.
+     * \param[in] dsm Path to the Digital Surface Model (DSM) file.
+     * \param[in] cameraPose Camera pose including position and orientation in ENU coordinates.
+     * \param[in] undistort Shared pointer to an Undistort object for lens correction.
+     * \param[in] zIni Optional initial elevation value.
+     */
+    Orthorectification(const tl::Path &dsm,
                        CameraPose cameraPose,
                        std::shared_ptr<Undistort> &undistort,
                        double zIni = 0.);
 
     ~Orthorectification() = default;
 
-    tl::Point<int> terrainToImage(const tl::Point3<double> &terrainPoint) const;
-    tl::Point<double> terrainToPhotoCoordinates(const tl::Point3<double> &terrainPoint) const;
-    tl::Point3<double> imageToTerrain(const tl::Point<int> &imageCoordinates) const;
-    tl::Point3<double> photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const;
-    tl::Point<double> imageToPhotocoordinates(const tl::Point<int> &imagePoint) const;
-    tl::Point<double> photoCoordinatesToImageCoordinates(const tl::Point<double> &photocoordinates) const;
-    tl::Point3<double> dtmImageCoordinatesToTerrain(const tl::Point<int> &imagePoint) const;
-    tl::Point<int> terrainToDTMImageCoordinates(const tl::Point3<double> &terrainPoint) const;
-    double z(const tl::Point<double> &terrainPoint) const;
+    /*!
+     * \brief Projects a 3D terrain point (ENU) into image pixel coordinates.
+     * \param[in] terrainPoint Terrain point in ENU coordinates.
+     * \return Pixel coordinates in the image.
+     */
+    auto terrainToImage(const tl::Point3<double> &terrainPoint) const -> tl::Point<int>;
+    
 
-    tl::Rect<int> rectImage() const;
-    tl::Rect<int> rectDtm() const;
-    tl::GPolygon footprint() const;
+    /*!
+     * \brief Projects a 3D terrain point (ENU) into photo (camera) coordinates.
+     * \param[in] terrainPoint Terrain point in ENU coordinates.
+     * \return Point in photo (camera) coordinate system.
+     */
+    auto terrainToPhotoCoordinates(const tl::Point3<double> &terrainPoint) const -> tl::Point<double>;
 
-    CameraPose orientation() const;
-    Camera camera() const;
-    Camera undistortCamera() const;
+    /*!
+     * \brief Back-projects a pixel from the image into terrain space using the DSM.
+     * \param[in] imageCoordinates Pixel coordinates in the image.
+     * \return Corresponding terrain point in ENU coordinates.
+     */
+    auto imageToTerrain(const tl::Point<int> &imageCoordinates) const -> tl::Point3<double>;
 
-    bool hasNodataValue() const;
-    double nodataValue() const;
+    /*!
+     * \brief Back-projects photo (camera) coordinates into terrain coordinates using the DSM.
+     * \param[in] photocoordinates Point in photo (camera) coordinates.
+     * \return Corresponding terrain point in ENU coordinates.
+     */
+    auto photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const -> tl::Point3<double>;
 
-    cv::Mat undistort(const cv::Mat &image);
+    /*!
+     * \brief Converts image pixel coordinates to photo (camera) coordinates.
+     * \param[in] imagePoint Pixel coordinates in the image.
+     * \return Corresponding photo (camera) coordinates.
+     */
+    auto imageToPhotocoordinates(const tl::Point<int> &imagePoint) const -> tl::Point<double>;
 
-    bool isValid() const;
+    /*!
+     * \brief Converts photo (camera) coordinates to image pixel coordinates.
+     * \param[in] photocoordinates Point in photo (camera) coordinates.
+     * \return Pixel coordinates in the image.
+     */
+    auto photoCoordinatesToImageCoordinates(const tl::Point<double> &photocoordinates) const -> tl::Point<double>;
 
+    /*!
+     * \brief Converts DSM image coordinates to terrain (ENU) coordinates.
+     * \param[in] imagePoint Pixel coordinates in the DSM image.
+     * \return Corresponding terrain point in ENU coordinates.
+     */
+    auto dsmImageCoordinatesToTerrain(const tl::Point<int> &imagePoint) const -> tl::Point3<double>;
+
+    /*!
+     * \brief Converts terrain (ENU) coordinates to DSM image coordinates.
+     * \param[in] terrainPoint Terrain point in ENU coordinates.
+     * \return Pixel coordinates in the DSM image.
+     */
+    auto terrainToDsmImageCoordinates(const tl::Point3<double> &terrainPoint) const -> tl::Point<int> ;
+
+    /*!
+     * \brief Returns the DSM elevation (Z) at the given terrain coordinates.
+     * \param[in] terrainPoint Terrain point in ENU coordinates.
+     * \return Elevation value (Z) from the DSM.
+     */
+    auto z(const tl::Point<double> &terrainPoint) const -> double;
+
+    /*!
+     * \brief Returns the image-space rectangle (in pixels) of the input image.
+     * \return Rectangle in image coordinates.
+     */
+    auto rectImage() const -> tl::Rect<int>;
+
+    /*!
+     * \brief Returns the image-space rectangle (in pixels) of the DSM.
+     * \return Rectangle in DSM image coordinates.
+     */
+    auto rectDsm() const -> tl::Rect<int>;
+
+    /*!
+     * \brief Returns the terrain window (ENU) covered by the DSM used for the current camera.
+     * \return Terrain window in ENU coordinates.
+     */
+    auto windowDsm() const -> tl::Window<tl::Point<double>>;
+
+    /*!
+     * \brief Returns the ground footprint polygon of the projected image.
+     * \return Footprint polygon in ENU coordinates.
+     */
+    auto footprint() const -> tl::GPolygon;
+
+    /*!
+     * \brief Returns the current camera pose (position and orientation).
+     * \return Camera pose in ENU coordinates.
+     */
+    auto orientation() const -> CameraPose;
+
+
+    /*!
+     * \brief Returns the intrinsic camera model.
+     * \return Camera model.
+     */
+    auto camera() const -> Camera;
+
+    /*!
+     * \brief Returns the undistorted camera model.
+     * \return Undistorted camera model.
+     */
+    auto undistortCamera() const -> Camera;
+
+    /*!
+     * \brief Checks if the DSM contains nodata values.
+     * \return True if nodata values are present, false otherwise.
+     */
+    auto hasNodataValue() const -> bool;
+
+    /*!
+     * \brief Returns the nodata value of the DSM.
+     * \return Nodata value.
+     */
+    auto nodataValue() const -> double;
+
+    /*!
+     * \brief Applies lens undistortion to the given image.
+     * \param[in] image Input distorted image.
+     * \return Undistorted image.
+     */
+    auto undistort(const cv::Mat &image) -> cv::Mat;
+
+    /*!
+     * \brief Checks if the orthorectification setup is valid.
+     * \return True if valid, false otherwise.
+     */
+    auto isValid() const -> bool;
+
+    /*!
+     * \brief Enables or disables CUDA-based processing (if available).
+     * \param[in] active True to enable CUDA, false to disable it.
+     */
     void setCuda(bool active);
 
 private:
 
     void init();
 
-    float focal() const;
-    tl::Point<float> principalPoint() const;
+    auto focal() const -> float;
+    auto principalPoint() const -> tl::Point<float>;
 
 private:
 
-    tl::Path mDtmPath;
+    tl::Path mDsmPath;
     CameraPose mCameraPose;
     std::shared_ptr<Undistort> mUndistort;
-    cv::Mat mDtm;
-    tl::Window<tl::Point<double>> mWindowDtmTerrainExtension;
+    cv::Mat mDsm;
+    tl::Window<tl::Point<double>> mWindowDsmTerrainExtension;
     tl::Affine<double, 2> mAffineImageToPhotocoordinates;
     tl::Affine<double, 2> mAffinePhotocoordinatesToImage;
-    tl::Affine<double, 2> mAffineDtmImageToTerrain;
-    tl::Affine<double, 2> mAffineTerrainToDtmImage;
+    tl::Affine<double, 2> mAffineDsmImageToTerrain;
+    tl::Affine<double, 2> mAffineTerrainToDsmImage;
     std::unique_ptr<tl::DifferentialRectification> mDifferentialRectification;
     double mIniZ;
     tl::Rect<int> mRectImage;
-    tl::Rect<int> mRectDtm;
+    tl::Rect<int> mRectDsm;
     tl::GPolygon mFootprint;
     double mNoDataValue;
     bool bCuda;

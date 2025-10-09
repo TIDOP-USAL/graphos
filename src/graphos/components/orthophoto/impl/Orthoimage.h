@@ -44,30 +44,65 @@ class ZBuffer;
 cv::Mat createBlackPixelMask(const cv::Mat &image, double areaThreshold = 4, bool upper = false);
 
 /*!
- * \brief Orthoimage
+ * \class Orthoimage
+ * \brief Generates an orthorectified image in the specified output CRS using camera orientation and DSM data.
+ *
+ * This class performs the orthorectification of a single input image. It projects
+ * each pixel from the image into the target coordinate reference system (CRS),
+ * typically a projected system such as UTM. The transformation uses the
+ * camera orientation and the Digital Surface Model (DSM) provided by the
+ * associated Orthorectification object.
+ *
+ * Although the project data (camera poses, DSM) are defined in the local ENU
+ * system, the orthophoto is generated directly in the specified output CRS.
+ *
+ * The process supports multiple interpolation methods and can be executed
+ * on CPU or using CUDA acceleration.
+ *
+ * \see Orthorectification, OrthophotoTask, ZBuffer
  */
 class Orthoimage
 {
 
 public:
 
+	/*!
+	 * \brief Constructs an Orthoimage object.
+	 * \param[in] image Path to the input image to be orthorectified.
+	 * \param[in] orthorectification Pointer to the Orthorectification object providing DSM and camera data.
+	 * \param[in] enuCrs CRS string corresponding to the local ENU coordinate system of the project.
+	 * \param[in] crs Target coordinate reference system (CRS) for the output orthophoto.
+	 * \param[in] sizeEnuOrtho Size of the output orthophoto in pixels (for local ENU coordinate system of the project).
+	 * \param[in] enuOrthoGeoreference Affine transform defining the orthophoto georeference in the local ENU coordinate system of the project.
+	 * \param[in] interpolation Interpolation method ("NEAREST", "BILINEAR", "CUBIC").
+	 * \param[in] cuda True to enable CUDA-based processing, false for CPU.
+	 */
 	Orthoimage(const tl::Path &image,
 			   Orthorectification *orthorectification,
 			   const std::string &enuCrs,
 			   const std::string &crs,
-			   const tl::Rect<int> &rectOrtho,
-			   const tl::Affine<double, 2> &georeference,
+			   const tl::Size<int> &sizeEnuOrtho,
+			   const tl::Affine<double, 2> &enuOrthoGeoreference,
 			   const std::string &interpolation = "BILINEAR",
 			   bool cuda = false);
 
 	~Orthoimage();
 
+	/*!
+	 * \brief Runs the orthorectification process and writes the output orthophoto.
+	 * \param[in] ortho Output file path for the orthophoto.
+	 * \param[in] visibilityMap Optional visibility map to restrict valid terrain areas.
+	 *
+	 * The function reads the input image, projects it into the target CRS
+	 * according to the DSM and camera parameters, performs interpolation,
+	 * and writes the resulting orthophoto to disk.
+	 */
 	void run(const tl::Path &ortho,
 			 const cv::Mat &visibilityMap = cv::Mat());
 
 protected:
 
-	cv::Mat readImage();
+	auto readImage() -> cv::Mat;
 	void normalizeImage(cv::Mat &mat) const;
 
 private:
@@ -76,8 +111,8 @@ private:
 	Orthorectification *mOrthorectification;
 	std::string mEnuCrs;
 	std::string mCrs;
-	tl::Rect<int> mRectOrtho;
-	tl::Affine<double, 2> mGeoreference;
+    tl::Size<int> mSizeEnuOrtho;
+	tl::Affine<double, 2> mEnuGeoreference;
 	tl::Window<tl::Point<double>> mWindowOrthoTerrain;
 	std::string mInterpolation;
 	bool bCuda;

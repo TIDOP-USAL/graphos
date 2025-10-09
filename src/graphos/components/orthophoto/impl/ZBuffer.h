@@ -34,30 +34,69 @@ namespace graphos
 {
 
 /*!
- * \brief ZBuffer
+ * \class ZBuffer
+ * \brief Implements a Z-buffer projection algorithm for orthophoto generation.
+ *
+ * This class computes the correspondence between the Digital Surface Model (DSM)
+ * and the projected image pixels, determining for each orthorectified pixel the
+ * shortest distance to the camera projection center.
+ *
+ * The result is a distance map (Z-buffer) together with auxiliary maps that
+ * preserve the relationship between terrain coordinates and image coordinates.
+ *
+ * \details
+ * The algorithm iterates over the DTM and projects each terrain cell into the
+ * image space using the camera orientation parameters and the georeference
+ * transform of the orthophoto. In case of overlapping projections, the algorithm
+ * keeps the value corresponding to the smallest distance to the camera center.
+ * This ensures that, for each orthophoto pixel, the visible (nearest) point is used.
+ *
+ * \see Orthorectification, Orthoimage, OrthophotoTask
  */
 class ZBuffer
 {
+
 public:
 
+    /*!
+     * \brief Constructs a ZBuffer instance.
+     * \param[in] orthorectification Pointer to the Orthorectification object providing camera and DSM access.
+     * \param[in] sizeOrtho Image-space Size defining the orthophoto area.
+     * \param[in] georeference Affine transform relating terrain and image coordinates.
+     */
     ZBuffer(Orthorectification *orthorectification,
-            const tl::Rect<int> &rectOrtho,
+            const tl::Size<int> &sizeOrtho,
             const tl::Affine<double, 2> &georeference);
+
     ~ZBuffer();
 
+    /*!
+     * \brief Runs the Z-buffer computation.
+     *
+     * Iterates over the DSM and computes the minimum distance between the terrain surface 
+     * and the camera projection center. The resulting distance maps are stored internally.
+     *
+     * \throws tl::Exception If a projection or data access error occurs.
+     */
     void run();
 
-    cv::Mat distances() const;
-    cv::Mat mapX() const;
-    cv::Mat mapY() const;
+    //! \brief Returns the computed distance map (Z-buffer).
+    auto distances() const -> cv::Mat;
 
+    //! \brief Returns the auxiliary map containing DTM X indices for each orthophoto pixel.
+    auto mapX() const -> cv::Mat;
+
+    //! \brief Returns the auxiliary map containing DTM Y indices for each orthophoto pixel.
+    auto mapY() const -> cv::Mat;
+
+    //! \brief Clears internal matrices and releases memory.
     void clear();
 
 private:
 
     Orthorectification *mOrthorectification;
     tl::Rect<int> mRectOrtho;
-    tl::Affine<double, 2> mGeoreference;
+    tl::Affine<double, 2> mEnuGeoreference;
     tl::Window<tl::Point<double>> mWindowOrthoTerrain;
     cv::Mat mDistances;
     cv::Mat mY;

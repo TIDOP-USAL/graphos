@@ -28,6 +28,7 @@
 #include <tidop/core/task.h>
 #include <tidop/core/path.h>
 #include <tidop/vect/vectwriter.h>
+#include <tidop/graphic/entities/polygon.h>
 
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
@@ -72,6 +73,9 @@ public:
 private:
 
 	void execute(tl::Progress *progressBar = nullptr) override;
+
+	auto orthoimageGraphPolygon(const tl::Window<tl::Point<double>> &windowOrthoTerrain) const -> std::shared_ptr<tl::GPolygon>;
+	auto footprintPolygon(const tl::GPolygon &footprint) const -> std::shared_ptr<tl::GPolygon>;
 
 private:
 

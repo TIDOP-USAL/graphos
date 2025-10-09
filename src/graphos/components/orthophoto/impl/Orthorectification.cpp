@@ -40,17 +40,18 @@ Orthorectification::Orthorectification(const tl::Path &dtm,
                                        CameraPose cameraPose, 
                                        std::shared_ptr<Undistort> &undistort,
                                        double zIni)
-  : mDtmPath(dtm),
+  : mDsmPath(dtm),
     mCameraPose(std::move(cameraPose)),
     mUndistort(undistort),
     mIniZ(zIni),
+    mFootprint(4),
     mNoDataValue(-std::numeric_limits<double>::max()),
     bCuda(false)
 {
     init();
 }
 
-tl::Point<int> Orthorectification::terrainToImage(const tl::Point3<double> &terrainPoint) const
+auto Orthorectification::terrainToImage(const tl::Point3<double> &terrainPoint) const -> tl::Point<int>
 {
     tl::Point<int> image_coordinates;
 
@@ -66,7 +67,7 @@ tl::Point<int> Orthorectification::terrainToImage(const tl::Point3<double> &terr
     return image_coordinates;
 }
 
-tl::Point<double> Orthorectification::terrainToPhotoCoordinates(const tl::Point3<double> &terrainPoint) const
+auto Orthorectification::terrainToPhotoCoordinates(const tl::Point3<double> &terrainPoint) const -> tl::Point<double>
 {
     tl::Point<double> photocoordinates;
 
@@ -81,7 +82,7 @@ tl::Point<double> Orthorectification::terrainToPhotoCoordinates(const tl::Point3
     return photocoordinates;
 }
 
-tl::Point3<double> Orthorectification::imageToTerrain(const tl::Point<int> &imageCoordinates) const
+auto Orthorectification::imageToTerrain(const tl::Point<int> &imageCoordinates) const -> tl::Point3<double>
 {
     tl::Point3<double> terrain_coordinates;
 
@@ -97,7 +98,7 @@ tl::Point3<double> Orthorectification::imageToTerrain(const tl::Point<int> &imag
     return terrain_coordinates;
 }
 
-tl::Point3<double> Orthorectification::photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const
+auto Orthorectification::photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const -> tl::Point3<double>
 {
     double z = mIniZ;
     int it = 10;
@@ -110,10 +111,10 @@ tl::Point3<double> Orthorectification::photocoordinatesToTerrain(const tl::Point
 
         while (it > 0) {
 
-            tl::Point<int> dtm_point = terrainToDTMImageCoordinates(terrain_coordinates);
+            tl::Point<int> dtm_point = terrainToDsmImageCoordinates(terrain_coordinates);
 
-            if (mRectDtm.contains(dtm_point)) {
-                z2 = mDtm.at<float>(dtm_point.y - mRectDtm.y, dtm_point.x - mRectDtm.x);
+            if (mRectDsm.contains(dtm_point)) {
+                z2 = mDsm.at<float>(dtm_point.y - mRectDsm.y, dtm_point.x - mRectDsm.x);
                 if (std::abs(z2 - z) > 0.01 && z2 != mNoDataValue) {
                     terrain_coordinates = mDifferentialRectification->forwardProjection(photocoordinates, z2);
                     z = z2;
@@ -135,24 +136,24 @@ tl::Point3<double> Orthorectification::photocoordinatesToTerrain(const tl::Point
     return terrain_coordinates;
 }
 
-tl::Point<double> Orthorectification::imageToPhotocoordinates(const tl::Point<int> &imagePoint) const
+auto Orthorectification::imageToPhotocoordinates(const tl::Point<int> &imagePoint) const -> tl::Point<double>
 {
     return mAffineImageToPhotocoordinates.transform(tl::Point<double>(imagePoint));
 }
 
-tl::Point<double> Orthorectification::photoCoordinatesToImageCoordinates(const tl::Point<double> &photocoordinates) const
+auto Orthorectification::photoCoordinatesToImageCoordinates(const tl::Point<double> &photocoordinates) const -> tl::Point<double>
 {
     return mAffinePhotocoordinatesToImage.transform(photocoordinates);
 }
 
-tl::Point3<double> Orthorectification::dtmImageCoordinatesToTerrain(const tl::Point<int> &imagePoint) const
+auto Orthorectification::dsmImageCoordinatesToTerrain(const tl::Point<int> &imagePoint) const -> tl::Point3<double>
 {
     tl::Point3<double> dtm_terrain_point;
 
     try {
 
-        dtm_terrain_point = mAffineDtmImageToTerrain.transform(static_cast<tl::Point<double>>(imagePoint));
-        dtm_terrain_point.z = mDtm.at<float>(imagePoint.y - mRectDtm.y, imagePoint.x - mRectDtm.x);
+        dtm_terrain_point = mAffineDsmImageToTerrain.transform(static_cast<tl::Point<double>>(imagePoint));
+        dtm_terrain_point.z = mDsm.at<float>(imagePoint.y - mRectDsm.y, imagePoint.x - mRectDsm.x);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
@@ -161,20 +162,20 @@ tl::Point3<double> Orthorectification::dtmImageCoordinatesToTerrain(const tl::Po
     return dtm_terrain_point;
 }
 
-tl::Point<int> Orthorectification::terrainToDTMImageCoordinates(const tl::Point3<double> &terrainPoint) const
+auto Orthorectification::terrainToDsmImageCoordinates(const tl::Point3<double> &terrainPoint) const -> tl::Point<int>
 {
-    return mAffineTerrainToDtmImage.transform(static_cast<tl::Point<double>>(terrainPoint));
+    return mAffineTerrainToDsmImage.transform(static_cast<tl::Point<double>>(terrainPoint));
 }
 
-double Orthorectification::z(const tl::Point<double> &terrainPoint) const
+auto Orthorectification::z(const tl::Point<double> &terrainPoint) const -> double
 {
     double z = mNoDataValue;
 
     try {
 
-        tl::Point<int> dtm_point = terrainToDTMImageCoordinates(terrainPoint);
-        if (mRectDtm.contains(dtm_point)) {
-            z = mDtm.at<float>(dtm_point.y - mRectDtm.y, dtm_point.x - mRectDtm.x);
+        tl::Point<int> dtm_point = terrainToDsmImageCoordinates(terrainPoint);
+        if (mRectDsm.contains(dtm_point)) {
+            z = mDsm.at<float>(dtm_point.y - mRectDsm.y, dtm_point.x - mRectDsm.x);
         }
 
     } catch (...) {
@@ -184,42 +185,52 @@ double Orthorectification::z(const tl::Point<double> &terrainPoint) const
     return z;
 }
 
-tl::Rect<int> Orthorectification::rectImage() const
+auto Orthorectification::rectImage() const -> tl::Rect<int>
 {
     return mRectImage;
 }
 
-tl::Rect<int> Orthorectification::rectDtm() const
+auto Orthorectification::rectDsm() const -> tl::Rect<int>
 {
-    return mRectDtm;
+    return mRectDsm;
 }
 
-tl::GPolygon Orthorectification::footprint() const
+auto Orthorectification::windowDsm() const -> tl::Window<tl::Point<double>>
+{
+    tl::Window<tl::Point<double>> window;
+
+    window.pt1 = mAffineDsmImageToTerrain.transform(static_cast<tl::Point<double>>(mRectDsm.topLeft()));
+    window.pt2 = mAffineDsmImageToTerrain.transform(static_cast<tl::Point<double>>(mRectDsm.bottomRight()));
+    window.normalized();
+    return window;
+}
+
+auto Orthorectification::footprint() const -> tl::GPolygon
 {
     return mFootprint;
 }
 
-CameraPose Orthorectification::orientation() const
+auto Orthorectification::orientation() const -> CameraPose
 {
     return mCameraPose;
 }
 
-Camera Orthorectification::camera() const
+auto Orthorectification::camera() const -> Camera
 {
     return mUndistort->camera();
 }
 
-Camera Orthorectification::undistortCamera() const
+auto Orthorectification::undistortCamera() const -> Camera
 {
     return mUndistort->undistortCamera();
 }
 
-bool Orthorectification::hasNodataValue() const
+auto Orthorectification::hasNodataValue() const -> bool
 {
     return mNoDataValue != -std::numeric_limits<double>().max();
 }
 
-double Orthorectification::nodataValue() const
+auto Orthorectification::nodataValue() const -> double
 {
     return mNoDataValue;
 }
@@ -243,7 +254,7 @@ void Orthorectification::init()
 
             while (it > 0) {
 
-                tl::Point<int> image_point = terrainToDTMImageCoordinates(terrain_coordinates);
+                tl::Point<int> image_point = terrainToDsmImageCoordinates(terrain_coordinates);
 
                 tl::Rect<int> rect_full(tl::Point<int>(), dtmReader->cols(), dtmReader->rows());
 
@@ -275,22 +286,22 @@ void Orthorectification::init()
 
     try {
 
-        std::unique_ptr<tl::ImageReader> dtm_reader = tl::ImageReaderFactory::create(mDtmPath);
+        std::unique_ptr<tl::ImageReader> dtm_reader = tl::ImageReaderFactory::create(mDsmPath);
 
         dtm_reader->open();
 
-        mAffineDtmImageToTerrain = dtm_reader->georeference();
-        mAffineTerrainToDtmImage = mAffineDtmImageToTerrain.inverse();
+        mAffineDsmImageToTerrain = dtm_reader->georeference();
+        mAffineTerrainToDsmImage = mAffineDsmImageToTerrain.inverse();
 
         tl::Point<float> principal_point = this->principalPoint();
 
         mAffineImageToPhotocoordinates = tl::Affine<double, 2>(1., -1., -principal_point.x, principal_point.y, 0.);
         mAffinePhotocoordinatesToImage = mAffineImageToPhotocoordinates.inverse();
 
-        mWindowDtmTerrainExtension.pt1.x = mAffineDtmImageToTerrain.translation().x();
-        mWindowDtmTerrainExtension.pt1.y = mAffineDtmImageToTerrain.translation().y();
-        mWindowDtmTerrainExtension.pt2 = mAffineDtmImageToTerrain.transform(tl::Point<double>(dtm_reader->cols(), dtm_reader->rows()));
-        mWindowDtmTerrainExtension.normalized();
+        mWindowDsmTerrainExtension.pt1.x = mAffineDsmImageToTerrain.translation().x();
+        mWindowDsmTerrainExtension.pt1.y = mAffineDsmImageToTerrain.translation().y();
+        mWindowDsmTerrainExtension.pt2 = mAffineDsmImageToTerrain.transform(tl::Point<double>(dtm_reader->cols(), dtm_reader->rows()));
+        mWindowDsmTerrainExtension.normalized();
 
         mDifferentialRectification = std::make_unique<tl::DifferentialRectification>(mCameraPose.rotationMatrix(),
                                                                                      mCameraPose.position(),
@@ -314,16 +325,16 @@ void Orthorectification::init()
         tl::Point<double> center_project = image_to_terrain(mRectImage.window().center(), dtm_reader.get());
 
         // Lo compruebo antes
-        if (mWindowDtmTerrainExtension.containsPoint(center_project)) {
-            tl::WindowD w(center_project, mAffineDtmImageToTerrain.scale().x(), mAffineDtmImageToTerrain.scale().y());
+        if (mWindowDsmTerrainExtension.containsPoint(center_project)) {
+            tl::WindowD w(center_project, mAffineDsmImageToTerrain.scale().x(), mAffineDsmImageToTerrain.scale().y());
             cv::Mat image = dtm_reader->read(w);
             mIniZ = image.at<float>(0, 0);
         } /*else {
             // ¿Buscar la z media del DTM?, ¿la mas próxima? o ¿ir buscando en las diferentes esquinas de la imagen?
-            tl::WindowD w(center_project, mAffineDtmImageToTerrain.scale().x() * mRectImage.width / 2., mAffineDtmImageToTerrain.scale().y() * mRectImage.height / 2.);
+            tl::WindowD w(center_project, mAffineDsmImageToTerrain.scale().x() * mRectImage.width / 2., mAffineDsmImageToTerrain.scale().y() * mRectImage.height / 2.);
             w.normalized();
 
-            if (tl::intersectWindows(mWindowDtmTerrainExtension, w)) {
+            if (tl::intersectWindows(mWindowDsmTerrainExtension, w)) {
                 cv::Mat image = mDtmReader->read(w);
                 cv::Mat mask  = cv::Mat::zeros(image.rows, image.cols, CV_8U);
                 mask.setTo(cv::Scalar::all(255), image > -9999.);
@@ -334,20 +345,20 @@ void Orthorectification::init()
 
         tl::Rect<int> rect_full(tl::Point<int>(), dtm_reader->cols(), dtm_reader->rows());
 
-        mFootprint.push_back(image_to_terrain(mRectImage.topLeft(), dtm_reader.get()));
-        mFootprint.push_back(image_to_terrain(mRectImage.topRight(), dtm_reader.get()));
-        mFootprint.push_back(image_to_terrain(mRectImage.bottomRight(), dtm_reader.get()));
-        mFootprint.push_back(image_to_terrain(mRectImage.bottomLeft(), dtm_reader.get()));
+        mFootprint[0] = image_to_terrain(mRectImage.topLeft(), dtm_reader.get());
+        mFootprint[1] = image_to_terrain(mRectImage.topRight(), dtm_reader.get());
+        mFootprint[2] = image_to_terrain(mRectImage.bottomRight(), dtm_reader.get());
+        mFootprint[3] = image_to_terrain(mRectImage.bottomLeft(), dtm_reader.get());
 
         tl::WindowD window_terrain = mFootprint.window();
 
-        tl::Point<int> window_dtm_image_pt1 = terrainToDTMImageCoordinates(window_terrain.pt1);
-        tl::Point<int> window_dtm_image_pt2 = terrainToDTMImageCoordinates(window_terrain.pt2);
+        tl::Point<int> window_dtm_image_pt1 = terrainToDsmImageCoordinates(window_terrain.pt1);
+        tl::Point<int> window_dtm_image_pt2 = terrainToDsmImageCoordinates(window_terrain.pt2);
 
         tl::Rect<int> rect(window_dtm_image_pt1, window_dtm_image_pt2);
         rect.normalized();
-        mRectDtm = intersect(rect, rect_full);
-        mDtm = dtm_reader->read(mRectDtm);
+        mRectDsm = intersect(rect, rect_full);
+        mDsm = dtm_reader->read(mRectDsm);
         dtm_reader->close();
 
     } catch (...) {
@@ -356,7 +367,7 @@ void Orthorectification::init()
     
 }
 
-float Orthorectification::focal() const
+auto Orthorectification::focal() const -> float
 {
     float focal_x = 1.f;
     float focal_y = 1.f;
@@ -374,7 +385,7 @@ float Orthorectification::focal() const
     return (focal_x + focal_y) / 2.f;
 }
 
-tl::Point<float> Orthorectification::principalPoint() const
+auto Orthorectification::principalPoint() const -> tl::Point<float>
 {
     tl::Point<float> principal_point;
 
@@ -391,12 +402,12 @@ void Orthorectification::setCuda(bool active)
     bCuda = active;
 }
 
-cv::Mat Orthorectification::undistort(const cv::Mat &image)
+auto Orthorectification::undistort(const cv::Mat &image) -> cv::Mat
 {
     return mUndistort->undistortImage(image);
 }
 
-bool Orthorectification::isValid() const
+auto Orthorectification::isValid() const -> bool
 {
     return mIniZ != mNoDataValue;
 }
