@@ -40,6 +40,7 @@
 #ifdef HAVE_OPENCV_CUDAARITHM
 #include <opencv2/cudaarithm.hpp>
 #endif
+#include <opencv2/imgcodecs.hpp>
 
 namespace graphos
 {
@@ -53,7 +54,7 @@ cv::Mat visibilityMap(const Orthorectification &orthorectification,
     cv::Mat z_buffer_x = zBuffer.mapX();
     cv::Mat z_buffer_y = zBuffer.mapY();
 
-    tl::Rect<int> rect_dtm = orthorectification.rectDtm();
+    tl::Rect<int> rect_dtm = orthorectification.rectDsm();
     cv::Mat visibility_map = cv::Mat::zeros(rect_dtm.height, rect_dtm.width, CV_8U);
 
     for (int r = 0; r < z_buffer_y.rows; r++) {
@@ -195,76 +196,12 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
                     }
 
                 }
- 
-                // No se nota mejoría al corregir la distorsión de las imágenes aqui
-                // Tampoco cuando se vuelve a procesar con las imagenes corregidas ya calculadas
-//                tl::Path undistort_path = mOrthoPath.parentPath();
-//                undistort_path.append("undistort");
-//                undistort_path.createDirectories();
-//                undistort_path.append(file_name);
-//                undistort_path.replaceExtension(".tif");
-//
-//                if (!undistort_path.exists()) {
-//
-//                    auto _undistort = undistort.find(image.cameraId());
-//                    if (_undistort == undistort.end()) {
-//
-//                        const auto &camera = mCameras.find(image.cameraId());
-//                        if (camera != mCameras.end()) {
-//                            undistort[camera->first] = std::make_shared<Undistort>(camera->second);
-//                        }
-//
-//                    }
-//
-//                    cv::Mat mat;
-//
-//                    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image.path().toStdString());
-//                    imageReader->open();
-//                    if (imageReader->isOpen()) {
-//
-//                        mat = imageReader->read();
-//
-//                        imageReader->close();
-//                    }
-//
-//                    if (mat.depth() != CV_8U) {
-//#ifdef HAVE_OPENCV_CUDAARITHM
-//                        if (bCuda) {
-//                            cv::cuda::GpuMat gImgIn(mat);
-//                            cv::cuda::GpuMat gImgOut;
-//                            cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-//                            gImgOut.download(mat);
-//                        } else {
-//#endif
-//                            cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
-//#ifdef HAVE_OPENCV_CUDAARITHM
-//                        }
-//#endif
-//                    }
-//
-//                    cv::Mat undistort_image = undistort[image.cameraId()]->undistortImage(mat, bCuda);
-//                    mat.release();
-//
-//                    std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(undistort_path);
-//                    image_writer->open();
-//                    if (image_writer->isOpen()) {
-//                        image_writer->create(undistort_image.rows,
-//                            undistort_image.cols,
-//                            undistort_image.channels(),
-//                            tl::openCVDataTypeToDataType(undistort_image.type()));
-//                        image_writer->write(undistort_image);
-//
-//                        image_writer->close();
-//                    }
-//                }
 
                 ortho_file = mOrthoPath;
-                //ortho_file.append(file_name).replaceExtension(".png");
                 ortho_file.append(file_name).replaceExtension(".tif");
 
 
                 Orthorectification orthorectification(mDtm,
-                                                      //mCameras[image.cameraId()],
                                                       image.cameraPose(),
                                                       undistort[image.cameraId()],
                                                       z_ini);
@@ -295,46 +232,28 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
 
                 // Se reserva tamaño para la orto
                 tl::Window<tl::Point<double>> window_ortho_terrain = footprint.window();
-                window_ortho_terrain = expandWindow(window_ortho_terrain,
-                    window_ortho_terrain.width() * (mCrop - 1.) / 2.,
-                    window_ortho_terrain.height() * (mCrop - 1.) / 2.);
-                int rows_ortho = static_cast<int>(std::round(window_ortho_terrain.height() / gsd));
-                int cols_ortho = static_cast<int>(std::round(window_ortho_terrain.width() / gsd));
-                tl::Rect<int> rect_ortho = tl::Rect<int>(0, 0, cols_ortho, rows_ortho);
-
-                tl::Affine<double, 2> affine_ortho(gsd, -gsd,
-                    window_ortho_terrain.pt1.x,
-                    window_ortho_terrain.pt2.y, 0.0);
-                /// Grafico ortofotos
-                {
-                    tl::Rect<double> rect(window_ortho_terrain.pt1, window_ortho_terrain.pt2);
-                    rect.normalized();
-                    std::shared_ptr<tl::GPolygon> entity_ortho = std::make_shared<tl::GPolygon>();
-
-                    tl::Point3d top_left_utm = static_cast<tl::Point3d>(rect.topLeft());
-                    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_utm.x, top_left_utm.y, top_left_utm.z);
-                    entity_ortho->push_back(static_cast<tl::Point2d>(top_left_utm));
-
-                    tl::Point3d top_right_utm = static_cast<tl::Point3d>(rect.topRight());
-                    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_utm.x, top_right_utm.y, top_right_utm.z);
-                    entity_ortho->push_back(static_cast<tl::Point2d>(top_right_utm));
-
-                    tl::Point3d bottom_right_utm = static_cast<tl::Point3d>(rect.bottomRight());
-                    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_utm.x, bottom_right_utm.y, bottom_right_utm.z);
-                    entity_ortho->push_back(static_cast<tl::Point2d>(bottom_right_utm));
-
-                    tl::Point3d bottom_left_utm = static_cast<tl::Point3d>(rect.bottomLeft());
-                    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_utm.x, bottom_left_utm.y, bottom_left_utm.z);
-                    entity_ortho->push_back(static_cast<tl::Point2d>(bottom_left_utm));
-
-                    std::shared_ptr<tl::TableRegister> data_ortho(new tl::TableRegister(layer_ortho_graph.tableFields()));
-                    data_ortho->setValue(0, ortho_file.toUtf8());
-                    entity_ortho->setData(data_ortho);
-                    layer_ortho_graph.push_back(entity_ortho);
-                }
+                window_ortho_terrain = tl::expandWindow(window_ortho_terrain,
+                                                        window_ortho_terrain.width() * (mCrop - 1.) / 2.,
+                                                        window_ortho_terrain.height() * (mCrop - 1.) / 2.);
+                auto window_dem = orthorectification.windowDsm();
+                window_ortho_terrain = tl::windowIntersection(window_ortho_terrain, window_dem);
+                tl::Size<int> size_ortho_enu(static_cast<int>(std::round(window_ortho_terrain.width() / gsd)),
+                                             static_cast<int>(std::round(window_ortho_terrain.height() / gsd)));
 
 
-                ZBuffer zBuffer(&orthorectification, rect_ortho, affine_ortho);
+                /// Ortofoto en coordenadas ENU
+
+                std::shared_ptr<tl::GPolygon> entity_ortho = orthoimageGraphPolygon(window_ortho_terrain);
+                std::shared_ptr<tl::TableRegister> data_ortho(new tl::TableRegister(layer_ortho_graph.tableFields()));
+                data_ortho->setValue(0, ortho_file.toUtf8());
+                entity_ortho->setData(data_ortho);
+                layer_ortho_graph.push_back(entity_ortho);
+
+                tl::Affine<double, 2> affine_ortho_enu(gsd, -gsd,
+                                                       window_ortho_terrain.pt1.x,
+                                                       window_ortho_terrain.pt2.y, 0.0);
+
+                ZBuffer zBuffer(&orthorectification, size_ortho_enu, affine_ortho_enu);
                 zBuffer.run();
 
                 cv::Mat visibility_map = visibilityMap(orthorectification, zBuffer);
@@ -343,37 +262,18 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
                                       &orthorectification,
                                       mEnuCrs,
                                       mCrs,
-                                      rect_ortho,
-                                      affine_ortho,
+                                      size_ortho_enu,
+                                      affine_ortho_enu,
                                       mInterpolation,
                                       bCuda);
 
                 orthoimage.run(ortho_file, visibility_map);
 
-                {
-                    std::shared_ptr<tl::GPolygon> entity = std::make_shared<tl::GPolygon>();
-
-                    tl::Point3d top_left_utm = static_cast<tl::Point3d>(static_cast<tl::Point3d>(footprint.at(0)));
-                    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_utm.x, top_left_utm.y, top_left_utm.z);
-                    entity->push_back(static_cast<tl::Point2d>(top_left_utm));
-
-                    tl::Point3d top_right_utm = static_cast<tl::Point3d>(static_cast<tl::Point3d>(footprint.at(1)));
-                    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_utm.x, top_right_utm.y, top_right_utm.z);
-                    entity->push_back(static_cast<tl::Point2d>(top_right_utm));
-
-                    tl::Point3d bottom_right_utm = static_cast<tl::Point3d>(static_cast<tl::Point3d>(footprint.at(2)));
-                    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_utm.x, bottom_right_utm.y, bottom_right_utm.z);
-                    entity->push_back(static_cast<tl::Point2d>(bottom_right_utm));
-
-                    tl::Point3d bottom_left_utm = static_cast<tl::Point3d>(static_cast<tl::Point3d>(footprint.at(3)));
-                    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_utm.x, bottom_left_utm.y, bottom_left_utm.z);
-                    entity->push_back(static_cast<tl::Point2d>(bottom_left_utm));
-
-                    std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(layer.tableFields()));
-                    data->setValue(0, ortho_file.toUtf8());
-                    entity->setData(data);
-                    layer.push_back(entity);
-                }
+                auto entity = footprintPolygon(footprint);
+                std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(layer.tableFields()));
+                data->setValue(0, ortho_file.toUtf8());
+                entity->setData(data);
+                layer.push_back(entity);
 
                 tl::Message::info("Orthoimage {} generated in {:.2} minutes", ortho_file.fileName().toUtf8(), chrono_orthoimage.stop() / 60.);
 
@@ -396,6 +296,59 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
     }
+}
+
+auto OrthoimageTask::orthoimageGraphPolygon(const tl::Window<tl::Point<double>> &windowOrthoTerrain) const -> std::shared_ptr<tl::GPolygon>
+{
+    tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
+
+    tl::Rect<double> rect(windowOrthoTerrain.pt1, windowOrthoTerrain.pt2);
+    rect.normalized();
+
+    std::shared_ptr<tl::GPolygon> entity_ortho = std::make_shared<tl::GPolygon>();
+
+    tl::Point3d top_left_utm = static_cast<tl::Point3d>(rect.topLeft());
+    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_utm.x, top_left_utm.y, top_left_utm.z);
+    entity_ortho->push_back(static_cast<tl::Point2d>(top_left_utm));
+
+    tl::Point3d top_right_utm = static_cast<tl::Point3d>(rect.topRight());
+    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_utm.x, top_right_utm.y, top_right_utm.z);
+    entity_ortho->push_back(static_cast<tl::Point2d>(top_right_utm));
+
+    tl::Point3d bottom_right_utm = static_cast<tl::Point3d>(rect.bottomRight());
+    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_utm.x, bottom_right_utm.y, bottom_right_utm.z);
+    entity_ortho->push_back(static_cast<tl::Point2d>(bottom_right_utm));
+
+    tl::Point3d bottom_left_utm = static_cast<tl::Point3d>(rect.bottomLeft());
+    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_utm.x, bottom_left_utm.y, bottom_left_utm.z);
+    entity_ortho->push_back(static_cast<tl::Point2d>(bottom_left_utm));
+    
+    return entity_ortho;
+}
+
+auto OrthoimageTask::footprintPolygon(const tl::GPolygon &footprint) const -> std::shared_ptr<tl::GPolygon>
+{
+    tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
+
+    std::shared_ptr<tl::GPolygon> entity = std::make_shared<tl::GPolygon>();
+
+    tl::Point3d top_left_utm = static_cast<tl::Point3d>(static_cast<tl::Point3d>(footprint.at(0)));
+    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_utm.x, top_left_utm.y, top_left_utm.z);
+    entity->push_back(static_cast<tl::Point2d>(top_left_utm));
+
+    tl::Point3d top_right_utm = static_cast<tl::Point3d>(static_cast<tl::Point3d>(footprint.at(1)));
+    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_utm.x, top_right_utm.y, top_right_utm.z);
+    entity->push_back(static_cast<tl::Point2d>(top_right_utm));
+
+    tl::Point3d bottom_right_utm = static_cast<tl::Point3d>(static_cast<tl::Point3d>(footprint.at(2)));
+    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_utm.x, bottom_right_utm.y, bottom_right_utm.z);
+    entity->push_back(static_cast<tl::Point2d>(bottom_right_utm));
+
+    tl::Point3d bottom_left_utm = static_cast<tl::Point3d>(static_cast<tl::Point3d>(footprint.at(3)));
+    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_utm.x, bottom_left_utm.y, bottom_left_utm.z);
+    entity->push_back(static_cast<tl::Point2d>(bottom_left_utm));
+
+    return entity;
 }
 
 

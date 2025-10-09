@@ -1,4 +1,4 @@
-/************************************************************************
+Ôªø/************************************************************************
  *                                                                      *
  *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
  *                                                                      *
@@ -49,13 +49,17 @@
 
 #include <QDateTime>
 
+//#define FAST_ORTHO 1
+
 namespace graphos
 {
 
 constexpr double exposure_compensator_factor = 0.1;
+constexpr int ortho_tile_w = 600;
+constexpr int ortho_tile_h = 600;
+constexpr int ortho_overlap = 50;
 
-
-std::shared_ptr<tl::GPolygon> bestImage(const tl::Point<double> &pt, std::shared_ptr<tl::GLayer> layer)
+static std::shared_ptr<tl::GPolygon> bestImage(const tl::Point<double> &pt, std::shared_ptr<tl::GLayer> layer)
 {
     std::shared_ptr<tl::GPolygon> footprint_image;
 
@@ -86,7 +90,7 @@ std::shared_ptr<tl::GPolygon> bestImage(const tl::Point<double> &pt, std::shared
     return footprint_image;
 }
 
-void findOptimalFootprint(const tl::Path &footprint_file,
+static void findOptimalFootprint(const tl::Path &footprint_file,
                           std::vector<tl::WindowD> &grid,
                           const tl::Path &optimal_footprint_path,
                           const tl::Crs &crs)
@@ -203,13 +207,13 @@ void findOptimalFootprint(const tl::Path &footprint_file,
     }
 }
 
-cv::Mat combineImages(const std::vector<cv::Mat> &images)
+static cv::Mat combineImages(const std::vector<cv::Mat> &images)
 {
     cv::Mat result = images[0].clone(); // Clona la imagen base como resultado
 
     for (size_t i = 1; i < images.size(); ++i) {
         cv::Mat maskResult;
-        // Crear m·scara para los pÌxeles negros en la imagen resultante
+        // Crear m√°scara para los p√≠xeles negros en la imagen resultante
         cv::inRange(result, cv::Scalar(0, 0, 0), cv::Scalar(0, 0, 0), maskResult);
         if (cv::countNonZero(maskResult) == 0)
             break;
@@ -221,109 +225,732 @@ cv::Mat combineImages(const std::vector<cv::Mat> &images)
         cv::Mat mask;
         cv::bitwise_and(maskResult, maskImage, mask);
 
-        // DilataciÛn de la m·scara para cubrir bordes y suavizar uniones
+        // Dilataci√≥n de la m√°scara para cubrir bordes y suavizar uniones
         cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2, 2));
         cv::dilate(mask, mask, element);
 
 
-        // Solo copiar los pÌxeles de la imagen actual donde result es negro
+        // Solo copiar los p√≠xeles de la imagen actual donde result es negro
         images[i].copyTo(result, mask);
 
+        // Relleno de pixeles negros
+        cv::Mat blackPixelMask = createBlackPixelMask(result, 1024);
+        //cv::Mat black_pixel_mask = createBlackPixelMask(result, 512);
+        cv::inpaint(result, blackPixelMask, result, 3, cv::INPAINT_TELEA);
+        //cv::inpaint(result, black_pixel_mask, result, 5, cv::INPAINT_NS);
     }
 
     return result;
 }
 
-//cv::Mat combineImages(const std::vector<cv::Mat> &images)
+//static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
+//                           const std::vector<double> &distances,
+//                           float weight_color = 0.7f,
+//                           float weight_distance = 0.3f)
 //{
 //    if (images.empty()) return cv::Mat();
 //
-//    // Nueva versiÛn: Multi-band blending
-//    cv::Ptr<cv::detail::Blender> blender = cv::makePtr<cv::detail::MultiBandBlender>(false, 5);
-//    cv::Rect boundingBox;
+//    size_t images_size = images.size();
 //
-//    // Preparar blender con el bounding box de todas las im·genes
-//    for (const auto &img : images) {
-//        boundingBox |= cv::Rect(0, 0, img.cols, img.rows);
+//    TL_ASSERT(images_size == distances.size(), "Number of images and distances must match");
+//
+//    int rows = images[0].rows;
+//    int cols = images[0].cols;
+//
+//    // Precompute valid masks (non-black)
+//    std::vector<cv::Mat> valid_masks(images_size);
+//    for (int i = 0; i < images_size; ++i) {
+//        cv::inRange(images[i], cv::Scalar(0, 0, 0), cv::Scalar(0, 0, 0), valid_masks[i]);
+//        cv::bitwise_not(valid_masks[i], valid_masks[i]); // ahora 255 = v√°lido
 //    }
-//    blender->prepare(boundingBox);
 //
-//    for (size_t i = 0; i < images.size(); ++i) {
-//        cv::Mat mask(images[i].size(), CV_8U, cv::Scalar::all(255));
-//        blender->feed(images[i], mask, cv::Point(0, 0));
+//    // Convert images to Lab float32 for perceptual distance
+//    std::vector<cv::Mat> lab_images(images_size);
+//    for (size_t i = 0; i < images_size; ++i) {
+//        images[i].convertTo(lab_images[i], CV_32F, 1.0 / 255.0); // [0,1] float
+//        cv::cvtColor(lab_images[i], lab_images[i], cv::COLOR_BGR2Lab); // Lab float (L in 0-100 scaled ~0-100 but here 0-1 scaled)
 //    }
 //
-//    cv::Mat result, result_mask;
-//    blender->blend(result, result_mask);
+//    // Normalize distances to [0,1] (smaller = better)
+//    double min_distance = std::numeric_limits<double>::max();
+//    double max_distance = std::numeric_limits<double>::lowest();
 //
-//    if (result.depth() != CV_8U) {
-//        double minVal, maxVal;
-//        cv::minMaxLoc(result, &minVal, &maxVal);
-//        if (maxVal > 1.0) maxVal = 1.0; // Asegurar rango tÌpico
-//        if (maxVal > 0.0) {
-//            result.convertTo(result, CV_8U, 255.0 / maxVal);
-//        } else {
-//            result.convertTo(result, CV_8U);
+//    for (const auto &d : distances) {
+//        if (d < min_distance) min_distance = d;
+//        if (d > max_distance) max_distance = d;
+//    }
+//
+//    double distance_range = (max_distance > min_distance) ? (max_distance - min_distance) : 1.0;
+//
+//    cv::Mat result(rows, cols, CV_8UC3, cv::Scalar(0, 0, 0));
+//    cv::Mat assigned(rows, cols, CV_8U, cv::Scalar(0)); // 1 si ya asignado
+//
+//    // mediana por canal (robusto frente a outliers)
+//    auto median_of = [](std::vector<float> &v) -> float {
+//        size_t n = v.size();
+//        size_t mid = n / 2;
+//        std::nth_element(v.begin(), v.begin() + mid, v.end());
+//        float med = v[mid];
+//        if (n % 2 == 0) {
+//            // promedio del par medio
+//            float left = *std::max_element(v.begin(), v.begin() + mid);
+//            med = 0.5f * (med + left);
 //        }
+//        return med;
+//        };
+//
+//    // Para cada p√≠xel calcular mediana robusta y elegir la mejor muestra
+//    tl::parallel_for(0, rows, [&](size_t y) {
+//
+//        std::vector<float> L;
+//        std::vector<float> A;
+//        std::vector<float> B;
+//        std::vector<float> color_distances;
+//        L.reserve(images_size);
+//        A.reserve(images_size);
+//        B.reserve(images_size);
+//        color_distances.reserve(images_size);
+//
+//        for (int x = 0; x < cols; ++x) {
+//
+//            L.clear(); 
+//            A.clear(); 
+//            B.clear();
+//
+//            // Reunir muestras v√°lidas en Lab
+//            for (int i = 0; i < images_size; ++i) {
+//                if (valid_masks[i].at<uchar>(static_cast<int>(y), x)) {
+//                    cv::Vec3f lab = lab_images[i].at<cv::Vec3f>(static_cast<int>(y), x);
+//                    L.push_back(lab[0]);
+//                    A.push_back(lab[1]);
+//                    B.push_back(lab[2]);
+//                }
+//            }
+//
+//            if (L.empty()) {
+//                continue;
+//            }
+//
+//            std::vector<float> tmpL = L, tmpA = A, tmpB = B;
+//            float median_l = median_of(tmpL);
+//            float median_a = median_of(tmpA);
+//            float median_b = median_of(tmpB);
+//
+//            // calcular distancia fotom√©trica de cada imagen v√°lida al mediano
+//            color_distances.clear();
+//            color_distances.resize(images_size, std::numeric_limits<float>::infinity());
+//
+//            // volver a iterar para calcular score por imagen (necesitamos √≠ndice original)
+//            int idxValid = 0;
+//            for (int i = 0; i < images_size; ++i) {
+//                if (!valid_masks[i].at<uchar>(static_cast<int>(y), x)) continue;
+//                cv::Vec3f lab = lab_images[i].at<cv::Vec3f>(static_cast<int>(y), x);
+//                float dL = lab[0] - median_l;
+//                float dA = lab[1] - median_a;
+//                float dB = lab[2] - median_b;
+//                float distance_color = std::sqrt(dL * dL + dA * dA + dB * dB); // Euclid Lab
+//                color_distances[i] = distance_color;
+//                ++idxValid;
+//            }
+//
+//            // normalize color distances among valid samples to [0,1]
+//            float minC = std::numeric_limits<float>::infinity();
+//            float maxC = std::numeric_limits<float>::lowest();
+//            for (int i = 0; i < images_size; ++i) if (color_distances[i] < std::numeric_limits<float>::infinity()) {
+//                if (color_distances[i] < minC) minC = color_distances[i];
+//                if (color_distances[i] > maxC) maxC = color_distances[i];
+//            }
+//            float rangeC = (maxC > minC) ? (maxC - minC) : 1.0f;
+//
+//            // seleccionar la mejor muestra minimizando score = w_color * color_norm + w_dist * dist_norm
+//            float bestScore = std::numeric_limits<float>::infinity();
+//            int bestIdx = -1;
+//            for (int i = 0; i < images_size; ++i) {
+//                if (color_distances[i] == std::numeric_limits<float>::infinity()) continue;
+//                float colorNorm = (color_distances[i] - minC) / rangeC; // 0..1
+//                float distNorm = static_cast<float>((distances[i] - min_distance) / distance_range);
+//                float score = weight_color * colorNorm + weight_distance * distNorm;
+//                if (score < bestScore) {
+//                    bestScore = score;
+//                    bestIdx = i;
+//                }
+//            }
+//
+//            if (bestIdx >= 0) {
+//                //// asignar p√≠xel desde la mejor imagen
+//                //result.at<cv::Vec3b>(static_cast<int>(y), x) = images[bestIdx].at<cv::Vec3b>(static_cast<int>(y), x);
+//                //assigned.at<uchar>(static_cast<int>(y), x) = 255;
+//                    
+//                // --- Interpolaci√≥n local (suavizado adaptativo) ---
+//                cv::Vec3f sumColor(0, 0, 0);
+//                float sumWeight = 0.f;
+//
+//                const int radius = 1; // ventana 3x3
+//                const float sigma_s = 1.0f; // peso espacial
+//                const float sigma_c = 0.1f; // peso color
+//
+//                const cv::Mat &img = lab_images[bestIdx];
+//                cv::Vec3f center = img.at<cv::Vec3f>(static_cast<int>(y), x);
+//
+//                for (int dy = -radius; dy <= radius; ++dy) {
+//                    int yy = static_cast<int>(y) + dy;
+//                    if (yy < 0 || yy >= rows) continue;
+//                    for (int dx = -radius; dx <= radius; ++dx) {
+//                        int xx = x + dx;
+//                        if (xx < 0 || xx >= cols) continue;
+//                        if (!valid_masks[bestIdx].at<uchar>(yy, xx)) continue;
+//
+//                        cv::Vec3f val = img.at<cv::Vec3f>(yy, xx);
+//
+//                        float ds = std::sqrt(float(dx * dx + dy * dy));
+//                        float dc = std::sqrt((val[0] - center[0]) * (val[0] - center[0]) +
+//                            (val[1] - center[1]) * (val[1] - center[1]) +
+//                            (val[2] - center[2]) * (val[2] - center[2]));
+//
+//                        float ws = std::exp(-0.5f * (ds * ds) / (sigma_s * sigma_s));
+//                        float wc = std::exp(-0.5f * (dc * dc) / (sigma_c * sigma_c));
+//                        float w = ws * wc;
+//
+//                        sumColor += val * w;
+//                        sumWeight += w;
+//                    }
+//                }
+//
+//                cv::Vec3f labSmoothed = (sumWeight > 0.f) ? (sumColor / sumWeight) : center;
+//
+//                // volver a BGR
+//                cv::Mat labPix(1, 1, CV_32FC3, labSmoothed);
+//                cv::Mat bgrPix;
+//                cv::cvtColor(labPix, bgrPix, cv::COLOR_Lab2BGR);
+//                cv::Vec3f bgr = bgrPix.at<cv::Vec3f>(0, 0) * 255.0f;
+//                result.at<cv::Vec3b>(static_cast<int>(y), x) = cv::Vec3b(
+//                    cv::saturate_cast<uchar>(bgr[0]),
+//                    cv::saturate_cast<uchar>(bgr[1]),
+//                    cv::saturate_cast<uchar>(bgr[2])
+//                );
+//                assigned.at<uchar>(static_cast<int>(y), x) = 255;
+//            }
+//        }
+//    });
+//
+//    // Post-procesado
+//    cv::Mat assigned_copy = assigned.clone();
+//    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3));
+//
+//    cv::Mat dil;
+//    cv::dilate(assigned_copy, dil, kernel);
+//
+//    // Por cada p√≠xel no asignado, si en el dilatado hay vecinos asignados, copiamos desde la imagen preferida por color/dist
+//    tl::parallel_for(0, rows, [&](size_t y) {
+//        for (int x = 0; x < cols; ++x) {
+//            if (assigned.at<uchar>(static_cast<int>(y), x)) continue;
+//            if (!dil.at<uchar>(static_cast<int>(y), x)) continue;
+//
+//            // Buscar el mejor candidato entre im√°genes que tengan p√≠xel v√°lido y que en sus vecinos haya asignaci√≥n
+//            float bestScore = std::numeric_limits<float>::infinity();
+//            int bestIdx = -1;
+//            for (int i = 0; i < images_size; ++i) {
+//                if (!valid_masks[i].at<uchar>(static_cast<int>(y), x)) continue;
+//
+//                float distNorm = static_cast<float>((distances[i] - min_distance) / distance_range);
+//                float score = weight_distance * distNorm;
+//                if (score < bestScore) {
+//                    bestScore = score;
+//                    bestIdx = i;
+//                }
+//            }
+//            if (bestIdx >= 0) {
+//                result.at<cv::Vec3b>(static_cast<int>(y), x) = images[bestIdx].at<cv::Vec3b>(static_cast<int>(y), x);
+//            }
+//        }
+//    });
+//
+//    // Opcional: suavizado local para evitar bordes duros
+//    //cv::GaussianBlur(result, result, cv::Size(0, 0), 0.6);
+//
+//    //Filtro de realce (unsharp mask)
+//    //cv::Mat sharp, blurred;
+//    //cv::GaussianBlur(result, blurred, cv::Size(0, 0), 1.0);
+//    //cv::addWeighted(result, 1.5, blurred, -0.5, 0, sharp);
+//    //result = sharp;
+//
+//    //cv::bilateralFilter(result, 
+//
+//    return result;
+//}
+//static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
+//                                  const std::vector<double> &distances,
+//                                  float weight_color = 0.7f,
+//                                  float weight_distance = 0.3f)
+//{
+//    if (images.empty()) return cv::Mat();
+//
+//    size_t images_size = images.size();
+//
+//    TL_ASSERT(images_size == distances.size(), "Number of images and distances must match");
+//
+//    int rows = images[0].rows;
+//    int cols = images[0].cols;
+//
+//    // Precompute valid masks (non-black)
+//    std::vector<cv::Mat> valid_masks(images_size);
+//    for (int i = 0; i < images_size; ++i) {
+//        cv::inRange(images[i], cv::Scalar(0, 0, 0), cv::Scalar(0, 0, 0), valid_masks[i]);
+//        cv::bitwise_not(valid_masks[i], valid_masks[i]);
 //    }
-//    if (result.channels() != 3) {
-//        cv::cvtColor(result, result, cv::COLOR_GRAY2BGR);
+//
+//    // Convert images to Lab float32 for perceptual distance
+//    std::vector<cv::Mat> lab_images(images_size);
+//    for (size_t i = 0; i < images_size; ++i) {
+//        images[i].convertTo(lab_images[i], CV_32F, 1.0 / 255.0);
+//        cv::cvtColor(lab_images[i], lab_images[i], cv::COLOR_BGR2Lab);
 //    }
+//
+//    // Normalize distances to [0,1] (smaller = better)
+//    double min_distance = std::numeric_limits<double>::max();
+//    double max_distance = std::numeric_limits<double>::lowest();
+//
+//    for (const auto &d : distances) {
+//        if (d < min_distance) min_distance = d;
+//        if (d > max_distance) max_distance = d;
+//    }
+//
+//    double distance_range = (max_distance > min_distance) ? (max_distance - min_distance) : 1.0;
+//
+//    // Precompute normalized distances
+//    std::vector<float> normalized_distances(images_size);
+//    for (size_t i = 0; i < images_size; ++i)
+//        normalized_distances[i] = static_cast<float>((distances[i] - min_distance) / distance_range);
+//
+//    cv::Mat result(rows, cols, CV_8UC3, cv::Scalar(0, 0, 0));
+//    cv::Mat assigned(rows, cols, CV_8U, cv::Scalar(0));
+//
+//    // mediana por canal (robusto frente a outliers)
+//    auto median_of = [](std::vector<float> &v) -> float {
+//
+//        size_t n = v.size();
+//        size_t mid = n / 2;
+//        std::nth_element(v.begin(), v.begin() + mid, v.end());
+//        float med = v[mid];
+//        if (n % 2 == 0) {
+//            // promedio del par medio
+//            float left = *std::max_element(v.begin(), v.begin() + mid);
+//            med = 0.5f * (med + left);
+//        }
+//
+//        return med;
+//    };
+//
+//    // Para cada p√≠xel calcular mediana robusta y elegir la mejor muestra
+//    tl::parallel_for(0, rows, [&](size_t y) {
+//
+//        std::vector<float> L;
+//        std::vector<float> A;
+//        std::vector<float> B;
+//        std::vector<float> color_distances;
+//        L.reserve(images_size);
+//        A.reserve(images_size);
+//        B.reserve(images_size);
+//        color_distances.reserve(images_size);
+//
+//        for (int x = 0; x < cols; ++x) {
+//
+//            L.clear();
+//            A.clear();
+//            B.clear();
+//
+//            for (int i = 0; i < images_size; ++i) {
+//                if (valid_masks[i].at<uchar>(static_cast<int>(y), x)) {
+//                    cv::Vec3f lab = lab_images[i].at<cv::Vec3f>(static_cast<int>(y), x);
+//                    L.push_back(lab[0]);
+//                    A.push_back(lab[1]);
+//                    B.push_back(lab[2]);
+//                }
+//            }
+//
+//            if (L.empty()) {
+//                continue;
+//            }
+//
+//            std::vector<float> tmpL = L, tmpA = A, tmpB = B;
+//            float median_l = median_of(tmpL);
+//            float median_a = median_of(tmpA);
+//            float median_b = median_of(tmpB);
+//
+//            // Distancia fotom√©trica de cada imagen v√°lida al mediano
+//            color_distances.clear();
+//            color_distances.resize(images_size, std::numeric_limits<float>::infinity());
+//
+//            // Calcular score por imagen
+//            int idxValid = 0;
+//            for (int i = 0; i < images_size; ++i) {
+//                if (!valid_masks[i].at<uchar>(static_cast<int>(y), x)) continue;
+//                cv::Vec3f lab = lab_images[i].at<cv::Vec3f>(static_cast<int>(y), x);
+//                float dL = lab[0] - median_l;
+//                float dA = lab[1] - median_a;
+//                float dB = lab[2] - median_b;
+//                float distance_color = std::sqrt(dL * dL + dA * dA + dB * dB);
+//                color_distances[i] = distance_color;
+//                ++idxValid;
+//            }
+//
+//            // normalize color distances among valid samples to [0,1]
+//            float minC = std::numeric_limits<float>::infinity();
+//            float maxC = std::numeric_limits<float>::lowest();
+//            for (int i = 0; i < images_size; ++i) if (color_distances[i] < std::numeric_limits<float>::infinity()) {
+//                if (color_distances[i] < minC) minC = color_distances[i];
+//                if (color_distances[i] > maxC) maxC = color_distances[i];
+//            }
+//            float rangeC = (maxC > minC) ? (maxC - minC) : 1.0f;
+//
+//            // seleccionar la mejor muestra minimizando score = w_color * color_norm + w_dist * dist_norm
+//            float bestScore = std::numeric_limits<float>::infinity();
+//            int bestIdx = -1;
+//            for (int i = 0; i < images_size; ++i) {
+//                if (color_distances[i] == std::numeric_limits<float>::infinity()) continue;
+//                float colorNorm = (color_distances[i] - minC) / rangeC; // 0..1
+//                float distNorm = normalized_distances[i];
+//                float score = weight_color * colorNorm + weight_distance * distNorm;
+//                if (score < bestScore) {
+//                    bestScore = score;
+//                    bestIdx = i;
+//                }
+//            }
+//
+//            if (bestIdx >= 0) {
+//                // Interpolaci√≥n local bilateral en LAB (ventana 3x3)
+//                // Par√°metros (ajustables)
+//                const int radius = 1; // ventana 3x3
+//                const float sigma_s = 1.0f; // espacio (pixels)
+//                const float sigma_c = 0.05f; // color (Lab) ‚Äî ajuste fino: depende del escalado de lab_images
+//
+//                // central en LAB
+//                cv::Vec3f centerLab = lab_images[bestIdx].at<cv::Vec3f>(static_cast<int>(y), x);
+//
+//                cv::Vec3f sumLab(0.f, 0.f, 0.f);
+//                float sumW = 0.f;
+//
+//                // recorrer vecinos
+//                for (int dy = -radius; dy <= radius; ++dy) {
+//                    int yy = static_cast<int>(y) + dy;
+//                    if (yy < 0 || yy >= rows) continue;
+//                    for (int dx = -radius; dx <= radius; ++dx) {
+//                        int xx = x + dx;
+//                        if (xx < 0 || xx >= cols) continue;
+//                        // usar solo si el vecino es v√°lido en la misma imagen
+//                        if (!valid_masks[bestIdx].at<uchar>(yy, xx)) continue;
+//
+//                        cv::Vec3f labNeighbor = lab_images[bestIdx].at<cv::Vec3f>(yy, xx);
+//
+//                        float dsq = static_cast<float>(dx * dx + dy * dy);
+//                        float dcolor = (labNeighbor[0] - centerLab[0]) * (labNeighbor[0] - centerLab[0]) +
+//                            (labNeighbor[1] - centerLab[1]) * (labNeighbor[1] - centerLab[1]) +
+//                            (labNeighbor[2] - centerLab[2]) * (labNeighbor[2] - centerLab[2]);
+//
+//                        float w_space = std::exp(-0.5f * dsq / (sigma_s * sigma_s));
+//                        float w_color = std::exp(-0.5f * dcolor / (sigma_c * sigma_c));
+//                        float w = w_space * w_color;
+//
+//                        sumLab[0] += labNeighbor[0] * w;
+//                        sumLab[1] += labNeighbor[1] * w;
+//                        sumLab[2] += labNeighbor[2] * w;
+//                        sumW += w;
+//                    }
+//                }
+//
+//                cv::Vec3f labSmoothed = (sumW > 0.f) ? (sumLab / sumW) : centerLab;
+//
+//                // Convertir LAB (float) a BGR 8-bit
+//                // cv::cvtColor espera la misma escala usada originalmente para lab_images,
+//                // por eso usamos un Mat 1x1 y luego reescalamos si es necesario.
+//                cv::Mat labPix(1, 1, CV_32FC3);
+//                labPix.at<cv::Vec3f>(0, 0) = labSmoothed;
+//                cv::Mat bgrPix;
+//                cv::cvtColor(labPix, bgrPix, cv::COLOR_Lab2BGR); // produce float BGR en 0..1 (si la entrada fue en esa escala)
+//                cv::Vec3f bgrf = bgrPix.at<cv::Vec3f>(0, 0) * 255.0f;
+//
+//                cv::Vec3b finalBgr;
+//                finalBgr[0] = cv::saturate_cast<uchar>(bgrf[0]);
+//                finalBgr[1] = cv::saturate_cast<uchar>(bgrf[1]);
+//                finalBgr[2] = cv::saturate_cast<uchar>(bgrf[2]);
+//
+//                result.at<cv::Vec3b>(static_cast<int>(y), x) = finalBgr;
+//                assigned.at<uchar>(static_cast<int>(y), x) = 255;
+//            }
+//        }
+//        });
+//
+//    // Post-procesado
+//    cv::Mat assigned_copy = assigned.clone();
+//    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3));
+//
+//    cv::Mat dil;
+//    cv::dilate(assigned_copy, dil, kernel);
+//
+//    // Por cada p√≠xel no asignado, si en el dilatado hay vecinos asignados, copiamos desde la imagen preferida por color/dist
+//    tl::parallel_for(0, rows, [&](size_t y) {
+//        for (int x = 0; x < cols; ++x) {
+//            if (assigned.at<uchar>(static_cast<int>(y), x)) continue;
+//            if (!dil.at<uchar>(static_cast<int>(y), x)) continue;
+//
+//            // Buscar el mejor candidato entre im√°genes que tengan p√≠xel v√°lido y que en sus vecinos haya asignaci√≥n
+//            float bestScore = std::numeric_limits<float>::infinity();
+//            int bestIdx = -1;
+//            for (int i = 0; i < images_size; ++i) {
+//                if (!valid_masks[i].at<uchar>(static_cast<int>(y), x)) continue;
+//
+//                float distNorm = normalized_distances[i];
+//                float score = weight_distance * distNorm;
+//                if (score < bestScore) {
+//                    bestScore = score;
+//                    bestIdx = i;
+//                }
+//            }
+//            if (bestIdx >= 0) {
+//                result.at<cv::Vec3b>(static_cast<int>(y), x) = images[bestIdx].at<cv::Vec3b>(static_cast<int>(y), x);
+//            }
+//        }
+//        });
+//
+//    // suavizado global ligero
+//    // cv::bilateralFilter(result, result, 5, 50, 50);
 //
 //    return result;
 //}
 
-//cv::Mat combineImages(const std::vector<cv::Mat> &images)
-//{
-//    cv::Mat result = images[0].clone(); // Clona la imagen base como resultado
-//
-//    for (size_t i = 1; i < images.size(); ++i) {
-//        // Crear m·scara para la imagen actual, detectando sus ·reas negras
-//        cv::Mat mask;
-//        cv::inRange(images[i], cv::Scalar(0, 0, 0), cv::Scalar(0, 0, 0), mask);
-//
-//        if (cv::countNonZero(mask) == 0)
-//            break;
-//
-//        // DilataciÛn de la m·scara para cubrir bordes y suavizar uniones
-//        cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
-//        cv::dilate(mask, mask, element);
-//        cv::GaussianBlur(mask, mask, cv::Size(5, 5), 0);
-//
-//        // Convertir la m·scara a tipo flotante y normalizar para el blending
-//        cv::Mat floatMask;
-//        mask.convertTo(floatMask, CV_32FC1, 1.0 / 255.0);
-//
-//        // Convertir la imagen actual y la acumulada (result) a flotantes para el blending
-//        cv::Mat floatResult, floatImage;
-//        result.convertTo(floatResult, CV_32FC3);
-//        images[i].convertTo(floatImage, CV_32FC3);
-//
-//        // Aplicar la m·scara individual a la imagen actual
-//        for (int c = 0; c < 3; c++) { // Iterar sobre los canales
-//            floatImage.forEach<cv::Vec3f>(
-//                [&](cv::Vec3f &pixel, const int pos[]) -> void {
-//                    pixel[c] *= (1.0f - floatMask.at<float>(pos[0], pos[1]));
-//                }
-//            );
-//        }
-//
-//        // Realizar la mezcla de ambas im·genes usando la m·scara
-//        for (int c = 0; c < 3; c++) { // Iterar sobre los canales de color
-//            floatResult.forEach<cv::Vec3f>(
-//                [&](cv::Vec3f &pixel, const int pos[]) -> void {
-//                    pixel[c] = pixel[c] * floatMask.at<float>(pos[0], pos[1]) +
-//                        floatImage.at<cv::Vec3f>(pos[0], pos[1])[c];
-//                }
-//            );
-//        }
-//
-//        // Convertir el resultado de vuelta a CV_8UC3 y actualizar el resultado acumulado
-//        floatResult.convertTo(result, CV_8UC3);
-//    }
-//
-//    return result;
-//}
+static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
+                                  const std::vector<double> &distances,
+                                  float weight_color = 0.7f,
+                                  float weight_distance = 0.3f)
+{
+    if (images.empty()) return cv::Mat();
+
+    size_t images_size = images.size();
+    TL_ASSERT(images_size == distances.size(), "Number of images and distances must match");
+
+    int rows = images[0].rows;
+    int cols = images[0].cols;
+
+    for (size_t i = 1; i < images_size; ++i) {
+        TL_ASSERT(images[i].rows == rows && images[i].cols == cols, "All images must have same size");
+    }
+
+    int orig_channels = images[0].channels();
+    int orig_depth = images[0].depth();
+
+    std::vector<cv::Mat> valid_masks(images_size);
+    for (size_t i = 0; i < images_size; ++i) {
+        cv::inRange(images[i], cv::Scalar::all(0), cv::Scalar::all(0), valid_masks[i]);
+        cv::bitwise_not(valid_masks[i], valid_masks[i]);
+    }
+
+    std::vector<cv::Mat> lab_images(images_size);
+    for (size_t i = 0; i < images_size; ++i) {
+        cv::Mat img = images[i];
+
+        // Normalizar canales: 1->3, 4->3 (descartar alpha temporalmente)
+        if (img.channels() == 1) {
+            cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
+        } else if (img.channels() != 3) {
+            TL_THROW_EXCEPTION("Unsupported number of channels");
+        }
+
+        if (img.depth() == CV_8U) {
+            img.convertTo(img, CV_32F, 1.0 / 255.0);
+        } else if (img.depth() == CV_16U) {
+            img.convertTo(img, CV_32F, 1.0 / 65535.0);
+        } else if (img.depth() == CV_32F) {
+            img.convertTo(img, CV_32F);
+        } else {
+            TL_THROW_EXCEPTION("Unsupported image depth");
+        }
+
+        cv::cvtColor(img, lab_images[i], cv::COLOR_BGR2Lab);
+    }
+
+    double min_distance = *std::min_element(distances.begin(), distances.end());
+    double max_distance = *std::max_element(distances.begin(), distances.end());
+    double distance_range = (max_distance > min_distance) ? (max_distance - min_distance) : 1.0;
+
+    std::vector<float> normalized_distances(images_size);
+    for (size_t i = 0; i < images_size; ++i)
+        normalized_distances[i] = static_cast<float>((distances[i] - min_distance) / distance_range);
+
+    cv::Mat result_lab(rows, cols, CV_32FC3, cv::Scalar(0, 0, 0));
+
+    auto median_of = [](std::vector<float> &v) -> float {
+        size_t n = v.size();
+        size_t mid = n / 2;
+        std::nth_element(v.begin(), v.begin() + mid, v.end());
+        float med = v[mid];
+        if (n % 2 == 0) {
+            float left = *std::max_element(v.begin(), v.begin() + mid);
+            med = 0.5f * (med + left);
+        }
+        return med;
+        };
+
+    tl::parallel_for(0, rows, [&](size_t y) {
+
+        std::vector<float> L; 
+        L.reserve(images_size);
+        std::vector<float> A; 
+        A.reserve(images_size);
+        std::vector<float> B; 
+        B.reserve(images_size);
+        std::vector<float> color_distances; 
+        color_distances.reserve(images_size);
+
+        for (int x = 0; x < cols; ++x) {
+
+            L.clear(); 
+            A.clear();
+            B.clear();
+
+            // recolectar muestras v√°lidas para este p√≠xel
+            std::vector<int> valid_idxs;
+            valid_idxs.reserve(images_size);
+            for (int i = 0; i < (int)images_size; ++i) {
+                if (valid_masks[i].at<uchar>(static_cast<int>(y), x)) {
+                    cv::Vec3f lab = lab_images[i].at<cv::Vec3f>(static_cast<int>(y), x);
+                    L.push_back(lab[0]);
+                    A.push_back(lab[1]);
+                    B.push_back(lab[2]);
+                    valid_idxs.push_back(i);
+                }
+            }
+
+            if (valid_idxs.empty()) continue;
+
+            // mediana inicial por canal
+            std::vector<float> tmpL = L, tmpA = A, tmpB = B;
+            float medL = median_of(tmpL);
+            float medA = median_of(tmpA);
+            float medB = median_of(tmpB);
+
+            // distancias fotom√©tricas a la mediana
+            color_distances.assign(images_size, std::numeric_limits<float>::infinity());
+            for (int idx : valid_idxs) {
+                cv::Vec3f lab = lab_images[idx].at<cv::Vec3f>(static_cast<int>(y), x);
+                float dL = lab[0] - medL;
+                float dA = lab[1] - medA;
+                float dB = lab[2] - medB;
+                color_distances[idx] = std::sqrt(dL * dL + dA * dA + dB * dB);
+            }
+
+            // normalizar color distances solo entre v√°lidos
+            float minC = std::numeric_limits<float>::infinity();
+            float maxC = std::numeric_limits<float>::lowest();
+            for (int idx : valid_idxs) {
+                float d = color_distances[idx];
+                if (d < minC) minC = d;
+                if (d > maxC) maxC = d;
+            }
+            float rangeC = (maxC > minC) ? (maxC - minC) : 1.0f;
+
+            // elegir mejor imagen minimizando score = w_color*colorNorm + w_dist*distNorm
+            float bestScore = std::numeric_limits<float>::infinity();
+            int bestIdx = -1;
+            for (int idx : valid_idxs) {
+                float colorNorm = (color_distances[idx] - minC) / rangeC;
+                float distNorm = normalized_distances[idx];
+                float score = weight_color * colorNorm + weight_distance * distNorm;
+                if (score < bestScore) { bestScore = score; bestIdx = idx; }
+            }
+
+            if (bestIdx < 0) continue;
+
+            // Interpolaci√≥n local bilateral (en la imagen bestIdx)
+            int radius = 1;
+            float sigma_s = 1.5f;
+            // sigma_c: depende de la escala Lab (Lab L ~ 0..100 si input 0..1 -> L ~ 0..100),
+            // como hemos convertido desde 0..1, OpenCV produce L~[0..100], a~[-128..127].
+            // un valor razonable inicial:
+            float sigma_c = 5.0f;
+
+            cv::Vec3f centerLab = lab_images[bestIdx].at<cv::Vec3f>(static_cast<int>(y), x);
+
+            cv::Vec3f sumLab(0.f, 0.f, 0.f);
+            float sumW = 0.f;
+
+            for (int dy = -radius; dy <= radius; ++dy) {
+
+                int yy = static_cast<int>(y) + dy;
+                if (yy < 0 || yy >= rows) continue;
+
+                for (int dx = -radius; dx <= radius; ++dx) {
+
+                    int xx = x + dx;
+                    if (xx < 0 || xx >= cols) continue;
+                    if (!valid_masks[bestIdx].at<uchar>(yy, xx)) continue;
+
+                    cv::Vec3f labNeighbor = lab_images[bestIdx].at<cv::Vec3f>(yy, xx);
+
+                    float dsq = static_cast<float>(dx * dx + dy * dy);
+                    float dL = labNeighbor[0] - centerLab[0];
+                    float dA = labNeighbor[1] - centerLab[1];
+                    float dB = labNeighbor[2] - centerLab[2];
+                    float dcolor = dL * dL + dA * dA + dB * dB;
+
+                    float w_space = std::exp(-0.5f * dsq / (sigma_s * sigma_s));
+                    float w_color = std::exp(-0.5f * dcolor / (sigma_c * sigma_c));
+                    float w = w_space * w_color;
+
+                    sumLab[0] += labNeighbor[0] * w;
+                    sumLab[1] += labNeighbor[1] * w;
+                    sumLab[2] += labNeighbor[2] * w;
+                    sumW += w;
+                }
+            }
+
+            cv::Vec3f labSmoothed = (sumW > 0.f) ? (sumLab / sumW) : centerLab;
+
+            result_lab.at<cv::Vec3f>(static_cast<int>(y), x) = labSmoothed;
+        }
+        });
+
+    // Convertir Lab float -> BGR float (CV_32F 3ch)
+    cv::Mat result_bgr_f;
+    cv::cvtColor(result_lab, result_bgr_f, cv::COLOR_Lab2BGR);
+
+    // Postprocesado adaptativo preservando bordes
+    // cv::Mat temp; 
+    // cv::bilateralFilter(result_bgr_f, temp, 5, 0.1*255, 15); 
+    // result_bgr_f = temp;
+
+    // Reconversi√≥n a la profundidad y canales originales
+    cv::Mat final_img;
+
+    if (orig_channels == 1) {
+        cv::Mat gray_f;
+        cv::cvtColor(result_bgr_f, gray_f, cv::COLOR_BGR2GRAY);
+        if (orig_depth == CV_8U) {
+            gray_f.convertTo(final_img, CV_8U, 255.0);
+        } else if (orig_depth == CV_16U) {
+            gray_f.convertTo(final_img, CV_16U, 65535.0);
+        } else { 
+            final_img = gray_f.clone();
+        }
+    } else {
+        cv::Mat bgr_out;
+        if (orig_depth == CV_8U) {
+            result_bgr_f.convertTo(bgr_out, CV_8U, 255.0);
+        } else if (orig_depth == CV_16U) {
+            result_bgr_f.convertTo(bgr_out, CV_16U, 65535.0);
+        } else {
+            bgr_out = result_bgr_f.clone();
+        }
+
+        if (orig_channels == 3) {
+            final_img = bgr_out;
+        } else {
+            TL_THROW_EXCEPTION("Unsupported original channel count");
+        }
+    }
+
+    return final_img;
+}
+
 
 OrthophotoTask::OrthophotoTask(double gsd,
                                const std::vector<Image> &images,
@@ -393,34 +1020,40 @@ std::vector<std::vector<tl::WindowD>> OrthophotoTask::findGrid(int gridSize) con
 {
     std::vector<std::vector<tl::WindowD>> grid;
 
-    int grid_size = mGSD * gridSize;
+    try {
 
-    auto reader = tl::ImageReaderFactory::create(mMdt);
-    reader->open();
-    TL_ASSERT(reader->isOpen(), "Can not open the MDT");
-    auto window = reader->window();
-    int step_x = std::ceil(window.width() / grid_size);
-    int step_y = std::ceil(window.height() / grid_size);
+        int grid_size = mGSD * gridSize;
 
-    auto center = window.center();
+        auto reader = tl::ImageReaderFactory::create(mMdt);
+        reader->open();
+        TL_ASSERT(reader->isOpen(), "Can not open the MDT");
+        auto window = reader->window();
+        int step_x = std::ceil(window.width() / grid_size);
+        int step_y = std::ceil(window.height() / grid_size);
 
-    double x_ini = center.x - ((step_x-1) * grid_size) / 2.;
-    double y_ini = center.y + ((step_y-1) * grid_size) / 2.;
+        auto center = window.center();
 
-    for (size_t i = 0; i < step_x; i++) {
+        double x_ini = center.x - ((step_x - 1) * grid_size) / 2.;
+        double y_ini = center.y + ((step_y - 1) * grid_size) / 2.;
 
-        std::vector<tl::WindowD> row_grid;
+        for (size_t i = 0; i < step_x; i++) {
 
-        double x = x_ini + grid_size * i;
+            std::vector<tl::WindowD> row_grid;
 
-        for (size_t j = 0; j < step_y; j++) {
+            double x = x_ini + grid_size * i;
 
-            double y = y_ini - grid_size * j;
-            row_grid.emplace_back(tl::Point<double>(x, y), grid_size);
+            for (size_t j = 0; j < step_y; j++) {
 
+                double y = y_ini - grid_size * j;
+                row_grid.emplace_back(tl::Point<double>(x, y), grid_size);
+
+            }
+
+            grid.push_back(row_grid);
         }
 
-        grid.push_back(row_grid);
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Compute grid error");
     }
 
     return grid;
@@ -472,19 +1105,53 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 
         std::vector<std::vector<tl::WindowD>> grid = findGrid(500);
 
-        //TODO: Para imagenes tÈrmicas no se debe aplicar compensaciÛn de exposiciÛn
-        orthoimageExposureCompensator(graph_orthos, progressBar);
-        auto orthos = searchTiles(graph_orthos, grid);
+        //TODO: Para imagenes t√©rmicas no se debe aplicar compensaci√≥n de exposici√≥n
+#ifndef FAST_ORTHO
+        if (mDataType == tl::DataType::TL_8U) {
+            orthoimageExposureCompensator(graph_orthos, progressBar);
+        }
+#endif
+        auto orthos = searchTiles(graph_orthos, grid/*, 10*/);
 
         generateTiles(grid, orthos, progressBar);
-        // Intento de compesar de exposiciÛn los tiles pero no funciona bien
-        //tilesExposureCompensator(grid);
-        //for (int r = 0; r < grid.size(); ++r) {
-        //    for (int c = 0; c < grid[r].size(); ++c) {
-        //        blendTileBlock(r, c, grid);
+        writeOrthomosaic(grid);
+
+        // Limpiar archivos temporales
+        //{
+        //    for (size_t r = 0; r < grid.size(); r++) {
+
+        //        tl::Path tile_folder(mOrthoPath);
+        //        tile_folder.append(std::to_string(r));
+        //        tl::Path::removeDirectory(tile_folder);
+        //    }
+
+        //    std::unique_ptr<tl::VectorReader> vectorReader;
+        //    vectorReader = tl::VectorReaderFactory::create(graph_orthos);
+        //    vectorReader->open();
+
+        //    if (vectorReader->isOpen()) {
+
+        //        if (vectorReader->layersCount() >= 1) {
+
+        //            std::map<double, std::shared_ptr<tl::GPolygon>> entities;
+        //            std::shared_ptr<tl::GLayer> layer = vectorReader->read(0);
+
+        //            for (const auto &entity : *layer) {
+
+        //                tl::GraphicEntity::Type type = entity->type();
+        //                if (type == tl::GraphicEntity::Type::polygon_2d) {
+
+        //                    /// se carga la primera imagen y se busca las que intersectan
+        //                    std::shared_ptr<tl::GPolygon> polygon = std::dynamic_pointer_cast<tl::GPolygon>(entity);
+        //                    std::shared_ptr<tl::TableRegister> data = polygon->data();
+        //                    std::string ortho_to_compensate = data->value(0);
+
+        //                    tl::Path::removeDirectory(ortho_to_compensate);
+        //                }
+        //            }
+        //        }
         //    }
         //}
-        writeOrthomosaic(grid);
 
         if (progressBar) (*progressBar)();
 
@@ -500,11 +1167,9 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 
 }
 
-
-#define EXPOSURE_COMPENSATOR
-
 auto OrthophotoTask::searchTiles(const tl::Path &graph_orthos,
-                                 const std::vector<std::vector<tl::WindowD>> &grid) -> std::vector<std::vector<std::map<double, std::string>>>
+                                 const std::vector<std::vector<tl::WindowD>> &grid,
+                                 int maxImages) -> std::vector<std::vector<std::map<double, std::string>>>
 {
     std::vector<std::vector<std::map<double, std::string>>> orthos(grid.size());
 
@@ -542,14 +1207,19 @@ auto OrthophotoTask::searchTiles(const tl::Path &graph_orthos,
                         auto orto_center = window_orto.center();
                         auto dist = tl::distance(orto_center, window_center);
                         tl::Path orto_compensate(polygon->data()->value(0));
-#ifdef EXPOSURE_COMPENSATOR
-                        //std::string name = orto_compensate.baseName().toUtf8() + "_compensate.png";
-                        std::string name = orto_compensate.baseName().toUtf8() + "_compensate.tif";
-                        orto_compensate.replaceFileName(name);
+#ifndef FAST_ORTHO
+                        if (mDataType == tl::DataType::TL_8U) {
+                            std::string name = orto_compensate.baseName().toUtf8() + "_compensate.tif";
+                            orto_compensate.replaceFileName(name);
+                        }
 #endif
                         orthos[r][c][dist] = orto_compensate.toUtf8();
                     }
 
+                }
+
+                if (maxImages > 0 && maxImages < orthos[r][c].size()) {
+                    orthos[r][c].erase(std::next(orthos[r][c].begin(), maxImages), orthos[r][c].end());
                 }
 
             }
@@ -586,12 +1256,14 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
 
             const auto &window = grid[r][c];
 
-            // TamaÒo de imagen
-            auto window_aux = tl::expandWindow(window, 50 * mGSD);
+            // Tama√±o de imagen
+            // Solo expandir en el caso de la generaci√≥n de mosaico con fusi√≥n. Si se hace con combineImagesSmart no har√≠a falta
+            auto window_aux = tl::expandWindow(window, ortho_overlap * mGSD);
             int image_size = tl::numberCast<int>(window_aux.width() / mGSD);
 
             // Todas las imagenes del elemento actual del grid
             std::vector<cv::Mat> images;
+            std::vector<double> distances;
 
             for (auto &ortho : orthos[r][c]) {
 
@@ -603,12 +1275,10 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
                 }
 
                 // Por ahora solo se utilizan las imagenes que contienen el grid. Se omiten las que intersectan
-                //if (!image_reader->window().containsWindow(window)) continue;
                 if (!tl::intersectWindows(image_reader->window(), window)) continue;
 
                 tl::Affine<int, 2> affine;
                 auto image = image_reader->read(window_aux, 1., 1., &affine);
-                //auto image = image_reader->read(tl::windowIntersection(window, image_reader->window()), 1., 1., &affine);
                 auto data_type = image_reader->dataType();
                 image_reader->close();
 
@@ -621,41 +1291,9 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
                     image = aux;
                 }
 
-                // Relleno de pixeles negros
-                //cv::Mat blackPixelMask = createBlackPixelMask(image, 512);
-                //cv::inpaint(image, blackPixelMask, image, 3, cv::INPAINT_TELEA);
-
                 images.push_back(image);
+                distances.push_back(ortho.first);
 
-                /////
-                // Por ahora sigo escribiendo todo
-
-                try {
-                    tl::Path tile(mOrthoPath);
-                    tile.append(std::to_string(r));
-                    tile.append(std::to_string(c));
-                    tile.createDirectories();
-                    tl::Path image_name(ortho.second);
-
-                    tile.append(image_name.fileName().toUtf8());
-
-                    auto image_writer = tl::ImageWriterFactory::create(tile);
-                    image_writer->open();
-                    int cols = static_cast<int>(std::round(window_aux.width() / mGSD));
-                    int rows = static_cast<int>(std::round(window_aux.height() / mGSD));
-
-                    image_writer->create(rows, cols, image.channels(), data_type);
-                    tl::Crs crs(mEpsg);
-                    image_writer->setCRS(crs.toWktFormat());
-                    tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, window_aux.pt1.x, window_aux.pt2.y, 0.0);
-                    image_writer->setGeoreference(affine_ortho);
-                    image_writer->write(image);
-                    image_writer->close();
-
-                } catch (std::exception &e) {
-                    tl::printException(e);
-                }
-                ////
             }
 
             if (images.empty()) continue;
@@ -664,13 +1302,12 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
             if (images.size() == 1) {
                 read_image = images[0].clone();
             } else {
+#ifdef FAST_ORTHO
+                read_image = combineImagesSmart(images, distances);
+#else
                 read_image = combineImages(images);
+#endif
             }
-
-            // Relleno de pixeles negros
-            //cv::Mat blackPixelMask = createBlackPixelMask(read_image, 512);
-            //cv::inpaint(read_image, blackPixelMask, read_image, 3, cv::INPAINT_TELEA);
-
 
             if (read_image.empty()) continue;
 
@@ -683,24 +1320,6 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
 
                 auto image_writer = tl::ImageWriterFactory::create(tile);
                 image_writer->open();
-
-                //tl::DataType data_type = tl::DataType::TL_8U;
-                //auto opencv_depth = read_image.depth();
-                //if (opencv_depth == CV_8U) {
-                //    data_type = tl::DataType::TL_8U;
-                //} else if (opencv_depth == CV_8S) {
-                //    data_type = tl::DataType::TL_8S;
-                //} else if (opencv_depth == CV_16U) {
-                //    data_type = tl::DataType::TL_16U;
-                //} else if (opencv_depth == CV_16S) {
-                //    data_type = tl::DataType::TL_16S;
-                //} else if (opencv_depth == CV_32S) {
-                //    data_type = tl::DataType::TL_32S;
-                //} else if (opencv_depth == CV_32F) {
-                //    data_type = tl::DataType::TL_32F;
-                //} else if (opencv_depth == CV_64F) {
-                //    data_type = tl::DataType::TL_64F;
-                //}
 
                 image_writer->create(read_image.rows, read_image.cols, read_image.channels(), mDataType);
                 tl::Crs crs(mEpsg);
@@ -716,143 +1335,7 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
     }
 }
 
-void OrthophotoTask::tilesExposureCompensator(const std::vector<std::vector<tl::WindowD>> &grid)
-{
-    try {
-
-        tl::Message::info("Tiles exposure compensator");
-
-        tl::WindowD window_all;
-        std::vector<cv::Point> corners;
-        std::vector<cv::Mat> mat_orthos;
-        std::vector<cv::UMat> umat_orthos;
-        std::vector<cv::UMat> ortho_masks;
-
-        //int type = cv::detail::ExposureCompensator::NO;
-        //int type = cv::detail::ExposureCompensator::GAIN;
-        int type = cv::detail::ExposureCompensator::GAIN_BLOCKS;
-        //int type = cv::detail::ExposureCompensator::CHANNELS;
-        //int type = cv::detail::ExposureCompensator::CHANNELS_BLOCKS;
-        cv::Ptr<cv::detail::ExposureCompensator> compensator = cv::detail::ExposureCompensator::createDefault(type);
-
-        std::vector<tl::Path> orthos;
-        std::vector<tl::WindowD> windows;
-
-        // Busco todas las tiles
-        for (size_t r = 0; r < grid.size(); r++) {
-            for (size_t c = 0; c < grid[r].size(); c++) {
-
-                tl::Path tile(mOrthoPath);
-                tile.append(std::to_string(r));
-                tile.append(std::to_string(c));
-                tile.append("t.tif");
-
-                if (!tile.exists()) continue;
-
-                orthos.push_back(tile);
-                windows.push_back(tl::expandWindow(grid[r][c], 50 * mGSD));
-            }
-        }
-
-        size_t n_orthos = orthos.size();
-        corners.resize(n_orthos);
-        ortho_masks.resize(n_orthos);
-        umat_orthos.resize(n_orthos);
-        mat_orthos.resize(n_orthos);
-
-        for (size_t i = 0; i < n_orthos; i++) {
-
-            try {
-
-                std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::create(orthos[i]);
-                image_reader->open();
-                if (image_reader->isOpen()) {
-
-                    cv::Mat image = image_reader->read(exposure_compensator_factor, exposure_compensator_factor);
-                    mat_orthos[i] = image.clone();
-                    double scale = image_reader->georeference().scale().x();
-
-                    /// Esquinas
-                    corners[i].x = tl::roundToInteger((windows[i].pt1.x - window_all.pt1.x) * exposure_compensator_factor / scale);
-                    corners[i].y = tl::roundToInteger((window_all.pt2.y - windows[i].pt2.y) * exposure_compensator_factor / scale);
-
-                    ortho_masks[i].create(image.size(), CV_8U);
-                    cv::Mat gray;
-                    if (image.channels() != 1) {
-                        cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-                    } else {
-                        gray = image;
-                    }
-
-                    ortho_masks[i].setTo(cv::Scalar::all(0));
-                    ortho_masks[i].setTo(cv::Scalar::all(255), gray > 0);
-
-                }
-
-            } catch (std::exception &e) {
-                tl::printException(e);
-            }
-        }
-
-        cv::InputArrayOfArrays(mat_orthos).getUMatVector(umat_orthos);
-        compensator->feed(corners, umat_orthos, ortho_masks);
-
-        tl::Message::info("Seam finder");
-
-        cv::Ptr<cv::detail::SeamFinder> seam_finder;
-        //seam_finder = cv::makePtr<cv::detail::NoSeamFinder>();
-        seam_finder = cv::makePtr<cv::detail::VoronoiSeamFinder>();
-        //seam_finder = cv::makePtr<cv::detail::DpSeamFinder>(cv::detail::DpSeamFinder::COLOR);
-        //seam_finder = cv::makePtr<cv::detail::DpSeamFinder>(cv::detail::DpSeamFinder::COLOR_GRAD);
-        seam_finder->find(umat_orthos, corners, ortho_masks);
-        umat_orthos.clear();
-        mat_orthos.clear();
-
-        for (size_t i = 0; i < n_orthos; i++) {
-
-            try {
-
-                tl::Path tile = orthos[i];
-                std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::create(tile);
-                image_reader->open();
-                if (image_reader->isOpen()) {
-                    cv::Mat compensate_image = image_reader->read();
-
-                    /// Se compensa la imagen
-                    cv::Point corner = corners[0] / exposure_compensator_factor;
-                    cv::Mat gray;
-                    if (compensate_image.channels() == 1)
-                        gray = compensate_image;
-                    else
-                        cv::cvtColor(compensate_image, gray, cv::COLOR_BGR2GRAY);
-                    cv::Mat mask_full_size(compensate_image.size(), CV_8U);
-                    mask_full_size.setTo(cv::Scalar::all(0));
-                    mask_full_size.setTo(cv::Scalar::all(255), gray > 0);
-
-                    compensator->apply(i, corner, compensate_image, mask_full_size);
-
-                    tile.replaceBaseName("compensate");
-                    std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(tile);
-                    image_writer->open();
-                    if (image_writer->isOpen()) {
-                        image_writer->create(image_reader->rows(), image_reader->cols(), image_reader->channels(), image_reader->dataType());
-                        image_writer->setCRS(image_reader->crsWkt());
-                        image_writer->setGeoreference(image_reader->georeference());
-                        image_writer->write(compensate_image);
-                        image_writer->close();
-                        //tl::Message::info("Compensated image: {}", orto_compensate.fileName().toUtf8());
-                    }
-                }
-
-            } catch (std::exception &e) {
-                tl::printException(e);
-            }
-        }
-
-    } catch (std::exception &e) {
-        tl::printException(e);
-    }
-}
+#ifdef FAST_ORTHO
 
 void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::WindowD>> &grid)
 {
@@ -897,44 +1380,24 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::WindowD>
                         tile.append(std::to_string(r));
                         tile.append(std::to_string(c));
                         tile.append("t.tif");
-                        //tile.append("compensate.tif");
-                        //tile.append("blend.tif");
                         if (!tile.exists()) continue;
                         auto image_reader = tl::ImageReaderFactory::create(tile);
                         image_reader->open();
                         if (!image_reader->isOpen()) {
-                            //tl::Message::error("Image open error :{}", tile.toU);
                             continue;
                         }
 
                         auto tile_window = image_reader->window();
 
                         const auto &window = grid[r][c];
-                        if (!intersectWindows(tile_window, window) /*||
-                            !intersectWindows(image_reader_seam->window(), window)*/) continue;
+                        if (!intersectWindows(tile_window, window)) continue;
 
-                        auto georef = image_reader->georeference();
-
-                        //double scale_x = georef.scale().x();
-                        //double scale_y = georef.scale().y();
-                        //double read_scale_x = scale_x / mGSD;
-                        //double read_scale_y = scale_y / mGSD;
-
-                        //auto inverse_transform = georef.inverse();
-                        //tl::Point<double> p1 = inverse_transform.transform(window.pt1);
-                        //tl::Point<double> p2 = inverse_transform.transform(window.pt2);
-                        //tl::WindowI window_to_read(static_cast<tl::Point<int>>(p1), static_cast<tl::Point<int>>(p2));
-                        //window_to_read.normalized();
-
-                        //tl::Affine<int, 2> affine;
-                        //cv::Mat compensate_image = image_reader->read(window, read_scale_x, read_scale_y, &affine);
-                        // Leo toda la imagen asi que lo anterior no tiene sentido
                         cv::Mat compensate_image = image_reader->read();
                         // Relleno de pixeles negros
                         cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 1024);
-                        //cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 512);
+                        //cv::Mat black_pixel_mask = createBlackPixelMask(compensate_image, 512);
                         cv::inpaint(compensate_image, blackPixelMask, compensate_image, 3, cv::INPAINT_TELEA);
-                        //cv::inpaint(compensate_image, blackPixelMask, compensate_image, 5, cv::INPAINT_NS);
+                        //cv::inpaint(compensate_image, black_pixel_mask, compensate_image, 5, cv::INPAINT_NS);
 
                         auto affine_ortho_inverse = affine_ortho.inverse();
                         tl::Point<double> p1_ortho = affine_ortho_inverse.transform(tile_window.pt1);
@@ -956,152 +1419,223 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::WindowD>
     }
 }
 
-void OrthophotoTask::blendTileBlock(int r, int c, const std::vector<std::vector<tl::WindowD>> &grid)
+#else
+
+
+
+
+static cv::Mat createWeightMapTile(int w = ortho_tile_w, int h = ortho_tile_h, int overlap = ortho_overlap)
+{
+    cv::Mat weight(h, w, CV_32F);
+
+    for (int y = 0; y < h; ++y) {
+
+        float dy = std::min<float>(y, h - 1 - y);
+        float wy = std::min(1.0f, dy / float(overlap));
+
+        for (int x = 0; x < w; ++x) {
+
+            float dx = std::min<float>(x, w - 1 - x);
+            float wx = std::min(1.0f, dx / float(overlap));
+            weight.at<float>(y, x) = wx * wy;
+
+        }
+    }
+
+    return weight;
+}
+
+
+static cv::Mat maskToFloat(const cv::Mat &mask8u)
+{
+    cv::Mat f;
+    mask8u.convertTo(f, CV_32F, 1.0 / 255.0);
+    return f;
+}
+
+void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::WindowD>> &grid)
 {
     try {
-        const int block_size = 3;
-        const int borderSize = 50;  // puedes ajustar esto seg˙n el solape
 
-        const int rows = grid.size();
-        const int cols = grid[0].size();  // asumimos cuadrÌcula rectangular
+        tl::Message::info("Writing ortho image (blended)");
 
-        const int center_idx = 4; // posiciÛn central en un bloque 3x3 (fila 1, col 1)
+        tl::Path ortho_final(mOrthoPath);
+        ortho_final.append("ortho.tif");
+        std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(ortho_final);
+        image_writer->open();
 
-        std::vector<cv::Mat> images(9, cv::Mat());
-        std::vector<cv::Mat> masks(9, cv::Mat());
-        std::vector<cv::Point> positions(9);
-        bool has_tile = false;
+        int cols = static_cast<int>(std::round(mWindowAll.width() / mGSD));
+        int rows = static_cast<int>(std::round(mWindowAll.height() / mGSD));
 
-        cv::Rect mosaic_roi;
+        auto options = std::make_shared<tl::TiffOptions>();
+        options->enableTiled(true);
+        options->setBigTiff(tl::TiffOptions::BigTiff::if_needed);
+        options->setCompress(tl::TiffOptions::Compress::lzw);
 
-        // FunciÛn auxiliar para crear m·scara difusa
-        auto createSoftMask = [](const cv::Size &size, int border) {
-            cv::Mat base(size, CV_8U, cv::Scalar(0));
-            cv::rectangle(base, cv::Rect(border, border, size.width - 2 * border, size.height - 2 * border),
-                cv::Scalar(255), cv::FILLED);
-            cv::Mat dist;
-            cv::distanceTransform(255 - base, dist, cv::DIST_L2, 5);
-            double maxVal;
-            cv::minMaxLoc(dist, nullptr, &maxVal);
-            dist.convertTo(dist, CV_32F, 1.0 / maxVal);
-            return dist;
-            };
+        if (!image_writer->isOpen()) {
+            tl::Message::error("Cannot open image writer for {}", ortho_final.toUtf8());
+            return;
+        }
 
-        // Cargar 3x3 tiles alrededor del centro
-        int idx = 0;
-        for (int dy = -1; dy <= 1; ++dy) {
-            for (int dx = -1; dx <= 1; ++dx, ++idx) {
-                int rr = r + dy;
-                int cc = c + dx;
-                if (rr < 0 || rr >= rows || cc < 0 || cc >= cols) continue;
+        image_writer->create(rows, cols, mChannels, mDataType, options);
 
-                tl::Path tile_path(mOrthoPath);
-                tile_path.append(std::to_string(cc));
-                tile_path.append(std::to_string(rr));
-                tile_path.append("t.tif");
+        auto metadata = std::make_shared<tl::ImageMetadata>();
+        metadata->setMetadata("TIFFTAG_DOCUMENTNAME", "Orthomosaic");
+        metadata->setMetadata("TIFFTAG_IMAGEDESCRIPTION", "Orthomosaic generated by GRAPHOS");
+        metadata->setMetadata("TIFFTAG_SOFTWARE", "GRAPHOS");
+        QString tiffDateTime = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
+        metadata->setMetadata("TIFFTAG_DATETIME", tiffDateTime.toStdString());
+        image_writer->setMetadata(metadata);
+        tl::Crs crs(mEpsg);
+        image_writer->setCRS(crs.toWktFormat());
+        tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, mWindowAll.pt1.x, mWindowAll.pt2.y, 0.0);
+        image_writer->setGeoreference(affine_ortho);
+        auto affine_ortho_inverse = affine_ortho.inverse();
 
-                if (!tile_path.exists()) continue;
+        cv::Mat base_weight = createWeightMapTile(ortho_tile_w, ortho_tile_h, ortho_overlap);
 
-                auto reader = tl::ImageReaderFactory::create(tile_path);
-                reader->open();
-                if (!reader->isOpen()) continue;
+        // Ajustar block_height seg√∫n memoria
+        const int block_height = 2048;
+        for (int block_y = 0; block_y < rows; block_y += block_height) {
 
-                cv::Mat image = reader->read();
-                if (image.empty()) continue;
+            int current_block_h = std::min(block_height, rows - block_y);
 
-                // Inpaint si es necesario
-                cv::Mat blackMask = createBlackPixelMask(image, 1024);
-                cv::inpaint(image, blackMask, image, 3, cv::INPAINT_TELEA);
+            cv::Mat accumulator(current_block_h, cols, CV_32FC(mChannels), cv::Scalar(0));
+            cv::Mat weight_sum(current_block_h, cols, CV_32F, cv::Scalar(0));
 
-                cv::Mat image_f;
-                image.convertTo(image_f, CV_32FC3);
+            // Recorremos todas las tiles y acumulamos las que intersectan este bloque
+            for (size_t r = 0; r < grid.size(); ++r) {
+                for (size_t c = 0; c < grid[r].size(); ++c) {
 
-                // PosiciÛn relativa en el bloque
-                cv::Point offset((dx + 1) * image.cols, (dy + 1) * image.rows);
-                positions[idx] = offset;
+                    try {
 
-                images[idx] = image_f;
-                masks[idx] = createSoftMask(image.size(), borderSize);
-                has_tile = true;
+                        tl::Path tile(mOrthoPath);
+                        tile.append(std::to_string(r));
+                        tile.append(std::to_string(c));
+                        tile.append("t.tif");
+                        if (!tile.exists()) continue;
+
+                        auto image_reader = tl::ImageReaderFactory::create(tile);
+                        image_reader->open();
+                        if (!image_reader->isOpen()) continue;
+
+                        auto tile_window = image_reader->window();
+                        const auto &window = grid[r][c];
+
+                        if (!intersectWindows(tile_window, window)) continue;
+
+                        cv::Mat tile_image = image_reader->read();
+
+                        int tile_width = tile_image.cols;
+                        int tile_height = tile_image.rows;
+                        cv::Mat tile_weights;
+                        if (tile_width == ortho_tile_w && tile_height == ortho_tile_h) {
+                            tile_weights = base_weight;
+                        } else {
+                            tile_weights = createWeightMapTile(tile_width, tile_height, ortho_overlap);
+                        }
+
+                        // M√°scara de p√≠xeles negros (0 = negro, 255 = v√°lido)
+                        cv::Mat black_pixel_mask = createBlackPixelMask(tile_image, 1024);
+                        cv::Mat valid_mask;
+                        cv::bitwise_not(black_pixel_mask, valid_mask);
+                        black_pixel_mask.release();
+
+                        cv::Mat valid_mask_float = maskToFloat(valid_mask);
+                        valid_mask.release();
+
+                        cv::Mat weight_masked;
+                        cv::multiply(tile_weights, valid_mask_float, weight_masked);
+                        valid_mask_float.release();
+
+                        auto p1_ortho = affine_ortho_inverse.transform(tile_window.pt1);
+                        auto p2_ortho = affine_ortho_inverse.transform(tile_window.pt2);
+                        tl::WindowI window_to_write(static_cast<tl::Point<int>>(p1_ortho), static_cast<tl::Point<int>>(p2_ortho));
+                        window_to_write.normalized();
+                        if (!window_to_write.isValid()) continue;
+
+                        cv::Rect dst_rect(window_to_write.pt1.x, window_to_write.pt1.y, window_to_write.width(), window_to_write.height());
+
+                        cv::Rect inter = dst_rect & cv::Rect(0, block_y, cols, current_block_h);
+                        if (inter.width <= 0 || inter.height <= 0) continue;
+
+                        int src_x = inter.x - dst_rect.x;
+                        int src_y = inter.y - dst_rect.y;
+                        cv::Rect src_rect(src_x, src_y, inter.width, inter.height);
+                        cv::Rect accumulator_rect(inter.x, inter.y - block_y, inter.width, inter.height);
+
+                        cv::Mat tile_float;
+                        tile_image.convertTo(tile_float, CV_32F);
+
+                        cv::Mat tile_patch = tile_float(src_rect); 
+                        cv::Mat weight_patch = weight_masked(src_rect);
+
+                        std::vector<cv::Mat> weight_channels(mChannels);
+                        for (int ch = 0; ch < mChannels; ++ch) weight_channels[ch] = weight_patch;
+                        cv::Mat weightPatch3;
+                        cv::merge(weight_channels, weightPatch3);
+
+                        cv::Mat accumulator_roi = accumulator(accumulator_rect);
+                        cv::Mat weighted;
+                        cv::multiply(tile_patch, weightPatch3, weighted);
+                        accumulator_roi += weighted;
+
+                        cv::Mat wsumROI = weight_sum(accumulator_rect);
+                        wsumROI += weight_patch;
+
+                    } catch (std::exception &e) {
+                        tl::printException(e);
+                    }
+                }
             }
+
+            std::vector<cv::Mat> wv(mChannels, cv::Mat());
+            for (int ch = 0; ch < mChannels; ++ch) wv[ch] = weight_sum;
+            cv::Mat denom;
+            cv::merge(wv, denom);
+
+
+            cv::Mat denomSafe = denom.clone();
+
+            cv::Mat zeroMask;
+            cv::compare(denomSafe, 0.0f, zeroMask, cv::CMP_EQ);
+            denomSafe.setTo(1.0f, zeroMask);
+
+            cv::Mat target = accumulator / denomSafe;
+
+            cv::Mat target_out;
+            switch (mDataType) {
+                case tl::DataType::TL_8U:  
+                    target.convertTo(target_out, CV_8U); 
+                    break;
+                case tl::DataType::TL_16U: 
+                    target.convertTo(target_out, CV_16U); 
+                    break;
+                case tl::DataType::TL_32F: 
+                    target_out = target.clone(); 
+                    break;
+                case tl::DataType::TL_64F:
+                    target.convertTo(target_out, CV_64F);
+                    break;
+                default: 
+                    target.convertTo(target_out, CV_32F);
+                    break;
+            }
+
+            tl::WindowI write_window(tl::Point<int>(0, block_y), tl::Point<int>(cols, block_y + current_block_h));
+
+            image_writer->write(target_out, write_window);
         }
-
-        if (!has_tile || images[center_idx].empty())
-            return; // nada que hacer
-
-        const cv::Size tile_size = images[center_idx].size();
-        const int blend_rows = tile_size.height * 3 - 100; // Por el solape de 50
-        const int blend_cols = tile_size.width * 3 - 100;
-
-        cv::Mat accum = cv::Mat::zeros(blend_rows, blend_cols, CV_32FC3);
-        cv::Mat weight = cv::Mat::zeros(blend_rows, blend_cols, CV_32F);
-
-        for (int i = 0; i < 9; ++i) {
-            if (images[i].empty()) continue;
-
-            // Aplicar m·scara
-            std::vector<cv::Mat> ch;
-            cv::split(images[i], ch);
-            for (auto &c : ch) c = c.mul(masks[i]);
-            cv::Mat weighted;
-            cv::merge(ch, weighted);
-
-            cv::Rect roi(positions[i].x, positions[i].y, tile_size.width, tile_size.height);
-            accum(roi) += weighted;
-            weight(roi) += masks[i];
-        }
-
-        // Normalizar
-        std::vector<cv::Mat> w_ch(3, weight);
-        cv::Mat w_merge;
-        cv::merge(w_ch, w_merge);
-        cv::Mat result_f;
-        cv::divide(accum, w_merge, result_f);
-        cv::Mat result_u8;
-        double minVal, maxVal;
-        cv::minMaxLoc(result_f, &minVal, &maxVal);
-
-        // Escalamos autom·ticamente al rango 0-255 si es 16-bit
-        double scale = (maxVal > 255.0) ? 255.0 / maxVal : 1.0;
-        result_f.convertTo(result_u8, CV_8U);
-
-        // Recortar el centro
-        cv::Rect center_roi(tile_size.width, tile_size.height, tile_size.width, tile_size.height);
-        cv::Mat blended_center = result_u8(center_roi);
-
-        // Guardar tile fusionada como blend.tif
-        tl::Path out_path(mOrthoPath);
-        out_path.append(std::to_string(r));
-        out_path.append(std::to_string(c));
-        out_path.append("blend.tif");
-
-        // Usamos metadatos de la tile original
-        tl::Path src_path(mOrthoPath);
-        src_path.append(std::to_string(r));
-        src_path.append(std::to_string(c));
-        src_path.append("t.tif");
-
-        auto src_reader = tl::ImageReaderFactory::create(src_path);
-        src_reader->open();
-        if (!src_reader->isOpen()) return;
-
-        auto writer = tl::ImageWriterFactory::create(out_path);
-        writer->open();
-        writer->create(src_reader->rows(), src_reader->cols(), src_reader->channels(), src_reader->dataType());
-        writer->setCRS(src_reader->crsWkt());
-        writer->setGeoreference(src_reader->georeference());
-        writer->write(blended_center);
-        writer->close();
 
     } catch (std::exception &e) {
         tl::printException(e);
     }
 }
+#endif
+
 
 void OrthophotoTask::orthoimageExposureCompensator(const tl::Path &graph_orthos, tl::Progress *progressBar)
 {
-
-#ifdef EXPOSURE_COMPENSATOR
 
     try {
 
@@ -1157,11 +1691,6 @@ void OrthophotoTask::orthoimageExposureCompensator(const tl::Path &graph_orthos,
 
                             if (orto != ortho_to_compensate) {
 
-                                //if (polygon2->isInner(polygon->at(0)) || 
-                                //    polygon2->isInner(polygon->at(1)) || 
-                                //    polygon2->isInner(polygon->at(2)) || 
-                                //    polygon2->isInner(polygon->at(3))) {
-                                /// No se si ser· suficiente o tengo que seleccionar todas las imagenes que intersecten...
                                 if (polygon2->isInner(center)) {
                                     orthos.push_back(orto);
                                     windows.push_back(polygon2->window());
@@ -1178,7 +1707,7 @@ void OrthophotoTask::orthoimageExposureCompensator(const tl::Path &graph_orthos,
                         umat_orthos.resize(n_orthos);
                         mat_orthos.resize(n_orthos);
 
-                        /// Aplicar un factor de escala para el calculo de la compensaciÛn de exposiciÛn
+                        /// Aplicar un factor de escala para el calculo de la compensaci√≥n de exposici√≥n
                         for (size_t i = 0; i < n_orthos; i++) {
 
                             try {
@@ -1193,7 +1722,7 @@ void OrthophotoTask::orthoimageExposureCompensator(const tl::Path &graph_orthos,
                                     corners[i].x = tl::roundToInteger((windows[i].pt1.x - window_all.pt1.x) * exposure_compensator_factor / scale);
                                     corners[i].y = tl::roundToInteger((window_all.pt2.y - windows[i].pt2.y) * exposure_compensator_factor / scale);
 
-                                    /// La mascara deberÌa leerse si se creÛ en la generaciÛn del MDS.
+                                    /// La mascara deber√≠a leerse si se cre√≥ en la generaci√≥n del MDS.
                                     ortho_masks[i].create(image.size(), CV_8U);
                                     cv::Mat gray;
                                     if (image.channels() != 1) {
@@ -1249,7 +1778,6 @@ void OrthophotoTask::orthoimageExposureCompensator(const tl::Path &graph_orthos,
                             compensator->apply(0, corner, compensate_image, mask_full_size);
 
                             tl::Path orto_compensate(ortho_to_compensate);
-                            //std::string name = orto_compensate.baseName().toUtf8() + "_compensate.png";
                             std::string name = orto_compensate.baseName().toUtf8() + "_compensate.tif";
                             orto_compensate.replaceFileName(name);
                             std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(orto_compensate);
@@ -1261,7 +1789,6 @@ void OrthophotoTask::orthoimageExposureCompensator(const tl::Path &graph_orthos,
                                 image_writer->write(compensate_image);
                                 image_writer->close();
                                 tl::Message::info("Compensated image: {}", orto_compensate.fileName().toUtf8());
-                                //compensated_orthos.push_back(orto_compensate.toString());
                             }
                         }
 
@@ -1274,7 +1801,6 @@ void OrthophotoTask::orthoimageExposureCompensator(const tl::Path &graph_orthos,
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
     }
-#endif
 
 }
 

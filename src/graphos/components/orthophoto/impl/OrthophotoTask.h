@@ -84,7 +84,8 @@ private:
 
     void orthoimageExposureCompensator(const tl::Path &graph_orthos, tl::Progress *progressBar);
     auto searchTiles(const tl::Path &graph_orthos,
-                     const std::vector<std::vector<tl::WindowD>> &grid) -> std::vector<std::vector<std::map<double, std::string>>>;
+                     const std::vector<std::vector<tl::WindowD>> &grid,
+                     int maxImages = 0) -> std::vector<std::vector<std::map<double, std::string>>>;
     void generateTiles(const std::vector<std::vector<tl::WindowD>> &grid, 
                        std::vector<std::vector<std::map<double, std::string>>> &orthos,
                        tl::Progress *progressBar);

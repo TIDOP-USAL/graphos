@@ -408,8 +408,10 @@ void writeDTM(const tl::Path &file, const cv::Mat &mat,
 
     image_writer_mds->create(mat.rows, mat.cols, 1, tl::DataType::TL_32F);
     image_writer_mds->setGeoreference(georeference);
-    tl::Crs crs(epsg);
-    image_writer_mds->setCRS(crs.toWktFormat());
+    if (!epsg.empty()) {
+        tl::Crs crs(epsg);
+        image_writer_mds->setCRS(crs.toWktFormat());
+    }
     image_writer_mds->setNoDataValue(-9999.);
     image_writer_mds->write(mat);
 
@@ -507,7 +509,7 @@ void DemTask::execute(tl::Progress *progressBar)
                 tl::Path mds_path = mDemPath;
                 mds_path.append("dsm_enu.tif");
 
-                writeDTM(mds_path, dsm_raster_enu, georeference_enu, mCrs);
+                writeDTM(mds_path, dsm_raster_enu, georeference_enu, "");
 
                 dsm_raster_enu.release();
 
