@@ -63,6 +63,7 @@ add_files_to_project(${PROJECT_NAME}
                          mapviewer/MapPolygon.cpp
                          mapviewer/MapViewer.cpp
                          mapviewer/RasterTiledLayer.cpp
+                         mapviewer/MapContextMenu.cpp
                      HEADER_FILES
                          GraphosWidget.h
                          SiftWidget.h
@@ -95,6 +96,7 @@ add_files_to_project(${PROJECT_NAME}
                          mapviewer/MapPolygon.h
                          mapviewer/MapViewer.h
                          mapviewer/RasterTiledLayer.h
+                         mapviewer/MapContextMenu.h
                          ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.h)
 
 
