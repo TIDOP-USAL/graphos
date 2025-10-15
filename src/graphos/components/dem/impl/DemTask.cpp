@@ -595,6 +595,8 @@ void DemTask::execute(tl::Progress *progressBar)
         mDemReport.time = this->time();
         mDemReport.gsd = mGsd;
         mDemReport.epsg = QString::fromStdString(mCrs);
+        //mDemReport.cols = ;
+        //mDemReport.rows = ;
 
         tl::Message::success("DEM task finished in {:.2} minutes", mDemReport.time / 60.);
 

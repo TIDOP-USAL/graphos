@@ -32,7 +32,9 @@ struct DemReport
     double time = 0.0;
 	double gsd = 0.0;
 	QString epsg = "";
-	
+    double rows = 0;
+    double cols = 0;
+
     bool isEmpty() const
     {
         return time == 0. && gsd == 0. && epsg == "";
