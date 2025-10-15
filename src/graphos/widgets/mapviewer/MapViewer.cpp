@@ -52,6 +52,9 @@
 //#include <QPen>
 //#include <QTimer>
 //#include <QPainter>
+#include <QSslSocket>
+#include <QDebug>
+
 
 
 namespace graphos
@@ -220,7 +223,7 @@ void MapViewer::zoomOut()
 void MapViewer::changeBaseMap(BaseMap baseMap)
 {
     //mBaseLayerOSM->hide();
-    //mBaseLayerGoogleSatellite->hide();
+    mBaseLayerGoogleSatellite->hide();
     mBaseLayerGoogleHybrid->hide();
     mBaseLayerGoogleSchema->hide();
     mBaseLayerBingSatellite->hide();
@@ -234,9 +237,9 @@ void MapViewer::changeBaseMap(BaseMap baseMap)
     case graphos::MapViewer::BaseMap::google_schema:
         mBaseLayerGoogleSchema->show();
         break;
-    //case graphos::MapViewer::BaseMap::google_satellite:
-    //    mBaseLayerGoogleSatellite->show();
-    //    break;
+    case graphos::MapViewer::BaseMap::google_satellite:
+        mBaseLayerGoogleSatellite->show();
+        break;
     case graphos::MapViewer::BaseMap::google_hybrid:
         mBaseLayerGoogleHybrid->show();
         break;
@@ -262,6 +265,10 @@ void MapViewer::showContextMenu(const QPoint &position)
 
 void MapViewer::init()
 {
+    qDebug() << "SSL support:" << QSslSocket::supportsSsl();
+    qDebug() << "Build:" << QSslSocket::sslLibraryBuildVersionString();
+    qDebug() << "Runtime:" << QSslSocket::sslLibraryVersionString();
+
     QDir("cacheDir").removeRecursively();
     auto cache = new QNetworkDiskCache(this);
     cache->setCacheDirectory("cacheDir");
@@ -269,31 +276,15 @@ void MapViewer::init()
     manager->setCache(cache);
     QGV::setNetworkManager(manager);
 
-    // Base map layers
-    const QList<QGVLayer *> layers = {
-        new QGVLayerGoogle(QGV::TilesType::Satellite),
-        new QGVLayerGoogle(QGV::TilesType::Hybrid),
-        new QGVLayerGoogle(QGV::TilesType::Schema),
-        new QGVLayerBing(QGV::TilesType::Satellite),
-        new QGVLayerBing(QGV::TilesType::Hybrid),
-        new QGVLayerBing(QGV::TilesType::Schema),
-        new QGVLayerOSM()
-    };
-
-    for (auto layer : layers) {
-        layer->hide();
-        mMap->addItem(layer);
-    }
-
     //mBaseLayerOSM = new QGVLayerOSM();
-    //mBaseLayerOSM->hide();
+    //mBaseLayerOSM->show();
     //mMap->addItem(mBaseLayerOSM);
     mBaseLayerGoogleSchema = new QGVLayerGoogle(QGV::TilesType::Schema);
     mBaseLayerGoogleSchema->show();
     mMap->addItem(mBaseLayerGoogleSchema);
-    //mBaseLayerGoogleSatellite = new QGVLayerGoogle(QGV::TilesType::Satellite);
-    //mBaseLayerGoogleSatellite->hide();
-    //mMap->addItem(mBaseLayerGoogleSatellite);
+    mBaseLayerGoogleSatellite = new QGVLayerGoogle(QGV::TilesType::Satellite);
+    mBaseLayerGoogleSatellite->hide();
+    mMap->addItem(mBaseLayerGoogleSatellite);
     mBaseLayerGoogleHybrid = new QGVLayerGoogle(QGV::TilesType::Hybrid);
     mBaseLayerGoogleHybrid->hide();
     mMap->addItem(mBaseLayerGoogleHybrid);
@@ -336,10 +327,10 @@ void MapViewer::initSignalsAndSlots()
             changeBaseMap(BaseMap::google_hybrid);
         });
     
-    //connect(mContextMenu, &MapContextMenu::baseMapGoogleSatellite, this, 
-    //    [this]() {
-    //        changeBaseMap(BaseMap::google_satellite);
-    //    });
+    connect(mContextMenu, &MapContextMenu::baseMapGoogleSatellite, this, 
+        [this]() {
+            changeBaseMap(BaseMap::google_satellite);
+        });
 
     connect(mContextMenu, &MapContextMenu::baseMapBingSchema, this,
         [this]() {

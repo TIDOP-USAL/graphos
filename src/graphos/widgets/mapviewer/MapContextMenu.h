@@ -44,10 +44,10 @@ public:
 
 signals:
 
-    //void baseMapOSM();
+    void baseMapOSM();
     void baseMapGoogleSchema();
     void baseMapGoogleHybrid();
-    //void baseMapGoogleSatellite();
+    void baseMapGoogleSatellite();
     void baseMapBingSchema();
     void baseMapBingHybrid();
     void baseMapBingSatellite();
@@ -70,8 +70,8 @@ private slots:
 private:
 
     QMenu *mMenuBaseMap;
-    //QAction *mActionOSM;                   // Ahora no funciona 20251015
-    //QAction *mActionGoogleSatellite;       // Ahora no funciona 20251015
+    //QAction *mActionOSM;                   // https: Necesita libcrypto-1_1-x64.dll y libssl-1_1-x64.dll. En Release no funciona...
+    QAction *mActionGoogleSatellite;       // https: Necesita libcrypto-1_1-x64.dll y libssl-1_1-x64.dll
     QAction *mActionGoogleSchema;
     QAction *mActionGoogleHybrid;
     QAction *mActionBingSatellite;

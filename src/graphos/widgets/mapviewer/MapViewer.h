@@ -87,14 +87,13 @@ private:
 private:
 
     QGVMap *mMap;
-
     //QGVLayerOSM *mBaseLayerOSM;
-    //QGVLayerGoogle *mBaseLayerGoogleSatellite;
-    QGVLayerGoogle *mBaseLayerGoogleHybrid;
     QGVLayerGoogle *mBaseLayerGoogleSchema;
+    QGVLayerGoogle *mBaseLayerGoogleSatellite;
+    QGVLayerGoogle *mBaseLayerGoogleHybrid;
+    QGVLayerBing *mBaseLayerBingSchema;
     QGVLayerBing *mBaseLayerBingSatellite;
     QGVLayerBing *mBaseLayerBingHybrid;
-    QGVLayerBing *mBaseLayerBingSchema;
     QRectF mVectorExtent;
     MapContextMenu *mContextMenu;
 };

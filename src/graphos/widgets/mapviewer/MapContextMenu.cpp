@@ -36,7 +36,7 @@ MapContextMenu::MapContextMenu(QWidget *parent)
   : GraphosContextMenu(parent),
     mMenuBaseMap(new QMenu),
     //mActionOSM(new QAction(this)),
-    //mActionGoogleSatellite(new QAction(this)),
+    mActionGoogleSatellite(new QAction(this)),
     mActionGoogleSchema(new QAction(this)),
     mActionGoogleHybrid(new QAction(this)), 
     mActionBingSatellite(new QAction(this)),
@@ -59,10 +59,9 @@ void MapContextMenu::init()
     mActionZoomExtend->setIcon(QIcon::fromTheme("zoom-extend"));
     mActionZoom11->setIcon(QIcon::fromTheme("zoom-to-actual-size"));
 
-    //mMenuBaseMap->addAction(mActionOSM);
-    //mMenuBaseMap->addAction(mActionGoogleSatellite);
-
+    //mActionOSM->setCheckable(true);
     mActionGoogleSchema->setCheckable(true);
+    mActionGoogleSatellite->setCheckable(true);
     mActionGoogleHybrid->setCheckable(true);
     mActionBingSatellite->setCheckable(true);
     mActionBingSchema->setCheckable(true);
@@ -71,7 +70,9 @@ void MapContextMenu::init()
     auto baseMapGroup = new QActionGroup(this);
     baseMapGroup->setExclusive(true);
 
+    //baseMapGroup->addAction(mActionOSM);
     baseMapGroup->addAction(mActionGoogleSchema);
+    baseMapGroup->addAction(mActionGoogleSatellite);
     baseMapGroup->addAction(mActionGoogleHybrid);
     baseMapGroup->addAction(mActionBingSatellite);
     baseMapGroup->addAction(mActionBingSchema);
@@ -93,7 +94,7 @@ void MapContextMenu::init()
 void MapContextMenu::initSignalAndSlots()
 {
     //connect(mActionOSM, &QAction::triggered, this, &MapContextMenu::baseMapOSM);
-    //connect(mActionGoogleSatellite, &QAction::triggered, this, &MapContextMenu::baseMapGoogleSatellite);
+    connect(mActionGoogleSatellite, &QAction::triggered, this, &MapContextMenu::baseMapGoogleSatellite);
     connect(mActionGoogleSchema, &QAction::triggered, this, &MapContextMenu::baseMapGoogleSchema);
     connect(mActionGoogleHybrid, &QAction::triggered, this, &MapContextMenu::baseMapGoogleHybrid);
     connect(mActionBingSchema, &QAction::triggered, this, &MapContextMenu::baseMapBingSchema);
@@ -110,11 +111,11 @@ void MapContextMenu::retranslate()
 {
     mMenuBaseMap->setTitle(QApplication::translate("MapContextMenu", "Base Map"));
     //mActionOSM->setText(QApplication::translate("MapContextMenu", "Open Street Map"));
-    //mActionGoogleSatellite->setText(QApplication::translate("MapContextMenu", "Google Satellite"));
     mActionGoogleSchema->setText(QApplication::translate("MapContextMenu", "Google Schema"));
+    mActionGoogleSatellite->setText(QApplication::translate("MapContextMenu", "Google Satellite"));
     mActionGoogleHybrid->setText(QApplication::translate("MapContextMenu", "Google Hybrid"));
-    mActionBingSatellite->setText(QApplication::translate("MapContextMenu", "Bing Satellite"));
     mActionBingSchema->setText(QApplication::translate("MapContextMenu", "Bing Schema"));
+    mActionBingSatellite->setText(QApplication::translate("MapContextMenu", "Bing Satellite"));
     mActionBingHybrid->setText(QApplication::translate("MapContextMenu", "Bing Hybrid"));
 
     mActionZoomIn->setText(QApplication::translate("MapContextMenu", "Zoom In"));
