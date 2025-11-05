@@ -126,7 +126,7 @@ auto Image::operator =(Image&& image) noexcept -> Image&
 
 auto Image::id(const Image &image) -> size_t
 {
-    return size_t();
+    return tl::Path::hash(image.path().toStdString());
 }
 
 
