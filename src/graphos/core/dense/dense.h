@@ -102,7 +102,7 @@ ALLOW_BITWISE_FLAG_OPERATIONS(Densification::Method)
 
 
 
-/*----------------------------------------------------------------*/
+
 
 
 class Densifier
@@ -147,6 +147,7 @@ protected:
     auto groundPoints() const -> const std::vector<GroundPoint>&;
     void setDenseModel(const tl::Path &denseModel);
     void autoSegmentation() const;
+    virtual void copyUndistortedImages() const = 0;
 
 // Densifier
 

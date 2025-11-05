@@ -112,7 +112,7 @@ public:
 
     UndistortImages(const std::unordered_map<size_t, Image> &images,
                     const std::map<int, Camera> &cameras,
-                    QString outputPath,
+                    tl::Path outputPath,
                     Format outputFormat,
                     bool cuda = false);
     ~UndistortImages() override;
@@ -127,7 +127,7 @@ private:
 
     std::unordered_map<size_t, Image> mImages;
     std::map<int, Camera> mCameras;
-    QString mOutputPath;
+    tl::Path mOutputPath;
     Format mOutputFormat;
     bool mUseCuda;
 

@@ -44,8 +44,6 @@
 namespace graphos
 {
 
-/*----------------------------------------------------------------*/
-
 /*!
  * \brief Convert QImage to cv::Mat
  * \param[in] image QImage
@@ -60,13 +58,17 @@ cv::Mat qImageToCvMat(const QImage &image);
  */
 QImage cvMatToQImage(const cv::Mat &image);
 
+/*!
+ * \brief Convert an RGB image to gray
+ * \param [in|out] mat Image to convert
+ */
+void convertToGray(const cv::Mat &in, cv::Mat &out, bool useCuda = false);
 
-cv::Mat convertToGray(const cv::Mat &image);
+void normalizeImage(const cv::Mat &in, cv::Mat &out, bool useCuda = false);
+void resizeImage(const cv::Mat &in, cv::Mat &out, const cv::Size &size, bool useCuda = false);
 
 QSize cvSizeToQSize(const cv::Size &size);
 cv::Size qSizeToCvSize(const QSize &size);
-
-/*----------------------------------------------------------------*/
 
 /*!
  * \brief Comprueba si el procesamiento por cuda está disponible

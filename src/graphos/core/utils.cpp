@@ -40,6 +40,15 @@
 #ifdef HAVE_CUDA
 #include <cuda_runtime.h>
 #endif
+#ifdef HAVE_OPENCV_CUDAIMGPROC
+#include <opencv2/cudaimgproc.hpp>
+#endif // HAVE_OPENCV_CUDAIMGPROC
+#ifdef HAVE_OPENCV_CUDAARITHM
+#include <opencv2/cudaarithm.hpp>
+#endif // HAVE_OPENCV_CUDAARITHM
+#ifdef HAVE_OPENCV_CUDAWARPING
+#include <opencv2/cudawarping.hpp>
+#endif // HAVE_OPENCV_CUDAWARPING
 
 #include <cstring>
 #include <ostream>
@@ -156,17 +165,67 @@ QImage cvMatToQImage(const cv::Mat &image)
     return q_image;
 }
 
-cv::Mat convertToGray(const cv::Mat &image)
+void convertToGray(const cv::Mat &in, cv::Mat &out, bool useCuda)
 {
-    cv::Mat temp;
-    if (image.channels() >= 3) {
-        cv::Mat color_boost;
-        cv::decolor(image, temp, color_boost);
-        color_boost.release();
+    //cv::Mat temp;
+    //if (image.channels() >= 3) {
+    //    cv::Mat color_boost;
+    //    cv::decolor(image, temp, color_boost);
+    //    color_boost.release();
+    //} else {
+    //    image.copyTo(temp);
+    //}
+    //return temp;
+#ifdef HAVE_OPENCV_CUDAIMGPROC
+    if (useCuda) {
+        cv::cuda::GpuMat gImgIn(in);
+        cv::cuda::GpuMat gImgGray;
+        cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
+        gImgGray.download(out);
     } else {
-        image.copyTo(temp);
+#endif
+
+        cv::cvtColor(in, out, cv::COLOR_BGR2GRAY);
+
+#ifdef HAVE_OPENCV_CUDAIMGPROC
     }
-    return temp;
+#endif
+}
+
+void normalizeImage(const cv::Mat &in, cv::Mat &out, bool useCuda)
+{
+    if (in.depth() != CV_8U) {
+#ifdef HAVE_OPENCV_CUDAARITHM
+        if (useCuda) {
+            cv::cuda::GpuMat gImgIn(in);
+            cv::cuda::GpuMat gImgOut;
+            cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+            gImgOut.download(out);
+        } else {
+#endif
+            cv::normalize(in, out, 0., 255., cv::NORM_MINMAX, CV_8U);
+#ifdef HAVE_OPENCV_CUDAARITHM
+        }
+#endif
+    } else {
+        out = in;
+    }
+}
+
+void resizeImage(const cv::Mat &in, cv::Mat &out, const cv::Size &size, bool useCuda)
+{
+#ifdef HAVE_OPENCV_CUDAWARPING
+    if (useCuda) {
+        cv::cuda::GpuMat gImgIn(in);
+        cv::cuda::GpuMat gImgResize;
+        cv::cuda::resize(gImgIn, gImgResize, size);
+        gImgResize.download(out);
+    } else {
+#endif
+        cv::resize(in, out, size);
+#ifdef HAVE_OPENCV_CUDAWARPING
+    }
+#endif
 }
 
 QSize cvSizeToQSize(const cv::Size &size)
@@ -422,17 +481,17 @@ void transformModel(const tl::Matrix<double> &transform, const std::string &mode
         ccGLMatrix cc_rot;
         float *mat = cc_rot.data();
 
-        mat[0] = transform[0][0];
-        mat[1] = transform[1][0];
-        mat[2] = transform[2][0];
+        mat[0] = static_cast<float>(transform[0][0]);
+        mat[1] = static_cast<float>(transform[1][0]);
+        mat[2] = static_cast<float>(transform[2][0]);
 
-        mat[4] = transform[0][1];
-        mat[5] = transform[1][1];
-        mat[6] = transform[2][1];
+        mat[4] = static_cast<float>(transform[0][1]);
+        mat[5] = static_cast<float>(transform[1][1]);
+        mat[6] = static_cast<float>(transform[2][1]);
 
-        mat[8] = transform[0][2];
-        mat[9] = transform[1][2];
-        mat[10] = transform[2][2];
+        mat[8] = static_cast<float>(transform[0][2]);
+        mat[9] = static_cast<float>(transform[1][2]);
+        mat[10] = static_cast<float>(transform[2][2]);
        
         CCVector3 t(static_cast<PointCoordinateType>(transform[0][3]),
                     static_cast<PointCoordinateType>(transform[1][3]),

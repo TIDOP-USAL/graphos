@@ -387,11 +387,6 @@ auto GroundControlPointsModelImp::reconstructionPath() const -> tl::Path
     return mProject->reconstructionPath();
 }
 
-void GroundControlPointsModelImp::setSparseModel(const tl::Path &sparseModel)
-{
-    mProject->setSparseModel(sparseModel);
-}
-
 void GroundControlPointsModelImp::setEnuCrs(const QString &enuCrs)
 {
     mProject->setEnuCrs(enuCrs);
@@ -413,14 +408,6 @@ auto GroundControlPointsModelImp::cameras() const -> const Cameras&
     return mProject->cameras();
 }
 
-auto GroundControlPointsModelImp::groundPoints() const -> GroundPoints
-{
-    auto reader = GroundPointsReaderFactory::create("GRAPHOS");
-    reader->read(mProject->groundPoints());
-
-    return reader->points();
-}
-
 auto GroundControlPointsModelImp::database() const -> tl::Path
 {
     return mProject->database();
@@ -429,11 +416,6 @@ auto GroundControlPointsModelImp::database() const -> tl::Path
 void GroundControlPointsModelImp::setTransform(const tl::Matrix<double, 4, 4> &transform)
 {
     mProject->setTransform(transform);
-}
-
-void GroundControlPointsModelImp::setGroundPoints(const tl::Path &groundPoints)
-{
-    mProject->setGroundPoints(groundPoints);
 }
 
 bool GroundControlPointsModelImp::updateCamera(int id, const Camera &camera)

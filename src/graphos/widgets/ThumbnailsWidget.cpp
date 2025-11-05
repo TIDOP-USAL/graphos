@@ -189,7 +189,7 @@ void ThumbnailsWidget::addThumbnail(const Image &image, const QSize &imageSize)
         QIcon icon(pixmap);
         QListWidgetItem *item = new QListWidgetItem(icon, image.name());
         item->setToolTip(image.path());
-        item->setData(Qt::UserRole, static_cast<qulonglong>(image.id()));
+        item->setData(Qt::UserRole, static_cast<qulonglong>(Image::id(image)));
         mListWidget->addItem(item);
         // TODO: Utilizar setGridSize para ajustar el tamaño
         //mListWidget->setGridSize();

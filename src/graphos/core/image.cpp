@@ -30,7 +30,6 @@ namespace graphos
 
 Image::Image()
   : mFilePath(""),
-    mId(0),
     mCameraId(0),
     mCameraPose()
 {
@@ -38,25 +37,20 @@ Image::Image()
 
 Image::Image(const QString &file)
   : mFilePath(file.toStdString()),
-    mId(0),
     mCameraId(0),
     mCameraPose()
 {
-    update();
 }
 
 Image::Image(tl::Path file)
   : mFilePath(std::move(file)),
-    mId(0),
     mCameraId(0),
     mCameraPose()
 {
-    update();
 }
 
 Image::Image(const Image &image)
   : mFilePath(image.mFilePath),
-    mId(image.mId),
     mCameraId(image.mCameraId),
     mCameraPose(image.mCameraPose)
 {
@@ -65,7 +59,6 @@ Image::Image(const Image &image)
 
 Image::Image(Image &&image) noexcept
   : mFilePath(std::move(image.mFilePath)),
-    mId(std::exchange(image.mId, 0)),
     mCameraId(std::exchange(image.mCameraId, 0)),
     mCameraPose(std::move(image.mCameraPose))
 {
@@ -79,7 +72,6 @@ auto Image::path() const -> QString
 void Image::setPath(const QString &file)
 {
     mFilePath = file.toStdString();
-    update();
 }
 
 void Image::setPath(const tl::Path &file)
@@ -90,11 +82,6 @@ void Image::setPath(const tl::Path &file)
 auto Image::name() const -> QString
 {
     return QString::fromStdString(mFilePath.fileName().toUtf8());
-}
-
-auto Image::id() const -> size_t
-{
-    return mId;
 }
 
 auto Image::cameraId() const -> int
@@ -121,7 +108,6 @@ auto Image::operator =(const Image& image) -> Image&
 {
     if (this != &image) {
         this->mFilePath = image.mFilePath;
-        this->mId = image.mId;
         this->mCameraId = image.mCameraId;
         this->mCameraPose = image.mCameraPose;
     }
@@ -132,16 +118,15 @@ auto Image::operator =(Image&& image) noexcept -> Image&
 {
     if (this != &image) {
         this->mFilePath = std::move(image.mFilePath);
-        this->mId = std::exchange(image.mId, 0);
         this->mCameraId = std::exchange(image.mCameraId, 0);
         this->mCameraPose = std::move(image.mCameraPose);
     }
     return *this;
 }
 
-void Image::update()
+auto Image::id(const Image &image) -> size_t
 {
-    mId = tl::Path::hash(mFilePath);
+    return size_t();
 }
 
 

@@ -27,6 +27,7 @@
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/core/image.h"
+#include "graphos/core/utils.h"
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/sfm/orientationexport.h"
 #include "graphos/core/ply.h"
@@ -36,6 +37,7 @@
 #include <tidop/core/path.h>
 #include <tidop/core/app.h>
 #include <tidop/img/imgreader.h>
+#include <tidop/img/imgwriter.h>
 #include <tidop/core/progress.h>
 
 /* COLMAP */
@@ -364,6 +366,50 @@ void SmvsDensifier::densify()
     }
 }
 
+void SmvsDensifier::copyUndistortedImages() const
+{
+    tl::Path undistort_path(outputPath().parentPath().parentPath());
+    undistort_path.append("undistorted");
+    tl::Path output_path(outputPath());
+    output_path.append("views");
+
+    for (const auto &pose : poses()) {
+
+        size_t image_id = pose.first;
+        const auto &image = images().at(image_id);
+
+        tl::Path undistort_image_path = undistort_path;
+        std::string file_name = std::to_string(image_id).append(".tif");
+        undistort_image_path.append(file_name);
+
+        auto image_reader = tl::ImageReaderFactory::create(undistort_image_path);
+        image_reader->open();
+        if (image_reader->isOpen()) {
+
+            tl::Path image_out_path = output_path;
+            image_out_path.append(colmap::StringPrintf("view_%04d.mve", mGraphosToMveIds.at(image_id)));
+            image_out_path.append("undistorted.jpg");
+
+            cv::Mat mat = image_reader->read();
+            normalizeImage(mat, mat, this->isCudaEnabled());
+            auto image_writer = tl::ImageWriterFactory::create(image_out_path);
+            image_writer->open();
+            if (image_writer->isOpen()) {
+                image_writer->create(mat.rows, mat.cols, mat.channels(), tl::DataType::TL_8U);
+                image_writer->write(mat);
+                image_writer->close();
+            }
+        }
+
+        //tl::Path undistort_smvs_path = outputPath();
+        //undistort_smvs_path.append("views");
+        //undistort_smvs_path.append(colmap::StringPrintf("view_%04d.mve", mGraphosToMveIds.at(image_id)));
+        //undistort_smvs_path.append("undistorted.jpg");
+
+        //tl::Path::copy(undistort_image_path, undistort_smvs_path);
+    }
+}
+
 void SmvsDensifier::execute(tl::Progress *progressBar)
 {
 
@@ -382,25 +428,7 @@ void SmvsDensifier::execute(tl::Progress *progressBar)
         if (status() == tl::Task::Status::stopping) return;
 
         this->undistort(QString::fromStdWString(undistort_path.toWString()));
-
-        /// Copiar imagenes corregidas
-
-        for (const auto &pose : poses()) {
-
-            size_t image_id = pose.first;
-            const auto &image = images().at(image_id);
-
-            tl::Path undistort_image_path = undistort_path;
-            undistort_image_path.append(image.name().toStdWString());
-            undistort_image_path.replaceExtension(".jpg");
-
-            tl::Path undistort_smvs_path = outputPath();
-            undistort_smvs_path.append("views");
-            undistort_smvs_path.append(colmap::StringPrintf("view_%04d.mve", mGraphosToMveIds.at(image_id)));
-            undistort_smvs_path.append("undistorted.jpg");
-
-            tl::Path::copy(undistort_image_path, undistort_smvs_path);
-        }
+        this->copyUndistortedImages();
 
         if (status() == Status::stopping) return;
 

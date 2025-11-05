@@ -85,7 +85,7 @@ void ImageLoaderPresenterImp::addImage(int imageId, int cameraId)
     //    mModel->setProjectCRS(crs_image);
     //}
 
-    emit image_loaded(image.id());
+    emit image_loaded(Image::id(image));
 }
 
 void ImageLoaderPresenterImp::onError(tl::TaskErrorEvent *event)
@@ -115,7 +115,7 @@ auto ImageLoaderPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     mImages.clear();
     for (auto &image : mImageFiles) {
         Image img(image);
-        if (!mModel->existImage(img.id()))
+        if (!mModel->existImage(Image::id(image)))
             mImages.push_back(img);
     }
 

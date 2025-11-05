@@ -104,12 +104,6 @@ public:
     auto name() const -> QString;
 
     /*!
-     * \brief Returns the identifier of the image
-     * \return Image identifier
-     */
-    auto id() const -> size_t;
-
-    /*!
      * \brief Returns the identifier of the camera
      * \return Camera identifier
      */
@@ -147,14 +141,16 @@ public:
      */
     auto operator =(Image&& image) noexcept -> Image&;
 
-private:
-
-    void update();
+    /*!
+     * \brief Returns the identifier of the Image
+     * \param[in] image Image
+     * return Image identifier
+     */
+    static auto id(const Image &image) -> size_t;
 
 protected:
 
     tl::Path mFilePath;
-    size_t mId;
     int mCameraId;
     CameraPose mCameraPose;
 };

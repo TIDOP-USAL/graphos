@@ -71,16 +71,16 @@ public:
     auto groundControlPoints() const -> GroundControlPoints override;
     auto projectPath() const -> tl::Path override;
     auto reconstructionPath() const -> tl::Path override;
-    void setSparseModel(const tl::Path &sparseModel) override;
+    //void setSparseModel(const tl::Path &sparseModel) override;
     void setEnuCrs(const QString &enuCrs) override;
     void addPhotoOrientation(size_t imageId,
                              const CameraPose &orientation) override;
     auto poses() const -> const CameraPoses& override;
     auto cameras() const -> const Cameras& override;
-    auto groundPoints() const -> GroundPoints override;
+    //auto groundPoints() const -> GroundPoints override;
     auto database() const -> tl::Path override;
     void setTransform(const tl::Matrix<double, 4, 4> &transform) override;
-    void setGroundPoints(const tl::Path &groundPoints) override;
+    //void setGroundPoints(const tl::Path &groundPoints) override;
     auto updateCamera(int id, const Camera &camera) -> bool override;
     void importGroundControlPoints(const QString &file, const QString &format) override;
     void exportGroundControlPoints(const QString &file, const QString &format) override;

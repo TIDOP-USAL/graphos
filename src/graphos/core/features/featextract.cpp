@@ -25,9 +25,7 @@
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Colmap.h"
-//#include "graphos/core/preprocess/clahe.h"
-//#include "preprocess/dhe.h"
-//#include "preprocess/pohe.h"
+#include "graphos/core/utils.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/exception.h>
@@ -37,15 +35,6 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core.hpp>
-#ifdef HAVE_OPENCV_CUDAIMGPROC
-#include <opencv2/cudaimgproc.hpp>
-#endif // HAVE_OPENCV_CUDAIMGPROC
-#ifdef HAVE_OPENCV_CUDAWARPING
-#include <opencv2/cudawarping.hpp>
-#endif // HAVE_OPENCV_CUDAWARPING
-#ifdef HAVE_OPENCV_CUDAARITHM
-#include <opencv2/cudaarithm.hpp>
-#endif // HAVE_OPENCV_CUDAARITHM
 
 #include <colmap/base/database.h>
 #include <colmap/base/camera_models.h>
@@ -213,7 +202,7 @@ private:
             queue_data data;
             data.mat = mat;
             data.colmap_image_id = colmap_image_id;
-            data.image_id = image.id();
+            data.image_id = Image::id(image);
             data.scale = scale;
 
             mBuffer->push(data);
@@ -232,10 +221,6 @@ private:
 
             mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE | cv::IMREAD_ANYDEPTH);
 
-            //mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_COLOR | cv::IMREAD_ANYDEPTH);
-            //if (mat.channels() >= 3)
-            //    convertRgbToGray(mat);
-
             if (mat.empty()) {
                 featextract_opencv_read = false;
             } else {
@@ -249,7 +234,7 @@ private:
                     size.width = tl::roundToInteger(size.width / scale);
                     size.height = tl::roundToInteger(size.height / scale);
 
-                    resizeImage(mat, size);
+                    resizeImage(mat, mat, size, bUseGPU);
                 }
             }
         }
@@ -271,85 +256,16 @@ private:
                 }
 
                 if (mat.channels() >= 3) {
-                    convertRgbToGray(mat);
+                    convertToGray(mat, mat, bUseGPU);
                 }
 
                 image_reader->close();
             }
         }
 
-        normalizeImage(mat);
+        normalizeImage(mat, mat, bUseGPU);
 
         return mat;
-    }
-
-    /*!
-     * \brief Convert an RGB image to gray
-     * \param [in|out] mat Image to convert
-     */
-    void convertRgbToGray(cv::Mat &mat) const
-    {
-#ifdef HAVE_OPENCV_CUDAIMGPROC
-        if (bUseGPU) {
-            cv::cuda::GpuMat gImgIn(mat);
-            cv::cuda::GpuMat gImgGray;
-            cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
-            gImgGray.download(mat);
-        } else {
-#endif
-
-            cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
-
-#ifdef HAVE_OPENCV_CUDAIMGPROC
-        }
-#endif
-        //cv::Mat color_boost;
-        //cv::decolor(mat, mat, color_boost);
-        //color_boost.release();
-
-        ///// CLAHE Preprocess
-        //ClahePreprocessCuda clahe;
-        //mat = clahe.process(mat);
-        /// CLAHE Preprocess
-        //DhePreprocess dhe;
-        //mat = dhe.process(mat);
-        //PohePreprocess pohe;
-        //mat = pohe.process(mat);
-
-    }
-
-    void normalizeImage(cv::Mat &mat) const
-    {
-        if (mat.depth() != CV_8U) {
-#ifdef HAVE_OPENCV_CUDAARITHM
-            if (bUseGPU) {
-                cv::cuda::GpuMat gImgIn(mat);
-                cv::cuda::GpuMat gImgOut;
-                cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-                gImgOut.download(mat);
-            } else {
-#endif
-                cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
-#ifdef HAVE_OPENCV_CUDAARITHM
-            }
-#endif
-        }
-    }
-
-    void resizeImage(cv::Mat &mat, const cv::Size &size) const
-    {
-#ifdef HAVE_OPENCV_CUDAWARPING
-        if (bUseGPU) {
-            cv::cuda::GpuMat gImgIn(mat);
-            cv::cuda::GpuMat gImgResize;
-            cv::cuda::resize(gImgIn, gImgResize, size);
-            gImgResize.download(mat);
-        } else {
-#endif
-            cv::resize(mat, mat, size);
-#ifdef HAVE_OPENCV_CUDAWARPING
-        }
-#endif
     }
 
 protected:

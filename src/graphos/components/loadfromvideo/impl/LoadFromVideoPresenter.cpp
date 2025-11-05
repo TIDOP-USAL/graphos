@@ -58,7 +58,7 @@ void LoadFromVideoPresenterImp::addImage(QString imagePath, int cameraId)
     image.setCameraId(camera_id);
     mModel->addImage(image);
 
-    emit frame_loaded(image.id());
+    emit frame_loaded(Image::id(image));
 }
 
 void LoadFromVideoPresenterImp::open()

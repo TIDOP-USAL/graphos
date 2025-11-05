@@ -27,6 +27,7 @@
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/core/image.h"
+#include "graphos/core/utils.h"
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/ply.h"
 
@@ -35,6 +36,7 @@
 #include <tidop/core/path.h>
 #include <tidop/core/app.h>
 #include <tidop/img/imgreader.h>
+#include <tidop/img/imgwriter.h>
 #include <tidop/core/progress.h>
 #include <tidop/math/algebra/rotation_convert.h>
 
@@ -228,7 +230,7 @@ auto Mvs::name() const -> QString
 
 
 
-/*----------------------------------------------------------------*/
+
 
 
 
@@ -338,13 +340,12 @@ void MvsDensifier::exportImages(const std::unordered_map<size_t, colmap::image_t
         tl::Quaternion<double> quaternion = pose.second.quaternion();
 
         auto xyx = rotation_matrix * -projection_center.vector();
-        tl::Path image_path = image.path().toStdString();
-        image_path.replaceExtension(".tif");
+        std::string file_name = std::to_string(image_id).append(".tif");
 
         auto colmap_image_id = graphosToColmapImageIds.at(image_id);
 
         ofs << colmap_image_id << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
-            << xyx[0] << " " << xyx[1] << " " << xyx[2] << " " << image.cameraId() << " " << image_path.fileName().toString() << std::endl;
+            << xyx[0] << " " << xyx[1] << " " << xyx[2] << " " << image.cameraId() << " " << file_name << std::endl;
 
         for (size_t i = 0; i < groundPoints().size(); i++) {
 
@@ -419,15 +420,17 @@ void MvsDensifier::exportToColmap() const
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
         std::unordered_map<size_t, colmap::FeatureKeypoints> keypoints;
 
-        for (const auto &image : images()) {
+        for (const auto &pose : poses()) {
 
-            tl::Path image_path(image.second.path().toStdString());
+            size_t graphos_image_id = pose.first;
+
+            tl::Path image_path(images().at(graphos_image_id).path().toStdString());
 
             for (const auto &colmap_image : colmap_images) {
                 tl::Path colmap_image_path(colmap_image.Name());
 
                 if (image_path.equivalent(colmap_image_path)) {
-                    graphos_to_colmap_image_ids[image.first] = colmap_image.ImageId();
+                    graphos_to_colmap_image_ids[graphos_image_id] = colmap_image.ImageId();
                     keypoints[colmap_image.ImageId()] = database.ReadKeypoints(colmap_image.ImageId());
                     break;
                 }
@@ -468,15 +471,16 @@ void MvsDensifier::writeNvmFile() const
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
         std::unordered_map<size_t, colmap::FeatureKeypoints> keypoints;
 
-        for (const auto &image : images()) {
+        for (const auto &pose : poses()) {
 
-            tl::Path image_path(image.second.path().toStdString());
+            size_t graphos_image_id = pose.first;
+            tl::Path image_path(images().at(graphos_image_id).path().toStdString());
 
             for (const auto &colmap_image : colmap_images) {
                 tl::Path colmap_image_path(colmap_image.Name());
 
                 if (image_path.equivalent(colmap_image_path)) {
-                    graphos_to_colmap_image_ids[image.first] = colmap_image.ImageId();
+                    graphos_to_colmap_image_ids[graphos_image_id] = colmap_image.ImageId();
                     keypoints[colmap_image.ImageId()] = database.ReadKeypoints(colmap_image.ImageId());
                     break;
                 }
@@ -685,8 +689,9 @@ void MvsDensifier::execute(tl::Progress *progressBar)
 {
     try {
 
-        tl::Path undistort_path(outputPath());
-        undistort_path.append("temp").append("export").append("images");
+        tl::Path undistort_path(outputPath().parentPath().parentPath());
+        undistort_path.append("undistorted");
+        //undistort_path.append("temp").append("export").append("images");
         undistort_path.createDirectories();
 
         /// Da problemas al escribir el fichero nvm e importarlo
@@ -697,6 +702,7 @@ void MvsDensifier::execute(tl::Progress *progressBar)
         if (status() == Status::stopping) return;
 
         this->undistort(QString::fromStdWString(undistort_path.toWString()));
+        this->copyUndistortedImages();
 
         if (status() == Status::stopping) return;
 
@@ -723,6 +729,69 @@ void MvsDensifier::execute(tl::Progress *progressBar)
     }
 
 
+}
+
+
+
+void MvsDensifier::copyUndistortedImages() const
+{
+    tl::Path undistort_path(outputPath().parentPath().parentPath());
+    undistort_path.append("undistorted");
+    tl::Path output_path(outputPath());
+    output_path.append("temp").append("export").append("images");
+    output_path.createDirectories();
+
+    //std::string extension;
+    //switch (mFormat) {
+    //case graphos::UndistortImages::Format::tiff:
+    //    extension = ".tif";
+    //    break;
+    //case graphos::UndistortImages::Format::jpeg:
+    //    extension = ".jpg";
+    //    break;
+    //case graphos::UndistortImages::Format::png:
+    //    extension = ".png";
+    //    break;
+    //default:
+    //    break;
+    //}
+
+    for (const auto &pose : poses()) {
+
+        size_t image_id = pose.first;
+        auto camera_id = images().at(image_id).cameraId();
+
+        tl::Path image_path = undistort_path;
+        std::string file_name = std::to_string(image_id).append(".tif");
+        image_path.append(file_name);
+
+        auto image_reader = tl::ImageReaderFactory::create(image_path);
+        image_reader->open();
+        if (image_reader->isOpen()) {
+
+            tl::Path image_out_path = output_path;
+            image_out_path.append(image_path.fileName());
+            image_out_path.replaceExtension(".tif");
+
+            if (image_reader->depth() == 8 /*&& mFormat == graphos::UndistortImages::Format::tiff*/) {
+               // Solo copia
+                tl::Path::copy(image_path, image_out_path);
+            } else {
+
+                cv::Mat mat = image_reader->read();
+                normalizeImage(mat, mat, this->isCudaEnabled());
+                auto image_writer = tl::ImageWriterFactory::create(image_out_path);
+                image_writer->open();
+                if (image_writer->isOpen()) {
+                    image_writer->create(mat.rows, mat.cols, mat.channels(), tl::DataType::TL_8U);
+                    image_writer->write(mat);
+                    image_writer->close();
+                }
+            }
+
+            image_reader->close();
+        }
+    }
 }
 
 } // namespace graphos

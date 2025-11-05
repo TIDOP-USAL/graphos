@@ -157,7 +157,9 @@ protected:
 };
 
 
-/*----------------------------------------------------------------*/
+
+
+
 
 /*!
  * \brief Class for CMVS/PMVS densification.
@@ -206,6 +208,12 @@ private:
     void writeVisibility();
     void writeOptions() const;
     void densify();
+
+// DensifierBase
+
+protected:
+
+    void copyUndistortedImages() const override;
 
 // TaskBase
 

@@ -278,6 +278,12 @@ private:
     void exportToMvs() const;
     void densify();
 
+// DensifierBase
+
+protected:
+
+    void copyUndistortedImages() const override;
+
 // TaskBase
 
 protected:

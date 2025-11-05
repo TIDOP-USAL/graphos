@@ -556,7 +556,7 @@ ColmapReconstructionConvert::ColmapReconstructionConvert(const colmap::Reconstru
             tl::Path colmap_image_path(colmap_image.second.Name());
 
             if (image_path.equivalent(colmap_image_path)) {
-                mImageIds[colmap_image.first] = image.id();
+                mImageIds[colmap_image.first] = Image::id(image);
                 break;
             }
         }

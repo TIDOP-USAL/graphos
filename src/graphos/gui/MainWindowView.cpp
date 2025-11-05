@@ -276,7 +276,7 @@ void MainWindowView::addImage(const Image &image, const Camera &camera)
         itemPhotogram->setIcon(0, QIcon::fromTheme("image-file"));
         itemPhotogram->setToolTip(0, image.path());
         itemPhotogram->setData(0, Qt::UserRole, graphos::image);
-        itemPhotogram->setData(0, Qt::UserRole + 1, static_cast<qulonglong>(image.id()));
+        itemPhotogram->setData(0, Qt::UserRole + 1, static_cast<qulonglong>(Image::id(image)));
         itemImages->addChild(itemPhotogram);
         itemImages->setText(0, QApplication::translate("MainWindowView", "Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
 

@@ -91,7 +91,7 @@ void FeaturesViewerPresenterImp::setImageActive(size_t imageId)
 {
     auto image = mModel->image(imageId);
     mView->setCurrentImage(image.path());
-    loadKeypoints(image.id());
+    loadKeypoints(Image::id(image));
 }
 
 void FeaturesViewerPresenterImp::loadKeypoints(size_t imageId)

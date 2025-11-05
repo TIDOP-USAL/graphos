@@ -92,7 +92,7 @@ auto UndistortImagesPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
     std::unique_ptr<tl::Task> process = std::make_unique<UndistortImages>(mModel->images(),
                                                                           mModel->cameras(),
-                                                                          mView->directory().absolutePath(),
+                                                                          mView->directory().absolutePath().toStdString(),
                                                                           UndistortImages::Format::tiff,
                                                                           mModel->useCuda());
 

@@ -83,7 +83,7 @@ bool UndistortImagesCommand::run()
 
         UndistortImages task(project.images(),
                              project.cameras(),
-                             QString::fromStdWString(output_path.toWString()),
+                             output_path,
                              UndistortImages::Format::tiff,
                              mDisableCuda);
 

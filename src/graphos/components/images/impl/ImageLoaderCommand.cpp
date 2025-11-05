@@ -109,7 +109,7 @@ bool ImageLoaderCommand::run()
 
         if (!image_path.empty()) {
             Image img(image_path);
-            if (!project.existImage(img.id()))
+            if (!project.existImage(Image::id(img)))
                 images.push_back(img);
         }
 
@@ -126,7 +126,7 @@ bool ImageLoaderCommand::run()
                 tl::trim(line);
 
                 Image img(line);
-                if (!project.existImage(img.id()))
+                if (!project.existImage(Image::id(img)))
                     images.push_back(img);
             }
 

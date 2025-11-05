@@ -94,7 +94,7 @@ auto DensifierBase::undistort(const QString &dir) const -> void
 
         UndistortImages undistort(mImages,
                                   mCameras,
-                                  dir,
+                                  dir.toStdString(),
                                   mFormat,
                                   mCuda);
         undistort.run();

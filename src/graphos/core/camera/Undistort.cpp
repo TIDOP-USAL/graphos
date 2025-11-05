@@ -608,7 +608,7 @@ private:
 
 UndistortImages::UndistortImages(const std::unordered_map<size_t, Image> &images,
                                  const std::map<int, Camera> &cameras,
-                                 QString outputPath,
+                                 tl::Path outputPath,
                                  Format outputFormat,
                                  bool cuda)
     : mImages(images),
@@ -643,14 +643,13 @@ void UndistortImages::execute(tl::Progress *progressBar)
         }
 
 
-        tl::Path undistort_path(mOutputPath.toStdWString());
-        undistort_path.createDirectories();
+        mOutputPath.createDirectories();
 
         tl::QueueMPMC<internal::UndistortQueueData> queue(50);
         internal::UndistortProducerImp producer(&queue,
                                                 &mImages,
                                                 &mCameras,
-                                                undistort_path,
+                                                mOutputPath,
                                                 extension,
                                                 mUseCuda,
                                                 this);

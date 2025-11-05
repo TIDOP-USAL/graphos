@@ -131,13 +131,12 @@ void ProjectImp::setDatabase(const tl::Path &database)
 void ProjectImp::addImage(const Image &img)
 {
     TL_TODO("Comprobar el id por si se modifica a mano el xml")
-    //tl::Path img_path(img.path().toStdWString());
-    //size_t id = tl::Path::hash(img_path);
-    auto it = mImages.find(img.id());
+    size_t image_id = Image::id(img);
+    auto it = mImages.find(image_id);
     if (it != mImages.end()) {
         tl::Message::warning("Image {} already in the project", img.path().toStdString());
     } else {
-        mImages[img.id()] = img;
+        mImages[image_id] = img;
     }
 }
 

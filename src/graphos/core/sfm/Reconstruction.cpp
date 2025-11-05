@@ -420,13 +420,13 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
             for (const auto &image : mImages) {
 
                 tl::Path image_path(image.path().toStdString());
-
+                size_t image_id = Image::id(image);
                 for (const auto &colmap_image : reconstruction.Images()) {
                     tl::Path colmap_image_path(colmap_image.second.Name());
 
                     if (image_path.equivalent(colmap_image_path)) {
-                        image_ids_colmap_to_graphos[colmap_image.first] = image.id();
-                        image_ids_graphos_to_colmap[image.id()] = colmap_image.first;
+                        image_ids_colmap_to_graphos[colmap_image.first] = image_id;
+                        image_ids_graphos_to_colmap[image_id] = colmap_image.first;
                         break;
                     }
                 }
@@ -441,7 +441,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 
                 for (const auto &image : mImages) {
                 
-                    if (image_ids_graphos_to_colmap[image.id()] == 0) continue;
+                    size_t image_id = Image::id(image);
+                    if (image_ids_graphos_to_colmap[image_id] == 0) continue;
                 
                     // Conversion a coordendas ENU
                 
@@ -456,7 +457,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     if (epsg_code != "EPSG:4326")
                         mGeoTools->ptrCRSsTools()->crsOperation(epsg_code, "EPSG:4326", camera_coordinates.x, camera_coordinates.y, camera_coordinates.z);
                 
-                    cameras_geographic[image.id()] = camera_coordinates;
+                    cameras_geographic[image_id] = camera_coordinates;
                 }
 
 
@@ -711,7 +712,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                         size_t image_graphos_id = image_ids_colmap_to_graphos[image_id];
                         tl::Vector3d accuracy{10., 10., 10.};
                         for (auto &image : mImages) {
-                            if (image.id() == image_graphos_id) {
+                            if (Image::id(image) == image_graphos_id) {
                                 auto camera_pose = image.cameraPose();
                                 if (!camera_pose.isEmpty()) {
                                     if (mOptions.isEnabled(Options::use_rtk_positioning_accuracy)) {
@@ -898,15 +899,16 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                     for (const auto &image : mImages)
                     {
+                        size_t graphos_image_id = Image::id(image);
 
-                        if (reconstruction.ExistsImage(image_ids_graphos_to_colmap[image.id()])) {
+                        if (reconstruction.ExistsImage(image_ids_graphos_to_colmap[graphos_image_id])) {
 
-                            const colmap::Image &colmap_image = reconstruction.Image(image_ids_graphos_to_colmap[image.id()]);
+                            const colmap::Image &colmap_image = reconstruction.Image(image_ids_graphos_to_colmap[graphos_image_id]);
                             tl::Point3<double> position = image.cameraPose().position();
                             Eigen::Vector3d pos_ini;
-                            pos_ini[0] = cameras_enu[image.id()].x;
-                            pos_ini[1] = cameras_enu[image.id()].y;
-                            pos_ini[2] = cameras_enu[image.id()].z;
+                            pos_ini[0] = cameras_enu[graphos_image_id].x;
+                            pos_ini[1] = cameras_enu[graphos_image_id].y;
+                            pos_ini[2] = cameras_enu[graphos_image_id].z;
                             std::string accuracy;
                             if (mOptions.isDisabled(Options::use_rtk_positioning_accuracy)) {
                                 accuracy = "10.";

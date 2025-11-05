@@ -230,6 +230,12 @@ private:
     void writeMveFile();
     void densify();
 
+// DensifierBase
+
+protected:
+
+    void copyUndistortedImages() const override;
+
 // TaskBase
 
 protected:
