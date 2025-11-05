@@ -1559,6 +1559,10 @@ void ProjectImp::readDemReport(QXmlStreamReader& stream)
             mDemReport.time = readDouble(stream);
         } else if (stream.name() == "GSD") {
             mDemReport.gsd = stream.readElementText().toDouble();
+        } else if (stream.name() == "Cols") {
+            mDemReport.cols = stream.readElementText().toDouble();
+        } else if (stream.name() == "Rows") {
+            mDemReport.rows = stream.readElementText().toDouble();
         } else
             stream.skipCurrentElement();
     }
@@ -1590,6 +1594,12 @@ void ProjectImp::readOrthophotoReport(QXmlStreamReader &stream)
             mOrthophotoReport.time = readDouble(stream);
         } else if (stream.name() == "GSD") {
             mOrthophotoReport.gsd = stream.readElementText().toDouble();
+        } else if (stream.name() == "Cols") {
+            mOrthophotoReport.cols = stream.readElementText().toDouble();
+        } else if (stream.name() == "Rows") {
+            mOrthophotoReport.rows = stream.readElementText().toDouble();
+        } else if (stream.name() == "Channels") {
+            mOrthophotoReport.channels = stream.readElementText().toDouble();
         } else
             stream.skipCurrentElement();
     }
@@ -2101,6 +2111,8 @@ void ProjectImp::writeDemReport(QXmlStreamWriter &stream) const
 
         stream.writeTextElement("Time", QString::number(mDemReport.time, 'f', 10));
         stream.writeTextElement("GSD", QString::number(mDemReport.gsd, 'f', 10));
+        stream.writeTextElement("Cols", QString::number(mDemReport.cols));
+        stream.writeTextElement("Rows", QString::number(mDemReport.rows));
 
         stream.writeEndElement(); // Report
     }
@@ -2130,6 +2142,9 @@ void ProjectImp::writeOrthophotoReport(QXmlStreamWriter &stream) const
 
         stream.writeTextElement("Time", QString::number(mOrthophotoReport.time, 'f', 10));
         stream.writeTextElement("GSD", QString::number(mOrthophotoReport.gsd, 'f', 10));
+        stream.writeTextElement("Cols", QString::number(mOrthophotoReport.cols));
+        stream.writeTextElement("Rows", QString::number(mOrthophotoReport.rows));
+        stream.writeTextElement("Channels", QString::number(mOrthophotoReport.channels));
 
         stream.writeEndElement(); // Report
     }

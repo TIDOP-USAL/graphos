@@ -21,27 +21,59 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_DEM_REPORT_H
-#define GRAPHOS_CORE_DEM_REPORT_H
+#ifndef GRAPHOS_RASTER_TILED_LAYER_H
+#define GRAPHOS_RASTER_TILED_LAYER_H
+
+
+#include <QGeoView/QGVLayerTiles.h>
+
+#include <tidop/math/geometry/affine.h>
+
+//class GDALDataset;
+
+namespace tl
+{
+class ImageReader;
+}
 
 namespace graphos
 {
 
-struct DemReport
+class RasterTiledLayer 
+  : public QGVLayerTiles
 {
-    double time = 0.0;
-	double gsd = 0.0;
-	QString epsg = "";
-    double rows = 0;
-    double cols = 0;
+    Q_OBJECT
 
-    bool isEmpty() const
-    {
-        return time == 0. && gsd == 0. && epsg == "";
-    }
+public:
+
+    RasterTiledLayer(const QString &tifPath);
+    ~RasterTiledLayer();
+
+    QGV::GeoRect maxGeoExtent() const;
+
+protected:
+
+    void onProjection(QGVMap *geoMap) override;
+    int minZoomlevel() const override;
+    int maxZoomlevel() const override;
+    void request(const QGV::GeoTilePos &tilePos) override;
+    void cancel(const QGV::GeoTilePos &tilePos) override;
+
+private:
+
+    QRect mTileGridBounds;
+    QGV::GeoRect mGeoExtent;
+    std::unique_ptr<tl::ImageReader> reader;
+    tl::Affine<double, 2> mGeoreference;
+    double mGSD;
+    bool mCrsTransform;
+    std::string mEpsgSource;
+    std::pair<double, double> mMinMax;
+    bool mDEM;
+
 };
 
 
-} // namespace graphos
+}
 
-#endif // GRAPHOS_CORE_ORTHOPHOTO_REPORT_H
+#endif // GRAPHOS_RASTER_TILED_LAYER_H

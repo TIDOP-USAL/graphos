@@ -21,27 +21,84 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_DEM_REPORT_H
-#define GRAPHOS_CORE_DEM_REPORT_H
+#ifndef GRAPHOS_MAP_VIEWER_H
+#define GRAPHOS_MAP_VIEWER_H
+
+#include <QWidget>
+
+#include <QGeoView/QGVMap.h>
+#include <QGeoView/QGVWidget.h>
+
+class QGVLayerGoogle;
+class QGVLayerOSM;
+class QGVLayerBing;
 
 namespace graphos
 {
 
-struct DemReport
-{
-    double time = 0.0;
-	double gsd = 0.0;
-	QString epsg = "";
-    double rows = 0;
-    double cols = 0;
+class MapContextMenu;
 
-    bool isEmpty() const
+class MapViewer 
+  : public QWidget
+{
+    Q_OBJECT
+
+public:
+
+    enum class BaseMap
     {
-        return time == 0. && gsd == 0. && epsg == "";
-    }
+        osm,
+        google_schema,
+        google_satellite,
+        google_hybrid,
+        bing_schema,
+        bing_satellite,
+        bing_hybrid
+    };
+
+public:
+
+    explicit MapViewer(QWidget *parent = nullptr);
+    ~MapViewer();
+
+public:
+
+    void loadImage(const QString &imagePath);
+    void loadShapefile(const QString &shapefilePath);
+    void loadGeoTiff(const QString &tifPath);
+
+public slots:
+
+    void zoomExtend();
+    void zoomIn();
+    void zoomOut();
+    void changeBaseMap(BaseMap baseMap);
+
+protected slots:
+
+    void showContextMenu(const QPoint &position);
+
+private:
+
+    void init();
+    void initSignalsAndSlots();
+    QGV::GeoRect maxGeoExtent() const;
+
+private:
+
+    QGVMap *mMap;
+    //QGVLayerOSM *mBaseLayerOSM;
+    QGVLayerGoogle *mBaseLayerGoogleSchema;
+    QGVLayerGoogle *mBaseLayerGoogleSatellite;
+    QGVLayerGoogle *mBaseLayerGoogleHybrid;
+    QGVLayerBing *mBaseLayerBingSchema;
+    QGVLayerBing *mBaseLayerBingSatellite;
+    QGVLayerBing *mBaseLayerBingHybrid;
+    QRectF mVectorExtent;
+    MapContextMenu *mContextMenu;
 };
 
 
-} // namespace graphos
+}
 
-#endif // GRAPHOS_CORE_ORTHOPHOTO_REPORT_H
+#endif // GRAPHOS_MAP_VIEWER_H

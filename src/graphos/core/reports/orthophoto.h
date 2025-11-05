@@ -32,6 +32,9 @@ struct OrthophotoReport
     double time = 0.0;
 	double gsd = 0.0;
     QString epsg = "";
+    int rows = 0;
+    int cols = 0;
+    int channels = 0;
 
     bool isEmpty() const
     {

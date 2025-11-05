@@ -999,7 +999,7 @@ auto PropertiesModelImp::dem() const -> Properties
 
     auto &dem_data = mProject->dem();
 
-    dem_info = this->image(dem_data.dsmPath);
+    //dem_info = this->image(dem_data.dsmPath);
 
     dem_info["DEM parameters"].emplace_back(QString("GSD"), QString::number(dem_data.gsd));
     dem_info["DEM parameters"].emplace_back(QString("CRS"), dem_data.epsgCode);
@@ -1007,6 +1007,8 @@ auto PropertiesModelImp::dem() const -> Properties
     auto dem_report = mProject->demReport();
     if (!dem_report.isEmpty()) {
         dem_info["DEM results"].emplace_back(QString("Processig time"), QString::number(dem_report.time / 60., 'g', 2).append(" minutes"));
+        if (dem_report.cols != 0 && dem_report.rows != 0)
+            dem_info["DEM results"].emplace_back(QString("Dimensions"), QString::number(dem_report.cols).append(" x ").append(QString::number(dem_report.rows)));
     }
 
     return dem_info;
@@ -1018,16 +1020,20 @@ auto PropertiesModelImp::orthophoto() const -> Properties
 
     auto &orthophoto_parameters = mProject->orthophoto();
 
-    orthophoto_info = this->image(orthophoto_parameters.path);
+    //orthophoto_info = this->image(orthophoto_parameters.path);
 
     orthophoto_info["Orthophoto parameters"].emplace_back(QString("GSD"), QString::number(orthophoto_parameters.gsd));
     orthophoto_info["Orthophoto parameters"].emplace_back(QString("CRS"), orthophoto_parameters.epsgCode);
-    orthophoto_info["Orthophoto interpolation"].emplace_back(QString("Interpolation"), orthophoto_parameters.interpolation);
+    orthophoto_info["Orthophoto parameters"].emplace_back(QString("Interpolation"), orthophoto_parameters.interpolation);
 
     auto orthophoto_report = mProject->orthophotoReport();
     if (!orthophoto_report.isEmpty()) {
         orthophoto_info["Orthophoto results"].emplace_back(QString("Processig time"), QString::number(orthophoto_report.time / 60., 'g', 2).append(" minutes"));
         // Tamaño, nº bits, bandas
+        if (orthophoto_report.cols != 0 && orthophoto_report.rows != 0)
+            orthophoto_info["Orthophoto results"].emplace_back(QString("Dimensions"), QString::number(orthophoto_report.cols).append(" x ").append(QString::number(orthophoto_report.rows)));
+        if (orthophoto_report.channels != 0)
+            orthophoto_info["Orthophoto results"].emplace_back(QString("Channels"), QString::number(orthophoto_report.channels));
     }
 
     return orthophoto_info;

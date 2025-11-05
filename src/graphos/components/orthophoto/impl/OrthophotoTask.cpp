@@ -49,7 +49,7 @@
 
 #include <QDateTime>
 
-//#define FAST_ORTHO 1
+#define FAST_ORTHO 1
 
 namespace graphos
 {
@@ -1158,6 +1158,9 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
         mOrthophotoReport.time = this->time();
         mOrthophotoReport.gsd = mGSD;
         mOrthophotoReport.epsg = QString::fromStdString(mEpsg);
+        mOrthophotoReport.cols = static_cast<int>(std::round(mWindowAll.width() / mGSD));
+        mOrthophotoReport.rows = static_cast<int>(std::round(mWindowAll.height() / mGSD));
+        mOrthophotoReport.channels = mChannels;
 
         tl::Message::success("Orthophoto task finished in {:.2} minutes", mOrthophotoReport.time / 60.);
 

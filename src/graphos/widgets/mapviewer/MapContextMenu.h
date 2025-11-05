@@ -21,27 +21,69 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_DEM_REPORT_H
-#define GRAPHOS_CORE_DEM_REPORT_H
+#ifndef GRAPHOS_MAP_CONTEXT_MENU_H
+#define GRAPHOS_MAP_CONTEXT_MENU_H
+
+#include "graphos/widgets/GraphosWidget.h"
+
+class QAction;
+class QMenu;
 
 namespace graphos
 {
 
-struct DemReport
+class MapContextMenu
+  : public GraphosContextMenu
 {
-    double time = 0.0;
-	double gsd = 0.0;
-	QString epsg = "";
-    double rows = 0;
-    double cols = 0;
+    Q_OBJECT
 
-    bool isEmpty() const
-    {
-        return time == 0. && gsd == 0. && epsg == "";
-    }
+public:
+
+    MapContextMenu(QWidget *parent = nullptr);
+    ~MapContextMenu() override = default;
+
+signals:
+
+    void baseMapOSM();
+    void baseMapGoogleSchema();
+    void baseMapGoogleHybrid();
+    void baseMapGoogleSatellite();
+    void baseMapBingSchema();
+    void baseMapBingHybrid();
+    void baseMapBingSatellite();
+    void zoomIn();
+    void zoomOut();
+    void zoomExtend();
+    void zoom11();
+
+private:
+
+    void init();
+    void initSignalAndSlots();
+
+// GraphosContextMenu
+
+private slots:
+
+    void retranslate() override;
+
+private:
+
+    QMenu *mMenuBaseMap;
+    //QAction *mActionOSM;                   // https: Necesita libcrypto-1_1-x64.dll y libssl-1_1-x64.dll. En Release no funciona...
+    QAction *mActionGoogleSatellite;       // https: Necesita libcrypto-1_1-x64.dll y libssl-1_1-x64.dll
+    QAction *mActionGoogleSchema;
+    QAction *mActionGoogleHybrid;
+    QAction *mActionBingSatellite;
+    QAction *mActionBingSchema;
+    QAction *mActionBingHybrid;
+    QAction *mActionZoomIn;
+    QAction *mActionZoomOut;
+    QAction *mActionZoomExtend;
+    QAction *mActionZoom11;
+
 };
-
 
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_ORTHOPHOTO_REPORT_H
+#endif // GRAPHOS_MAP_CONTEXT_MENU_H

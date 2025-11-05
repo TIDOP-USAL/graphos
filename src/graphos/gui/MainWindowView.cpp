@@ -28,6 +28,7 @@
 #include "graphos/widgets/LogWidget.h"
 #include "graphos/widgets/TabWidget.h"
 #include "graphos/widgets/GraphicViewer.h"
+#include "graphos/widgets/mapviewer/MapViewer.h"
 #include "graphos/widgets/Viewer3d.h"
 #include "graphos/widgets/ProgressBarWidget.h"
 #include "graphos/core/Application.h"
@@ -1412,17 +1413,26 @@ void MainWindowView::initSignalAndSlots()
         if (auto *graphic_viewer = dynamic_cast<GraphicViewer *>(mTabWidget->currentWidget())) {
             graphic_viewer->zoomIn();
         }
+        if (auto *map_viewer = dynamic_cast<MapViewer *>(mTabWidget->currentWidget())) {
+            map_viewer->zoomIn();
+        }
     });
 
     connect(mActionZoomOut, &QAction::triggered, [&]() {
         if (auto *graphic_viewer = dynamic_cast<GraphicViewer *>(mTabWidget->currentWidget())) {
             graphic_viewer->zoomOut();
         }
+        if (auto *map_viewer = dynamic_cast<MapViewer *>(mTabWidget->currentWidget())) {
+            map_viewer->zoomOut();
+        }
     });
 
     connect(mActionZoomExtend, &QAction::triggered, [&]() {
         if (auto *graphic_viewer = dynamic_cast<GraphicViewer *>(mTabWidget->currentWidget())) {
             graphic_viewer->zoomExtend();
+        }
+        if (auto *map_viewer = dynamic_cast<MapViewer *>(mTabWidget->currentWidget())) {
+            map_viewer->zoomExtend();
         }
     });
 

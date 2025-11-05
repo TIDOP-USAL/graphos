@@ -29,7 +29,7 @@
 #include "graphos/widgets/StartPageWidget.h"
 #include "graphos/widgets/TabWidget.h"
 #include "graphos/widgets/GraphicViewer.h"
-//#include "graphos/widgets/MapViewer.h"
+#include "graphos/widgets/mapviewer/MapViewer.h"
 #include "graphos/widgets/Viewer3d.h"
 #include "graphos/gui/MainWindowView.h"
 #include "graphos/gui/MainWindowModel.h"
@@ -41,7 +41,6 @@
 #include <tidop/math/geometry/affine.h>
 
 /* Qt */
-
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDesktopServices>
@@ -589,21 +588,37 @@ void MainWindowPresenter::openDtm()
 
         QString dtm = QString::fromStdString(mModel->dtm().toString());
         auto tab_widget = mView->tabWidget();
-        int tab_id = tab_widget->fileTab(dtm);
+        int tab_id = tab_widget->fileTab("Map"/*dtm*/);
+
+        MapViewer *map_viewer = nullptr;
+
+        bool zoom_extend = false;
 
         if (tab_id != -1) {
             tab_widget->setCurrentIndex(tab_id);
+            map_viewer = dynamic_cast<MapViewer *>(tab_widget->currentWidget());
         } else {
-            GraphicViewer *graphic_viewer = new GraphicViewer(mView);
-            graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
-            graphic_viewer->setImage(mModel->readImage(mModel->dtm()));
-            tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(dtm).fileName());
-            tab_widget->setCurrentIndex(tab_id);
-            tab_widget->setTabToolTip(tab_id, dtm);
-            tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+            //GraphicViewer *graphic_viewer = new GraphicViewer(mView);
+            //graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
+            //graphic_viewer->setImage(mModel->readImage(mModel->dtm()));
+            //tab_id = tab_widget->addTab(graphic_viewer, "Map"/*QFileInfo(dtm).fileName()*/);
+            //tab_widget->setCurrentIndex(tab_id);
+            //tab_widget->setTabToolTip(tab_id, dtm);
+            //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
 
-            graphic_viewer->zoomExtend();
+            //graphic_viewer->zoomExtend();
+            map_viewer = new MapViewer(mView);
+            tab_id = tab_widget->addTab(map_viewer, "Map");
+            tab_widget->setCurrentIndex(tab_id);
+            tab_widget->setTabToolTip(tab_id, "Map");
+            tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+            zoom_extend = true;
         }
+
+        map_viewer->loadGeoTiff(dtm);
+        
+
+        if (zoom_extend) map_viewer->zoomExtend();
 
         AppStatus *status = Application::instance().status();
         status->activeFlag(AppStatus::Flag::tab_image_active, true);
@@ -620,22 +635,39 @@ void MainWindowPresenter::openDsm()
 
         QString dsm = QString::fromStdString(mModel->dsm().toString());
         auto tab_widget = mView->tabWidget();
-        int tab_id = tab_widget->fileTab(dsm);
+        int tab_id = tab_widget->fileTab("Map");
+
+        MapViewer *map_viewer = nullptr;
+
+        bool zoom_extend = false;
 
         if (tab_id != -1) {
             tab_widget->setCurrentIndex(tab_id);
+            map_viewer = dynamic_cast<MapViewer *>(tab_widget->currentWidget());
         } else {
 
-            GraphicViewer *graphic_viewer = new GraphicViewer(mView);
-            graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
-            graphic_viewer->setImage(mModel->readImage(mModel->dsm()));
-            tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(dsm).fileName());
-            tab_widget->setCurrentIndex(tab_id);
-            tab_widget->setTabToolTip(tab_id, dsm);
-            tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+            //GraphicViewer *graphic_viewer = new GraphicViewer(mView);
+            //graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
+            //graphic_viewer->setImage(mModel->readImage(mModel->dsm()));
+            //tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(dsm).fileName());
+            //tab_widget->setCurrentIndex(tab_id);
+            //tab_widget->setTabToolTip(tab_id, dsm);
+            //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
 
-            graphic_viewer->zoomExtend();
+            //graphic_viewer->zoomExtend();
+
+            map_viewer = new MapViewer(mView);
+            tab_id = tab_widget->addTab(map_viewer, "Map");
+            tab_widget->setCurrentIndex(tab_id);
+            tab_widget->setTabToolTip(tab_id, "Map");
+            tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+            zoom_extend = true;
         }
+
+        map_viewer->loadGeoTiff(dsm);
+        
+
+        if (zoom_extend) map_viewer->zoomExtend();
 
         AppStatus *status = Application::instance().status();
         status->activeFlag(AppStatus::Flag::tab_image_active, true);
@@ -651,47 +683,33 @@ void MainWindowPresenter::openOrthophoto(const QString &orthophoto)
     try {
 
         auto tab_widget = mView->tabWidget();
-        int tab_id = tab_widget->fileTab(orthophoto);
+        int tab_id = tab_widget->fileTab("Map"/*orthophoto*/);
 
+        MapViewer *map_viewer = nullptr;
+
+        bool zoom_extend = false;
         if (tab_id != -1) {
             tab_widget->setCurrentIndex(tab_id);
+            map_viewer = dynamic_cast<MapViewer *>(tab_widget->currentWidget());
         } else {
 
-            GraphicViewer *graphic_viewer = new GraphicViewer(mView);
-            graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
-            graphic_viewer->setImage(mModel->readImage(orthophoto.toStdString()));
-            tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(orthophoto).fileName());
-            tab_widget->setCurrentIndex(tab_id);
-            tab_widget->setTabToolTip(tab_id, orthophoto);
-            tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
-
-            graphic_viewer->zoomExtend();
-
-            //MapViewer *map_viewer = new MapViewer(mView);
-            //map_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
+            map_viewer = new MapViewer(mView);
             //map_viewer->loadGeoTiff(orthophoto);
-            //tab_id = tab_widget->addTab(map_viewer, QFileInfo(orthophoto).fileName());
+            //tab_id = tab_widget->addTab(map_viewer, "Map"/*QFileInfo(orthophoto).fileName()*/);
             //tab_widget->setCurrentIndex(tab_id);
-            //tab_widget->setTabToolTip(tab_id, orthophoto);
-            //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
-
-            //TiledGeoTiffViewer *map_viewer = new TiledGeoTiffViewer(mView);
-            //map_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
-            //tab_id = tab_widget->addTab(map_viewer, QFileInfo(orthophoto).fileName());
-            //map_viewer->loadGeoTiff(orthophoto);
-            //tab_widget->setCurrentIndex(tab_id);
-            //tab_widget->setTabToolTip(tab_id, orthophoto);
-            //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
-
-            //MapViewer *map_viewer = new MapViewer(mView);
-            //map_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
-            //map_viewer->addRasterLayer(orthophoto);
-            //tab_id = tab_widget->addTab(map_viewer, QFileInfo(orthophoto).fileName());
-            //tab_widget->setCurrentIndex(tab_id);
-            //tab_widget->setTabToolTip(tab_id, orthophoto);
+            //tab_widget->setTabToolTip(tab_id, "Map"/*dsm*/);
             //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
             //map_viewer->zoomExtend();
+            tab_id = tab_widget->addTab(map_viewer, "Map");
+            tab_widget->setCurrentIndex(tab_id);
+            tab_widget->setTabToolTip(tab_id, "Map");
+            tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+            zoom_extend = true;
         }
+
+        map_viewer->loadGeoTiff(orthophoto);
+
+        if (zoom_extend) map_viewer->zoomExtend();
 
         AppStatus *status = Application::instance().status();
         status->activeFlag(AppStatus::Flag::tab_image_active, true);

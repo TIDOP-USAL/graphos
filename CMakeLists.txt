@@ -407,7 +407,8 @@ find_package(Qt5 REQUIRED
 if(BUILD_GUI)
 find_package(Qt5 REQUIRED 
              COMPONENTS 
-			   Widgets 
+			   Widgets
+               Network
                Help)		   
 endif(BUILD_GUI)
 
@@ -501,7 +502,7 @@ if (BUILD_DEM_COMPONENT)
     find_package(CGAL REQUIRED)
 	set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
 		
-    message(STATUS "  CGAL version: ${CGAL_VERSION}")
+    message(STATUS "  Found CGAL (version ${CGAL_VERSION})")
     #find_package(Boost OPTIONAL_COMPONENTS serialization iostreams)
     #
     #include(CGAL_Eigen3_support)
@@ -509,6 +510,24 @@ if (BUILD_DEM_COMPONENT)
     #include(CGAL_Boost_iostreams_support)
 
 endif ()
+
+
+##########################################################################
+# QGeoView (REQUIRED)                                                    #
+##########################################################################
+
+set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
+find_package(QGeoView REQUIRED)
+set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+    
+if(NOT QGeoView_FOUND)
+    set(HAVE_QGEOVIEW NO)
+else()
+    set(HAVE_QGEOVIEW YES)
+    include_directories(${QGeoView_INCLUDE_DIRS})
+    message(STATUS "  Found QGeoView")
+endif()
+
 
 
 include_directories("${PROJECT_BINARY_DIR}")

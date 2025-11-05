@@ -60,6 +60,10 @@ add_files_to_project(${PROJECT_NAME}
                          ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.cpp
 						 #MapViewer.cpp
 						 #MapItem.cpp
+                         mapviewer/MapPolygon.cpp
+                         mapviewer/MapViewer.cpp
+                         mapviewer/RasterTiledLayer.cpp
+                         mapviewer/MapContextMenu.cpp
                      HEADER_FILES
                          GraphosWidget.h
                          SiftWidget.h
@@ -89,6 +93,10 @@ add_files_to_project(${PROJECT_NAME}
                          settings/MatchViewerSettingsWidget.h
 						 #MapViewer.h
 						 #MapItem.h
+                         mapviewer/MapPolygon.h
+                         mapviewer/MapViewer.h
+                         mapviewer/RasterTiledLayer.h
+                         mapviewer/MapContextMenu.h
                          ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.h)
 
 
@@ -114,6 +122,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC
                       TidopLib::Core
                       TidopLib::Img
+                      $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Network>
                       ${CloudCompare_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES 

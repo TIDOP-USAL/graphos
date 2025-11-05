@@ -21,27 +21,51 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_DEM_REPORT_H
-#define GRAPHOS_CORE_DEM_REPORT_H
+#ifndef GRAPHOS_MAP_VIEWER_POLYGON_H
+#define GRAPHOS_MAP_VIEWER_POLYGON_H
+
+#include "graphos/widgets/mapviewer/MapPolygon.h"
+
+#include <QGeoView/QGVDrawItem.h>
 
 namespace graphos
 {
+	
+typedef QList<QGV::GeoPos> PointList;
 
-struct DemReport
+class QGVPolygon : public QGVDrawItem
 {
-    double time = 0.0;
-	double gsd = 0.0;
-	QString epsg = "";
-    double rows = 0;
-    double cols = 0;
+    Q_OBJECT
 
-    bool isEmpty() const
-    {
-        return time == 0. && gsd == 0. && epsg == "";
-    }
+public:
+
+    explicit QGVPolygon(const PointList &geoPoints, QColor stroke, QColor fill);
+
+    void setPoints(const PointList &geoPoints);
+    PointList getPoints() const;
+
+private:
+
+    void onProjection(QGVMap *geoMap) override;
+    QPainterPath projShape() const override;
+    void projPaint(QPainter *painter) override;
+    QPointF projAnchor() const override;
+    QTransform projTransform() const override;
+    QString projTooltip(const QPointF &projPos) const override;
+    void projOnMouseClick(const QPointF &projPos) override;
+    void projOnMouseDoubleClick(const QPointF &projPos) override;
+    void projOnObjectStartMove(const QPointF &projPos) override;
+    void projOnObjectMovePos(const QPointF &projPos) override;
+    void projOnObjectStopMove(const QPointF &projPos) override;
+
+private:
+
+    PointList mGeoPoints;
+    QPolygonF mProjPoints;
+    QColor mColorStroke;
+    QColor mColorFill;
 };
 
+}
 
-} // namespace graphos
-
-#endif // GRAPHOS_CORE_ORTHOPHOTO_REPORT_H
+#endif // GRAPHOS_MAP_VIEWER_POLYGON_H
