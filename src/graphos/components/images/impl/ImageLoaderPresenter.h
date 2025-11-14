@@ -54,7 +54,7 @@ public slots:
 
 protected slots:
 
-    void addImage(int imageId, int cameraId) override;
+    void addImage(int imagePosition, int cameraPosition) override;
 
 // TaskPresenter interface
 

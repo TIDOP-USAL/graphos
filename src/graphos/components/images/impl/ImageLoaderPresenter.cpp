@@ -68,22 +68,16 @@ void ImageLoaderPresenterImp::open()
     mView->exec();
 }
 
-void ImageLoaderPresenterImp::addImage(int imageId, int cameraId)
+void ImageLoaderPresenterImp::addImage(int imagePosition, int cameraPosition)
 {
-    Image image = mImages[imageId];
-    Camera camera = mCameras[cameraId];
+    Image image = mImages[imagePosition];
+    Camera camera = mCameras[cameraPosition];
     int camera_id = mModel->cameraID(camera);
     if (camera_id == 0)
         camera_id = mModel->addCamera(camera);
 
     image.setCameraId(camera_id);
     mModel->addImage(image);
-
-    //QString crs_proj = mModel->projectCRS();
-    //QString crs_image = image.cameraPose().crs();
-    //if (crs_proj.isEmpty() && !crs_image.isEmpty()) {
-    //    mModel->setProjectCRS(crs_image);
-    //}
 
     emit image_loaded(Image::id(image));
 }
@@ -108,9 +102,9 @@ void ImageLoaderPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 auto ImageLoaderPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
-    std::unique_ptr<tl::Task> image_loader_process;
+    std::unique_ptr<tl::Task> image_loader_task;
 
-    if (mImageFiles.empty()) return image_loader_process;
+    if (mImageFiles.empty()) return image_loader_task;
 
     mImages.clear();
     for (auto &image : mImageFiles) {
@@ -124,9 +118,9 @@ auto ImageLoaderPresenterImp::createTask() -> std::unique_ptr<tl::Task>
         mCameras.push_back(camera.second);
     }
 
-    image_loader_process = std::make_unique<LoadImagesTask>(&mImages, &mCameras, "OpenCV 1"/*, mModel->projectCRS()*/);
+    image_loader_task = std::make_unique<LoadImagesTask>(&mImages, &mCameras, "OpenCV 1"/*, mModel->projectCRS()*/);
 
-    connect(dynamic_cast<LoadImagesTask *>(image_loader_process.get()), &LoadImagesTask::imageAdded,
+    connect(dynamic_cast<LoadImagesTask *>(image_loader_task.get()), &LoadImagesTask::imageAdded,
             this, &ImageLoaderPresenterImp::addImage);
 
     if (progressHandler()) {
@@ -135,7 +129,7 @@ auto ImageLoaderPresenterImp::createTask() -> std::unique_ptr<tl::Task>
         progressHandler()->setDescription(QApplication::translate("ImageLoaderComponent", "Loading images..."));
     }
 
-    return image_loader_process;
+    return image_loader_task;
 }
 
 void ImageLoaderPresenterImp::setImages(const QStringList &files)

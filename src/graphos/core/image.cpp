@@ -52,7 +52,8 @@ Image::Image(tl::Path file)
 Image::Image(const Image &image)
   : mFilePath(image.mFilePath),
     mCameraId(image.mCameraId),
-    mCameraPose(image.mCameraPose)
+    mCameraPose(image.mCameraPose),
+    mMetadata(image.mMetadata)
 {
 
 }
@@ -60,7 +61,8 @@ Image::Image(const Image &image)
 Image::Image(Image &&image) noexcept
   : mFilePath(std::move(image.mFilePath)),
     mCameraId(std::exchange(image.mCameraId, 0)),
-    mCameraPose(std::move(image.mCameraPose))
+    mCameraPose(std::move(image.mCameraPose)),
+    mMetadata(std::move(image.mMetadata))
 {
 }
 
@@ -104,12 +106,37 @@ void Image::setCameraPose(const CameraPose &cameraPose)
     mCameraPose = cameraPose;
 }
 
+void Image::addMetadata(const std::string &key, const std::string &value)
+{
+    mMetadata[key] = value;
+}
+
+auto Image::hasMetadata(const std::string &key) const -> bool
+{
+    return mMetadata.find(key) != mMetadata.end();
+}
+
+auto Image::metadata(const std::string &key) const -> std::string
+{
+    auto it = mMetadata.find(key);
+    if (it != mMetadata.end()) {
+        return it->second;
+    }
+    return std::string();
+}
+
+auto Image::metadata() const -> const std::map<std::string, std::string> &
+{
+    return mMetadata;
+}
+
 auto Image::operator =(const Image& image) -> Image&
 {
     if (this != &image) {
         this->mFilePath = image.mFilePath;
         this->mCameraId = image.mCameraId;
         this->mCameraPose = image.mCameraPose;
+        this->mMetadata = image.mMetadata;
     }
     return *this;
 }
@@ -120,6 +147,7 @@ auto Image::operator =(Image&& image) noexcept -> Image&
         this->mFilePath = std::move(image.mFilePath);
         this->mCameraId = std::exchange(image.mCameraId, 0);
         this->mCameraPose = std::move(image.mCameraPose);
+        this->mMetadata = std::move(image.mMetadata);
     }
     return *this;
 }

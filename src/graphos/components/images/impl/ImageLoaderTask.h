@@ -64,8 +64,14 @@ signals:
 
 private:
 
-    auto existCamera(const QString &make, const QString &model) const -> bool;
-    auto findCamera(const QString &make, const QString &model) const -> int;
+    auto existCamera(const QString &make, 
+                     const QString &model,
+                     const QString &serialNumber = "", 
+                     const QString &bandName = "") const -> bool;
+    auto findCamera(const QString &make, 
+                    const QString &model, 
+                    const QString &serialNumber = "", 
+                    const QString &bandName = "") const -> int;
     void loadImage(size_t imageId);
     auto loadCamera(tl::ImageReader *imageReader) -> int;
     auto parseFocal(const std::string &focal, double def) -> double;

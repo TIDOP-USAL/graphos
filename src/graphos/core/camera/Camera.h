@@ -26,6 +26,8 @@
 
 #include "graphos/core/camera/Calibration.h"
 
+#include <tidop/math/algebra/matrix.h>
+
 namespace graphos
 {
 
@@ -43,8 +45,13 @@ public:
      * \brief Camera constructor
      * \param[in] make Camera make
      * \param[in] model Camera model
+     * \param[in] serialNumber Camera serial number
+     * \param[in] bandName Camera band name
      */
-    Camera(std::string make, std::string model);
+    Camera(std::string make, 
+           std::string model, 
+           std::string serialNumber = "", 
+           std::string bandName = "RGB");
 
     /*!
      * \brief Camera copy constructor
@@ -80,6 +87,18 @@ public:
      * \param[in] model Camera model
      */
     void setModel(const std::string &model);
+
+    /*!
+     * \brief Returns the camera serial number
+     * \return Serial number
+     */
+    auto serialNumber() const->std::string;
+
+    /*!
+     * \brief Sets the camera serial number
+     * \param[in] serialNumber Serial number
+     */
+    void setSerialNumber(const std::string &serialNumber);
 
     /*!
      * \brief Returns the camera type
@@ -131,6 +150,18 @@ public:
     void setHeight(int height);
 
     /*!
+     * \brief Bits per pixel
+     * \return Bits per pixel
+     */
+    auto bitsPerPixel() const -> int;
+
+    /*!
+     * \brief Sets the bits per pixel
+     * \param[in] bitsPerPixel Bits per pixel
+     */
+    void setBitsPerPixel(int bitsPerPixel);
+
+    /*!
      * \brief Sensor size in mm
      * If the camera does not exist in the database, 1 is returned
      * \return Sensor size
@@ -143,10 +174,27 @@ public:
      */
     void setSensorSize(double sensorSize);
 
+    auto bandName() const->std::string;
+    void setBandName(const std::string &bandName);
+
+    auto blackLevel() const ->uint16_t;
+    void setBlackLevel(uint16_t blackLevel);
+    auto hasBlackLevel() const -> bool;
+
+    auto vignettingCenter() const -> tl::Point2f;
+    void setVignettingCenter(const tl::Point2f &vignetteCenter);
+    auto hasVignettingCenter() const -> bool;
+    auto vignettingPolynomial() const -> std::vector<float>;
+    void setVignettingPolynomial(const std::vector<float> &vignettePolynomial);
+    auto hasVignettingPolynomial() const -> bool;
+
     auto calibration() const -> std::shared_ptr<Calibration>;
     void setCalibration(std::shared_ptr<Calibration> &calibration);
     auto priorCalibration() const -> std::shared_ptr<Calibration>;
     void setPriorCalibration(std::shared_ptr<Calibration> &calibration);
+    auto calibratedHMatrix() const -> tl::Matrix3x3f;
+    void setCalibratedHMatrix(const tl::Matrix3x3f &hMatrix);
+    auto hasCalibratedHMatrix() const -> bool;
 
     /*!
      * \brief Assignment operator
@@ -163,11 +211,18 @@ protected:
 
     std::string mMake;
     std::string mModel;
+    std::string mSerialNumber;
     std::string mType;
     double mFocal;
     int mWidth;
     int mHeight;
+    int mBitsPerPixel;
     double mSensorSize;
+    std::string mBandName;
+    uint16_t mBlackLevel;
+    tl::Point2f mVignetteCenter;
+    std::vector<float> mVignettePolynomial;
+    tl::Matrix3x3f mCalibratedHMatrix;
     std::shared_ptr<Calibration> mCalibration;
     std::shared_ptr<Calibration> mPriorCalibration;
 };

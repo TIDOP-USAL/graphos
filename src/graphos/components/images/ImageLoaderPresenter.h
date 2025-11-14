@@ -46,7 +46,7 @@ public slots:
 
 protected slots:
 
-    virtual void addImage(int imageId, int cameraId) = 0;
+    virtual void addImage(int imagePosition, int cameraPosition) = 0;
 
 signals:
 

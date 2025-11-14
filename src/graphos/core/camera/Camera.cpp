@@ -32,21 +32,33 @@ Camera::Camera()
     mFocal(1.),
     mWidth(0),
     mHeight(0),
+    mBitsPerPixel(-1),
     mSensorSize(1.),
+    mBandName("RGB"),
+    mBlackLevel(0),
+    mCalibratedHMatrix(tl::Matrix3x3f::identity()),
     mCalibration(nullptr),
     mPriorCalibration(nullptr)
 {
     init();
 }
 
-Camera::Camera(std::string make, std::string model)
+Camera::Camera(std::string make, 
+               std::string model, 
+               std::string serialNumber, 
+               std::string bandName)
   : mMake(std::move(make)),
     mModel(std::move(model)),
+    mSerialNumber(std::move(serialNumber)),
     mType("OpenCV 1"),
     mFocal(1.),
     mWidth(0),
     mHeight(0),
+    mBitsPerPixel(8),
     mSensorSize(1.),
+    mBandName(bandName),
+    mBlackLevel(0),
+    mCalibratedHMatrix(tl::Matrix3x3f::identity()),
     mCalibration(nullptr),
     mPriorCalibration(nullptr)
 {
@@ -56,11 +68,18 @@ Camera::Camera(std::string make, std::string model)
 Camera::Camera(const Camera &camera)
   : mMake(camera.mMake),
     mModel(camera.mModel),
+    mSerialNumber(camera.mSerialNumber),
     mType(camera.mType),
     mFocal(camera.mFocal),
     mWidth(camera.mWidth),
     mHeight(camera.mHeight),
+    mBitsPerPixel(camera.mBitsPerPixel),
     mSensorSize(camera.mSensorSize),
+    mBandName(camera.mBandName),
+    mBlackLevel(camera.mBlackLevel),
+    mVignetteCenter(camera.mVignetteCenter),
+    mVignettePolynomial(camera.mVignettePolynomial),
+    mCalibratedHMatrix(camera.mCalibratedHMatrix),
     mCalibration(camera.mCalibration),
     mPriorCalibration(camera.mPriorCalibration)
 {
@@ -84,6 +103,16 @@ auto Camera::model() const -> std::string
 void Camera::setModel(const std::string &model)
 {
     mModel = model;
+}
+
+auto Camera::serialNumber() const -> std::string
+{
+    return mSerialNumber;
+}
+
+void Camera::setSerialNumber(const std::string &serialNumber)
+{
+    mSerialNumber = serialNumber;
 }
 
 auto Camera::type() const -> std::string
@@ -126,6 +155,16 @@ void Camera::setHeight(int height)
     mHeight = height;
 }
 
+auto Camera::bitsPerPixel() const -> int
+{
+    return mBitsPerPixel;
+}
+
+void Camera::setBitsPerPixel(int bitsPerPixel)
+{
+    mBitsPerPixel = bitsPerPixel;
+}
+
 auto Camera::sensorSize() const -> double
 {
     return mSensorSize;
@@ -134,6 +173,61 @@ auto Camera::sensorSize() const -> double
 void Camera::setSensorSize(double sensorSize)
 {
     mSensorSize = sensorSize;
+}
+
+auto Camera::bandName() const -> std::string
+{
+    return mBandName;
+}
+
+void Camera::setBandName(const std::string &bandName)
+{
+    mBandName = bandName;
+}
+
+auto Camera::blackLevel() const -> uint16_t
+{
+    return mBlackLevel;
+}
+
+void Camera::setBlackLevel(uint16_t blackLevel)
+{
+    mBlackLevel = blackLevel;
+}
+
+auto Camera::hasBlackLevel() const -> bool
+{
+    return mBlackLevel != 0;
+}
+
+auto Camera::vignettingCenter() const -> tl::Point2f
+{
+    return mVignetteCenter;
+}
+
+void Camera::setVignettingCenter(const tl::Point2f &vignetteCenter)
+{
+    mVignetteCenter = vignetteCenter;
+}
+
+auto Camera::hasVignettingCenter() const -> bool
+{
+    return mVignetteCenter != tl::Point2f();
+}
+
+auto Camera::vignettingPolynomial() const -> std::vector<float>
+{
+    return mVignettePolynomial;
+}
+
+void Camera::setVignettingPolynomial(const std::vector<float> &vignettePolynomial)
+{
+    mVignettePolynomial = vignettePolynomial;
+}
+
+auto Camera::hasVignettingPolynomial() const -> bool
+{
+    return !mVignettePolynomial.empty();
 }
 
 auto Camera::calibration() const -> std::shared_ptr<Calibration>
@@ -156,19 +250,42 @@ void Camera::setPriorCalibration(std::shared_ptr<Calibration> &calibration)
     mPriorCalibration = calibration;
 }
 
+auto Camera::calibratedHMatrix() const -> tl::Matrix3x3f
+{
+    return mCalibratedHMatrix;
+}
+
+void Camera::setCalibratedHMatrix(const tl::Matrix3x3f &hMatrix)
+{
+    mCalibratedHMatrix = hMatrix;
+}
+
+auto Camera::hasCalibratedHMatrix() const -> bool
+{
+    return mCalibratedHMatrix != tl::Matrix3x3f::identity();
+}
+
 auto Camera::operator =(const Camera& camera) -> Camera&
 {
     if (this != &camera) {
         this->mMake = camera.mMake;
         this->mModel = camera.mModel;
+        this->mSerialNumber = camera.mSerialNumber;
         this->mType = camera.mType;
         this->mFocal = camera.mFocal;
         this->mWidth = camera.mWidth;
         this->mHeight = camera.mHeight;
+        this->mBitsPerPixel = camera.mBitsPerPixel;
         this->mSensorSize = camera.mSensorSize;
+        this->mBandName = camera.mBandName;
+        this->mBlackLevel = camera.mBlackLevel;
+        this->mVignetteCenter = camera.mVignetteCenter;
+        this->mVignettePolynomial = camera.mVignettePolynomial;
+        this->mCalibratedHMatrix = camera.mCalibratedHMatrix;
         this->mCalibration = camera.mCalibration;
         this->mPriorCalibration = camera.mPriorCalibration;
     }
+
     return *this;
 }
 

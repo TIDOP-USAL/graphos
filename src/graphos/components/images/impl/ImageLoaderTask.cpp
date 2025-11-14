@@ -33,6 +33,7 @@
 #include <tidop/img/imgreader.h>
 #include <tidop/img/metadata.h>
 #include <tidop/math/angles.h>
+#include <tidop/math/algebra/matrix.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
 
@@ -41,7 +42,7 @@
 namespace graphos
 {
 
-bool isLikelyFisheye(double focal_mm, double sensor_width_mm)
+static bool isLikelyFisheye(double focal_mm, double sensor_width_mm)
 {
     if (focal_mm <= 0.0 || sensor_width_mm <= 0.0)
         return false;
@@ -75,7 +76,10 @@ LoadImagesTask::~LoadImagesTask()
 
 }
 
-bool LoadImagesTask::existCamera(const QString &make, const QString &model) const
+auto LoadImagesTask::existCamera(const QString &make,
+                                 const QString &model, 
+                                 const QString &serialNumber,
+                                 const QString &bandName) const -> bool
 {
     bool camera_exist = false;
 
@@ -83,7 +87,9 @@ bool LoadImagesTask::existCamera(const QString &make, const QString &model) cons
     for (const auto &camera : *mCameras) {
 
         if (make.toStdString() == camera.make() &&
-            model.toStdString() == camera.model()) {
+            model.toStdString() == camera.model() &&
+            serialNumber.toStdString() == camera.serialNumber() &&
+            bandName.toStdString() == camera.bandName()) {
             camera_exist = true;
             break;
         }
@@ -93,17 +99,19 @@ bool LoadImagesTask::existCamera(const QString &make, const QString &model) cons
     return camera_exist;
 }
 
-int LoadImagesTask::findCamera(const QString &make, const QString &model) const
+auto LoadImagesTask::findCamera(const QString &make, 
+                                const QString &model, 
+                                const QString &serialNumber, 
+                                const QString &bandName) const -> int
 {
     int camera_id = -1;
 
     for (size_t i = 0; i < mCameras->size(); i++) {
 
-        QString camera_make = QString::fromStdString((*mCameras)[i].make());
-        QString camera_model = QString::fromStdString((*mCameras)[i].model());
-
-        if (make == camera_make &&
-            model == camera_model) {
+        if (make.toStdString() == (*mCameras)[i].make() &&
+            model.toStdString() == (*mCameras)[i].model() &&
+            serialNumber.toStdString() == (*mCameras)[i].serialNumber() &&
+            bandName.toStdString() == (*mCameras)[i].bandName()) {
             camera_id = static_cast<int>(i);
             break;
         }
@@ -113,30 +121,32 @@ int LoadImagesTask::findCamera(const QString &make, const QString &model) const
     return camera_id;
 }
 
-void LoadImagesTask::loadImage(size_t imageId)
+void LoadImagesTask::loadImage(size_t imagePosition)
 {
     try {
 
-        QString image = (*mImages)[imageId].path();
+        QString image = mImages->at(imagePosition).path();
 
         auto image_reader = tl::ImageReaderFactory::create(image.toStdString());
         image_reader->open();
         if (!image_reader->isOpen()) throw std::runtime_error("  Failed to read image file");
 
-        int camera_id = -1;
+        int camera_position = -1;
 
-        tl::Message::pauseMessages();
+        camera_position = loadCamera(image_reader.get());
+
+        //tl::Message::pauseMessages();
         auto image_metadata = image_reader->metadata();
-        bool bActiveCameraName = false;
-        bool bActiveCameraModel = false;
-        std::string camera_make = image_metadata->metadata("EXIF_Make", bActiveCameraName);
-        std::string camera_model = image_metadata->metadata("EXIF_Model", bActiveCameraModel);
-        tl::Message::resumeMessages();
+        //bool bActiveCameraName = false;
+        //bool bActiveCameraModel = false;
+        //std::string camera_make = image_metadata->metadata("EXIF_Make", bActiveCameraName);
+        //std::string camera_model = image_metadata->metadata("EXIF_Model", bActiveCameraModel);
+        //tl::Message::resumeMessages();
 
-        camera_id = findCamera(camera_make.c_str(), camera_model.c_str());
-        if (camera_id == -1) {
-            camera_id = loadCamera(image_reader.get());
-        }
+        //camera_id = findCamera(camera_make.c_str(), camera_model.c_str());
+        //if (camera_id == -1) {
+        //    camera_id = loadCamera(image_reader.get());
+        //}
 
         tl::Message::pauseMessages();
 
@@ -166,17 +176,24 @@ void LoadImagesTask::loadImage(size_t imageId)
 
         if (altitude_active) {
 
-            size_t pos1 = gps_altitude.find('(');
-            size_t pos2 = gps_altitude.find(')');
+            //size_t pos1 = gps_altitude.find('(');
+            //size_t pos2 = gps_altitude.find(')');
 
-            if (pos1 != std::string::npos && pos2 != std::string::npos) {
-                altitude = tl::stringToNumber<double>(gps_altitude.substr(pos1 + 1, pos2 - pos1 + 1));
+            //if (pos1 != std::string::npos && pos2 != std::string::npos) {
+            //    altitude = tl::stringToNumber<double>(gps_altitude.substr(pos1 + 1, pos2 - pos1 + 1));
 
-                bool active;
-                auto value = image_metadata->metadata("EXIF_GPSAltitudeRef", active);
-                if (active) {
-                    if ("0x01" == value) altitude = -altitude;
-                }
+            //    bool active;
+            //    auto value = image_metadata->metadata("EXIF_GPSAltitudeRef", active);
+            //    if (active) {
+            //        if ("0x01" == value) altitude = -altitude;
+            //    }
+            //}
+            altitude = tl::stringToNumber<double>(gps_altitude);
+
+            bool active;
+            auto value = image_metadata->metadata("EXIF_GPSAltitudeRef", active);
+            if (active) {
+                if ("0x01" == value) altitude = -altitude;
             }
         }
 
@@ -245,13 +262,76 @@ void LoadImagesTask::loadImage(size_t imageId)
                 camera_pose.setAccuracy(accuracy);
             }
 
-            (*mImages)[imageId].setCameraPose(camera_pose);
+            mImages->at(imagePosition).setCameraPose(camera_pose);
 
         }
 
+        // Image metadata
+        bool active_metadata = false;
+
+        // DJI M3M -> XMP_DJI_CaptureUUID
+        std::string value = image_metadata->metadata("XMP_DJI_CaptureUUID", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("CaptureUUID", value);
+
+        // Radiometric Calibration
+
+        value = image_metadata->metadata("XMP_RadiometricCalibration", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("RadiometricCalibration", value);
+
+        // Exposure Time
+        value = image_metadata->metadata("EXIF_ExposureTime", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("ExposureTime", value);
+
+        value = image_metadata->metadata("XMP_DJI_SensorGain", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("SensorGain", value);
+
+        value = image_metadata->metadata("XMP_DJI_SensorGainAdjustment", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("SensorGainAdjustment", value);
+
+        // Sun sensor
+
+        value = image_metadata->metadata("XMP_CAMERA_SunSensor", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("SunSensor", value);
+
+        value = image_metadata->metadata("XMP_CAMERA_SunSensorExposureTime", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("SunSensorExposureTime", value);
+
+        value = image_metadata->metadata("XMP_CAMERA_SunSensorPitch", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("SunSensorPitch", value);
+
+        value = image_metadata->metadata("XMP_CAMERA_SunSensorRoll", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("SunSensorRoll", value);
+
+        value = image_metadata->metadata("XMP_CAMERA_SunSensorYaw", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("SunSensorYaw", value);
+
+        // Irradiance
+        
+        value = image_metadata->metadata("XMP_CAMERA_Irradiance", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("Irradiance", value);
+
+        value = image_metadata->metadata("XMP_CAMERA_IrradianceExposureTime", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("IrradianceExposureTime", value);
+
+        value = image_metadata->metadata("XMP_CAMERA_IrradianceGain", active_metadata);
+        if (active_metadata)
+            mImages->at(imagePosition).addMetadata("IrradianceGain", value);
+
         tl::Message::resumeMessages();
 
-        emit imageAdded(static_cast<int>(imageId), camera_id);
+        emit imageAdded(static_cast<int>(imagePosition), camera_position);
 
     } catch (std::exception &e) {
         tl::printException(e);
@@ -260,23 +340,57 @@ void LoadImagesTask::loadImage(size_t imageId)
 
 int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
 {
-    int camera_id;
+    int camera_position;
 
     try {
+
+        tl::Message::pauseMessages();
+
+        auto image_metadata = imageReader->metadata();
+        bool active_camera_name = false;
+        bool active_camera_model = false;
+        std::vector<std::string> make_strings = {"EXIF_Make", "XMP_TIFF_Make"};
+        std::string camera_make = image_metadata->metadata(make_strings, active_camera_name);
+        std::vector<std::string> model_strings = {"EXIF_Model", "XMP_CAMERA_RigName", "XMP_TIFF_Model"};
+        std::string camera_model = image_metadata->metadata(model_strings, active_camera_model);
+        if (!active_camera_model) {
+            camera_model = image_metadata->metadata("XMP_CAMERA_RigName", active_camera_model);
+        }
+        bool active_serial_number = false;
+        std::vector<std::string> serial_number_strings = {"XMP_DJI_CameraSerialNumber", "EXIF_SerialNumber", "EXIF_BodySerialNumber"};
+        std::string serial_number = image_metadata->metadata(serial_number_strings, active_serial_number);
+
+        bool active_band_name = false;
+        std::string band_name = image_metadata->metadata("XMP_CAMERA_BandName", active_band_name);
+        if (!active_band_name) {
+            if (camera_make == "DJI" && camera_model == "M3M")
+                band_name = "RGB";
+            if (camera_make == "DJI" && camera_model == "M4T")
+                band_name = "THERMAL";
+            else if (imageReader->channels() >= 3)
+                band_name = "RGB";
+            else
+                band_name = "Gray";
+        } else {
+            if (camera_make == "Parrot" && camera_model == "Sequoia" && band_name == "Red, Green, Blue")
+                band_name = "RGB";
+        }
+
+        tl::Message::resumeMessages();
+
+        // No es suficiente porque en el caso de Parrot Sequoia todas las cámaras tienen el mismo número de serie
+        // Hay que comprobar también el RigCameraIndex y el RigName para multiespectral
+        camera_position = findCamera(QString::fromStdString(camera_make),
+                                     QString::fromStdString(camera_model),
+                                     QString::fromStdString(serial_number),
+                                     QString::fromStdString(band_name));
+        if (camera_position != -1) return camera_position;
 
         int width = imageReader->cols();
         int height = imageReader->rows();
 
-        tl::Message::pauseMessages();
-        std::shared_ptr<tl::ImageMetadata> image_metadata = imageReader->metadata();
-        bool bActiveCameraName = false;
-        bool bActiveCameraModel = false;
-        // Habría que comprobar Serial Number / Camera Serial Number ya que puede ser distinta cámara del mismo modelo
-        std::string camera_make = image_metadata->metadata("EXIF_Make", bActiveCameraName);
-        std::string camera_model = image_metadata->metadata("EXIF_Model", bActiveCameraModel);
-        tl::Message::resumeMessages();
+        if (!active_camera_name && !active_camera_model) {
 
-        if (!bActiveCameraName && !bActiveCameraModel) {
 
             int counter = 0;
             for (auto &camera : *mCameras) {
@@ -294,10 +408,12 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
 
         tl::Message::info("New camera detected: {} {}", camera_make, camera_model);
 
-        Camera camera(camera_make, camera_model);
+        Camera camera(camera_make, camera_model, serial_number);
         camera.setWidth(width);
         camera.setHeight(height);
+        camera.setBitsPerPixel(imageReader->depth());
         camera.setType(mCameraType);
+        camera.setBandName(band_name);
         /// Extract sensor size
         double sensor_width_mm = -1.;
         DatabaseCameras database_cameras(mDatabaseCamerasPath);
@@ -320,64 +436,58 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
 
         double focal = -1.;
 
-        //if (bActiveCameraName && bActiveCameraModel) {
-            bool bActive = false;
-            int max_size = std::max(width, height);
+        bool bActive = false;
+        int max_size = std::max(width, height);
 
-            std::string focal_length_in_35_mm_film = image_metadata->metadata("EXIF_FocalLengthIn35mmFilm", bActive);
+        std::string focal_length_in_35_mm_film = image_metadata->metadata("EXIF_FocalLengthIn35mmFilm", bActive);
 
+        if (bActive) {
+
+            double focal_35mm = parseFocal(focal_length_in_35_mm_film, focal);
+            focal = focal_35mm / 35.0 * max_size;
+
+        }
+
+        if (!bActive || focal < 0.) {
+
+            std::string focal_length = image_metadata->metadata("EXIF_FocalLength", bActive);
             if (bActive) {
 
-                double focal_35mm = parseFocal(focal_length_in_35_mm_film, focal);
-                focal = focal_35mm / 35.0 * max_size;
+                double focal_mm = parseFocal(focal_length, focal);
 
-            }
+                if (sensor_width_mm > 0.) {
 
-            if (!bActive || focal < 0.) {
+                    focal = focal_mm / sensor_width_mm * max_size;
 
-                std::string focal_length = image_metadata->metadata("EXIF_FocalLength", bActive);
-                if (bActive) {
+                } else {
 
-                    double focal_mm = parseFocal(focal_length, focal);
+                    std::string exif_pixel_x_dimension = image_metadata->metadata("EXIF_PixelXDimension", bActive);
+                    if (bActive) {
 
-                    if (sensor_width_mm > 0.) {
+                        double pixel_x_dimension = std::stod(exif_pixel_x_dimension);
 
-                        focal = focal_mm / sensor_width_mm * max_size;
+                        double focal_plane_x_resolution = 0.;
+                        std::string exif_focal_plane_x_resolution = image_metadata->metadata("EXIF_FocalPlaneXResolution", bActive);
+                        if (bActive) {
+                            focal_plane_x_resolution = tl::convertStringTo<double>(exif_focal_plane_x_resolution);
+                        }
 
-                    } else {
-
-                        std::string exif_pixel_x_dimension = image_metadata->metadata("EXIF_PixelXDimension", bActive);
+                        std::string exif_focal_plane_resolution_unit = image_metadata->metadata("EXIF_FocalPlaneResolutionUnit", bActive);
                         if (bActive) {
 
-                            double pixel_x_dimension = std::stod(exif_pixel_x_dimension);
-
-                            double focal_plane_x_resolution = 0.;
-                            std::string exif_focal_plane_x_resolution = image_metadata->metadata("EXIF_FocalPlaneXResolution", bActive);
-                            if (bActive) {
-                                size_t pos1 = exif_focal_plane_x_resolution.find('(');
-                                size_t pos2 = exif_focal_plane_x_resolution.find(')');
-                                if (pos1 != std::string::npos && pos2 != std::string::npos) {
-                                    focal_plane_x_resolution = std::stod(exif_focal_plane_x_resolution.substr(pos1 + 1, pos2 - pos1 + 1));
-                                }
-                            }
-
-                            std::string exif_focal_plane_resolution_unit = image_metadata->metadata("EXIF_FocalPlaneResolutionUnit", bActive);
-                            if (bActive) {
-
-                                if (exif_focal_plane_resolution_unit == "2") { // 2 = Inch.
-                                    sensor_width_mm = pixel_x_dimension * 25.4 / focal_plane_x_resolution;
-                                    focal = focal_mm / sensor_width_mm * max_size;
-                                } else if (exif_focal_plane_resolution_unit == "3") { //3 = Centimeter
-                                    sensor_width_mm = pixel_x_dimension * 10 / focal_plane_x_resolution;
-                                    focal = focal_mm / sensor_width_mm * max_size;
-                                }
+                            if (exif_focal_plane_resolution_unit == "2") { // 2 = Inch.
+                                sensor_width_mm = pixel_x_dimension * 25.4 / focal_plane_x_resolution;
+                                focal = focal_mm / sensor_width_mm * max_size;
+                            } else if (exif_focal_plane_resolution_unit == "3") { //3 = Centimeter
+                                sensor_width_mm = pixel_x_dimension * 10 / focal_plane_x_resolution;
+                                focal = focal_mm / sensor_width_mm * max_size;
                             }
                         }
                     }
-
                 }
+
             }
-        //}
+        }
 
         if (focal < 0.) {
             focal = 0.;
@@ -439,14 +549,84 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
             }
         }
 
-        camera_id = static_cast<int>(mCameras->size());
+        // Black Level
+
+        bool active_metadata = false;
+        std::string black_level = image_metadata->metadata(std::vector<std::string>{"XMP_CAMERA_BlackCurrent", "XMP_DJI_BlackLevel"}, active_metadata);
+        if (active_metadata)
+            camera.setBlackLevel(tl::stringToNumber<uint16_t>(black_level));
+
+        // Coeficientes de Viñeteo
+        //XMP_DJI_CalibratedOpticalCenterX: 1296.000000
+        //XMP_DJI_CalibratedOpticalCenterY : 972.000000
+        //XMP_DJI_VignettingData: -0.000105175, 1.530238e-06, -4.671235e-09, 7.899883e-12, -5.874507e-15, 1.637752e-18
+        //XMP_DJI_VignettingFlag : 0
+        // Según la documentación de DJI hay que usar Calibrated Optical CenterX y Calibrated Optical Center Y pero 
+        // los valores que dan son la mitad de las dimensiones
+        //XMP_CAMERA_VignettingCenter: 1215.959106, 946.467468
+        // Igual que XMP_DJI_VignettingData
+        //XMP_CAMERA_VignettingPolynomial: -1.051753e-04, 1.530238e-06, -4.671235e-09, 7.899883e-12, -5.874507e-15, 1.637752e-18
+        std::string vignetting_flag = image_metadata->metadata("XMP_DJI_VignettingFlag", active_metadata);
+        if (active_metadata && vignetting_flag == "0") {
+            std::string vignetting_str = image_metadata->metadata(std::vector<std::string>{"XMP_DJI_VignettingData", "XMP_CAMERA_VignettingPolynomial"}, active_metadata);
+            if (active_metadata) {
+
+                //bool active_cx;
+                //bool active_cy;
+                //std::string cx = image_metadata->metadata("XMP_DJI_CalibratedOpticalCenterX", active_cx);
+                //std::string cy = image_metadata->metadata("XMP_DJI_CalibratedOpticalCenterY", active_cy);
+                //if (active_cx && active_cy) {
+                //    auto vignetin_data = tl::split<float>(vignetting_str);
+                //    tl::Point2d calibrated_optical_center(tl::stringToNumber<float>(cx), tl::stringToNumber<float>(cy));
+                //    camera.setVignettingCenter(calibrated_optical_center);
+                //    camera.setVignettingPolynomial(vignetin_data);
+                //}
+
+                std::string vignetting_center = image_metadata->metadata("XMP_CAMERA_VignettingCenter", active_metadata);
+                if (active_metadata) {
+                    auto vignetting_data = tl::split<float>(vignetting_str);
+                    auto vignetting_center_values = tl::split<float>(vignetting_center);
+                    if (vignetting_center_values.size() == 2) {
+                        tl::Point2d vignetting_center_point(vignetting_center_values[0], vignetting_center_values[1]);
+                        camera.setVignettingCenter(vignetting_center_point);
+                        camera.setVignettingPolynomial(vignetting_data);
+                    }
+                }
+            }
+        }
+
+        // XMP_DJI_CalibratedHMatrix
+        std::string calibrated_hmatrix = image_metadata->metadata("XMP_DJI_CalibratedHMatrix", active_metadata);
+        if (active_metadata) {
+            auto hmatrix_values = tl::split<float>(calibrated_hmatrix);
+            if (hmatrix_values.size() == 9) {
+                tl::Matrix3x3f hmatrix{hmatrix_values[0],
+                                       hmatrix_values[1],
+                                       hmatrix_values[2],
+                                       hmatrix_values[3],
+                                       hmatrix_values[4],
+                                       hmatrix_values[5],
+                                       hmatrix_values[6],
+                                       hmatrix_values[7],
+                                       hmatrix_values[8]};
+                camera.setCalibratedHMatrix(hmatrix);
+            }
+        }
+
+        // GainAdjustment
+        // Gain
+        // SunSensor
+        // 
+
+
+        camera_position = static_cast<int>(mCameras->size());
         mCameras->push_back(camera);
 
     } catch (...){
         TL_THROW_EXCEPTION_WITH_NESTED("");
     }
 
-    return camera_id;
+    return camera_position;
 }
 
 void LoadImagesTask::execute(tl::Progress *progressBar)

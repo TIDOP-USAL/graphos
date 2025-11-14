@@ -77,26 +77,17 @@ auto ImageLoaderModelImp::cameras() const -> const std::map<int, Camera>&
     return mProject->cameras();
 }
 
-auto ImageLoaderModelImp::addCamera(const Camera& camera) -> int
+auto ImageLoaderModelImp::addCamera(const Camera &camera) -> int
 {
     return mProject->addCamera(camera);
 }
 
-auto ImageLoaderModelImp::cameraID(const Camera& camera) const -> int
+auto ImageLoaderModelImp::cameraID(const Camera &camera) const -> int
 {
-    int camera_id = 0;
-    for (const auto &_camera : mProject->cameras()) {
-
-        std::string camera_make = _camera.second.make();
-        std::string camera_model = _camera.second.model();
-        if (camera.make() == camera_make &&
-            camera.model() == camera_model) {
-            camera_id = _camera.first;
-            break;
-        }
-    }
-
-    return camera_id;
+    return mProject->cameraId(QString::fromStdString(camera.make()),
+                              QString::fromStdString(camera.model()),
+                              QString::fromStdString(camera.serialNumber()),
+                              QString::fromStdString(camera.bandName()));
 }
 
 void ImageLoaderModelImp::init()

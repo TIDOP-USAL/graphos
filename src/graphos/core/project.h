@@ -61,14 +61,6 @@ struct DemData
     double gsd = 0.1;
 };
 
-struct OrthophotoData
-{
-    QString epsgCode;
-    tl::Path path;
-    double gsd = 0.05;
-    QString interpolation = "Linear";
-};
-
 
 /*!
  * \brief Interface Project
@@ -172,23 +164,23 @@ public:
      * \param[in] path Ruta de la imagen a buscar
      * \return Objeto Image correspondiente o puntero nulo si no se encuentra
      */
-    virtual Image findImageById(size_t id) const = 0;
+    virtual auto findImageById(size_t id) const -> Image = 0;
 
-    virtual bool existImage(size_t imageId) const = 0;
+    virtual auto existImage(size_t imageId) const -> bool = 0;
 
-    virtual const std::unordered_map<size_t, Image> &images() const = 0;
+    virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
 
     /*!
      * \brief Número de imagenes cargadas en el proyecto
      * \return
      */
-    virtual size_t imagesCount() const = 0;
+    virtual auto imagesCount() const -> size_t = 0;
 
     /*!
      * \brief Añade una cámara al proyecto
      * \param[in] camera Cámara
      */
-    virtual int addCamera(const Camera &camera) = 0;
+    virtual auto addCamera(const Camera &camera) -> int = 0;
 
     /*!
      * \brief Busca una cámara en el proyecto
@@ -196,15 +188,26 @@ public:
      * \param[in] model Modelo de la cámara
      * \return Objeto Camera correspondiente o puntero nulo si no se encuentra
      */
-    virtual Camera findCamera(const QString &make, const QString &model) const = 0;
+    virtual auto findCamera(const QString &make, 
+                            const QString &model, 
+                            const QString &serialNumber, 
+                            const QString &bandName) const -> Camera  = 0;
 
-    virtual Camera findCamera(int idCamera) const = 0;
-    virtual int cameraId(const QString &make, const QString &model) const = 0;
-    virtual bool existCamera(const QString &make, const QString &model) const = 0;
-    virtual bool updateCamera(int idCamera, const Camera &camera) = 0;
-    virtual bool removeCamera(int idCamera) = 0;
-    virtual const std::map<int, Camera> &cameras() const = 0;
-    virtual size_t camerasCount() const = 0;
+    virtual auto findCamera(int idCamera) const -> Camera = 0;
+
+    virtual auto cameraId(const QString &make,
+                          const QString &model,
+                          const QString &serialNumber, 
+                          const QString &bandName) const -> int = 0;
+
+    virtual auto existCamera(const QString &make,
+                             const QString &model, 
+                             const QString &serialNumber, 
+                             const QString &bandName) const -> bool = 0;
+    virtual auto updateCamera(int idCamera, const Camera &camera) -> bool= 0;
+    virtual auto removeCamera(int idCamera) -> bool = 0;
+    virtual auto cameras() const -> const std::map<int, Camera>& = 0;
+    virtual auto camerasCount() const -> size_t = 0;
 
     virtual std::shared_ptr<Feature> featureExtractor() const = 0;
     virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
@@ -266,11 +269,9 @@ public:
     virtual void setDemReport(const DemReport &report) = 0;
     virtual void clearDem() = 0;
 
-    virtual const OrthophotoData &orthophoto() const = 0;
-    virtual OrthophotoData &orthophoto() = 0;
+    virtual auto orthophotos() const -> const std::map<size_t, OrthophotoData>& = 0;
+    virtual auto orthophotos() -> std::map<size_t, OrthophotoData>& = 0;
     virtual void setOrthophoto(const OrthophotoData &orthophoto) = 0;
-    virtual OrthophotoReport orthophotoReport() const = 0;
-    virtual void setOrthophotoReport(const OrthophotoReport &report) = 0;
     virtual void clearOrthophoto() = 0;
 
     virtual tl::Matrix<double, 4, 4> &transform() = 0;
@@ -324,19 +325,28 @@ public:
     void addImage(const Image &img) override;
     bool updateImage(size_t imageId, const Image &image) override;
     void removeImage(size_t imageId) override;
-    Image findImageById(size_t id) const override;
-    bool existImage(size_t imageId) const override;
-    const std::unordered_map<size_t, Image> &images() const override;
-    size_t imagesCount() const override;
+    auto findImageById(size_t id) const -> Image override;
+    auto existImage(size_t imageId) const -> bool override;
+    auto images() const -> const std::unordered_map<size_t, Image>& override;
+    auto imagesCount() const -> size_t override;
 
-    int addCamera(const Camera &camera) override;
-    const std::map<int, Camera> &cameras() const override;
-    Camera findCamera(const QString &make, const QString &model) const override;
-    Camera findCamera(int idCamera) const override;
-    int cameraId(const QString &make, const QString &model) const override;
-    bool existCamera(const QString &make, const QString &model) const override;
-    bool updateCamera(int idCamera, const Camera &camera) override;
-    bool removeCamera(int idCamera) override;
+    auto addCamera(const Camera &camera) -> int override;
+    auto findCamera(const QString &make, 
+                    const QString &model, 
+                    const QString &serialNumber, 
+                    const QString &bandName) const -> Camera override;
+    auto findCamera(int idCamera) const -> Camera override;
+    auto cameraId(const QString &make,
+                  const QString &model,
+                  const QString &serialNumber,
+                  const QString &bandName) const -> int override;
+    auto existCamera(const QString &make,
+                     const QString &model, 
+                     const QString &serialNumber, 
+                     const QString &bandName) const -> bool override;
+    auto updateCamera(int idCamera, const Camera &camera) -> bool override;
+    auto removeCamera(int idCamera) -> bool override;
+    auto cameras() const -> const std::map<int, Camera> & override;
     size_t camerasCount() const override;
 
     std::shared_ptr<Feature> featureExtractor() const override;
@@ -399,11 +409,9 @@ public:
     void setDemReport(const DemReport &report) override;
     void clearDem() override;
 
-    const OrthophotoData &orthophoto() const override;
-    OrthophotoData &orthophoto() override;
+    auto orthophotos() const -> const std::map<size_t, OrthophotoData>&  override;
+    auto orthophotos() -> std::map<size_t, OrthophotoData>& override;
     void setOrthophoto(const OrthophotoData &orthophoto) override;
-    OrthophotoReport orthophotoReport() const override;
-    void setOrthophotoReport(const OrthophotoReport &report) override;
     void clearOrthophoto() override;
 
     void clear() override;
@@ -426,8 +434,9 @@ protected:
     void readImages(QXmlStreamReader &stream);
     Image readImage(QXmlStreamReader &stream);
     CameraPose readCameraPosition(QXmlStreamReader &stream);
+    void readImageMetadata(QXmlStreamReader &stream, Image &image);
     void readCameras(QXmlStreamReader &stream);
-    Camera readCamera(QXmlStreamReader &stream);
+    void readCamera(QXmlStreamReader &stream);
     void readPriorCalibration(QXmlStreamReader &stream, Camera &camera);
     void readCalibration(QXmlStreamReader &stream, Camera &camera);
     void readFeatures(QXmlStreamReader &stream);
@@ -460,8 +469,8 @@ protected:
     void readMeshParameters(QXmlStreamReader &stream);
     void readDem(QXmlStreamReader &stream);
     void readDemReport(QXmlStreamReader &stream);
-    void readOrthophoto(QXmlStreamReader &stream);
-    void readOrthophotoReport(QXmlStreamReader &stream);
+    auto readOrthophoto(QXmlStreamReader &stream) -> OrthophotoData;
+    auto readOrthophotoReport(QXmlStreamReader &stream) -> OrthophotoReport;
 
     void writeVersion(QXmlStreamWriter &stream) const;
     void writeGeneral(QXmlStreamWriter &stream) const;
@@ -474,6 +483,7 @@ protected:
     void writeImages(QXmlStreamWriter &stream) const;
     void writeImage(QXmlStreamWriter &stream, const std::pair<size_t, Image> &image) const;
     void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition) const;
+    void writeImageMetadata(QXmlStreamWriter &stream, const Image &image) const; 
     void writeFeatures(QXmlStreamWriter &stream) const;
     void writeFeatureExtractor(QXmlStreamWriter &stream) const;
     void writeFeatureExtractorReport(QXmlStreamWriter &stream) const;
@@ -501,7 +511,6 @@ protected:
     void writeDem(QXmlStreamWriter &stream) const;
     void writeDemReport(QXmlStreamWriter &stream) const;
     void writeOrthophoto(QXmlStreamWriter &stream) const;
-    void writeOrthophotoReport(QXmlStreamWriter &stream) const;
 
     QSize readSize(QXmlStreamReader &stream) const;
     int readInt(QXmlStreamReader &stream) const;
@@ -541,8 +550,7 @@ protected:
     MeshReport mMeshReport;
     DemData mDem;
     DemReport mDemReport;
-    OrthophotoData mOrthophoto;
-    OrthophotoReport mOrthophotoReport;
+    std::map<size_t, OrthophotoData> mOrthophotos;
     static std::mutex sMutex;
     int mCameraCount;
     //tl::Path mOrthophoto;

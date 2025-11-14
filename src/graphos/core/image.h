@@ -25,6 +25,7 @@
 #define GRAPHOS_CORE_IMAGE_H
 
 #include <memory>
+#include <map>
 
 #include <QString>
 
@@ -128,6 +129,29 @@ public:
     void setCameraPose(const CameraPose &cameraPose);
 
     /*!
+     * \brief Adds metadata to the image
+     * \param[in] key Metadata key
+     * \param[in] value Metadata value
+     */
+    void addMetadata(const std::string &key, const std::string &value);
+
+    /*!
+     * \brief Checks if the image has metadata with the given key
+     * \param[in] key Metadata key
+     * \return True if the metadata exists, false otherwise
+     */
+    auto hasMetadata(const std::string &key) const -> bool;
+
+    /*!
+     * \brief Returns the metadata value for the given key
+     * \param[in] key Metadata key
+     * \return Metadata value, or empty string if the key does not exist
+     */
+    auto metadata(const std::string &key) const->std::string;
+
+    auto metadata() const -> const std::map<std::string, std::string> &;
+
+    /*!
      * \brief Assignment operator for Image
      * \param[in] image Image object to assign
      * \return Reference to the Image object
@@ -153,6 +177,7 @@ protected:
     tl::Path mFilePath;
     int mCameraId;
     CameraPose mCameraPose;
+    std::map<std::string, std::string> mMetadata;
 };
 
 } // namespace graphos
