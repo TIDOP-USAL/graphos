@@ -184,26 +184,27 @@ void convertToGray(const cv::Mat &in, cv::Mat &out, bool useCuda)
         gImgGray.download(out);
     } else {
 #endif
-
-        cv::cvtColor(in, out, cv::COLOR_BGR2GRAY);
-
+        cv::Mat temp;
+        cv::cvtColor(in, temp, cv::COLOR_BGR2GRAY);
+        temp.copyTo(out);
 #ifdef HAVE_OPENCV_CUDAIMGPROC
     }
 #endif
 }
 
-void normalizeImage(const cv::Mat &in, cv::Mat &out, bool useCuda)
+void normalizeImage(const cv::Mat &in, cv::Mat &out, bool useCuda, cv::InputArray &mask)
 {
     if (in.depth() != CV_8U) {
 #ifdef HAVE_OPENCV_CUDAARITHM
         if (useCuda) {
             cv::cuda::GpuMat gImgIn(in);
+            cv::cuda::GpuMat gMask(mask);
             cv::cuda::GpuMat gImgOut;
-            cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+            cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U, gMask);
             gImgOut.download(out);
         } else {
 #endif
-            cv::normalize(in, out, 0., 255., cv::NORM_MINMAX, CV_8U);
+            cv::normalize(in, out, 0., 255., cv::NORM_MINMAX, CV_8U, mask);
 #ifdef HAVE_OPENCV_CUDAARITHM
         }
 #endif
@@ -421,32 +422,9 @@ void openPdf(const QString &pdf)
 
 tl::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const std::string &ref)
 {
-    tl::Degrees<double> angle;
-
-    size_t pos1 = exifAngle.find('(');
-    size_t pos2 = exifAngle.find(')');
-
-    if (pos1 != std::string::npos && pos2 != std::string::npos) {
-        int degrees = std::stoi(exifAngle.substr(pos1 + 1, pos2 - pos1 + 1));
-        if (ref == "S" || ref == "W") degrees = -degrees;
-        angle.setDegrees(degrees);
-    }
-
-    pos1 = exifAngle.find('(', pos2);
-    pos2 = exifAngle.find(')', pos1);
-
-    if (pos1 != std::string::npos && pos2 != std::string::npos) {
-        angle.setMinutes(std::stoi(exifAngle.substr(pos1 + 1, pos2 - pos1 + 1)));
-    }
-
-    pos1 = exifAngle.find('(', pos2);
-    pos2 = exifAngle.find(')', pos1);
-
-    if (pos1 != std::string::npos && pos2 != std::string::npos) {
-        angle.setSeconds(std::stod(exifAngle.substr(pos1 + 1, pos2 - pos1 + 1)));
-    }
-
-    return angle;
+    auto angle = tl::convertStringTo<double>(exifAngle);
+    if (ref == "S" || ref == "W") angle = -angle;
+    return {angle};
 }
 
 

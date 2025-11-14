@@ -169,7 +169,7 @@ void MapViewer::loadShapefile(const QString &shapefilePath)
     if (transform) OCTDestroyCoordinateTransformation(transform);
 }
 
-void MapViewer::loadGeoTiff(const QString &tifPath)
+void MapViewer::loadGeoTiff(const QString &tifPath, bool dem)
 {
     try {
 
@@ -181,7 +181,7 @@ void MapViewer::loadGeoTiff(const QString &tifPath)
             }
         }
 
-        auto layer = new RasterTiledLayer(tifPath);
+        auto layer = new RasterTiledLayer(tifPath, dem);
         layer->setVisibleZoomLayersAboveCurrent(0);
         layer->setVisibleZoomLayersBelowCurrent(0);
         mMap->addItem(layer);

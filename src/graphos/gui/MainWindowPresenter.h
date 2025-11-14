@@ -101,7 +101,7 @@ protected slots:
 
     void openDtm();
     void openDsm();
-    void openOrthophoto(const QString &orthophoto);
+    void openOrthophoto(size_t orthoId);
 
     void deleteFeatures();
     void deleteMatches();

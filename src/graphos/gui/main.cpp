@@ -722,6 +722,8 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_ORTHOPHOTO
         QObject::connect(&orthophoto_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadOrtho()));
+        QObject::connect(&orthophoto_component, SIGNAL(ortho_deleted()),
+                         componentsManager.mainWindowPresenter(), SLOT(updateProject()));
 #endif
 
 #ifdef GRAPHOS_HAVE_FEATVIEWER

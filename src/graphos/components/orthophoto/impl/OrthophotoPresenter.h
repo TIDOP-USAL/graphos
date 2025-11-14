@@ -26,11 +26,17 @@
 
 #include "graphos/components/orthophoto/OrthophotoPresenter.h"
 
+#include <unordered_map>
+
+#include <tidop/core/path.h>
+
 namespace graphos
 {
 
 class OrthophotoView;
 class OrthophotoModel;
+class Camera;
+class Image;
 
 class OrthophotoPresenterImp
   : public OrthophotoPresenter
@@ -43,6 +49,8 @@ public:
     OrthophotoPresenterImp(OrthophotoView *view,
                            OrthophotoModel *model);
     ~OrthophotoPresenterImp() override;
+
+    auto undistortedCameras(const std::map<int, Camera> &cameras) const -> std::map<int, Camera>;
 
 // Presenter interface
 
@@ -62,6 +70,9 @@ protected:
     void onError(tl::TaskErrorEvent *event) override;
     void onFinished(tl::TaskFinalizedEvent *event) override;
     auto createTask() -> std::unique_ptr<tl::Task> override;
+
+    auto undistortedImages(const std::unordered_map<size_t, Image> &images,
+                           tl::Path &undistort_path) const -> std::unordered_map<size_t, Image>;
 
 public slots:
 

@@ -47,7 +47,7 @@ DemComponent::DemComponent(Application *application)
 void DemComponent::init()
 {
     setName(QApplication::translate("DemComponent", "Digital Elevation Model (DEM)"));
-    setMenu("tools");
+    setMenu("workflow");
     setIcon(QIcon::fromTheme("dem"));
     createCommand();
 }

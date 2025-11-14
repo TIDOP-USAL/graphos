@@ -31,7 +31,6 @@
 #include <tidop/core/path.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/math/geometry/affine.h>
-//#include <tidop/geometry/transform/affine.h>
 #include <tidop/geometry/rect.h>
 #include <tidop/geospatial/diffrect.h>
 #include <tidop/geospatial/crstransf.h>
@@ -72,12 +71,12 @@ public:
      * \brief Constructs an Orthorectification object.
      * \param[in] dsm Path to the Digital Surface Model (DSM) file.
      * \param[in] cameraPose Camera pose including position and orientation in ENU coordinates.
-     * \param[in] undistort Shared pointer to an Undistort object for lens correction.
+     * \param[in] undistortedCamera Undistorted camera.
      * \param[in] zIni Optional initial elevation value.
      */
     Orthorectification(const tl::Path &dsm,
                        CameraPose cameraPose,
-                       std::shared_ptr<Undistort> &undistort,
+                       Camera undistortedCamera,
                        double zIni = 0.);
 
     ~Orthorectification() = default;
@@ -176,13 +175,6 @@ public:
      */
     auto orientation() const -> CameraPose;
 
-
-    /*!
-     * \brief Returns the intrinsic camera model.
-     * \return Camera model.
-     */
-    auto camera() const -> Camera;
-
     /*!
      * \brief Returns the undistorted camera model.
      * \return Undistorted camera model.
@@ -200,13 +192,6 @@ public:
      * \return Nodata value.
      */
     auto nodataValue() const -> double;
-
-    /*!
-     * \brief Applies lens undistortion to the given image.
-     * \param[in] image Input distorted image.
-     * \return Undistorted image.
-     */
-    auto undistort(const cv::Mat &image) -> cv::Mat;
 
     /*!
      * \brief Checks if the orthorectification setup is valid.
@@ -231,7 +216,7 @@ private:
 
     tl::Path mDsmPath;
     CameraPose mCameraPose;
-    std::shared_ptr<Undistort> mUndistort;
+    Camera mUndistortedCamera;
     cv::Mat mDsm;
     tl::Window<tl::Point<double>> mWindowDsmTerrainExtension;
     tl::Affine<double, 2> mAffineImageToPhotocoordinates;

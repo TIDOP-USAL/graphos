@@ -50,7 +50,7 @@ OrthophotoComponent::~OrthophotoComponent() = default;
 void OrthophotoComponent::init()
 {
     setName(QApplication::translate("OrthophotoComponent", "Orthophoto"));
-    setMenu("tools");
+    setMenu("workflow");
     //setIcon(QIcon::fromTheme("ortho"));
     createCommand();
 }
@@ -77,6 +77,8 @@ void OrthophotoComponent::createPresenter()
 #ifdef GRAPHOS_GUI
     setPresenter(new OrthophotoPresenterImp(dynamic_cast<OrthophotoView *>(view()),
                                             dynamic_cast<OrthophotoModel *>(model())));
+    connect(dynamic_cast<OrthophotoPresenter *>(presenter()), &OrthophotoPresenter::ortho_deleted,
+            this, &OrthophotoComponent::ortho_deleted);
 #endif // GRAPHOS_GUI
 }
 

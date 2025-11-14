@@ -32,34 +32,13 @@ add_files_to_project(${PROJECT_NAME}
                      SOURCE_FILES
                          Application.cpp
                          AppStatus.cpp
+                         ColorTable.cpp
                          Component.cpp
+                         image.cpp
                          project.cpp
                          settings.cpp
-                         image.cpp
                          Pdf.cpp
-                         ColorTable.cpp
                          ply.cpp
-                         task/TaskPresenter.cpp         
-                         task/TaskView.cpp
-                         task/Progress.cpp
-                         features/featextract.cpp
-                         features/featio.cpp
-                         features/sift.cpp
-                         features/matching.cpp
-                         sfm/orientationcolmap.cpp
-                         sfm/orientationexport.cpp
-                         sfm/poses.cpp
-                         sfm/posesio.cpp
-                         sfm/groundpoint.cpp
-                         sfm/track.cpp
-                         sfm/BundleAdjuster.cpp
-                         sfm/Reconstruction.cpp
-                         dense/dense.cpp
-                         dense/CmvsPmvs.cpp
-                         dense/Smvs.cpp
-                         dense/mvs.cpp
-                         dense/DenseExport.cpp
-                         mesh/PoissonRecon.cpp
                          utils.cpp
                          camera/Calibration.cpp
                          camera/Camera.cpp
@@ -76,6 +55,30 @@ add_files_to_project(${PROJECT_NAME}
                          camera/io/impl/OpenDroneMapCalibrationWriter.cpp
                          camera/io/impl/Pix4DCalibrationReader.cpp
                          camera/io/impl/Pix4DCalibrationWriter.cpp
+                         dense/dense.cpp
+                         dense/CmvsPmvs.cpp
+                         dense/Smvs.cpp
+                         dense/mvs.cpp
+                         dense/DenseExport.cpp
+                         features/featextract.cpp
+                         features/featio.cpp
+                         features/sift.cpp
+                         features/matching.cpp
+                         mesh/PoissonRecon.cpp
+                         #multispectral/Radiance.cpp
+                         #multispectral/Reflectance.cpp
+                         multispectral/Vignetting.cpp
+                         sfm/orientationcolmap.cpp
+                         sfm/orientationexport.cpp
+                         sfm/poses.cpp
+                         sfm/posesio.cpp
+                         sfm/groundpoint.cpp
+                         sfm/track.cpp
+                         sfm/BundleAdjuster.cpp
+                         sfm/Reconstruction.cpp
+                         task/TaskPresenter.cpp         
+                         task/TaskView.cpp
+                         task/Progress.cpp
                          #[[ortho/Orthorectification.cpp
                          ortho/ZBuffer.cpp
                          ortho/Footprint.cpp
@@ -84,43 +87,17 @@ add_files_to_project(${PROJECT_NAME}
                          preprocess/dhe.cpp
                          preprocess/pohe.cpp]]
                      HEADER_FILES
-                         mvp.h
                          Application.h
                          AppStatus.h
-                         Component.h
+                         ColorTable.h
                          command.h
+                         Component.h
+                         image.h
+                         mvp.h
+                         Pdf.h
+                         ply.h
                          project.h
                          settings.h
-                         image.h
-                         Pdf.h
-                         ColorTable.h
-                         ply.h
-                         task/TaskPresenter.h            
-                         task/TaskView.h
-                         task/Progress.h
-                         features/featextract.h
-                         features/features.h
-                         features/featio.h
-                         features/sift.h
-                         features/matching.h
-                         sfm/orientation.h
-                         sfm/orientationcolmap.h
-                         sfm/orientationexport.h
-                         sfm/poses.h
-                         sfm/posesio.h
-                         sfm/groundpoint.h
-                         sfm/track.h
-                         sfm/OrientationReport.h
-                         sfm/BundleAdjuster.h
-                         sfm/Reconstruction.h
-                         dense/dense.h
-                         dense/CmvsPmvs.h
-                         dense/Smvs.h
-                         dense/mvs.h
-                         dense/DenseExport.h
-                         mesh/PoissonRecon.h
-                         reports/dem.h
-                         reports/orthophoto.h
                          utils.h
                          camera/Calibration.h
                          camera/Camera.h
@@ -137,6 +114,35 @@ add_files_to_project(${PROJECT_NAME}
                          camera/io/impl/OpenDroneMapCalibrationWriter.h
                          camera/io/impl/Pix4DCalibrationReader.h
                          camera/io/impl/Pix4DCalibrationWriter.h
+                         dense/dense.h
+                         dense/CmvsPmvs.h
+                         dense/Smvs.h
+                         dense/mvs.h
+                         dense/DenseExport.h
+                         features/featextract.h
+                         features/features.h
+                         features/featio.h
+                         features/sift.h
+                         features/matching.h
+                         mesh/PoissonRecon.h
+                         #multispectral/Radiance.h
+                         #multispectral/Reflectance.h
+                         multispectral/Vignetting.h
+                         reports/dem.h
+                         reports/orthophoto.h
+                         sfm/orientation.h
+                         sfm/orientationcolmap.h
+                         sfm/orientationexport.h
+                         sfm/poses.h
+                         sfm/posesio.h
+                         sfm/groundpoint.h
+                         sfm/track.h
+                         sfm/OrientationReport.h
+                         sfm/BundleAdjuster.h
+                         sfm/Reconstruction.h
+                         task/TaskPresenter.h            
+                         task/TaskView.h
+                         task/Progress.h
                          #[[ortho/Orthorectification.h
                          ortho/ZBuffer.h
                          ortho/Footprint.h

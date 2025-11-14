@@ -47,35 +47,35 @@ public:
     explicit MainWindowModel(Project *project);
     ~MainWindowModel();
 
-    QString projectName() const;
-    tl::Path projectPath() const;
+    auto projectName() const -> QString;
+    auto projectPath() const -> tl::Path;
 
-    const std::unordered_map<size_t, Image> &images() const;
-    Image image(size_t imageId) const;
-    const std::map<int, Camera> &cameras() const;
-    Camera camera(int id) const;
+    auto images() const -> const std::unordered_map<size_t, Image> &;
+    auto image(size_t imageId) const -> Image;
+    auto cameras() const -> const std::map<int, Camera> &;
+    auto camera(int id) const -> Camera;
     void deleteImages(const std::vector<size_t> &imageIds);
-    QImage readImage(const tl::Path &imageFile);
+    auto readImage(const tl::Path &imageFile) -> QImage;
 
-    const std::unordered_map<size_t, QString> &features() const;
-    std::vector<size_t> imagePairs(size_t imageId) const;
+    auto features() const -> const std::unordered_map<size_t, QString> &;
+    auto imagePairs(size_t imageId) const -> std::vector<size_t>;
 
-    tl::Path sparseModel() const;
-    bool isAbsoluteOrientation() const;
+    auto sparseModel() const -> tl::Path;
+    auto isAbsoluteOrientation() const -> bool;
 
-    const std::unordered_map<size_t, CameraPose> &poses() const;
-    tl::Matrix<double, 4, 4> transform() const;
+    auto poses() const -> const std::unordered_map<size_t, CameraPose>&;
+    auto transform() const -> tl::Matrix<double, 4, 4>;
 
-    tl::Path denseModel() const;
-    tl::Path mesh() const;
-    tl::Path dtm() const;
-    tl::Path dsm() const;
-    tl::Path orthophoto() const;
+    auto denseModel() const -> tl::Path;
+    auto mesh() const -> tl::Path;
+    auto dtm() const -> tl::Path;
+    auto dsm() const -> tl::Path;
+    auto orthophotos() const -> const std::map<size_t, OrthophotoData> &;
 
-    QString graphicViewerBackgroundColor() const;
+    auto graphicViewerBackgroundColor() const -> QString;
 
     //bool checkUnsavedChanges() const;
-    bool checkOldVersion(const tl::Path &file) const;
+    auto checkOldVersion(const tl::Path &file) const -> bool;
     void oldVersionBackup(const tl::Path &file) const;
 
 public slots:

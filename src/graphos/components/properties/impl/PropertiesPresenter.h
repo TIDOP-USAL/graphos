@@ -53,7 +53,7 @@ public slots:
     void selectDenseModel() override;
     void selectMeshModel() override;
     void selectDem() override;
-    void selectOrthophoto() override;
+    void selectOrthophoto(size_t orthoId) override;
     void setImageActive(size_t imageId) override;
     void parseDocument(const QString &parser, const QString &file) override;
     void parseDocuments(const QStringList &parsers, const QStringList &files) override;

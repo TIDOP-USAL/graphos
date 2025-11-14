@@ -379,14 +379,20 @@ void MainWindowPresenter::loadDSM()
 
 void MainWindowPresenter::loadOrtho()
 {
-    Application &app = Application::instance();
-    QString ortho = QString::fromStdString(mModel->orthophoto().toString());
-    if (!ortho.isEmpty()) {
-        mView->setOrtho(ortho);
-        app.status()->activeFlag(AppStatus::Flag::ortho, true);
-    } else {
-        mView->deleteOrtho();
-        app.status()->activeFlag(AppStatus::Flag::ortho, false);
+    try {
+        Application &app = Application::instance();
+        const auto &orthos = mModel->orthophotos();
+
+        if (!orthos.empty()) {
+            for (const auto &ortho : orthos)
+                mView->addOrtho(ortho.first, QString::fromStdString(ortho.second.path.toString()));
+            app.status()->activeFlag(AppStatus::Flag::ortho, true);
+        } else {
+            mView->deleteOrthos();
+            app.status()->activeFlag(AppStatus::Flag::ortho, false);
+        }
+    } catch (std::exception &e) {
+        tl::printException(e);
     }
 }
 
@@ -615,7 +621,7 @@ void MainWindowPresenter::openDtm()
             zoom_extend = true;
         }
 
-        map_viewer->loadGeoTiff(dtm);
+        map_viewer->loadGeoTiff(dtm, true);
         
 
         if (zoom_extend) map_viewer->zoomExtend();
@@ -664,7 +670,7 @@ void MainWindowPresenter::openDsm()
             zoom_extend = true;
         }
 
-        map_viewer->loadGeoTiff(dsm);
+        map_viewer->loadGeoTiff(dsm, true);
         
 
         if (zoom_extend) map_viewer->zoomExtend();
@@ -678,12 +684,12 @@ void MainWindowPresenter::openDsm()
     }
 }
 
-void MainWindowPresenter::openOrthophoto(const QString &orthophoto)
+void MainWindowPresenter::openOrthophoto(size_t ortho_id)
 {
     try {
 
         auto tab_widget = mView->tabWidget();
-        int tab_id = tab_widget->fileTab("Map"/*orthophoto*/);
+        int tab_id = tab_widget->fileTab("Map"/*orthophotos*/);
 
         MapViewer *map_viewer = nullptr;
 
@@ -694,8 +700,8 @@ void MainWindowPresenter::openOrthophoto(const QString &orthophoto)
         } else {
 
             map_viewer = new MapViewer(mView);
-            //map_viewer->loadGeoTiff(orthophoto);
-            //tab_id = tab_widget->addTab(map_viewer, "Map"/*QFileInfo(orthophoto).fileName()*/);
+            //map_viewer->loadGeoTiff(orthophotos);
+            //tab_id = tab_widget->addTab(map_viewer, "Map"/*QFileInfo(orthophotos).fileName()*/);
             //tab_widget->setCurrentIndex(tab_id);
             //tab_widget->setTabToolTip(tab_id, "Map"/*dsm*/);
             //tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
@@ -706,6 +712,10 @@ void MainWindowPresenter::openOrthophoto(const QString &orthophoto)
             tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
             zoom_extend = true;
         }
+
+        // Añadir método para cargar directamente la orto que quiero
+        const auto &orthos = mModel->orthophotos();
+        QString orthophoto = QString::fromStdString(orthos.at(ortho_id).path.toString());
 
         map_viewer->loadGeoTiff(orthophoto);
 

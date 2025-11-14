@@ -48,23 +48,16 @@ public:
 
 public:
 
-    auto images() const -> Images override;
-    auto cameras() const -> Cameras override;
+    auto images() const -> const Images& override;
+    auto cameras() const -> const Cameras& override;
+    auto poses() const -> const Poses& override;
     auto projectFolder() const -> tl::Path override;
-    auto orthoPath() const -> tl::Path override;
-    void setOrthoPath(const tl::Path &orthoPath) override;
     auto dtmPath() const -> tl::Path override;
     auto enuCrs() const -> QString override;
     auto crs() const -> QString override;
     void clearProject() override;
     auto useCuda() const -> bool override;
-    auto gsd() const -> double override;
-    auto interpolation() const -> QString override;
-
-    void setGsd(double gsd);
-    void setCrs(const QString &crs) override;
-    void setInterpolation(const QString &interpolation) override;
-    void setReport(const OrthophotoReport &report) override;
+    void addOrthophoto(const OrthophotoData &ortho_data) override;
 
     void loadSettings() override;
     void saveSettings() override;

@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 #include <QObject>
 
@@ -54,26 +55,19 @@ class OrthophotoTask
 
 public:
 
-    OrthophotoTask(double resolution,
-                   const std::vector<Image> &images,
+    OrthophotoTask(const std::unordered_map<size_t, Image> &images,
                    const std::map<int, Camera> &cameras,
                    const tl::Path &orthoPath,
                    const tl::Path &mdt,
                    const std::string &enuCrs,
                    const std::string &epsg,
                    const std::string &interpolation = "BILINEAR",
+                   double resolution = -1.,
                    bool cuda = false);
 
     ~OrthophotoTask() override;
 
     auto report() const -> OrthophotoReport;
-
-    void setGSD(double gsd);
-    void setPhotos(const std::vector<Image> &images);
-    void setOrthoPath(const tl::Path &orthoPath);
-    void setMdt(const tl::Path &mdt);
-    void setCrs(const std::string &epsg);
-    void setCuda(bool active);
 
 private:
 
@@ -89,9 +83,9 @@ private:
     void generateTiles(const std::vector<std::vector<tl::WindowD>> &grid, 
                        std::vector<std::vector<std::map<double, std::string>>> &orthos,
                        tl::Progress *progressBar);
-    void tilesExposureCompensator(const std::vector<std::vector<tl::WindowD>> &grid);
+    //void tilesExposureCompensator(const std::vector<std::vector<tl::WindowD>> &grid);
     void writeOrthomosaic(const std::vector<std::vector<tl::WindowD>> &grid);
-    void blendTileBlock(int r, int c, const std::vector<std::vector<tl::WindowD>> &grid);
+    //void blendTileBlock(int r, int c, const std::vector<std::vector<tl::WindowD>> &grid);
 
 // tl::TaskBase interface
 
@@ -101,8 +95,7 @@ protected:
 
 private:
 
-    double mGSD;
-    std::vector<Image> mPhotos;
+    std::unordered_map<size_t, Image> mPhotos;
     std::map<int, Camera> mCameras;
     tl::Path mOrthoPath;
     tl::Path mMdt;
@@ -110,6 +103,7 @@ private:
     std::string mEpsg;
     std::string mInterpolation;
     OrthophotoReport mOrthophotoReport;
+    double mGSD;
     bool bCuda;
     // Por ahora se calcula internamente pero se podría establecer la región de la ortofoto externamente
     tl::WindowD mWindowAll;

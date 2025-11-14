@@ -26,7 +26,7 @@
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geotools/CRSsTools.h>
 #include <tidop/geotools/GeoTools.h>
-
+#include <tidop/img/img.h>
 
 #include "graphos/core/task/Progress.h"
 
@@ -135,7 +135,7 @@ cv::Mat extractDTMfromTIN(const DelaunayTriangulation &tin,
     double gsd = georeference.scale().x();
     tl::Size<int> size(tl::roundToInteger(window.width() / gsd),
                        tl::roundToInteger(window.height()/ gsd));
-    cv::Mat mat(size.height, size.width, CV_32F, -9999.);
+    cv::Mat mat(size.height, size.width, CV_32F, tl::NoData<float>);
 
     DelaunayTriangulation::Face_handle location;
 
@@ -193,7 +193,7 @@ cv::Mat extractDTMfromTIN(const DelaunayTriangulation &tin,
 {
     tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd), 
                        tl::roundToInteger(bbox.height()/ gsd));
-    cv::Mat mat(size.height, size.width, CV_32F, -9999.);
+    cv::Mat mat(size.height, size.width, CV_32F, tl::NoData<float>);
 
     DelaunayTriangulation::Face_handle location;
 
@@ -247,7 +247,7 @@ cv::Mat extractDTMfromMesh(SurfaceMesh &mesh, const tl::BoundingBoxD &bbox, tl::
 
     tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd), 
                        tl::roundToInteger(bbox.height()/ gsd));
-    cv::Mat mat(size.height, size.width, CV_32F, -9999.);
+    cv::Mat mat(size.height, size.width, CV_32F, tl::NoData<float>);
 
     DelaunayTriangulation::Face_handle location;
 
@@ -301,7 +301,7 @@ cv::Mat extractDSMfromPointCloud(const CGAL::Point_set_3<Point_3> &points,
     double gsd = georeference.scale().x();
     tl::Size<int> size(tl::roundToInteger(window.width() / gsd),
                        tl::roundToInteger(window.height() / gsd));
-    cv::Mat mat(size.height, size.width, CV_32F, -9999.);
+    cv::Mat mat(size.height, size.width, CV_32F, tl::NoData<float>);
 
     for (auto &point : points.points()) {
 
@@ -326,7 +326,7 @@ cv::Mat extractDSMfromPointCloud(const CGAL::Point_set_3<Point_3> &points,
 {
     tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd),
                        tl::roundToInteger(bbox.height() / gsd));
-    cv::Mat mat(size.height, size.width, CV_32F, -9999.);
+    cv::Mat mat(size.height, size.width, CV_32F, tl::NoData<float>);
 
     for (auto &point : points.points()) {
         if (demTask->status() == DemTask::Status::stopping)  break;
@@ -348,7 +348,7 @@ cv::Mat extractDSMfromPointCloud(const CGAL::Point_set_3<Point_3> &points,
 //{
 //    tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd),
 //        tl::roundToInteger(bbox.height() / gsd));
-//    cv::Mat mat(size.height, size.width, CV_32F, -9999.);  // Inicializa con valor de no datos
+//    cv::Mat mat(size.height, size.width, CV_32F, tl::NoData<float>);  // Inicializa con valor de no datos
 //
 //    // Crea un contenedor para las celdas
 //    std::vector<std::vector<Point_3>> grid_cells(size.height * size.width);
@@ -412,7 +412,7 @@ void writeDTM(const tl::Path &file, const cv::Mat &mat,
         tl::Crs crs(epsg);
         image_writer_mds->setCRS(crs.toWktFormat());
     }
-    image_writer_mds->setNoDataValue(-9999.);
+    image_writer_mds->setNoDataValue(tl::NoData<float>);
     image_writer_mds->write(mat);
 
     image_writer_mds->close();
@@ -550,6 +550,11 @@ void DemTask::execute(tl::Progress *progressBar)
 
             tl::Message::info("DSM writed at: {}", mds_path.toUtf8());
 
+
+            // TODO: En el caso que se utilice un datum vertical
+            // gdalwarp -overwrite -s_srs EPSG:25830 -t_srs EPSG:25830+5782 -of GTiff \
+            // -tr 0.20 0.20 -tap -cutline roi.shp -cl roi -crop_to_cutline \
+            // -co "COMPRESS=LZW" dtm_20mm.tif 25830_dtm_clipped.tif
         }
 
         if (status() == Status::stopping) return;

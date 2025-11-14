@@ -64,7 +64,7 @@ QImage cvMatToQImage(const cv::Mat &image);
  */
 void convertToGray(const cv::Mat &in, cv::Mat &out, bool useCuda = false);
 
-void normalizeImage(const cv::Mat &in, cv::Mat &out, bool useCuda = false);
+void normalizeImage(const cv::Mat &in, cv::Mat &out, bool useCuda = false, cv::InputArray &mask = cv::noArray());
 void resizeImage(const cv::Mat &in, cv::Mat &out, const cv::Size &size, bool useCuda = false);
 
 QSize cvSizeToQSize(const cv::Size &size);

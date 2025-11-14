@@ -21,47 +21,57 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORTHOPHOTO_COMMAND_H
-#define GRAPHOS_ORTHOPHOTO_COMMAND_H
+#include "graphos/core/multispectral/Vignetting.h"
 
-#include "graphos/core/command.h"
+#include <tidop/core/exception.h>
 
-#include <map>
-#include <unordered_map>
+#include <opencv2/opencv.hpp>
 
 namespace graphos
 {
 
-class Project;
-class Camera;
-class Image;
-
-class OrthophotoCommand
-  : public Command
+auto vignettingMap(int width,
+                   int height,
+                   float centerX, 
+                   float centerY,
+                   const std::vector<float> &k) -> cv::Mat
 {
 
-public:
+    TL_ASSERT(k.size() >= 1, "At least one coefficient is required for the vignetting model.");
 
-    OrthophotoCommand();
-    ~OrthophotoCommand() override;
+    cv::Mat vignette_factor(height, width, CV_32F);
 
-private:
+    for (int y = 0; y < height; ++y) {
+        float dy = y - centerY;
+        for (int x = 0; x < width; ++x) {
+            float dx = x - centerX;
+            float r = std::hypot(dx, dy);
+            // Calcular el factor polinómico
+            float factor = 1.0;
+            float r_pow = r;
+            for (size_t i = 0; i < k.size(); ++i) {
+                factor += k[i] * r_pow;
+                r_pow *= r; // siguiente potencia
+            }
 
-    auto undistortedCameras() const -> std::map<int, Camera>;
-    auto undistortedImages(const std::unordered_map<size_t, Image> &images,
-                           tl::Path &undistort_path) const->std::unordered_map<size_t, Image>;
+            vignette_factor.at<float>(y, x) = factor;
+        }
+    }
 
-// Command
+    return vignette_factor;
+}
 
-    bool run() override;
+auto correctVignetting(const cv::Mat &inputImage, const cv::Mat &vignettingMap) -> cv::Mat
+{
+    TL_ASSERT(inputImage.channels() == 1, "Only single-channel images are supported for vignetting correction.");
 
-private:
+    cv::Mat corrected = inputImage.clone();
 
-    Project *mProject;
-    bool mDisableCuda;
-};
+    // Aplicar la corrección: I_corr = I * factor
+    corrected = corrected.mul(vignettingMap);
+
+    return corrected;
+}
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_ORTHOPHOTO_COMMAND_H

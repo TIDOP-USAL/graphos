@@ -243,24 +243,23 @@ private:
 
             auto image_reader = tl::ImageReaderFactory::create(image.path().toStdString());
             image_reader->open();
-            if (image_reader->isOpen()) {
+            TL_ASSERT(image_reader->isOpen(), "The image could not be read");
 
-                double max_dimension = std::max(image_reader->cols(), image_reader->rows());
+            double max_dimension = std::max(image_reader->cols(), image_reader->rows());
 
-                if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
-                    scale = mMaxImageSize / max_dimension;
-                    mat = image_reader->read(scale, scale);
-                    scale = 1. / scale;
-                } else {
-                    mat = image_reader->read();
-                }
-
-                if (mat.channels() >= 3) {
-                    convertToGray(mat, mat, bUseGPU);
-                }
-
-                image_reader->close();
+            if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+                scale = mMaxImageSize / max_dimension;
+                mat = image_reader->read(scale, scale);
+                scale = 1. / scale;
+            } else {
+                mat = image_reader->read();
             }
+
+            if (mat.channels() >= 3) {
+                convertToGray(mat, mat, bUseGPU);
+            }
+
+            image_reader->close();
         }
 
         normalizeImage(mat, mat, bUseGPU);

@@ -82,11 +82,12 @@ void PropertiesComponent::selectDem()
         properties_presenter->selectDem();
 }
 
-void PropertiesComponent::selectOrthophoto()
+void PropertiesComponent::selectOrthophoto(size_t orthoId)
 {
     if (auto properties_presenter = dynamic_cast<PropertiesPresenter *>(presenter()))
-        properties_presenter->selectOrthophoto();
+        properties_presenter->selectOrthophoto(orthoId);
 }
+
 void PropertiesComponent::selectImage(size_t imageId)
 {
     if (auto properties_presenter = dynamic_cast<PropertiesPresenter*>(presenter()))

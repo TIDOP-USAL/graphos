@@ -57,24 +57,9 @@ OrthophotoModelImp::~OrthophotoModelImp()
     }
 }
 
-void OrthophotoModelImp::setGsd(double gsd)
+void OrthophotoModelImp::addOrthophoto(const OrthophotoData &ortho_data)
 {
-    mProject->orthophoto().gsd = gsd;
-}
-
-void OrthophotoModelImp::setCrs(const QString &crs)
-{
-    mProject->orthophoto().epsgCode = crs;
-}
-
-void OrthophotoModelImp::setInterpolation(const QString &interpolation)
-{
-    mProject->orthophoto().interpolation = interpolation;
-}
-
-void OrthophotoModelImp::setReport(const OrthophotoReport &report)
-{
-    mProject->setOrthophotoReport(report);
+    mProject->setOrthophoto(ortho_data);
 }
 
 void OrthophotoModelImp::loadSettings()
@@ -107,56 +92,52 @@ void OrthophotoModelImp::saveSettings()
     }
 }
 
-auto OrthophotoModelImp::images() const -> Images
+auto OrthophotoModelImp::images() const -> const Images &
 {
-    Images images;
+    return mProject->images();
+    //Images images;
 
-    for(const auto &image : mProject->images()) {
+    //for(const auto &image : mProject->images()) {
 
-        Image photo(image.second);
-        size_t image_id = image.first;
+    //    Image photo(image.second);
+    //    size_t image_id = image.first;
 
-        if(mProject->isPhotoOriented(image_id)) {
-            CameraPose photoOrientation = mProject->photoOrientation(image_id);
-            auto rotation_matrix = photoOrientation.rotationMatrix();
-            rotation_matrix.at(1, 0) = -photoOrientation.rotationMatrix().at(1, 0);
-            rotation_matrix.at(1, 1) = -photoOrientation.rotationMatrix().at(1, 1);
-            rotation_matrix.at(1, 2) = -photoOrientation.rotationMatrix().at(1, 2);
-            rotation_matrix.at(2, 0) = -photoOrientation.rotationMatrix().at(2, 0);
-            rotation_matrix.at(2, 1) = -photoOrientation.rotationMatrix().at(2, 1);
-            rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
-            photoOrientation.setRotationMatrix(rotation_matrix);
+    //    if(mProject->isPhotoOriented(image_id)) {
+    //        CameraPose photoOrientation = mProject->photoOrientation(image_id);
+    //        auto rotation_matrix = photoOrientation.rotationMatrix();
+    //        rotation_matrix.at(1, 0) = -photoOrientation.rotationMatrix().at(1, 0);
+    //        rotation_matrix.at(1, 1) = -photoOrientation.rotationMatrix().at(1, 1);
+    //        rotation_matrix.at(1, 2) = -photoOrientation.rotationMatrix().at(1, 2);
+    //        rotation_matrix.at(2, 0) = -photoOrientation.rotationMatrix().at(2, 0);
+    //        rotation_matrix.at(2, 1) = -photoOrientation.rotationMatrix().at(2, 1);
+    //        rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
+    //        photoOrientation.setRotationMatrix(rotation_matrix);
 
-            photoOrientation.setPosition(photoOrientation.position());
+    //        photoOrientation.setPosition(photoOrientation.position());
 
-            photo.setCameraPose(photoOrientation);
+    //        photo.setCameraPose(photoOrientation);
 
-            images.push_back(photo);
-        }
+    //        images.push_back(photo);
+    //    }
 
-    }
+    //}
 
-    return images;
+    //return images;
 }
 
-auto OrthophotoModelImp::cameras() const -> Cameras
+auto OrthophotoModelImp::cameras() const -> const Cameras &
 {
     return mProject->cameras();
+}
+
+auto OrthophotoModelImp::poses() const -> const Poses&
+{
+    return mProject->poses();
 }
 
 auto OrthophotoModelImp::projectFolder() const -> tl::Path
 {
     return mProject->projectFolder();
-}
-
-auto OrthophotoModelImp::orthoPath() const -> tl::Path
-{
-    return mProject->orthophoto().path;
-}
-
-void OrthophotoModelImp::setOrthoPath(const tl::Path &orthoPath)
-{
-    mProject->orthophoto().path = orthoPath;
 }
 
 auto OrthophotoModelImp::dtmPath() const -> tl::Path
@@ -171,8 +152,7 @@ auto OrthophotoModelImp::enuCrs() const -> QString
 
 void OrthophotoModelImp::clearProject()
 {
-    /// TODO: 
-    //mProject->clearOrtho();
+    mProject->clearOrthophoto();
 }
 
 auto OrthophotoModelImp::useCuda() const -> bool
@@ -180,31 +160,21 @@ auto OrthophotoModelImp::useCuda() const -> bool
     return mSettings->value("UseCuda", true).toBool();
 }
 
-auto OrthophotoModelImp::gsd() const -> double
-{
-    return mProject->orthophoto().gsd;
-}
-
-auto OrthophotoModelImp::interpolation() const -> QString
-{
-    return mProject->orthophoto().interpolation;
-}
-
 auto OrthophotoModelImp::crs() const -> QString
 {
-    QString epsg_code = mProject->orthophoto().epsgCode;
+    QString epsg_code/* = mProject->orthophoto().epsgCode*/;
 
     try {
 
-        epsg_code = mProject->orthophoto().epsgCode;
+        //epsg_code = mProject->orthophoto().epsgCode;
 
-        if (epsg_code.isEmpty()) {
+        //if (epsg_code.isEmpty()) {
             auto enu_crs = enuCrs();
             auto v = tl::split<std::string>(enu_crs.toStdString(), ';');
             auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
             epsg_code = "EPSG:326";
             epsg_code.append(QString::number(zone.first));
-        }
+        //}
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");

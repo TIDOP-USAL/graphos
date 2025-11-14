@@ -72,7 +72,7 @@ cv::Mat visibilityMap(const Orthorectification &orthorectification,
 
 /* OrthoimageTask */
 
-OrthoimageTask::OrthoimageTask(const std::vector<Image> &images,
+OrthoimageTask::OrthoimageTask(const std::unordered_map<size_t, Image> &images,
                                      const std::map<int, Camera> &cameras,
                                      const tl::Path &dtm,
                                      const tl::Path &orthoPath,
@@ -95,7 +95,7 @@ OrthoimageTask::OrthoimageTask(const std::vector<Image> &images,
     mCrop(crop),
     bCuda(cuda)
 {
-    mOrthoPath.createDirectories();
+    mOrthoPath.parentPath().createDirectories();
     graphOrthos.parentPath().createDirectories();
     footprint.parentPath().createDirectories();
 
@@ -160,14 +160,18 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
             cv::Mat dem = dem_reader->read(0.1, 0.1); 
             dem_reader->close();
             cv::Mat mask = cv::Mat::zeros(dem.rows, dem.cols, CV_8U);
-            mask.setTo(cv::Scalar::all(255), dem > -9999.);
+            mask.setTo(cv::Scalar::all(255), dem > tl::NoData<float>);
             cv::Scalar zmean = cv::mean(dem, mask);
             z_ini = zmean(0);
         }
 
-        std::map<int, std::shared_ptr<Undistort>> undistort;
+        // Ya no tiene sentido porque se utilizan las imagenes y cámaras corregidas
+        //std::map<int, std::shared_ptr<Undistort>> undistort;
 
-        for (const auto &image : mImages) {
+        for (const auto &image_pair : mImages) {
+
+            const auto &image = image_pair.second;
+            int camera_id = image.cameraId();
 
             try {
 
@@ -187,15 +191,15 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
                 }
 
                                     
-                auto _undistort = undistort.find(image.cameraId());
-                if (_undistort == undistort.end()) {
+                //auto _undistort = undistort.find(image.cameraId());
+                //if (_undistort == undistort.end()) {
 
-                    const auto &camera = mCameras.find(image.cameraId());
-                    if (camera != mCameras.end()) {
-                        undistort[camera->first] = std::make_shared<Undistort>(camera->second);
-                    }
+                //    const auto &camera = mCameras.find(image.cameraId());
+                //    if (camera != mCameras.end()) {
+                //        undistort[camera->first] = std::make_shared<Undistort>(camera->second);
+                //    }
 
-                }
+                //}
 
                 ortho_file = mOrthoPath;
                 ortho_file.append(file_name).replaceExtension(".tif");
@@ -203,12 +207,15 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
 
                 Orthorectification orthorectification(mDtm,
                                                       image.cameraPose(),
-                                                      undistort[image.cameraId()],
+                                                      mCameras.at(camera_id),//undistort[image.cameraId()],
                                                       z_ini);
                 orthorectification.setCuda(bCuda);
                 if (!orthorectification.isValid()) continue;
 
                 auto footprint = orthorectification.footprint();
+
+                // tendría que generar la ortoimagen con el GSD óptimo si es mayor que el de destino y despues escalar la imagen
+                // Mostrar un Warning en esos casos
 
                 double gsd = mGsd;
                 if (mGsd == -1) {

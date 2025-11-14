@@ -46,7 +46,7 @@ class RasterTiledLayer
 
 public:
 
-    RasterTiledLayer(const QString &tifPath);
+    RasterTiledLayer(const QString &tifPath, bool dem = false);
     ~RasterTiledLayer();
 
     QGV::GeoRect maxGeoExtent() const;

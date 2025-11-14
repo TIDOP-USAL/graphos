@@ -779,7 +779,13 @@ void MvsDensifier::copyUndistortedImages() const
             } else {
 
                 cv::Mat mat = image_reader->read();
-                normalizeImage(mat, mat, this->isCudaEnabled());
+
+                double nodata_value = tl::NoData<float>;
+                cv::Mat mask;
+                cv::inRange(mat, cv::Scalar::all(nodata_value), cv::Scalar::all(nodata_value), mask);
+                cv::bitwise_not(mask, mask);
+
+                normalizeImage(mat, mat, this->isCudaEnabled(), mask);
                 auto image_writer = tl::ImageWriterFactory::create(image_out_path);
                 image_writer->open();
                 if (image_writer->isOpen()) {

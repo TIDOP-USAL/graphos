@@ -54,22 +54,22 @@ MainWindowModel::~MainWindowModel()
     }
 }
 
-QString MainWindowModel::projectName() const
+auto MainWindowModel::projectName() const -> QString
 {
     return mProject->name();
 }
 
-tl::Path MainWindowModel::projectPath() const
+auto MainWindowModel::projectPath() const -> tl::Path
 {
     return mProject->projectPath();
 }
 
-const std::unordered_map<size_t, Image> &MainWindowModel::images() const
+auto MainWindowModel::images() const -> const std::unordered_map<size_t, Image> &
 {
     return mProject->images();
 }
 
-Image MainWindowModel::image(size_t imageId) const
+auto MainWindowModel::image(size_t imageId) const -> Image
 {
     try {
         return mProject->findImageById(imageId);
@@ -78,12 +78,12 @@ Image MainWindowModel::image(size_t imageId) const
     }
 }
 
-const std::map<int, Camera> &MainWindowModel::cameras() const
+auto MainWindowModel::cameras() const -> const std::map<int, Camera> &
 {
     return mProject->cameras();
 }
 
-Camera MainWindowModel::camera(int id) const
+auto MainWindowModel::camera(int id) const -> Camera
 {
     try {
         return mProject->findCamera(id);
@@ -112,7 +112,7 @@ void MainWindowModel::deleteImages(const std::vector<size_t> &imageIds)
     }
 }
 
-QImage MainWindowModel::readImage(const tl::Path &imagePath)
+auto MainWindowModel::readImage(const tl::Path &imagePath) -> QImage
 {
     QImage image;
 
@@ -130,13 +130,13 @@ QImage MainWindowModel::readImage(const tl::Path &imagePath)
             cv::Mat bmp;
 
             tl::DataType data_type = imageReader->dataType();
-            if (data_type == tl::DataType::TL_32F ||
-                data_type == tl::DataType::TL_64F) {
-                /// TODO: Aplicar paleta, mapa de sombras, etc, al DTM
+            //if (data_type == tl::DataType::TL_32F ||
+            //    data_type == tl::DataType::TL_64F) {
+            //    /// TODO: Aplicar paleta, mapa de sombras, etc, al DTM
+            //    bmp = imageReader->read();
+            //} else {
                 bmp = imageReader->read();
-            } else {
-                bmp = imageReader->read();
-            }
+            //}
 
             image = cvMatToQImage(bmp);
 
@@ -150,63 +150,63 @@ QImage MainWindowModel::readImage(const tl::Path &imagePath)
     return image;
 }
 
-const std::unordered_map<size_t, QString> &MainWindowModel::features() const
+auto MainWindowModel::features() const -> const std::unordered_map<size_t, QString> &
 {
     return mProject->features();
 }
 
-std::vector<size_t> MainWindowModel::imagePairs(size_t imageId) const
+auto MainWindowModel::imagePairs(size_t imageId) const -> std::vector<size_t>
 {
     std::vector<size_t> image_pairs = mProject->matchesPairs(imageId);
     return image_pairs;
 }
 
-tl::Path MainWindowModel::sparseModel() const
+auto MainWindowModel::sparseModel() const -> tl::Path
 {
     return mProject->sparseModel();
 }
 
-bool MainWindowModel::isAbsoluteOrientation() const
+auto MainWindowModel::isAbsoluteOrientation() const -> bool
 {
     return !mProject->enuCrs().isEmpty();
 }
 
-const std::unordered_map<size_t, CameraPose> &MainWindowModel::poses() const
+auto MainWindowModel::poses() const -> const std::unordered_map<size_t, CameraPose> &
 {
     return mProject->poses();
 }
 
-tl::Matrix<double, 4, 4> MainWindowModel::transform() const
+auto MainWindowModel::transform() const -> tl::Matrix<double, 4, 4>
 {
     return mProject->transform();
 }
 
-tl::Path MainWindowModel::denseModel() const
+auto MainWindowModel::denseModel() const -> tl::Path
 {
     return mProject->denseModel();
 }
 
-tl::Path MainWindowModel::mesh() const
+auto MainWindowModel::mesh() const -> tl::Path
 {
     return mProject->meshPath();
 }
 
-tl::Path MainWindowModel::dtm() const
+auto MainWindowModel::dtm() const -> tl::Path
 {
     return mProject->dem().dtmPath;
 }
 
-tl::Path MainWindowModel::dsm() const
+auto MainWindowModel::dsm() const -> tl::Path
 {
     return mProject->dem().dsmPath;
 }
 
-tl::Path MainWindowModel::orthophoto() const
+auto MainWindowModel::orthophotos() const -> const std::map<size_t, OrthophotoData>&
 {
-    return mProject->orthophoto().path;
+    return mProject->orthophotos();
 }
 
-QString MainWindowModel::graphicViewerBackgroundColor() const
+auto MainWindowModel::graphicViewerBackgroundColor() const -> QString
 {
     return mSettings->value("ImageViewer/BackgroundColor", "#dcdcdc").toString();
 }
@@ -216,7 +216,7 @@ QString MainWindowModel::graphicViewerBackgroundColor() const
 //  return bUnsavedChanges;
 //}
 
-bool MainWindowModel::checkOldVersion(const tl::Path &file) const
+auto MainWindowModel::checkOldVersion(const tl::Path &file) const -> bool
 {
     return mProject->checkOldVersion(file);
 }

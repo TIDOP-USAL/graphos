@@ -38,11 +38,11 @@ namespace graphos
 
 Orthorectification::Orthorectification(const tl::Path &dtm,
                                        CameraPose cameraPose, 
-                                       std::shared_ptr<Undistort> &undistort,
+                                       Camera undistortedCamera,
                                        double zIni)
   : mDsmPath(dtm),
     mCameraPose(std::move(cameraPose)),
-    mUndistort(undistort),
+    mUndistortedCamera(undistortedCamera),
     mIniZ(zIni),
     mFootprint(4),
     mNoDataValue(-std::numeric_limits<double>::max()),
@@ -215,14 +215,9 @@ auto Orthorectification::orientation() const -> CameraPose
     return mCameraPose;
 }
 
-auto Orthorectification::camera() const -> Camera
-{
-    return mUndistort->camera();
-}
-
 auto Orthorectification::undistortCamera() const -> Camera
 {
-    return mUndistort->undistortCamera();
+    return mUndistortedCamera;
 }
 
 auto Orthorectification::hasNodataValue() const -> bool
@@ -311,7 +306,7 @@ void Orthorectification::init()
         double nodata_value = dtm_reader->noDataValue(&exist_nodata);
         if (exist_nodata) mNoDataValue = nodata_value;
 
-        mRectImage = tl::Rect<int>(0, 0, camera().width(), camera().height());
+        mRectImage = tl::Rect<int>(0, 0, mUndistortedCamera.width(), mUndistortedCamera.height());
 
         // Se necesita un primera aproximación de mIniZ
         if (mIniZ == 0.) {
@@ -372,7 +367,7 @@ auto Orthorectification::focal() const -> float
     float focal_x = 1.f;
     float focal_y = 1.f;
 
-    std::shared_ptr<Calibration> calibration = mUndistort->undistortCamera().calibration();
+    std::shared_ptr<Calibration> calibration = mUndistortedCamera.calibration();
 
     if (calibration->existParameter(Calibration::Parameters::focal)) {
         focal_x = static_cast<float>(calibration->parameter(Calibration::Parameters::focal));
@@ -389,7 +384,7 @@ auto Orthorectification::principalPoint() const -> tl::Point<float>
 {
     tl::Point<float> principal_point;
 
-    std::shared_ptr<Calibration> calibration = mUndistort->undistortCamera().calibration();
+    std::shared_ptr<Calibration> calibration = mUndistortedCamera.calibration();
 
     principal_point.x = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
     principal_point.y = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
@@ -400,11 +395,6 @@ auto Orthorectification::principalPoint() const -> tl::Point<float>
 void Orthorectification::setCuda(bool active)
 {
     bCuda = active;
-}
-
-auto Orthorectification::undistort(const cv::Mat &image) -> cv::Mat
-{
-    return mUndistort->undistortImage(image);
 }
 
 auto Orthorectification::isValid() const -> bool

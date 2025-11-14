@@ -34,29 +34,13 @@
 #include "graphos/core/dense/Smvs.h"
 
 
-std::string removeParentheses(const std::string &value)
-{
-  size_t pos1 = value.find('(');
-  size_t pos2 = value.find(')');
-
-  std::string parse_value;
-
-  if(pos1 != std::string::npos && pos2 != std::string::npos) {
-    parse_value = value.substr(pos1 + 1, pos2 - (pos1 + 1));
-  }
-
-  return parse_value;
-}
-
-
-
 namespace graphos
 {
 
 
 PropertiesModelImp::PropertiesModelImp(Project *project,
-                                       QObject *parent)
-  : PropertiesModel(parent),
+    QObject *parent)
+    : PropertiesModel(parent),
     mProject(project)
 {
     PropertiesModelImp::init();
@@ -142,12 +126,12 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
 
             value = image_metadata->metadata("EXIF_FNumber", active);
             if (active) {
-                exif["Camera"].emplace_back(QString("F Number"), QString::fromStdString("f/" + removeParentheses(value)));
+                exif["Camera"].emplace_back(QString("F Number"), QString::fromStdString("f/" + value));
             }
 
             value = image_metadata->metadata("EXIF_ExposureTime", active);
             if (active) {
-                exif["Camera"].emplace_back(QString("Exposure time"), QString::fromStdString(removeParentheses(value)));
+                exif["Camera"].emplace_back(QString("Exposure time"), QString::fromStdString(value));
             }
 
             //value = image_metadata->metadata("EXIF_ISOSpeed", active);
@@ -162,13 +146,12 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
 
             value = image_metadata->metadata("EXIF_ExposureTime", active);
             if (active) {
-                //exif["Camera"].push_back(std::make_pair(QString("Exposure time"), QString::fromStdString(removeParentheses(value))));
-                exif["Camera"].emplace_back(QString("Exposure time"), QString::fromStdString(removeParentheses(value)));
+                //exif["Camera"].push_back(std::make_pair(QString("Exposure time"), QString::fromStdString(value)));
+                exif["Camera"].emplace_back(QString("Exposure time"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_ExposureBiasValue", active);
             if (active) {
-                value = removeParentheses(value);
                 double exposure_bias = std::stod(value);
                 exif["Camera"].emplace_back(QString("Exposure bias"), QString::number(exposure_bias, 'f', 1) + " step");
             }
@@ -217,17 +200,17 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
 
             value = image_metadata->metadata("EXIF_FocalLength", active);
             if (active) {
-                exif["Camera"].emplace_back(QString("Focal length"), QString::fromStdString(removeParentheses(value) + " mm"));
+                exif["Camera"].emplace_back(QString("Focal length"), QString::fromStdString(value + " mm"));
             }
 
             value = image_metadata->metadata("EXIF_ApertureValue", active);
             if (active) {
-                exif["Camera"].emplace_back(QString("Aperture value"), QString::fromStdString(removeParentheses(value)));
+                exif["Camera"].emplace_back(QString("Aperture value"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_MaxApertureValue", active);
             if (active) {
-                exif["Camera"].emplace_back(QString("Max aperture"), QString::fromStdString(removeParentheses(value)));
+                exif["Camera"].emplace_back(QString("Max aperture"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_FocalLengthIn35mmFilm", active);
@@ -287,8 +270,8 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
                 std::string y_resolution = image_metadata->metadata("EXIF_YResolution", active2);
 
                 if (active1 && active2) {
-                    exif["Image"].emplace_back(QString("Horizontal resolution"), QString::fromStdString(removeParentheses(x_resolution) + " " + resolution_unit));
-                    exif["Image"].emplace_back(QString("Vertical resolution"), QString::fromStdString(removeParentheses(y_resolution) + " " + resolution_unit));
+                    exif["Image"].emplace_back(QString("Horizontal resolution"), QString::fromStdString(x_resolution + " " + resolution_unit));
+                    exif["Image"].emplace_back(QString("Vertical resolution"), QString::fromStdString(y_resolution + " " + resolution_unit));
                 }
 
             }
@@ -319,7 +302,7 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
 
             value = image_metadata->metadata("EXIF_CompressedBitsPerPixel", active);
             if (active) {
-                exif["Image"].emplace_back(QString("Compressed bits per pixel"), QString::fromStdString(removeParentheses(value)));
+                exif["Image"].emplace_back(QString("Compressed bits per pixel"), QString::fromStdString(value));
             }
 
             //value = image_metadata->metadata("EXIF_Software", active);
@@ -623,7 +606,7 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
 
             value = image_metadata->metadata("EXIF_GPSAltitude", active);
             if (active) {
-                std::string altitude = removeParentheses(value);
+                std::string altitude = value;
                 value = image_metadata->metadata("EXIF_GPSAltitudeRef", active);
                 if ("0x00" == value)
                     altitude.append(" Above sea level");
@@ -860,7 +843,7 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
     return exif;
 }
 
-auto PropertiesModelImp::parse(const QString& parser, const QString &file) const -> Properties
+auto PropertiesModelImp::parse(const QString &parser, const QString &file) const -> Properties
 {
     try {
         auto properties_parser = PropertiesParserFactory::create(parser);
@@ -870,8 +853,8 @@ auto PropertiesModelImp::parse(const QString& parser, const QString &file) const
     }
 }
 
-auto PropertiesModelImp::parse(const QStringList& parsers,
-                               const QStringList& files) const -> Properties
+auto PropertiesModelImp::parse(const QStringList &parsers,
+    const QStringList &files) const -> Properties
 {
     Properties properties;
 
@@ -879,11 +862,11 @@ auto PropertiesModelImp::parse(const QStringList& parsers,
 
         TL_ASSERT(parsers.size() == files.size(), "The number of parsers and files must be the same.");
 
-        for (size_t i = 0; i < parsers.size(); i++) {
+        for (int i = 0; i < parsers.size(); i++) {
             auto _properties = parse(parsers[i], files[i]);
             properties.insert(_properties.begin(), _properties.end());
         }
-        
+
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
     }
@@ -1014,19 +997,20 @@ auto PropertiesModelImp::dem() const -> Properties
     return dem_info;
 }
 
-auto PropertiesModelImp::orthophoto() const -> Properties
+auto PropertiesModelImp::orthophoto(size_t orthoId) const -> Properties
 {
     Properties orthophoto_info;
 
-    auto &orthophoto_parameters = mProject->orthophoto();
+    const auto &orthophotos = mProject->orthophotos();
+    const auto &ortho = orthophotos.at(orthoId);
 
     //orthophoto_info = this->image(orthophoto_parameters.path);
 
-    orthophoto_info["Orthophoto parameters"].emplace_back(QString("GSD"), QString::number(orthophoto_parameters.gsd));
-    orthophoto_info["Orthophoto parameters"].emplace_back(QString("CRS"), orthophoto_parameters.epsgCode);
-    orthophoto_info["Orthophoto parameters"].emplace_back(QString("Interpolation"), orthophoto_parameters.interpolation);
+    orthophoto_info["Orthophoto parameters"].emplace_back(QString("GSD"), QString::number(ortho.gsd));
+    orthophoto_info["Orthophoto parameters"].emplace_back(QString("CRS"), ortho.epsgCode);
+    orthophoto_info["Orthophoto parameters"].emplace_back(QString("Interpolation"), ortho.interpolation);
 
-    auto orthophoto_report = mProject->orthophotoReport();
+    const auto &orthophoto_report = ortho.report;
     if (!orthophoto_report.isEmpty()) {
         orthophoto_info["Orthophoto results"].emplace_back(QString("Processig time"), QString::number(orthophoto_report.time / 60., 'g', 2).append(" minutes"));
         // Tamaño, nº bits, bandas

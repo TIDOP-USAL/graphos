@@ -24,6 +24,7 @@
 #ifndef GRAPHOS_ORTHOIMAGE_TASK_H
 #define GRAPHOS_ORTHOIMAGE_TASK_H
 
+#include <unordered_map>
 
 #include <tidop/core/task.h>
 #include <tidop/core/path.h>
@@ -54,7 +55,7 @@ public:
 	/*!
 	 * \brief
 	 */
-	OrthoimageTask(const std::vector<Image> &images,
+	OrthoimageTask(const std::unordered_map<size_t, Image> &images,
 				   const std::map<int, Camera> &cameras,
 				   const tl::Path &dtm,
 				   const tl::Path &orthoPath,
@@ -79,7 +80,7 @@ private:
 
 private:
 
-	std::vector<Image> mImages;
+	std::unordered_map<size_t, Image> mImages;
 	std::map<int, Camera> mCameras;
 	tl::Path mDtm;
 	tl::Path mOrthoPath;

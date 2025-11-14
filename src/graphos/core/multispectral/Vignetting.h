@@ -21,47 +21,40 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORTHOPHOTO_COMMAND_H
-#define GRAPHOS_ORTHOPHOTO_COMMAND_H
+#ifndef GRAPHOS_CORE_VIGNETTING_H
+#define GRAPHOS_CORE_VIGNETTING_H
 
-#include "graphos/core/command.h"
-
-#include <map>
-#include <unordered_map>
+#include <opencv2/opencv.hpp>
 
 namespace graphos
 {
 
-class Project;
-class Camera;
-class Image;
+/*!
+ * \brief Generates a vignetting map based on the DJI Mavic 3M model.
+ *
+ * \param[in] width Image width.
+ * \param[in] height Image height.
+ * \param[in] centerX X coordinate of the calibrated optical center.
+ * \param[in] centerY Y coordinate of the calibrated optical center.
+ * \param[in] k Polynomial coefficients [k0, k1, ..., k5] of the vignetting.
+ * \return Vignetting map.
+ */
+auto vignettingMap(int width,
+                   int height,
+                   float centerX,
+                   float centerY,
+                   const std::vector<float> &k) -> cv::Mat;
 
-class OrthophotoCommand
-  : public Command
-{
-
-public:
-
-    OrthophotoCommand();
-    ~OrthophotoCommand() override;
-
-private:
-
-    auto undistortedCameras() const -> std::map<int, Camera>;
-    auto undistortedImages(const std::unordered_map<size_t, Image> &images,
-                           tl::Path &undistort_path) const->std::unordered_map<size_t, Image>;
-
-// Command
-
-    bool run() override;
-
-private:
-
-    Project *mProject;
-    bool mDisableCuda;
-};
-
+/*!
+ * \brief Apply vignette correction according to the DJI Mavic 3M model.
+ * 
+ * \param[in] inputImage Original image
+ * \param[in] vignettingMap Iignetting map
+ * \return Corrected image
+ */
+auto correctVignetting(const cv::Mat &inputImage,
+                       const cv::Mat &vignettingMap) -> cv::Mat;
 
 } // namespace graphos
 
-#endif // GRAPHOS_ORTHOPHOTO_COMMAND_H
+#endif // GRAPHOS_CORE_VIGNETTING_H

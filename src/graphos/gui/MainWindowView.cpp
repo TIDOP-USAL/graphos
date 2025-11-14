@@ -93,7 +93,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionExportMatches(new QAction(this)),
     mActionExportPointCloud(new QAction(this)),
     mActionExportMesh(new QAction(this)),
-    mActionOrtho(new QAction(this)),
+    //mActionOrtho(new QAction(this)),
     mActionOpenImage(new QAction(this)),
     mActionDeleteImage(new QAction(this)),
     mActionViewKeypoints(new QAction(this)),
@@ -816,16 +816,19 @@ void MainWindowView::deleteDtm()
     }
 }
 
-void MainWindowView::setOrtho(const QString &ortho)
+void MainWindowView::addOrtho(size_t id, const QString &ortho)
 {
     if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+        QFileInfo file_info(ortho);
+        QString base_name = file_info.baseName();
 
         QTreeWidgetItem *itemOrthophoto = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(QApplication::translate("MainWindowView", "Orthophoto")) == 0) {
+            if (temp->text(0) == base_name) {
                 itemOrthophoto = temp;
-                break;
+                return;
             }
         }
 
@@ -834,25 +837,44 @@ void MainWindowView::setOrtho(const QString &ortho)
             itemProject->addChild(itemOrthophoto);
         }
 
-        itemOrthophoto->setText(0, QApplication::translate("MainWindowView", "Orthophoto"));
+        itemOrthophoto->setText(0, base_name);
         itemOrthophoto->setIcon(0, QIcon::fromTheme("image-file"));
         itemOrthophoto->setToolTip(0, ortho);
+        itemOrthophoto->setData(0, Qt::UserRole + 1, static_cast<qulonglong>(id));
         itemOrthophoto->setData(0, Qt::UserRole, graphos::ortho);
     }
 }
 
-void MainWindowView::deleteOrtho()
+void MainWindowView::deleteOrtho(size_t id)
 {
     if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
         QTreeWidgetItem *itemOrthophoto = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(QApplication::translate("MainWindowView", "Orthophoto")) == 0) {
+            if (temp && temp->data(0, Qt::UserRole) == graphos::ortho && temp->data(0, Qt::UserRole + 1).toULongLong() == id) {
                 itemOrthophoto = temp;
                 delete itemOrthophoto;
                 itemOrthophoto = nullptr;
                 break;
+            }
+        }
+    }
+}
+
+void MainWindowView::deleteOrthos()
+{
+    if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+        QTreeWidgetItem *itemOrthophoto = nullptr;
+        for (int i = 0; i < itemProject->childCount(); i++) {
+            if (QTreeWidgetItem *temp = itemProject->child(i)) {
+                if (temp && temp->data(0, Qt::UserRole) == graphos::ortho) {
+                    itemOrthophoto = temp;
+                    delete itemOrthophoto;
+                    itemOrthophoto = nullptr;
+                    break;
+                }
             }
         }
     }
@@ -953,7 +975,7 @@ void MainWindowView::onSelectionChanged()
                item[0]->data(0, Qt::UserRole) == graphos::dtm) {
         emit select_dem();
     } else if (item[0]->data(0, Qt::UserRole) == graphos::ortho) {
-        emit select_orthophoto();
+        emit select_orthophoto(item[0]->data(0, Qt::UserRole + 1).toULongLong());
     } else if (item[0]->data(0, Qt::UserRole) == graphos::images) {
 
     } else if (item[0]->data(0, Qt::UserRole) == graphos::image ||
@@ -992,7 +1014,7 @@ void MainWindowView::onItemDoubleClicked(QTreeWidgetItem *item, int column)
         } else if (item->data(0, Qt::UserRole) == graphos::dsm) {
             emit openDsm();
         } else if (item->data(0, Qt::UserRole) == graphos::ortho) {
-            emit openOrtho(item->toolTip(column));
+            emit openOrtho(item->data(column, Qt::UserRole + 1).toULongLong());
         }
     }
 }

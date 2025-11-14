@@ -23,6 +23,9 @@
 
 #include "graphos/core/camera/Undistort.h"
 
+#include "graphos/core/utils.h"
+#include "graphos/core/multispectral/Vignetting.h"
+
 #include <tidop/core/concurrency.h>
 #include <tidop/core/progress.h>
 #include <tidop/core/chrono.h>
@@ -40,6 +43,7 @@
 
 #include <unordered_map>
 #include <memory>
+#include <utility>
 
 using namespace tl;
 
@@ -191,19 +195,29 @@ auto Undistort::undistortImage(const cv::Mat &image, bool cuda) const -> cv::Mat
 
     try {
 
+        cv::Scalar no_data;
+        if (image.type() == CV_32F)
+            no_data = tl::NoData<float>;
+        else if (image.type() == CV_64F)
+            no_data = tl::NoData<double>;
+        else
+            no_data = 0;
+
 #ifdef HAVE_OPENCV_CUDAWARPING
         if (cuda) {
+
             cv::cuda::GpuMat gMap1(mMap1);
             cv::cuda::GpuMat gMap2(mMap2);
             cv::cuda::GpuMat gImgOut(image);
             cv::cuda::GpuMat gImgUndistort;
 
-            cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar());
+            cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, no_data);
             gImgUndistort.download(img_undistort);
+
         } else {
 #endif
 
-            cv::remap(image, img_undistort, mMap1, mMap2, cv::INTER_LINEAR);
+            cv::remap(image, img_undistort, mMap1, mMap2, cv::INTER_LINEAR, 0, no_data);
 
 #ifdef HAVE_OPENCV_CUDAWARPING
         }
@@ -312,9 +326,10 @@ public:
     UndistortQueueData(cv::Mat image,
                        const std::shared_ptr<Undistort> &undistort,
                        tl::Path undistortImage)
-        : mImage(std::move(image)),
-          mUndistort(undistort),
-          mUndistortImage(std::move(undistortImage))
+      : mImage(std::move(image)),
+        mUndistort(undistort),
+        mUndistortImage(std::move(undistortImage)),
+        mMinMax(std::numeric_limits<float>::min(), std::numeric_limits<float>::max())
     {
 
     }
@@ -348,12 +363,62 @@ public:
     {
         return mUndistortImage;
     }
+    
+    void setVignettingMap(cv::Mat vignettingMap)
+    {
+        mVignettingMap = vignettingMap;
+    }
+
+    auto vignettingMap() const -> cv::Mat
+    {
+        return mVignettingMap;
+    }
+
+    void setRadianceCoeff(float radianceCoeff)
+    {
+        mRadianceCoeff = radianceCoeff;
+    }
+
+    auto radianceCoeff() const -> float
+    {
+        return mRadianceCoeff;
+    }
+
+    void setIrradiance(float irradiance)
+    {
+        mIrradiance = irradiance;
+    }
+
+    auto irradiance() const -> float
+    {
+        return mIrradiance;
+    }
+
+    void setMinMaxThermal(float min, float max)
+    {
+        mMinMax.first = min;
+        mMinMax.second = max;
+    }
+
+    auto minThermal() const -> float
+    {
+        return mMinMax.first;
+    }
+
+    auto maxThermal() const -> float
+    {
+        return mMinMax.second;
+    }
 
 private:
 
     cv::Mat mImage;
     std::shared_ptr<Undistort> mUndistort;
+    cv::Mat mVignettingMap;
+    float mRadianceCoeff = 0.f;
+    float mIrradiance = 0.f;
     tl::Path mUndistortImage;
+    std::pair<float, float> mMinMax;
 };
 
 class UndistortProducerImp
@@ -368,6 +433,8 @@ public:
                          tl::Path undistortPath,
                          std::string extension,
                          bool useGPU,
+                         bool useIdAsName,
+                         bool normalize,
                          tl::Task *parentTask = nullptr)
         : tl::Producer<UndistortQueueData>(queue),
           mImages(images),
@@ -375,6 +442,8 @@ public:
           mUndistortPath(std::move(undistortPath)),
           mExtension(std::move(extension)),
           bUseGPU(useGPU),
+          mUseIdAsName(useIdAsName),
+          mNormalize(normalize),
           mParentTask(parentTask)
     {
     }
@@ -387,6 +456,7 @@ public:
         std::advance(it_end, end);
 
         while (it_begin != it_end) {
+
             if (mParentTask->status() == tl::Task::Status::stopping) {
                 data_load_done = true;
                 return;
@@ -423,8 +493,7 @@ private:
             std::string image_path = image.path().toStdString();
             int camera_id = image.cameraId();
 
-            auto undistort = mUndistort.find(camera_id);
-            if (undistort == mUndistort.end()) {
+            if (mUndistort.find(camera_id) == mUndistort.end()) {
 
                 const auto &camera = mCameras->find(camera_id);
                 if (camera != mCameras->end()) {
@@ -438,13 +507,90 @@ private:
 
             cv::Mat mat = readImage(image);
 
+            const auto &camera = mCameras->at(camera_id);
+
+            if (camera.hasBlackLevel()) {
+
+                auto black_level = camera.blackLevel();
+
+                int bits_per_sample = camera.bitsPerPixel();
+                float normalization_factor = 1.0f / 65535.0f;
+
+                mat.convertTo(mat, CV_32F, normalization_factor);
+
+                mat -= black_level * normalization_factor;
+
+            }
+
             /* Write queue */
 
             tl::Path undistort_image_path(mUndistortPath);
-            undistort_image_path.append(image.name().toStdString());
+            if (mUseIdAsName)
+                undistort_image_path.append(std::to_string(Image::id(image)));
+            else
+                undistort_image_path.append(image.name().toStdString());
             undistort_image_path.replaceExtension(mExtension);
 
             UndistortQueueData data(mat, mUndistort.at(camera_id), undistort_image_path);
+
+
+
+            if (camera.hasVignettingCenter() && camera.hasVignettingPolynomial()) {
+
+                // Por si no aparece el BlackLevel me aseguro de convertir
+                if (mat.depth() != CV_32F) {
+                    mat.convertTo(mat, CV_32F, 1.0f / 65535.0f);
+                }
+
+                if (mVignettingMaps.find(camera_id) == mVignettingMaps.end()) {
+                    auto vignetting_center = camera.vignettingCenter();
+                    auto vignetting_polynomial = camera.vignettingPolynomial();
+
+                    mVignettingMaps[camera_id] = vignettingMap(mat.cols,
+                                                               mat.rows,
+                                                               vignetting_center.x,
+                                                               vignetting_center.y,
+                                                               vignetting_polynomial);
+                }
+                
+                data.setVignettingMap(mVignettingMaps[camera_id]);
+            } 
+
+            // Lectura de Parámetros de Corrección Radiométrica
+
+            float exposure_time = 0.0f;
+            if (image.hasMetadata("ExposureTime")) {
+                exposure_time = tl::convertStringTo<float>(image.metadata("ExposureTime"));
+            }
+
+            float gain = 0.0f;
+            if (image.hasMetadata("SensorGain")) {
+                gain = tl::convertStringTo<float>(image.metadata("SensorGain"));
+            }
+
+            float gain_adjustment = 0.0f;
+            if (image.hasMetadata("SensorGainAdjustment")) {
+                gain_adjustment = tl::convertStringTo<float>(image.metadata("SensorGainAdjustment"));
+            }
+
+            if (exposure_time > 0.f && gain > 0.f && exposure_time > 0.f) {
+                // DJI M3M. Ver en otras cámaras 
+                float m3m_factor = gain_adjustment / (exposure_time * gain);
+                data.setRadianceCoeff(m3m_factor);
+            }
+
+            if (image.hasMetadata("Irradiance")) {
+                float irradiance = tl::convertStringTo<float>(image.metadata("Irradiance"));
+                data.setIrradiance(irradiance);
+            }
+
+            if (camera.bandName() == "THERMAL") {
+                // Si es banda de temperaturas se calcula el máximo y el mínimo para eliminar pixeles erroneos al corregir de distorsión
+                double min;
+                double max;
+                cv::minMaxLoc(mat, &min, &max, nullptr, nullptr);
+                data.setMinMaxThermal(static_cast<float>(min), static_cast<float>(max));
+            }
 
             queue()->push(data);
 
@@ -470,27 +616,9 @@ private:
             imageReader->close();
         }
 
-        normalizeImage(mat);
+        if (mNormalize) normalizeImage(mat, mat, bUseGPU);
 
         return mat;
-    }
-
-    void normalizeImage(cv::Mat &mat)
-    {
-        if (mat.depth() != CV_8U) {
-#ifdef HAVE_OPENCV_CUDAARITHM
-            if (bUseGPU) {
-                cv::cuda::GpuMat gImgIn(mat);
-                cv::cuda::GpuMat gImgOut;
-                cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-                gImgOut.download(mat);
-            } else {
-#endif
-                cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
-#ifdef HAVE_OPENCV_CUDAARITHM
-            }
-#endif
-        }
     }
 
 protected:
@@ -498,9 +626,12 @@ protected:
     const std::unordered_map<size_t, Image> *mImages;
     const std::map<int, Camera> *mCameras;
     std::map<int, std::shared_ptr<Undistort>> mUndistort;
+    std::map<int, cv::Mat> mVignettingMaps;
     tl::Path mUndistortPath;
     std::string mExtension;
     bool bUseGPU;
+    bool mUseIdAsName;
+    bool mNormalize;
     tl::Task *mParentTask;
 };
 
@@ -564,15 +695,66 @@ private:
             UndistortQueueData data;
             if (!queue()->pop(data)) return;
 
-            cv::Mat undistort_image = data.undistort()->undistortImage(data.image(), bUseGPU);
+            auto image = data.image();
+            auto vignetting_map = data.vignettingMap();
+            if (!vignetting_map.empty()) {
+                image = correctVignetting(image, vignetting_map);
+            }
+
+            cv::Mat undistort_image = data.undistort()->undistortImage(image, bUseGPU);
+
+            auto data_type = tl::openCVDataTypeToDataType(undistort_image.type());
+
+            if (data.minThermal() != std::numeric_limits<float>::min() &&
+                data.maxThermal() != std::numeric_limits<float>::max()) {
+
+                cv::Mat mask;
+                cv::inRange(undistort_image, data.minThermal(), data.maxThermal(), mask);
+                cv::bitwise_not(mask, mask);
+                undistort_image.setTo(tl::NoData<float>, mask);
+            }
+
+            // Corrección de radiancia
+
+            float radiance_coeff = data.radianceCoeff();
+            if (radiance_coeff != 0.f) {
+                
+                undistort_image *= radiance_coeff;
+
+                // La radiancia nunca es negativa
+                cv::Mat mask_invalid;
+                cv::compare(undistort_image, 0.0f, mask_invalid, cv::CMP_LE);
+                undistort_image.setTo(tl::NoData<float>, mask_invalid);
+            }
+
+            // Corrección de reflectancia
+
+            float irradiance = data.irradiance();
+            if (irradiance != 0.f) {
+
+                undistort_image *= (tl::consts::pi<float> / irradiance);
+
+                cv::Mat mask;
+                cv::inRange(undistort_image, 0.0f, 1.0f, mask);
+                cv::bitwise_not(mask, mask);
+
+                undistort_image.setTo(tl::NoData<float>, mask);
+
+            }
+
 
             std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(data.undistortImage());
             image_writer->open();
             if (image_writer->isOpen()) {
+
                 image_writer->create(undistort_image.rows,
                                      undistort_image.cols,
                                      undistort_image.channels(),
-                                     tl::openCVDataTypeToDataType(undistort_image.type()));
+                                     data_type);
+
+                if (data_type == tl::DataType::TL_32F || data_type == tl::DataType::TL_64F)
+                    image_writer->setNoDataValue(tl::NoData<float>);
+
                 image_writer->write(undistort_image);
 
                 image_writer->close();
@@ -610,12 +792,16 @@ UndistortImages::UndistortImages(const std::unordered_map<size_t, Image> &images
                                  const std::map<int, Camera> &cameras,
                                  tl::Path outputPath,
                                  Format outputFormat,
-                                 bool cuda)
+                                 bool cuda,
+                                 bool useIdAsName,
+                                 bool normalize)
     : mImages(images),
       mCameras(cameras),
       mOutputPath(std::move(outputPath)),
       mOutputFormat(outputFormat),
-      mUseCuda(cuda)
+      mUseCuda(cuda),
+      mUseIdAsName(useIdAsName),
+      mNormalize(normalize)
 {
 }
 
@@ -652,14 +838,14 @@ void UndistortImages::execute(tl::Progress *progressBar)
                                                 mOutputPath,
                                                 extension,
                                                 mUseCuda,
+                                                mUseIdAsName,
+                                                mNormalize,
                                                 this);
         internal::UndistortConsumerImp consumer(&queue,
                                                 &mImages,
                                                 mUseCuda,
                                                 progressBar,
                                                 this);
-
-        tl::optimalNumberOfThreads();
 
         size_t num_threads = 1;
         std::vector<std::thread> producer_threads(num_threads);

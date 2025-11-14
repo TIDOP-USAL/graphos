@@ -41,6 +41,9 @@ public:
     OrthophotoPresenter() = default;
     ~OrthophotoPresenter() override = default;
 
+signals:
+
+    void ortho_deleted();
 };
 
 } // namespace graphos

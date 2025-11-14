@@ -65,7 +65,7 @@ public:
 
     void loadImage(const QString &imagePath);
     void loadShapefile(const QString &shapefilePath);
-    void loadGeoTiff(const QString &tifPath);
+    void loadGeoTiff(const QString &tifPath, bool dem = false);
 
 public slots:
 

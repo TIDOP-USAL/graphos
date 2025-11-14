@@ -127,8 +127,9 @@ public:
     void setDTM(const QString &dtm);
     void deleteDsm();
     void deleteDtm();
-    void setOrtho(const QString &ortho);
-    void deleteOrtho();
+    void addOrtho(size_t id, const QString &ortho);
+    void deleteOrtho(size_t id);
+    void deleteOrthos();
 
     /*!
      * \brief Añade un mensaje temporal en la barra de herramientas
@@ -187,7 +188,7 @@ signals:
     void select_dense_model();
     void select_mesh_model();
     void select_dem();
-    void select_orthophoto();
+    void select_orthophoto(size_t);
     void select_image(size_t);
     void select_images(std::vector<size_t>);
     void delete_images(std::vector<size_t>);
@@ -204,7 +205,7 @@ signals:
     void open3DModel(QString, bool);
     void openDtm();
     void openDsm();
-    void openOrtho(QString);
+    void openOrtho(size_t);
     void openMultiView(QString);
 
     void export_point_cloud();
@@ -282,7 +283,7 @@ private:
     QAction *mActionExportMatches;
     QAction *mActionExportPointCloud;
     QAction *mActionExportMesh;
-    QAction *mActionOrtho;
+    //QAction *mActionOrtho;
     QMenu *mMenuRecentProjects;
     QMenu *mMenuImport;
     QMenu *mMenuExport;

@@ -37,6 +37,9 @@
 #ifdef HAVE_OPENCV_CUDAWARPING
 #include <opencv2/cudawarping.hpp>
 #endif
+#ifdef HAVE_OPENCV_CUDAIMGPROC
+#include <opencv2/cudaimgproc.hpp>
+#endif // HAVE_OPENCV_CUDAIMGPROC
 #include <opencv2/imgproc.hpp>
 #include <opencv2/photo.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -137,16 +140,14 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         tl::Rect<int> rect_image = mOrthorectification->rectImage();
         tl::Rect<int> rect_dtm = mOrthorectification->rectDsm();
 
-        cv::Mat image = readImage();
-        cv::Mat undistort_image = mOrthorectification->undistort(image);
-        image.release();
+        cv::Mat undistort_image = readImage();
 
         /// georeferencia orto
 
         auto orthophoto_writer = tl::ImageWriterFactory::create(ortho);
         orthophoto_writer->open();
         if (!orthophoto_writer->isOpen()) throw std::runtime_error("Image open error");
-        int channels_ortho = image.channels();
+        int channels_ortho = undistort_image.channels();
         tl::DataType data_type_ortho = mDataType;
 
         /// Ortoimagen en coordenadas proyectadas
@@ -294,41 +295,78 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
             }
         //}
 
-#ifdef HAVE_OPENCV_CUDAARITHM
-        cv::cuda::GpuMat g_map_x(map_x), g_map_y(map_y), g_output;
-        cv::cuda::GpuMat g_undistort(undistort_image);
-        cv::cuda::remap(g_undistort, g_output, g_map_x, g_map_y, interpolation, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
-        cv::Mat ortho_image;
-        g_output.download(ortho_image);
-#else
-        cv::Mat ortho_image;
-        cv::remap(undistort_image, ortho_image, map_x, map_y, interpolation, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
-#endif
+        cv::Mat orthoimage;
+        cv::Mat mask;
 
-        /// Mascara
-        cv::Mat gray;
-        if (ortho_image.channels() == 1)
-            gray = ortho_image;
-        else
-            cv::cvtColor(ortho_image, gray, cv::COLOR_BGR2GRAY);
-        cv::Mat mask(ortho_image.size(), CV_8U);
-        mask.setTo(cv::Scalar::all(0));
-        mask.setTo(cv::Scalar::all(255), gray > 0);
+        cv::Scalar no_data = 0;
+        if (data_type_ortho == tl::DataType::TL_32F || data_type_ortho == tl::DataType::TL_64F) {
+            no_data = tl::NoData<float>;
+            orthophoto_writer->setNoDataValue(tl::NoData<float>);
+        }
 
-        //cv::Mat element = getStructuringElement(cv::MorphShapes::MORPH_RECT,
-        //                                        cv::Size(2 * 2 + 1, 2 * 2 + 1),
-        //                                        cv::Point(2, 2));
+//#if defined HAVE_OPENCV_CUDAARITHM && defined HAVE_OPENCV_CUDAIMGPROC
+//        if (bCuda) {
+//
+//            cv::cuda::GpuMat g_map_x(map_x);
+//            cv::cuda::GpuMat g_map_y(map_y);
+//            cv::cuda::GpuMat g_orthoimage;
+//            cv::cuda::GpuMat g_undistort(undistort_image);
+//
+//            undistort_image.release();
+//            map_x.release();
+//            map_y.release();
+//
+//            cv::cuda::remap(g_undistort, g_orthoimage, g_map_x, g_map_y, interpolation, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
+//            g_orthoimage.download(orthoimage);
+//
+//            g_map_x.release();
+//            g_map_y.release();
+//            g_undistort.release();
+//
+//            cv::cuda::GpuMat g_orthoimage_gray;
+//            if (g_orthoimage.channels() == 1)
+//                g_orthoimage_gray = g_orthoimage;
+//            else
+//                cv::cuda::cvtColor(g_orthoimage, g_orthoimage_gray, cv::COLOR_BGR2GRAY);
+//
+//            g_orthoimage.release();
+//
+//            cv::cuda::GpuMat g_mask;
+//            cv::cuda::inRange(g_orthoimage_gray, cv::Scalar::all(0), cv::Scalar::all(0), g_mask);
+//            g_orthoimage_gray.release();
+//            cv::cuda::bitwise_not(g_mask, g_mask);
+//            g_mask.download(mask);
+//
+//        } else {
+//#endif
+
+            cv::remap(undistort_image, orthoimage, map_x, map_y, interpolation, cv::BORDER_CONSTANT, no_data);
+            undistort_image.release();
+            map_x.release();
+            map_y.release();
+
+            cv::Mat orthoimage_gray;
+            if (orthoimage.channels() == 1)
+                orthoimage_gray = orthoimage;
+            else
+                cv::cvtColor(orthoimage, orthoimage_gray, cv::COLOR_BGR2GRAY);
+
+            cv::inRange(orthoimage_gray, cv::Scalar::all(0), cv::Scalar::all(0), mask);
+            cv::bitwise_not(mask, mask);
+
+//#ifdef HAVE_OPENCV_CUDAARITHM
+//        }
+//#endif
+
         cv::Mat element = getStructuringElement(cv::MorphShapes::MORPH_RECT, cv::Size(3, 3));
 
         // Apertura
         cv::erode(mask, mask, element);
         cv::dilate(mask, mask, element);
 
-        //cv::erode(mask, mask, element);
-
-        cv::Mat ortho_with_mask = cv::Mat::zeros(ortho_image.size(), ortho_image.type());
-        ortho_image.copyTo(ortho_with_mask, mask);
-
+        cv::Mat ortho_with_mask = cv::Mat::zeros(orthoimage.size(), orthoimage.type());
+        orthoimage.copyTo(ortho_with_mask, mask);
+            
         orthophoto_writer->setCRS(crs.toWktFormat());
         orthophoto_writer->setGeoreference(affine_ortho_projected);
         orthophoto_writer->write(ortho_with_mask);

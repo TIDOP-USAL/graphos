@@ -52,6 +52,7 @@ private:
 signals:
 
     void select_crs();
+    void ortho_deleted();
 
 // ComponentBase
 

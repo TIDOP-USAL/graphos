@@ -114,7 +114,10 @@ public:
                     const std::map<int, Camera> &cameras,
                     tl::Path outputPath,
                     Format outputFormat,
-                    bool cuda = false);
+                    bool cuda = false,
+                    bool useIdAsName = false,
+                    bool normalize = false);
+
     ~UndistortImages() override;
 
     // TaskBase
@@ -130,7 +133,8 @@ private:
     tl::Path mOutputPath;
     Format mOutputFormat;
     bool mUseCuda;
-
+    bool mUseIdAsName;
+    bool mNormalize;
 };
 
 

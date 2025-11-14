@@ -24,6 +24,8 @@
 #ifndef GRAPHOS_ORTHOPHOTO_MODEL_INTERFACE_H
 #define GRAPHOS_ORTHOPHOTO_MODEL_INTERFACE_H
 
+#include <unordered_map>
+
 #include <tidop/core/path.h>
 #include <tidop/geometry/entities/point.h>
 
@@ -35,6 +37,7 @@ namespace graphos
 
 class Image;
 class Camera;
+class CameraPose;
 
 class OrthophotoModel
   : public Model
@@ -44,37 +47,26 @@ class OrthophotoModel
 
 public:
 
-    using Images = std::vector<Image>;
+    using Images = std::unordered_map<size_t, Image>;
     using Cameras = std::map<int, Camera>;
+    using Poses = std::unordered_map<size_t, CameraPose>;
 
 public:
 
     OrthophotoModel(QObject *parent = nullptr) : Model(parent){}
     ~OrthophotoModel() override = default;
 
-    virtual auto images() const -> Images = 0;
-    virtual auto cameras() const -> Cameras = 0;
+    virtual auto images() const -> const Images& = 0;
+    virtual auto cameras() const -> const Cameras& = 0;
+    virtual auto poses() const -> const Poses& = 0;
     virtual auto projectFolder() const -> tl::Path = 0;
-    virtual auto orthoPath() const -> tl::Path = 0;
-    virtual void setOrthoPath(const tl::Path &orthoPath) = 0;
     virtual auto dtmPath() const -> tl::Path = 0;
     virtual void clearProject() = 0;
     virtual auto useCuda() const -> bool = 0;
-    virtual auto gsd() const -> double = 0;
     virtual auto enuCrs() const -> QString = 0;
     virtual auto crs() const -> QString = 0;
-    virtual auto interpolation() const -> QString = 0;
 
-    /*!
-     * \brief Retrieves the offset values.
-     * \return An array containing the offset values [x, y, z].
-     */
-    //virtual auto offset() const -> tl::Point3<double> = 0;
-
-    virtual void setGsd(double gsd) = 0;
-    virtual void setCrs(const QString &crs) = 0;
-    virtual void setInterpolation(const QString &interpolation) = 0;
-    virtual void setReport(const OrthophotoReport &report) = 0;
+    virtual void addOrthophoto(const OrthophotoData &ortho_data) = 0;
 
     virtual void loadSettings() = 0;
     virtual void saveSettings() = 0;

@@ -103,11 +103,12 @@ bool OrthophotoCommand::run()
         mProject = new ProjectImp;
         mProject->load(project_path);
 
-        auto dsm = mProject->dem().dsmPath;
+        auto &dsm = mProject->dem().dsmPath;
 
-        tl::Path orthophoto_path(mProject->projectFolder());
-        orthophoto_path.append("ortho");
-		
+        tl::Path ortho_path = mProject->projectFolder();
+        ortho_path.append("ortho");
+        ortho_path.append("orthomosaic.tif");
+
         tl::Path ground_points_path(mProject->reconstructionPath());
         ground_points_path.append("ground_points.bin");
 
@@ -132,27 +133,51 @@ bool OrthophotoCommand::run()
             crs.append(std::to_string(zone.first));
         }
 
-        OrthophotoTask orthophoto_task(gsd,
-                                       images(),
-                                       mProject->cameras(),
-                                       orthophoto_path,
+        const auto &images = mProject->images();
+        const auto &cameras = mProject->cameras();
+
+        tl::Path undistort_path(mProject->projectFolder());
+        undistort_path.append("undistorted");
+
+        auto undistorted_image_paths = undistort_path.list(".tif");
+
+        if (!undistort_path.exists() || undistorted_image_paths.size() != images.size()) {
+
+            undistort_path.createDirectories();
+
+            UndistortImages undistort_task(images,
+                                           cameras,
+                                           undistort_path,
+                                           UndistortImages::Format::tiff,
+                                           !mDisableCuda,
+                                           true);
+            undistort_task.run();
+        }
+
+        auto undistorted_images = undistortedImages(images, undistort_path);
+
+        OrthophotoTask orthophoto_task(undistorted_images,
+                                       undistortedCameras(),
+                                       ortho_path,
                                        dsm,
                                        enu_crs,
                                        crs,
                                        interpolation,
+                                       gsd, 
                                        !mDisableCuda);
         orthophoto_task.run();
 
-        tl::Path orthophoto_file = orthophoto_path;
+        tl::Path orthophoto_file = ortho_path;
         orthophoto_file.append("ortho.tif");
 
         if (orthophoto_file.exists()) {
             auto report = orthophoto_task.report();
-            mProject->setOrthophotoReport(report);
-            mProject->orthophoto().path = orthophoto_file;
-            mProject->orthophoto().epsgCode = QString::fromStdString(crs);
-            mProject->orthophoto().gsd = gsd;
-            mProject->orthophoto().interpolation = QString::fromStdString(interpolation);
+            OrthophotoData ortho_data;
+            ortho_data.path = orthophoto_file;
+            ortho_data.epsgCode = QString::fromStdString(crs);
+            ortho_data.gsd = gsd;
+            ortho_data.interpolation = QString::fromStdString(interpolation);
+            ortho_data.report = report;
             mProject->save(project_path);
         }
 
@@ -168,36 +193,90 @@ bool OrthophotoCommand::run()
     return r;
 }
 
-auto OrthophotoCommand::images() -> std::vector<Image>
+auto OrthophotoCommand::undistortedCameras() const -> std::map<int, Camera>
 {
-    std::vector<Image> images;
+    std::map<int, Camera> undistorted_cameras;
 
-    for(const auto &image : mProject->images()) {
+    for (const auto &camera_pair : mProject->cameras()) {
 
-        Image photo(image.second);
-        size_t image_id = image.first;
+        int camera_id = camera_pair.first;
+        const auto &camera = camera_pair.second;
 
-        if(mProject->isPhotoOriented(image_id)) {
-            CameraPose photoOrientation = mProject->photoOrientation(image_id);
-            auto rotation_matrix = photoOrientation.rotationMatrix();
-            rotation_matrix.at(1, 0) = -photoOrientation.rotationMatrix().at(1, 0);
-            rotation_matrix.at(1, 1) = -photoOrientation.rotationMatrix().at(1, 1);
-            rotation_matrix.at(1, 2) = -photoOrientation.rotationMatrix().at(1, 2);
-            rotation_matrix.at(2, 0) = -photoOrientation.rotationMatrix().at(2, 0);
-            rotation_matrix.at(2, 1) = -photoOrientation.rotationMatrix().at(2, 1);
-            rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
-            photoOrientation.setRotationMatrix(rotation_matrix);
+        Undistort undistort(camera);
+        Camera undistort_camera = undistort.undistortCamera();
 
-            photoOrientation.setPosition(photoOrientation.position());
+        if (camera.hasCalibratedHMatrix()) {
 
-            photo.setCameraPose(photoOrientation);
+            auto calibrated_h_matrix = camera.calibratedHMatrix();
+            cv::Mat H = cv::Mat::eye(3, 3, CV_32F);
+            H.at<float>(0, 0) = calibrated_h_matrix(0, 0);
+            H.at<float>(0, 1) = calibrated_h_matrix(0, 1);
+            H.at<float>(0, 2) = calibrated_h_matrix(0, 2);
+            H.at<float>(1, 0) = calibrated_h_matrix(1, 0);
+            H.at<float>(1, 1) = calibrated_h_matrix(1, 1);
+            H.at<float>(1, 2) = calibrated_h_matrix(1, 2);
+            H.at<float>(2, 0) = calibrated_h_matrix(2, 0);
+            H.at<float>(2, 1) = calibrated_h_matrix(2, 1);
+            H.at<float>(2, 2) = calibrated_h_matrix(2, 2);
 
-            images.push_back(photo);
+            auto &calibration = camera.calibration() ? camera.calibration() : camera.priorCalibration();
+            float cx = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
+            float cy = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
+
+            std::vector<cv::Point2f> srcPoints = {{cx, cy}};
+            std::vector<cv::Point2f> dstPoints;
+
+            cv::perspectiveTransform(srcPoints, dstPoints, H);
+
+            auto &calibration2 = undistort_camera.calibration() ? undistort_camera.calibration() : undistort_camera.priorCalibration();
+            calibration2->setParameter(Calibration::Parameters::cx, static_cast<double>(dstPoints[0].x));
+            calibration2->setParameter(Calibration::Parameters::cy, static_cast<double>(dstPoints[0].y));
+
         }
+
+        undistorted_cameras[camera_id] = undistort_camera;
 
     }
 
-    return images;
+    return undistorted_cameras;
+}
+
+auto OrthophotoCommand::undistortedImages(const std::unordered_map<size_t, Image> &images, tl::Path &undistort_path) const -> std::unordered_map<size_t, Image>
+{
+    std::unordered_map<size_t, Image> undistorted_images;
+
+    const auto &poses = mProject->poses();
+
+    for (const auto &pose : poses) {
+
+        size_t image_id = pose.first;
+        Image image = images.at(image_id);
+
+        // Se utiliza el path de la imagen corregida de distorsión.
+        tl::Path image_path = undistort_path;
+        std::string file_name = std::to_string(image_id).append(".tif");
+        image_path.append(file_name);
+        image.setPath(image_path);
+
+        // Se sustituye las poses importadas (EXIF) por las de la orientación
+        CameraPose camera_pose = pose.second;
+        auto rotation_matrix = camera_pose.rotationMatrix();
+        rotation_matrix.at(1, 0) = -rotation_matrix.at(1, 0);
+        rotation_matrix.at(1, 1) = -rotation_matrix.at(1, 1);
+        rotation_matrix.at(1, 2) = -rotation_matrix.at(1, 2);
+        rotation_matrix.at(2, 0) = -rotation_matrix.at(2, 0);
+        rotation_matrix.at(2, 1) = -rotation_matrix.at(2, 1);
+        rotation_matrix.at(2, 2) = -rotation_matrix.at(2, 2);
+        camera_pose.setRotationMatrix(rotation_matrix);
+        image.setCameraPose(camera_pose);
+
+        int camera_id = image.cameraId();
+
+        undistorted_images[image_id] = image;
+
+    }
+
+    return undistorted_images;
 }
 
 } // namespace graphos

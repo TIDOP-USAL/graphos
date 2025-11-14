@@ -120,8 +120,8 @@
 namespace graphos
 {
 
-RasterTiledLayer::RasterTiledLayer(const QString &tifPath)
-  : mDEM(false)
+RasterTiledLayer::RasterTiledLayer(const QString &tifPath, bool dem)
+  : mDEM(dem)
 {
     //GDALAllRegister();
     //mDataset = static_cast<GDALDataset *>(GDALOpen(tifPath.toUtf8().data(), GA_ReadOnly));
@@ -178,16 +178,16 @@ RasterTiledLayer::RasterTiledLayer(const QString &tifPath)
     // Se calcula el min y max de la imagen
     if (reader->channels() == 1 && reader->dataType() != tl::DataType::TL_8U && reader->dataType() != tl::DataType::TL_8S) {
 
-        mDEM = true;
         bool exist_nodata = false;
         double nodata_value = reader->noDataValue(&exist_nodata);
-        if (!exist_nodata) nodata_value = -9999.;
+        if (!exist_nodata) nodata_value = tl::NoData<float>;
 
         cv::Mat dem = reader->read(0.1, 0.1);
-        //cv::Mat mask = cv::Mat::zeros(dem.rows, dem.cols, CV_8U);
-        //mask.setTo(cv::Scalar::all(255), dem != nodata_value);
-        cv::Mat mask = (dem != nodata_value);
+        cv::Mat mask;
+        cv::inRange(dem, cv::Scalar::all(nodata_value), cv::Scalar::all(nodata_value), mask);
+        cv::bitwise_not(mask, mask);
         cv::minMaxLoc(dem, &mMinMax.first, &mMinMax.second, nullptr, nullptr, mask);
+
     }
 }
 
@@ -349,7 +349,7 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             gray.release();
             if (nonZeroCount == 0) return;
             
-            if (mDEM/*mat_source.channels() == 1 && mat_source.depth() == CV_32F*/) {
+            if (mDEM) {
 
                 // Parámetros. Se tienen que establecer en los ajustes de visualización
                 double mAltitude = 45.0;   // grados sobre el horizonte
@@ -433,10 +433,38 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
                 // Devolver al buffer original     
                 bool exist_nodata = false;
                 double nodata_value = reader->noDataValue(&exist_nodata);
-                if (!exist_nodata) nodata_value = -9999.;
-                cv::Mat mask = (mat_source != nodata_value);
-                mat_source.release();
+                if (!exist_nodata) nodata_value = tl::NoData<float>;
+                //cv::Mat mask = (mat_source != nodata_value);
+                cv::Mat mask;
+                cv::inRange(mat_source, cv::Scalar::all(nodata_value), cv::Scalar::all(nodata_value), mask);
+                cv::bitwise_not(mask, mask);
+
+                //mat_source.release();
                 output.copyTo(mat_source, mask);
+
+            } else if (mat_source.channels() == 1) {
+
+                cv::Mat temp;
+                bool exist_nodata = false;
+                double nodata_value = reader->noDataValue(&exist_nodata);
+                if (!exist_nodata) nodata_value = tl::NoData<float>;
+                cv::Mat mask;
+                cv::inRange(mat_source, cv::Scalar::all(nodata_value), cv::Scalar::all(nodata_value), mask);
+                cv::bitwise_not(mask, mask);
+
+                if (mMinMax.second > mMinMax.first) {
+
+                    double scale = 255.0 / (mMinMax.second - mMinMax.first);
+                    double shift = -mMinMax.first * scale;
+                    mat_source.convertTo(temp, CV_8U, scale, shift);
+                    temp.copyTo(mat_source, mask);
+
+                } else {
+                    cv::normalize(mat_source, mat_source, 0., 255., cv::NORM_MINMAX, CV_8U, mask);
+                }
+
+                
+                cv::cvtColor(mat_source, mat_source, cv::COLOR_GRAY2BGR);
 
             }
 

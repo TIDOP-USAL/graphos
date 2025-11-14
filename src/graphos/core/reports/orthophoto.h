@@ -30,7 +30,7 @@ namespace graphos
 struct OrthophotoReport
 {
     double time = 0.0;
-	double gsd = 0.0;
+    double gsd = 0.0;
     QString epsg = "";
     int rows = 0;
     int cols = 0;
@@ -40,6 +40,15 @@ struct OrthophotoReport
     {
         return time == 0. && gsd == 0. && epsg == "";
     }
+};
+
+struct OrthophotoData
+{
+    QString epsgCode;
+    tl::Path path;
+    double gsd = 0.05;
+    QString interpolation = "Linear";
+    OrthophotoReport report;
 };
 
 
