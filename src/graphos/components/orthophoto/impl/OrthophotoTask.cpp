@@ -252,48 +252,138 @@ static cv::Mat combineImages(const std::vector<cv::Mat> &images)
 }
 
 
+static float ciede2000(const cv::Vec3f &lab1, const cv::Vec3f &lab2)
+{
+    float L1 = lab1[0]; float a1 = lab1[1]; float b1 = lab1[2];
+    float L2 = lab2[0]; float a2 = lab2[1]; float b2 = lab2[2];
+
+    // 1. Calcular C' y h'
+    float C1 = std::sqrt(a1 * a1 + b1 * b1);
+    float C2 = std::sqrt(a2 * a2 + b2 * b2);
+    float C_bar = (C1 + C2) / 2.0f;
+
+    float G = 0.5f * (1.0f - std::sqrt(std::pow(C_bar, 7.0f) / (std::pow(C_bar, 7.0f) + std::pow(25.0f, 7.0f))));
+
+    float a1_prime = (1.0f + G) * a1;
+    float a2_prime = (1.0f + G) * a2;
+
+    float C1_prime = std::sqrt(a1_prime * a1_prime + b1 * b1);
+    float C2_prime = std::sqrt(a2_prime * a2_prime + b2 * b2);
+
+    // Calcular h' (hue angles)
+    auto get_h_prime = [](float b, float a_prime) -> float {
+        if (b == 0 && a_prime == 0) return 0.0f;
+        float angle = std::atan2(b, a_prime) * tl::consts::rad_to_deg<float>;
+        if (angle < 0) angle += 360.0f;
+        return angle;
+        };
+
+    float h1_prime = get_h_prime(b1, a1_prime);
+    float h2_prime = get_h_prime(b2, a2_prime);
+
+    // 2. Calcular Deltas
+    float delta_L_prime = L2 - L1;
+    float delta_C_prime = C2_prime - C1_prime;
+
+    float delta_h_prime = 0.0f;
+    if (C1_prime * C2_prime != 0) {
+        if (std::abs(h2_prime - h1_prime) <= 180.0f) {
+            delta_h_prime = h2_prime - h1_prime;
+        } else {
+            if (h2_prime <= h1_prime) delta_h_prime = h2_prime - h1_prime + 360.0f;
+            else delta_h_prime = h2_prime - h1_prime - 360.0f;
+        }
+    }
+
+    float delta_H_prime = 2.0f * std::sqrt(C1_prime * C2_prime) * std::sin((delta_h_prime / 2.0f) * tl::consts::deg_to_rad<float>);
+
+    // 3. Calcular medias para los factores de peso
+    float L_bar_prime = (L1 + L2) / 2.0f;
+    float C_bar_prime = (C1_prime + C2_prime) / 2.0f;
+
+    float h_bar_prime = 0.0f;
+    if (C1_prime * C2_prime != 0) {
+        if (std::abs(h1_prime - h2_prime) <= 180.0f) {
+            h_bar_prime = (h1_prime + h2_prime) / 2.0f;
+        } else {
+            if ((h1_prime + h2_prime) < 360.0f) h_bar_prime = (h1_prime + h2_prime + 360.0f) / 2.0f;
+            else h_bar_prime = (h1_prime + h2_prime - 360.0f) / 2.0f;
+        }
+    } else {
+        h_bar_prime = h1_prime + h2_prime;
+    }
+
+    // 4. Calcular funciones de peso S_L, S_C, S_H
+    float T = 1.0f - 0.17f * std::cos((h_bar_prime - 30.0f) * tl::consts::deg_to_rad<float>)
+        + 0.24f * std::cos((2.0f * h_bar_prime) * tl::consts::deg_to_rad<float>)
+        + 0.32f * std::cos((3.0f * h_bar_prime + 6.0f) * tl::consts::deg_to_rad<float>)
+        - 0.20f * std::cos((4.0f * h_bar_prime - 63.0f) * tl::consts::deg_to_rad<float>);
+
+    float delta_theta = 30.0f * std::exp(-std::pow((h_bar_prime - 275.0f) / 25.0f, 2.0f));
+    float R_C = 2.0f * std::sqrt(std::pow(C_bar_prime, 7.0f) / (std::pow(C_bar_prime, 7.0f) + std::pow(25.0f, 7.0f)));
+    float S_L = 1.0f + (0.015f * std::pow(L_bar_prime - 50.0f, 2.0f)) / std::sqrt(20.0f + std::pow(L_bar_prime - 50.0f, 2.0f));
+    float S_C = 1.0f + 0.045f * C_bar_prime;
+    float S_H = 1.0f + 0.015f * C_bar_prime * T;
+    float R_T = -std::sin(2.0f * delta_theta * tl::consts::deg_to_rad<float>) * R_C;
+
+    // Parametros kL, kC, kH suelen ser 1 para aplicaciones gráficas genéricas
+    float kL = 1.0f;
+    float kC = 1.0f;
+    float kH = 1.0f;
+
+    // 5. Ecuación final CIEDE2000
+    float val = std::pow(delta_L_prime / (kL * S_L), 2.0f) +
+        std::pow(delta_C_prime / (kC * S_C), 2.0f) +
+        std::pow(delta_H_prime / (kH * S_H), 2.0f) +
+        R_T * (delta_C_prime / (kC * S_C)) * (delta_H_prime / (kH * S_H));
+
+    return std::sqrt(val);
+}
+
 static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
-                                  const std::vector<double> &distances,
+                                  const std::vector<cv::Point2f> &centers,
+                                  //const std::vector<double> &distances,
                                   float weight_color = 0.7f,
                                   float weight_distance = 0.3f)
 {
     if (images.empty()) return cv::Mat();
 
     size_t images_size = images.size();
-    TL_ASSERT(images_size == distances.size(), "Number of images and distances must match");
+    //TL_ASSERT(images_size == distances.size(), "Number of images and distances must match");
+    TL_ASSERT(images_size == centers.size(), "Number of images and distances must match");
 
+    // Verificación de formato
     int rows = images[0].rows;
     int cols = images[0].cols;
+    int depth = images[0].depth();
+    int channels = images[0].channels();
+    int type = images[0].type();
+
+    TL_ASSERT(channels == 3, "combineImagesSmart only supports 3-channel images");
 
     for (size_t i = 1; i < images_size; ++i) {
-        TL_ASSERT(images[i].rows == rows && images[i].cols == cols, "All images must have same size");
+        TL_ASSERT(images[i].rows == rows && images[i].cols == cols, "All images must be same size");
+        TL_ASSERT(images[i].channels() == channels, "All images must have same number of channels");
+        TL_ASSERT(images[i].depth() == depth, "All images must have same bit depth");
     }
 
-    int orig_channels = images[0].channels();
-    int orig_depth = images[0].depth();
-
+    // máscaras de píxeles válidos (no negros)
     std::vector<cv::Mat> valid_masks(images_size);
     for (size_t i = 0; i < images_size; ++i) {
         cv::inRange(images[i], cv::Scalar::all(0), cv::Scalar::all(0), valid_masks[i]);
         cv::bitwise_not(valid_masks[i], valid_masks[i]);
     }
 
+    // Conversión a CIELab
     std::vector<cv::Mat> lab_images(images_size);
     for (size_t i = 0; i < images_size; ++i) {
         cv::Mat img = images[i];
 
-        // Normalizar canales: 1->3, 4->3 (descartar alpha temporalmente)
-        if (img.channels() == 1) {
-            cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
-        } else if (img.channels() != 3) {
-            TL_THROW_EXCEPTION("Unsupported number of channels");
-        }
-
-        if (img.depth() == CV_8U) {
+        if (depth == CV_8U) {
             img.convertTo(img, CV_32F, 1.0 / 255.0);
-        } else if (img.depth() == CV_16U) {
+        } else if (depth == CV_16U) {
             img.convertTo(img, CV_32F, 1.0 / 65535.0);
-        } else if (img.depth() == CV_32F) {
+        } else if (depth == CV_32F) {
             img.convertTo(img, CV_32F);
         } else {
             TL_THROW_EXCEPTION("Unsupported image depth");
@@ -302,15 +392,32 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
         cv::cvtColor(img, lab_images[i], cv::COLOR_BGR2Lab);
     }
 
-    double min_distance = *std::min_element(distances.begin(), distances.end());
-    double max_distance = *std::max_element(distances.begin(), distances.end());
-    double distance_range = (max_distance > min_distance) ? (max_distance - min_distance) : 1.0;
+    // Imágenes de altas frecuencias para el postprocesado final
+    //std::vector<cv::Mat> high_frequencies(images.size());
 
-    std::vector<float> normalized_distances(images_size);
-    for (size_t i = 0; i < images_size; ++i)
-        normalized_distances[i] = static_cast<float>((distances[i] - min_distance) / distance_range);
+    //for (size_t i = 0; i < images.size(); ++i) {
+    //    cv::Mat low;
+    //    cv::GaussianBlur(images[i], low, cv::Size(3, 3), 0);
+    //    cv::subtract(images[i], low, high_frequencies[i], valid_masks[i]);
+    //}
+
+    //double min_distance = *std::min_element(distances.begin(), distances.end());
+    //double max_distance = *std::max_element(distances.begin(), distances.end());
+    //double distance_range = (max_distance > min_distance) ? (max_distance - min_distance) : 1.0;
+
+    //std::vector<float> normalized_distances(images_size);
+    //for (size_t i = 0; i < images_size; ++i)
+    //    normalized_distances[i] = static_cast<float>((distances[i] - min_distance) / distance_range);
+
+    // Pre-calcular rangos de distancia espacial para normalizar
+    // Como ahora es pixel a pixel, esto es una estimación, pero podemos
+    // calcular la distancia máxima posible teórica o dinámica.
+    // Para simplificar y evitar calcular min/max por pixel (muy lento), 
+    // normalizaremos usando la diagonal de la tesela como referencia de escala.
+    float max_dist_ref = std::sqrt((float)(rows * rows + cols * cols)) * 1.5f;
 
     cv::Mat result_lab(rows, cols, CV_32FC3, cv::Scalar(0, 0, 0));
+    cv::Mat result_hf(rows, cols, type, cv::Scalar(0, 0, 0));
 
     auto median_of = [](std::vector<float> &v) -> float {
         size_t n = v.size();
@@ -324,7 +431,7 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
         return med;
     };
 
-    tl::parallel_for(0, rows, [&](size_t y) {
+    tl::parallel_for(0, rows, [&](size_t r) {
 
         std::vector<float> L; 
         L.reserve(images_size);
@@ -335,18 +442,18 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
         std::vector<float> color_distances; 
         color_distances.reserve(images_size);
 
-        for (int x = 0; x < cols; ++x) {
+        for (int c = 0; c < cols; ++c) {
 
             L.clear(); 
             A.clear();
             B.clear();
 
             // recolectar muestras válidas para este píxel
-            std::vector<int> valid_idxs;
+            std::vector<size_t> valid_idxs;
             valid_idxs.reserve(images_size);
-            for (int i = 0; i < (int)images_size; ++i) {
-                if (valid_masks[i].at<uchar>(static_cast<int>(y), x)) {
-                    cv::Vec3f lab = lab_images[i].at<cv::Vec3f>(static_cast<int>(y), x);
+            for (size_t i = 0; i < images_size; ++i) {
+                if (valid_masks[i].at<uchar>(static_cast<int>(r), c)) {
+                    cv::Vec3f lab = lab_images[i].at<cv::Vec3f>(static_cast<int>(r), c);
                     L.push_back(lab[0]);
                     A.push_back(lab[1]);
                     B.push_back(lab[2]);
@@ -362,14 +469,19 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
             float medA = median_of(tmpA);
             float medB = median_of(tmpB);
 
-            // distancias fotométricas a la mediana
+            // distancias de color a la mediana (CIE 1976 - ΔE*)
             color_distances.assign(images_size, std::numeric_limits<float>::infinity());
             for (int idx : valid_idxs) {
-                cv::Vec3f lab = lab_images[idx].at<cv::Vec3f>(static_cast<int>(y), x);
-                float dL = lab[0] - medL;
-                float dA = lab[1] - medA;
-                float dB = lab[2] - medB;
-                color_distances[idx] = std::sqrt(dL * dL + dA * dA + dB * dB);
+                cv::Vec3f lab = lab_images[idx].at<cv::Vec3f>(static_cast<int>(r), c);
+
+                // CIE 1976 - ΔE*
+                //float dL = lab[0] - medL;
+                //float dA = lab[1] - medA;
+                //float dB = lab[2] - medB;
+                //color_distances[idx] = std::sqrt(dL * dL + dA * dA + dB * dB);
+
+                // CIE 2000 - ciede2000
+                color_distances[idx] = ciede2000(lab, cv::Vec3f(medL, medA, medB));
             }
 
             // normalizar color distances solo entre válidos
@@ -397,91 +509,97 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
 
             //if (bestIdx < 0) continue;
 
-            //result_lab.at<cv::Vec3f>(static_cast<int>(y), x) = lab_images[bestIdx].at<cv::Vec3f>(static_cast<int>(y), x);
+            //result_lab.at<cv::Vec3f>(static_cast<int>(r), c) = lab_images[bestIdx].at<cv::Vec3f>(static_cast<int>(r), c);
 
 
+            // ---------------------------------------------------------
+            // PASO EXTRA: CALCULAR UMBRAL DE OUTLIERS (Robust Rejection)
+            // ---------------------------------------------------------
+            // Copiamos las distancias de color para buscar su mediana (MAD)
+            std::vector<float> dists_copy;
+            dists_copy.reserve(valid_idxs.size());
+            for (int idx : valid_idxs) {
+                dists_copy.push_back(color_distances[idx]);
+            }
+            // Calculamos la mediana de las desviaciones (MAD)
+            float mad_val = median_of(dists_copy);
+
+            // Definimos un umbral. 
+            // 3.0 * MAD es estándar estadístico para outliers.
+            // Ponemos un suelo (p.ej. 10.0 o 15.0 en espacio Lab) para no 
+            // eliminar ruido de textura natural si todas las imágenes son muy parecidas.
+            float noise_floor = 5.0f;
+            float outlier_threshold = std::max(noise_floor, 3.0f * mad_val);
+            // ---------------------------------------------------------
+            
 
             // calcular score de cada imagen válida
             std::vector<std::pair<float, int>> scored;
             scored.reserve(valid_idxs.size());
+
+            // con distancia
+            //for (int idx : valid_idxs) {
+            //    float colorNorm = (color_distances[idx] - minC) / rangeC;
+            //    float distNorm = normalized_distances[idx];
+            //    float score = weight_color * colorNorm + weight_distance * distNorm;
+            //    scored.emplace_back(score, idx);
+            //}
+
             for (int idx : valid_idxs) {
+
+                if (color_distances[idx] > outlier_threshold) continue;
+
+                // 1. Distancia de color normalizada (0..1)
                 float colorNorm = (color_distances[idx] - minC) / rangeC;
-                float distNorm = normalized_distances[idx];
+
+                // 2. Distancia Espacial Pixel a Centro
+                // Vector desde el pixel actual (x,y) al centro de la imagen fuente (centers[idx])
+                float dx = c - centers[idx].x;
+                float dy = r - centers[idx].y;
+                float dist_pixel = std::sqrt(dx * dx + dy * dy);
+
+                // Normalizamos la distancia espacial (0..1 aprox)
+                // Usamos max_dist_ref para que no dependa de los vecinos locales, sino de la escala global de la tesela
+                float distNorm = dist_pixel / max_dist_ref;
+
+                // Score final
                 float score = weight_color * colorNorm + weight_distance * distNorm;
                 scored.emplace_back(score, idx);
             }
+
+            if (scored.empty()) continue;
 
             // ordenar por score ascendente (menor es mejor)
             std::sort(scored.begin(), scored.end(),
                 [](const auto &a, const auto &b) { return a.first < b.first; });
 
-            if (scored.empty()) continue;
-
             // número de mejores píxeles a usar
-            const int TOP_N = 1;
+            const int TOP_N = 5;
             int n = std::min<int>(TOP_N, scored.size());
 
-            // calcular media ponderada de los N mejores
-            float total_w = 0.f;
-            cv::Vec3f sum_lab(0.f, 0.f, 0.f);
+            if (n == 1) {
+                result_lab.at<cv::Vec3f>(static_cast<int>(r), c) = lab_images[scored[0].second].at<cv::Vec3f>(static_cast<int>(r), c);
+            } else {
+                // calcular media ponderada de los N mejores
+                float total_w = 0.f;
+                cv::Vec3f sum_lab(0.f, 0.f, 0.f);
 
-            for (int i = 0; i < n; ++i) {
-                int idx = scored[i].second;
-                float w = 1.0f / (1e-3f + scored[i].first); // peso inverso al score
-                cv::Vec3f lab = lab_images[idx].at<cv::Vec3f>(static_cast<int>(y), x);
-                sum_lab += lab * w;
-                total_w += w;
+                for (int i = 0; i < n; ++i) {
+                    int idx = scored[i].second;
+                    float w = 1.0f / (1e-3f + scored[i].first); // peso inverso al score
+                    cv::Vec3f lab = lab_images[idx].at<cv::Vec3f>(static_cast<int>(r), c);
+                    sum_lab += lab * w;
+                    total_w += w;
+                }
+
+                cv::Vec3f labWeighted = (total_w > 0.f) ? (sum_lab / total_w)
+                    : lab_images[scored[0].second].at<cv::Vec3f>(static_cast<int>(r), c);
+
+                result_lab.at<cv::Vec3f>(static_cast<int>(r), c) = labWeighted;
             }
 
-            cv::Vec3f labWeighted = (total_w > 0.f) ? (sum_lab / total_w)
-                : lab_images[scored[0].second].at<cv::Vec3f>(static_cast<int>(y), x);
-
-            result_lab.at<cv::Vec3f>(static_cast<int>(y), x) = labWeighted;
-
-            // Interpolación local bilateral (en la imagen bestIdx)
-            // Se toman los pixeles vecinos para generar una imagen mas suavizada
-            //int radius = 1;
-            //float sigma_s = 1.5f;
-            // sigma_c: depende de la escala Lab (Lab L ~ 0..100 si input 0..1 -> L ~ 0..100),
-            // como hemos convertido desde 0..1, OpenCV produce L~[0..100], a~[-128..127].
-            // un valor razonable inicial:
-            //float sigma_c = 5.0f;
-
-            //cv::Vec3f sumLab(0.f, 0.f, 0.f);
-            //float sumW = 0.f;
-
-            //for (int dy = -radius; dy <= radius; ++dy) {
-
-            //    int yy = static_cast<int>(y) + dy;
-            //    if (yy < 0 || yy >= rows) continue;
-
-            //    for (int dx = -radius; dx <= radius; ++dx) {
-
-            //        int xx = x + dx;
-            //        if (xx < 0 || xx >= cols) continue;
-            //        if (!valid_masks[bestIdx].at<uchar>(yy, xx)) continue;
-
-            //        cv::Vec3f labNeighbor = lab_images[bestIdx].at<cv::Vec3f>(yy, xx);
-
-            //        float dsq = static_cast<float>(dx * dx + dy * dy);
-            //        float dL = labNeighbor[0] - centerLab[0];
-            //        float dA = labNeighbor[1] - centerLab[1];
-            //        float dB = labNeighbor[2] - centerLab[2];
-            //        float dcolor = dL * dL + dA * dA + dB * dB;
-
-            //        float w_space = std::exp(-0.5f * dsq / (sigma_s * sigma_s));
-            //        float w_color = std::exp(-0.5f * dcolor / (sigma_c * sigma_c));
-            //        float w = w_space * w_color;
-
-            //        sumLab[0] += labNeighbor[0] * w;
-            //        sumLab[1] += labNeighbor[1] * w;
-            //        sumLab[2] += labNeighbor[2] * w;
-            //        sumW += w;
-            //    }
-            //}
-            
-            //cv::Vec3f labSmoothed = (sumW > 0.f) ? (sumLab / sumW) : labWeighted;
-            //result_lab.at<cv::Vec3f>(static_cast<int>(y), x) = labSmoothed;
+            //int idx = scored[0].second;
+            //result_hf.at<cv::Vec3b>(static_cast<int>(r), c) = high_frequencies[idx].at<cv::Vec3b>(static_cast<int>(r), c);
         }
     });
 
@@ -489,62 +607,55 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
     cv::Mat result_bgr_f;
     cv::cvtColor(result_lab, result_bgr_f, cv::COLOR_Lab2BGR);
 
-    // Postprocesado adaptativo preservando bordes
-    // cv::Mat temp; 
-    // cv::bilateralFilter(result_bgr_f, temp, 5, 0.1*255, 15); 
-    // result_bgr_f = temp;
-
     // Reconversión a la profundidad y canales originales
     cv::Mat final_img;
 
-    if (orig_channels == 1) {
-        cv::Mat gray_f;
-        cv::cvtColor(result_bgr_f, gray_f, cv::COLOR_BGR2GRAY);
-        if (orig_depth == CV_8U) {
-            gray_f.convertTo(final_img, CV_8U, 255.0);
-        } else if (orig_depth == CV_16U) {
-            gray_f.convertTo(final_img, CV_16U, 65535.0);
-        } else { 
-            final_img = gray_f.clone();
-        }
+    cv::Mat bgr_out;
+    if (depth == CV_8U) {
+        result_bgr_f.convertTo(bgr_out, CV_8U, 255.0);
+    } else if (depth == CV_16U) {
+        result_bgr_f.convertTo(bgr_out, CV_16U, 65535.0);
     } else {
-        cv::Mat bgr_out;
-        if (orig_depth == CV_8U) {
-            result_bgr_f.convertTo(bgr_out, CV_8U, 255.0);
-        } else if (orig_depth == CV_16U) {
-            result_bgr_f.convertTo(bgr_out, CV_16U, 65535.0);
-        } else {
-            bgr_out = result_bgr_f.clone();
-        }
-
-        if (orig_channels == 3) {
-            final_img = bgr_out;
-        } else {
-            TL_THROW_EXCEPTION("Unsupported original channel count");
-        }
+        bgr_out = result_bgr_f.clone();
     }
+
+    //bgr_out += result_hf;
+    final_img = bgr_out;
+
+    // Postprocesado adaptativo preservando bordes
+    //cv::bilateralFilter(bgr_out, final_img, 5, 0.1*255, 15);
+    //Filtro de realce (unsharp mask)
+    //cv::Mat sharp, blurred;
+    //cv::GaussianBlur(bgr_out, blurred, cv::Size(0, 0), 1.0);
+    //cv::addWeighted(bgr_out, 1.5, blurred, -0.5, 0, sharp);
+    //final_img = sharp;
 
     return final_img;
 }
 
 static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images,
-                                      const std::vector<double> &distances,
+                                      //const std::vector<double> &distances,
+                                      const std::vector<cv::Point2f> &centers,
                                       float weight_intensity = 0.7f,
                                       float weight_distance = 0.3f)
 {
     if (images.empty()) return cv::Mat();
 
     size_t images_size = images.size();
-    TL_ASSERT(images_size == distances.size(), "Number of images and distances must match");
+    TL_ASSERT(images_size == centers.size(), "Number of imagenes and centers must match");
 
+    // Verificación de dimensiones y formato
     int rows = images[0].rows;
     int cols = images[0].cols;
     int depth = images[0].depth();
+    int channels = images[0].channels();
+    int type = images[0].type();
 
-    // Verificación de dimensiones y formato
+    TL_ASSERT(channels == 1, "combineImagesSmartMono only supports single-channel images");
+
     for (size_t i = 1; i < images_size; ++i) {
         TL_ASSERT(images[i].rows == rows && images[i].cols == cols, "All images must have same size");
-        TL_ASSERT(images[i].channels() == 1, "combineImagesSmartMono only supports single-channel images");
+        TL_ASSERT(images[i].channels() == channels, "All images must have same number of channels");
         TL_ASSERT(images[i].depth() == depth, "All images must have the same bit depth");
     }
 
@@ -557,16 +668,18 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images,
     }
 
     // Normalizar distancias
-    double min_distance = *std::min_element(distances.begin(), distances.end());
-    double max_distance = *std::max_element(distances.begin(), distances.end());
-    double distance_range = (max_distance > min_distance) ? (max_distance - min_distance) : 1.0;
+    //double min_distance = *std::min_element(distances.begin(), distances.end());
+    //double max_distance = *std::max_element(distances.begin(), distances.end());
+    //double distance_range = (max_distance > min_distance) ? (max_distance - min_distance) : 1.0;
 
-    std::vector<float> normalized_distances(images_size);
-    for (size_t i = 0; i < images_size; ++i)
-        normalized_distances[i] = static_cast<float>((distances[i] - min_distance) / distance_range);
+    //std::vector<float> normalized_distances(images_size);
+    //for (size_t i = 0; i < images_size; ++i)
+    //    normalized_distances[i] = static_cast<float>((distances[i] - min_distance) / distance_range);
 
-    cv::Mat result(rows, cols, images[0].type(), cv::Scalar(tl::NoData<float>));
-    cv::Mat assigned(rows, cols, CV_8U, cv::Scalar(0));
+    float max_dist_ref = std::sqrt((float)(rows * rows + cols * cols)) * 1.5f;
+
+    cv::Mat result(rows, cols, type, cv::Scalar(tl::NoData<float>));
+    //cv::Mat assigned(rows, cols, CV_8U, cv::Scalar(0));
 
     // Lambda para mediana robusta
     // Codigo repetido. Sacar a función o utilizar median de TidopLib
@@ -582,44 +695,49 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images,
         return med;
     };
 
-    tl::parallel_for(0, rows, [&](size_t y) {
+    tl::parallel_for(0, rows, [&](size_t r) {
+
         std::vector<float> samples;
         std::vector<float> intensity_diffs;
         samples.reserve(images_size);
         intensity_diffs.reserve(images_size);
 
-        for (int x = 0; x < cols; ++x) {
+        for (int c = 0; c < cols; ++c) {
+
             samples.clear();
 
             // Recolectar intensidades válidas
+            std::vector<size_t> valid_idxs;
+            valid_idxs.reserve(images_size);
             for (size_t i = 0; i < images_size; ++i) {
-                if (valid_masks[i].at<uchar>(static_cast<int>(y), x)) {
-                    float val = images[i].at<float>(static_cast<int>(y), x);
+                if (valid_masks[i].at<uchar>(static_cast<int>(r), c)) {
+                    float val = images[i].at<float>(static_cast<int>(r), c);
                     samples.push_back(val);
+                    valid_idxs.push_back(i);
                 }
             }
 
-            if (samples.empty()) continue;
+            if (valid_idxs.empty()) continue;
 
             // Calcular mediana
             std::vector<float> tmp = samples;
             float median = median_of(tmp);
 
-            // Calcular distancias de intensidad
+            // Calcular distancias de intensidad a la mediana
             intensity_diffs.assign(images_size, std::numeric_limits<float>::infinity());
-            for (size_t i = 0; i < images_size; ++i) {
-                if (!valid_masks[i].at<uchar>(static_cast<int>(y), x)) continue;
-                float val = images[i].at<float>(static_cast<int>(y), x);
-                intensity_diffs[i] = std::fabs(val - median);
+            for (int idx : valid_idxs) {
+                float val = images[idx].at<float>(static_cast<int>(r), c);
+                intensity_diffs[idx] = std::fabs(val - median);
             }
 
-            float minC = std::numeric_limits<float>::infinity();
-            float maxC = std::numeric_limits<float>::lowest();
-            for (float d : intensity_diffs) {
-                if (d < minC) minC = d;
-                if (d > maxC) maxC = d;
+            float min = std::numeric_limits<float>::infinity();
+            float max = std::numeric_limits<float>::lowest();
+            for (int idx : valid_idxs) {
+                float d = intensity_diffs[idx];
+                if (d < min) min = d;
+                if (d > max) max = d;
             }
-            float rangeC = (maxC > minC) ? (maxC - minC) : 1.0f;
+            float range = (max > min) ? (max - min) : 1.0f;
 
             // Seleccionar mejor muestra
             //float bestScore = std::numeric_limits<float>::infinity();
@@ -639,75 +757,115 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images,
             //    assigned.at<uchar>(y, x) = 255;
             //}
 
+            std::vector<float> intensity_diffs_copy;
+            intensity_diffs_copy.reserve(valid_idxs.size());
+            for (int idx : valid_idxs) {
+                intensity_diffs_copy.push_back(intensity_diffs[idx]);
+            }
+            // Calculamos la mediana de las desviaciones (MAD)
+            float mad_val = median_of(intensity_diffs_copy);
+
+            float noise_floor = 15.0f;
+            float outlier_threshold = std::max(noise_floor, 3.0f * mad_val);
+
             // Calcular score de cada imagen válida
             std::vector<std::pair<float, int>> scored;
             scored.reserve(images_size);
-            for (size_t i = 0; i < images_size; ++i) {
-                if (intensity_diffs[i] == std::numeric_limits<float>::infinity()) continue;
-                float colorNorm = (intensity_diffs[i] - minC) / rangeC;
-                float score = weight_intensity * colorNorm + weight_distance * normalized_distances[i];
-                scored.emplace_back(score, static_cast<int>(i));
+
+            // con distancia
+            //for (size_t i = 0; i < images_size; ++i) {
+            //    if (intensity_diffs[i] == std::numeric_limits<float>::infinity()) continue;
+            //    float colorNorm = (intensity_diffs[i] - minC) / rangeC;
+            //    float score = weight_intensity * colorNorm + weight_distance * normalized_distances[i];
+            //    scored.emplace_back(score, static_cast<int>(i));
+            //}
+
+            for (int idx : valid_idxs) {
+
+                if (intensity_diffs[idx] > outlier_threshold) continue;
+
+                // 1. Distancia de intensidad normalizada (0..1)
+                float intensityNorm = (intensity_diffs[idx] - min) / range;
+                // 2. Distancia Espacial Pixel a Centro
+                float dx = c - centers[idx].x;
+                float dy = r - centers[idx].y;
+                float dist_pixel = std::sqrt(dx * dx + dy * dy);
+                float distNorm = dist_pixel / max_dist_ref;
+                // Score final
+                float score = weight_intensity * intensityNorm + weight_distance * distNorm;
+                scored.emplace_back(score, idx);
+
             }
 
             if (scored.empty()) continue;
 
-            // Ordenar por score ascendente (mejor primero)
+            // Ordenar por score ascendente (menor es mejor)
             std::sort(scored.begin(), scored.end(),
                 [](const auto &a, const auto &b) { return a.first < b.first; });
 
             // Número de mejores píxeles a usar
-            const int TOP_N = 3;
+            const int TOP_N = 5;
             int n = std::min<int>(TOP_N, scored.size());
 
             // Calcular media ponderada de los N mejores
             float total_w = 0.f;
             float sum_val = 0.f;
 
-            for (int i = 0; i < n; ++i) {
-                size_t idx = static_cast<size_t>(scored[i].second);
-                float score = scored[i].first;
-                float w = 1.0f / (1e-3f + score); // peso inverso al score
-                //float w = 1.0f / (1e-3f + score + 0.1f * normalized_distances[idx]); // No veo que mejore 
-                // Se nota mucho mas el efecto
-                //const float ALPHA = 15.0f; // Ajuste este valor. Cuanto más bajo, más suave la transición.
-                //float w = std::exp(-ALPHA * score * score); // El peso es más grande si el score es bajo.
-                float val = images[idx].at<float>(static_cast<int>(y), x);
-                sum_val += val * w;
-                total_w += w;
-            }
+            float weighted_val;
 
-            float weighted_val = (total_w > 0.f) ? (sum_val / total_w)
-                : images[scored[0].second].at<float>(static_cast<int>(y), x);
+            if (n == 1) {
+                weighted_val = images[scored[0].second].at<float>(static_cast<int>(r), c);
+            } else {
 
-            result.at<float>(static_cast<int>(y), x) = weighted_val;
-            assigned.at<uchar>(static_cast<int>(y), x) = 255;
-
-        }
-    });
-
-    // Rellenar píxeles sin asignar
-    cv::Mat dil;
-    cv::dilate(assigned, dil, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3)));
-    tl::parallel_for(0, rows, [&](size_t y) {
-        for (int x = 0; x < cols; ++x) {
-            if (assigned.at<uchar>(static_cast<int>(y), x) || !dil.at<uchar>(static_cast<int>(y), x)) continue;
-
-            float bestScore = std::numeric_limits<float>::infinity();
-            int bestIdx = -1;
-            for (size_t i = 0; i < images_size; ++i) {
-                if (!valid_masks[i].at<uchar>(static_cast<int>(y), x)) continue;
-                float score = weight_distance * normalized_distances[i];
-                if (score < bestScore) {
-                    bestScore = score;
-                    bestIdx = static_cast<int>(i);
+                for (int i = 0; i < n; ++i) {
+                    size_t idx = static_cast<size_t>(scored[i].second);
+                    float score = scored[i].first;
+                    //float w = 1.0f;
+                    float w = 1.0f / (1e-3f + score); // peso inverso al score
+                    //float w = 1.0f / (1e-3f + score + 0.1f * normalized_distances[idx]); // No veo que mejore 
+                    // Se nota mucho mas el efecto
+                    //const float ALPHA = 15.0f; // Cuanto más bajo, más suave la transición.
+                    //float w = std::exp(-ALPHA * score * score); // El peso es más grande si el score es bajo.
+                    float val = images[idx].at<float>(static_cast<int>(r), c);
+                    sum_val += val * w;
+                    total_w += w;
                 }
+
+                weighted_val = (total_w > 0.f) ? (sum_val / total_w)
+                    : images[scored[0].second].at<float>(static_cast<int>(r), c);
             }
 
-            if (bestIdx >= 0) {
-                result.at<float>(static_cast<int>(y), x) = images[bestIdx].at<float>(static_cast<int>(y), x);
-            }
+            result.at<float>(static_cast<int>(r), c) = weighted_val;
+            //assigned.at<uchar>(static_cast<int>(r), c) = 255;
+
         }
     });
+
+    //// Rellenar píxeles sin asignar
+    //cv::Mat dil;
+    //cv::dilate(assigned, dil, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3)));
+    //tl::parallel_for(0, rows, [&](size_t r) {
+
+    //    for (int c = 0; c < cols; ++c) {
+
+    //        if (assigned.at<uchar>(static_cast<int>(r), c) || !dil.at<uchar>(static_cast<int>(r), c)) continue;
+
+    //        float bestScore = std::numeric_limits<float>::infinity();
+    //        int bestIdx = -1;
+    //        for (size_t i = 0; i < images_size; ++i) {
+    //            if (!valid_masks[i].at<uchar>(static_cast<int>(r), c)) continue;
+    //            float score = weight_distance * normalized_distances[i];
+    //            if (score < bestScore) {
+    //                bestScore = score;
+    //                bestIdx = static_cast<int>(i);
+    //            }
+    //        }
+
+    //        if (bestIdx >= 0) {
+    //            result.at<float>(static_cast<int>(y), x) = images[bestIdx].at<float>(static_cast<int>(y), x);
+    //        }
+    //    }
+    //});
 
     return result;
 }
@@ -976,7 +1134,9 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
 
                 // Todas las imagenes del elemento actual del grid
                 std::vector<cv::Mat> images;
-                std::vector<double> distances;
+                // Cambio distances por centros proyectados para ser mas precisos en la selección del pixel optimo
+                std::vector<cv::Point2f> centers_in_tile_coords;
+                //std::vector<double> distances;
 
                 for (auto &ortho : orthos[r][c]) {
 
@@ -989,7 +1149,17 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
                             continue;
                         }
 
+                        double src_w = image_reader->cols();
+                        double src_h = image_reader->rows();
                         auto georef = image_reader->georeference().inverse();
+
+                        auto ortoimage_center = image_reader->window().center();
+                        auto tile_center = window.center();
+
+                        double center_x_tile = (ortoimage_center.x - tile_center.x) / mGSD;
+                        double center_y_tile = (tile_center.y - ortoimage_center.y) / mGSD;
+
+
                         tl::Window<tl::Point<int>> window_image;
                         window_image.pt1 = georef.transform(window.pt1);
                         window_image.pt2 = georef.transform(window.pt2);
@@ -1022,7 +1192,9 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
                         }
 
                         images.push_back(image);
-                        distances.push_back(ortho.first);
+                        // Guardamos el punto central relativo al (0,0) de la tesela actual
+                        centers_in_tile_coords.push_back(cv::Point2f(static_cast<float>(center_x_tile), static_cast<float>(center_y_tile)));
+                        //distances.push_back(ortho.first);
                     
                     } catch (std::exception &e) {
                         tl::Message::error("Window = [{}, {}, {}, {}]", window.pt1.x, window.pt1.y, window.pt2.x, window.pt2.y);
@@ -1040,9 +1212,10 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
 #ifdef FAST_ORTHO
 
                     if (mChannels == 1) {
-                        read_image = combineImagesSmartMono(images, distances);
+                        read_image = combineImagesSmartMono(images, centers_in_tile_coords);
                     } else if (mChannels == 3) {
-                        read_image = combineImagesSmart(images, distances);
+                        //read_image = combineImagesSmart(images, distances);
+                        read_image = combineImagesSmart(images, centers_in_tile_coords);
                     } else {
                         /// TODO: Contemplar otros casos
                     }
