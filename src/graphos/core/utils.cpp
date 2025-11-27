@@ -50,6 +50,8 @@
 #include <opencv2/cudawarping.hpp>
 #endif // HAVE_OPENCV_CUDAWARPING
 
+#include <gdal_priv.h>
+
 #include <cstring>
 #include <ostream>
 
@@ -498,6 +500,49 @@ QString enuCrsToEpsg(const QString &enuCRS)
     QString epsg_code("EPSG:326");
     epsg_code.append(QString::number(zone.first));
     return epsg_code;
+}
+
+static bool hasOverviews(GDALDataset *poDataset)
+{
+    if (poDataset->GetRasterCount() == 0) return false;
+
+    GDALRasterBand *poBand = poDataset->GetRasterBand(1);
+
+    return (poBand->GetOverviewCount() > 0);
+}
+
+bool addOverviewsToImage(const std::string &filename, const std::string &resamplingMethod)
+{
+    GDALDataset *poDataset = (GDALDataset *)GDALOpen(filename.c_str(), GA_Update);
+
+    if (poDataset == nullptr) {
+        std::cerr << "Error: No se pudo abrir el archivo (puede que no exista o esté corrupto)." << std::endl;
+        return false;
+    }
+
+    if (hasOverviews(poDataset)) {
+        std::cout << "AVISO: La imagen ya tiene pirámides construidas. Saltando proceso." << std::endl;
+        GDALClose(poDataset);
+        return true;
+    }
+
+    int anOverviewList[] = {2, 4, 8, 16, 32, 64, 128};
+    int nOverviewListCount = sizeof(anOverviewList) / sizeof(int);
+
+    CPLErr err = poDataset->BuildOverviews(resamplingMethod.c_str(),
+                                           nOverviewListCount,
+                                           anOverviewList,
+                                           0, nullptr, // Todas las bandas
+                                           GDALTermProgress, // progreso
+                                           nullptr);
+
+    GDALClose(poDataset);
+
+    if (err != CE_None) {
+        return false;
+    }
+
+    return true;
 }
 
 

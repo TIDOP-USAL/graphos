@@ -26,6 +26,7 @@
 /* GRAPHOS */
 #include "graphos/components/orthophoto/impl/Orthoimage.h"
 #include "graphos/core/image.h"
+#include "graphos/core/utils.h"
 //#include "graphos/core/multispectral/Vignetting.h"
 #include "graphos/components/orthophoto/impl/OrthoimageTask.h"
 
@@ -528,7 +529,7 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
             // 3.0 * MAD es estándar estadístico para outliers.
             // Ponemos un suelo (p.ej. 10.0 o 15.0 en espacio Lab) para no 
             // eliminar ruido de textura natural si todas las imágenes son muy parecidas.
-            float noise_floor = 5.0f;
+            float noise_floor = 10.0f;
             float outlier_threshold = std::max(noise_floor, 3.0f * mad_val);
             // ---------------------------------------------------------
             
@@ -1342,6 +1343,10 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::WindowD>
             }
 
         }
+
+        // Write overviews
+
+        addOverviewsToImage(mOrthoPath.toString());
 
     } catch (std::exception &e) {
         tl::printException(e);

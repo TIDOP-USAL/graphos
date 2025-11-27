@@ -29,6 +29,7 @@
 #include <tidop/img/img.h>
 
 #include "graphos/core/task/Progress.h"
+#include "graphos/core/utils.h"
 
 TL_DISABLE_WARNINGS
 #include "csf/src/CSF.h"
@@ -555,6 +556,11 @@ void DemTask::execute(tl::Progress *progressBar)
             // gdalwarp -overwrite -s_srs EPSG:25830 -t_srs EPSG:25830+5782 -of GTiff \
             // -tr 0.20 0.20 -tap -cutline roi.shp -cl roi -crop_to_cutline \
             // -co "COMPRESS=LZW" dtm_20mm.tif 25830_dtm_clipped.tif
+
+
+            // Write overviews
+            addOverviewsToImage(mds_path.toString());
+
         }
 
         if (status() == Status::stopping) return;
@@ -593,6 +599,9 @@ void DemTask::execute(tl::Progress *progressBar)
             cv::Mat dtm_raster = extractDTMfromTIN(dtm, window, georeference, progressBar, this);
             writeDTM(mdt_path, dtm_raster, georeference, mCrs);
             dtm_raster.release();
+
+            // Write overviews
+            addOverviewsToImage(mdt_path.toString());
 
             tl::Message::info("DTM writed at: {}", mdt_path.toString());
         }

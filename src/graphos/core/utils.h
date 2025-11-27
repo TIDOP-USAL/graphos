@@ -40,7 +40,6 @@
 #include <fstream>
 #include <vector>
 
-
 namespace graphos
 {
 
@@ -131,6 +130,12 @@ tl::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const st
 void transformModel(const tl::Matrix<double> &transform, const std::string &model);
 
 QString enuCrsToEpsg(const QString &enuCRS);
+
+
+
+// Por ahora aqui...
+
+bool addOverviewsToImage(const std::string &filename, const std::string &resamplingMethod = "NEAREST");
 
 } // end namespace graphos
 
