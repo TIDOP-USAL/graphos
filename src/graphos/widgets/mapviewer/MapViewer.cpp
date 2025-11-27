@@ -46,12 +46,7 @@
 #include <gdal.h>
 #include <gdal_priv.h>
 #include <ogrsf_frmts.h>
-//#include <gdalwarper.h>
 
-//#include <QBrush>
-//#include <QPen>
-//#include <QTimer>
-//#include <QPainter>
 #include <QSslSocket>
 #include <QDebug>
 
@@ -114,7 +109,6 @@ void MapViewer::loadShapefile(const QString &shapefilePath)
     // Obtener CRS del shapefile
     OGRSpatialReference *sourceRef = poDS->GetLayer(0)->GetSpatialRef();
     OGRSpatialReference targetRef;
-    //targetRef.importFromEPSG(3857); // EPSG:3857
     targetRef.importFromEPSG(4326);
 
     if (sourceRef && !sourceRef->IsSame(&targetRef)) {
@@ -205,12 +199,8 @@ void MapViewer::zoomExtend()
 
 void MapViewer::zoomIn()
 {
-    auto scale1 = QGVCameraActions(mMap).scale();
     auto &action = QGVCameraActions(mMap).scaleBy(2.0);
     mMap->cameraTo(action);
-    auto scale2 = QGVCameraActions(mMap).scale();
-    scale2 *= 1;
-    //mMap->flyTo(action);
 }
 
 void MapViewer::zoomOut()

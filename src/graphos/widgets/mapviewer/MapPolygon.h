@@ -47,11 +47,11 @@ public:
 private:
 
     void onProjection(QGVMap *geoMap) override;
-    QPainterPath projShape() const override;
+    auto projShape() const -> QPainterPath override;
     void projPaint(QPainter *painter) override;
-    QPointF projAnchor() const override;
-    QTransform projTransform() const override;
-    QString projTooltip(const QPointF &projPos) const override;
+    auto projAnchor() const -> QPointF override;
+    auto projTransform() const -> QTransform override;
+    auto projTooltip(const QPointF &projPos) const -> QString override;
     void projOnMouseClick(const QPointF &projPos) override;
     void projOnMouseDoubleClick(const QPointF &projPos) override;
     void projOnObjectStartMove(const QPointF &projPos) override;

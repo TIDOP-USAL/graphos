@@ -31,91 +31,15 @@
 #include <tidop/geometry/algorithms/distance.h>
 #include <tidop/math/geometry/affine.h>
 
-//#include <QFileInfo>
-
 /* QGeoView */
 #include <QGeoView/Raster/QGVImage.h>
-
 
 /* GDAL */
 #include <gdal.h>
 #include <gdal_priv.h>
-//#include <ogrsf_frmts.h>
 #include <gdalwarper.h>
 
-//#include <QBrush>
-//#include <QPen>
-//#include <QTimer>
-//#include <QPainter>
 
-#include <opencv2/core.hpp>
-
-
-
-//GDALDataType GetGDALDataTypeFromBand(GDALRasterBand *poBand)
-//{
-//    if (poBand) {
-//        return poBand->GetRasterDataType();
-//    }
-//    return GDT_Unknown;
-//}
-
- // Estructura para almacenar la información de la región transformada
-//struct TransformedRegion
-//{
-//    std::vector<GByte> data; // Usamos GByte como ejemplo, adapta al tipo de dato real
-//    int nWidth;
-//    int nHeight;
-//    int nBands;
-//    GDALDataType eDataType;
-//    double adfGeoTransform[6];
-//    char *pszProjectionWKT; // WKT de la proyección, debe ser liberado con CPLFree
-//
-//    TransformedRegion() : nWidth(0), nHeight(0), nBands(0), eDataType(GDT_Unknown), pszProjectionWKT(nullptr)
-//    {
-//        for (int i = 0; i < 6; ++i) adfGeoTransform[i] = 0.0;
-//    }
-//
-//    // Constructor de movimiento
-//    TransformedRegion(TransformedRegion &&other) noexcept
-//        : data(std::move(other.data)),
-//        nWidth(other.nWidth),
-//        nHeight(other.nHeight),
-//        nBands(other.nBands),
-//        eDataType(other.eDataType),
-//        pszProjectionWKT(other.pszProjectionWKT)
-//    {
-//        for (int i = 0; i < 6; ++i) adfGeoTransform[i] = other.adfGeoTransform[i];
-//        other.pszProjectionWKT = nullptr; // Evitar doble free
-//    }
-//
-//    // Operador de asignación de movimiento
-//    TransformedRegion &operator=(TransformedRegion &&other) noexcept
-//    {
-//        if (this != &other) {
-//            data = std::move(other.data);
-//            nWidth = other.nWidth;
-//            nHeight = other.nHeight;
-//            nBands = other.nBands;
-//            eDataType = other.eDataType;
-//            for (int i = 0; i < 6; ++i) adfGeoTransform[i] = other.adfGeoTransform[i];
-//
-//            CPLFree(pszProjectionWKT); // Liberar el recurso actual
-//            pszProjectionWKT = other.pszProjectionWKT;
-//            other.pszProjectionWKT = nullptr;
-//        }
-//        return *this;
-//    }
-//
-//    // Destructor para liberar la memoria de pszProjectionWKT
-//    ~TransformedRegion()
-//    {
-//        if (pszProjectionWKT) {
-//            CPLFree(pszProjectionWKT);
-//            pszProjectionWKT = nullptr;
-//        }
-//    }
-//};
 
 namespace graphos
 {
@@ -123,18 +47,12 @@ namespace graphos
 RasterTiledLayer::RasterTiledLayer(const QString &tifPath, bool dem)
   : mDEM(dem)
 {
-    //GDALAllRegister();
-    //mDataset = static_cast<GDALDataset *>(GDALOpen(tifPath.toUtf8().data(), GA_ReadOnly));
-    //if (!mDataset) {
-    //    qCritical() << "No se pudo abrir la imagen raster:" << tifPath;
-    //    return;
-    //}
-
     setZValue(-1);
 
     reader = tl::ImageReaderFactory::create(tl::Path(tifPath.toStdString()));
     reader->open();
-    mGeoreference = reader->georeference();
+    auto georeference = reader->georeference();
+    mAffineImageToWorld = georeference.inverse();
     auto window = reader->window();
 
     OGRCoordinateTransformation *transform = nullptr;
@@ -168,8 +86,8 @@ RasterTiledLayer::RasterTiledLayer(const QString &tifPath, bool dem)
     {
         auto rows = reader->rows();
         auto cols = reader->cols();
-        auto p1 = mGeoreference.inverse().transform(tl::Point2d(0., 0.));
-        auto p2 = mGeoreference.inverse().transform(tl::Point2d(cols, rows));
+        auto p1 = mAffineImageToWorld.transform(tl::Point2d(0., 0.));
+        auto p2 = mAffineImageToWorld.transform(tl::Point2d(cols, rows));
         
         mGSD = std::min(cols / std::abs(p1.x - p2.x), rows / std::abs(p1.y -p2.y));
     }
@@ -203,12 +121,12 @@ QGV::GeoRect RasterTiledLayer::maxGeoExtent() const
 
 int RasterTiledLayer::minZoomlevel() const
 {
-    return 1; 
+    return 10; 
 }
 
 int RasterTiledLayer::maxZoomlevel() const 
 { 
-    return 30; 
+    return 25; 
 }
 
 void RasterTiledLayer::onProjection(QGVMap *geoMap)
@@ -246,12 +164,14 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
 
         tl::GeoTools *ptrGeoTools = tl::GeoTools::getInstance();
 
-        int tileSize = 256; // Tamaño del tile en píxeles
+        // Establezco tamaño al doble porque se ve muy mal en el nivel de zoom remuestreado
+        int tileSize = 512;// 256; // Tamaño del tile en píxeles
         int tile_size_x_dst = tileSize;
         int tile_size_y_dst = tileSize;
 
 
-
+        QImage tileImage(tileSize, tileSize, QImage::Format_RGBA8888);
+        tileImage.fill(Qt::transparent);
 
         if (mCrsTransform) {
 
@@ -307,9 +227,9 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             // Aqui hay que calcular la distancia entre los puntos para que este bien la escala
             double scale_src = 1.0;
             {
-                auto p1 = mGeoreference.inverse().transform(static_cast<tl::Point2d>(points_source[0]));
-                auto p2 = mGeoreference.inverse().transform(static_cast<tl::Point2d>(points_source[1]));
-                auto p3 = mGeoreference.inverse().transform(static_cast<tl::Point2d>(points_source[3]));
+                auto p1 = mAffineImageToWorld.transform(static_cast<tl::Point2d>(points_source[0]));
+                auto p2 = mAffineImageToWorld.transform(static_cast<tl::Point2d>(points_source[1]));
+                auto p3 = mAffineImageToWorld.transform(static_cast<tl::Point2d>(points_source[3]));
 
                 auto d1 = tl::distance(p1, p2);
                 auto d2 = tl::distance(p1, p3);
@@ -320,8 +240,8 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             tl::WindowD source_window(points_source);
 
             // Hay que expandir la ventana para evitar problemas en los bordes
-            auto p1 = mGeoreference.inverse().transform(tl::Point2d(source_window.pt1.x, source_window.pt2.y));
-            auto p2 = mGeoreference.inverse().transform(tl::Point2d(source_window.pt2.x, source_window.pt1.y));
+            auto p1 = mAffineImageToWorld.transform(tl::Point2d(source_window.pt1.x, source_window.pt2.y));
+            auto p2 = mAffineImageToWorld.transform(tl::Point2d(source_window.pt2.x, source_window.pt1.y));
 
             tl::Rect<int> rect_src(p1, p2);
 
@@ -351,96 +271,7 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             
             if (mDEM) {
 
-                // Parámetros. Se tienen que establecer en los ajustes de visualización
-                double mAltitude = 45.0;   // grados sobre el horizonte
-                double mAzimuth = 315.0;   // grados desde el norte, sentido horario
-                bool mColorize = true;
-
-                double global_min = mMinMax.first;
-                double global_max = mMinMax.second;
-
-                // Copia y asegura precisión
-                cv::Mat dem64;
-                mat_source.convertTo(dem64, CV_64F);
-
-                // Tamaño de pixel (en metros/pixel). Usa valor absoluto por si la Y viene negativa.
-                const double cellSize = std::abs(reader->georeference().scale().x());
-
-                // Gradientes (Sobel 3x3) y normalización por el tamaño de pixel:
-                cv::Mat dzdx, dzdy;
-                cv::Sobel(dem64, dzdx, CV_64F, 1, 0, 3);
-                cv::Sobel(dem64, dzdy, CV_64F, 0, 1, 3);
-                dzdx /= (8.0 * cellSize);
-                dzdy /= (8.0 * cellSize);
-
-                // Normal de la superficie: n = (-p, -q, 1) / sqrt(p^2 + q^2 + 1)
-                cv::Mat p2, q2, denom, nx, ny, nz;
-                cv::multiply(dzdx, dzdx, p2);
-                cv::multiply(dzdy, dzdy, q2);
-                cv::sqrt(p2 + q2 + 1.0, denom);
-                nx = -dzdx / denom;
-                ny = -dzdy / denom;
-                cv::divide(1.0, denom, nz);
-
-                // Vector solar: azimuth desde el norte (horario) y altitud
-                double azimuth_rad = mAzimuth * tl::consts::deg_to_rad<double>;
-                double altitud_rad = mAltitude * tl::consts::deg_to_rad<double>;
-                double zen_rad = tl::consts::half_pi<double> -altitud_rad;
-
-                // Si el eje Y de imagen crece hacia abajo, este mapeo cuadra con Sobel:
-                double lx = std::sin(zen_rad) * std::sin(azimuth_rad); // E-O
-                double ly = std::sin(zen_rad) * std::cos(azimuth_rad); // N-S (positivo hacia abajo)
-                double lz = std::cos(zen_rad);
-
-                // Hillshade lambertiano: shade = dot(n, l)
-                cv::Mat shade = nx * lx + ny * ly + nz * lz;
-
-                // Clamp fijo a [0,1] (¡¡NO normalizar por-tile!!)
-                cv::max(shade, 0.0, shade);
-                cv::min(shade, 1.0, shade);
-
-                // (Opcional) luz ambiental/ganancia/gamma, siempre fijos para todas las teselas
-                double ambient = 0.15; // 0..1
-                double gain = 0.85;    // 0..1, tal que ambient+gain<=1
-                shade = ambient + gain * shade;
-                cv::min(shade, 1.0, shade);
-
-                // 0..1 -> 0..255
-                cv::Mat hillshade8u;
-                shade.convertTo(hillshade8u, CV_8U, 255.0);
-
-                // Salida: gris o color + sombreado
-                cv::Mat output;
-                if (mColorize) {
-                    // Colorizar el DEM con RANGO GLOBAL (no por-tile)
-                    cv::Mat dem8u;
-                    if (global_max > global_min) {
-                        double scale = 255.0 / (global_max - global_min);
-                        double shift = -global_min * scale;
-                        dem64.convertTo(dem8u, CV_8U, scale, shift);
-                    }
-
-                    cv::Mat demColor;
-                    cv::applyColorMap(dem8u, demColor, cv::COLORMAP_TURBO);
-
-                    cv::Mat hs3;
-                    cv::cvtColor(hillshade8u, hs3, cv::COLOR_GRAY2BGR);
-                    cv::multiply(demColor, hs3, output, 1.0 / 255.0);  // mezcla consistente entre tiles
-                } else {
-                    output = hillshade8u;
-                }
-
-                // Devolver al buffer original     
-                bool exist_nodata = false;
-                double nodata_value = reader->noDataValue(&exist_nodata);
-                if (!exist_nodata) nodata_value = tl::NoData<float>;
-                //cv::Mat mask = (mat_source != nodata_value);
-                cv::Mat mask;
-                cv::inRange(mat_source, cv::Scalar::all(nodata_value), cv::Scalar::all(nodata_value), mask);
-                cv::bitwise_not(mask, mask);
-
-                //mat_source.release();
-                output.copyTo(mat_source, mask);
+                buildDEM(mat_source);
 
             } else if (mat_source.channels() == 1) {
 
@@ -470,30 +301,27 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
 
             std::vector<cv::Point2f> src_points_img(4);
 
-                // Calcular puntos en coordenadas de píxel de mat_source (relativos a rect_to_read.topLeft)
-                // 1) obtenemos las coordenadas en píxeles (sin escalar) en la referencia completa:
-                auto src_p0_full = mGeoreference.inverse().transform(static_cast<tl::Point2d>(points_source[0]));
-                auto src_p1_full = mGeoreference.inverse().transform(static_cast<tl::Point2d>(points_source[1]));
-                auto src_p2_full = mGeoreference.inverse().transform(static_cast<tl::Point2d>(points_source[2]));
-                auto src_p3_full = mGeoreference.inverse().transform(static_cast<tl::Point2d>(points_source[3]));
-                // Estas son coordenadas en píxeles dentro de la imagen completa (sin recorte).
+            // Calcular puntos en coordenadas de píxel de mat_source (relativos a rect_to_read.topLeft)
+            // 1) obtenemos las coordenadas en píxeles (sin escalar) en la referencia completa:
+            auto src_p0_full = mAffineImageToWorld.transform(static_cast<tl::Point2d>(points_source[0]));
+            auto src_p1_full = mAffineImageToWorld.transform(static_cast<tl::Point2d>(points_source[1]));
+            auto src_p2_full = mAffineImageToWorld.transform(static_cast<tl::Point2d>(points_source[2]));
+            auto src_p3_full = mAffineImageToWorld.transform(static_cast<tl::Point2d>(points_source[3]));
+            // Estas son coordenadas en píxeles dentro de la imagen completa (sin recorte).
 
-                // 2) restamos la esquina superior izquierda de rect_to_read (en píxeles) para tener coords relativas a mat_source
-                //tl::Point2d rectToReadTopLeft(rect_to_read.x, rect_to_read.y);
-                tl::Point2d rectToReadTopLeft = rect_to_read.topLeft();
+            // 2) restamos la esquina superior izquierda de rect_to_read (en píxeles) para tener coords relativas a mat_source
+            tl::Point2d rectToReadTopLeft = rect_to_read.topLeft();
 
-                tl::Point2d p0_rel = (src_p0_full - rectToReadTopLeft) * scale_src;
-                tl::Point2d p1_rel = (src_p1_full - rectToReadTopLeft) * scale_src;
-                tl::Point2d p2_rel = (src_p2_full - rectToReadTopLeft) * scale_src;
-                tl::Point2d p3_rel = (src_p3_full - rectToReadTopLeft) * scale_src;
+            tl::Point2d p0_rel = (src_p0_full - rectToReadTopLeft) * scale_src;
+            tl::Point2d p1_rel = (src_p1_full - rectToReadTopLeft) * scale_src;
+            tl::Point2d p2_rel = (src_p2_full - rectToReadTopLeft) * scale_src;
+            tl::Point2d p3_rel = (src_p3_full - rectToReadTopLeft) * scale_src;
 
-                // Ahora construimos src_points_img con esos puntos (flotantes)
-                src_points_img[0] = cv::Point2f(static_cast<float>(p0_rel.x), static_cast<float>(p0_rel.y));
-                src_points_img[1] = cv::Point2f(static_cast<float>(p1_rel.x), static_cast<float>(p1_rel.y));
-                src_points_img[2] = cv::Point2f(static_cast<float>(p2_rel.x), static_cast<float>(p2_rel.y));
-                src_points_img[3] = cv::Point2f(static_cast<float>(p3_rel.x), static_cast<float>(p3_rel.y));
-
-            //}
+            // Ahora construimos src_points_img con esos puntos (flotantes)
+            src_points_img[0] = cv::Point2f(static_cast<float>(p0_rel.x), static_cast<float>(p0_rel.y));
+            src_points_img[1] = cv::Point2f(static_cast<float>(p1_rel.x), static_cast<float>(p1_rel.y));
+            src_points_img[2] = cv::Point2f(static_cast<float>(p2_rel.x), static_cast<float>(p2_rel.y));
+            src_points_img[3] = cv::Point2f(static_cast<float>(p3_rel.x), static_cast<float>(p3_rel.y));
 
             // 2. Coordenadas destino en la tile de salida(EPSG:3857, 256x256 px)
             std::vector<cv::Point2f> dst_points = {
@@ -507,13 +335,7 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             cv::Mat H = cv::getPerspectiveTransform(src_points_img, dst_points);
 
             // 5. Aplicar la transformación
-            QImage tileImage(tileSize, tileSize, QImage::Format_RGBA8888);
-            tileImage.fill(Qt::transparent);
-            //cv::Mat tileMat = qImageToCvMat(tileImage);
             cv::Mat tileMat(height, width, CV_8UC3, cv::Scalar(0, 0, 0));
-            
-
-            //cv::Size out_size(width, height);
 
             cv::warpPerspective(mat_source, tileMat, H, tileMat.size(),
                                 cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
@@ -532,23 +354,12 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
                 }
             }
 
-            cv::Mat mat2 = graphos::qImageToCvMat(tileImage);
-
-            // 6. Crear el item y mostrarlo
-            if (!tileImage.isNull()) {
-                auto *imageItem = new QGVImage();
-                imageItem->setGeometry(tilePos.toGeoRect());
-                imageItem->loadImage(tileImage);
-                imageItem->setSelectable(false);
-                onTile(tilePos, imageItem);
-            }
-
         } else {
 
             // QGeoView tiene un error en la transformación entre geograficas y EPSG:3857 y 
             // la Y sale con el signo cambiado
-            auto p1 = mGeoreference.inverse().transform({tile_proj_rect.left(), -tile_proj_rect.top()});
-            auto p2 = mGeoreference.inverse().transform({tile_proj_rect.right(), -tile_proj_rect.bottom()});
+            auto p1 = mAffineImageToWorld.transform({tile_proj_rect.left(), -tile_proj_rect.top()});
+            auto p2 = mAffineImageToWorld.transform({tile_proj_rect.right(), -tile_proj_rect.bottom()});
 
             int xOffset = std::floor(std::min(p1.x, p2.x));
             int yOffset = std::floor(std::min(p1.y, p2.y));
@@ -592,26 +403,26 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             if (mat_src.empty()) return;
 
             // Calcular tamaño en píxeles del tile
-            QImage tileImage(tileSize, tileSize, QImage::Format_RGBA8888);
-            tileImage.fill(Qt::transparent);
 
-                for (int y = 0; y < tile_size_y_dst; ++y) {
-                    for (int x = 0; x < tile_size_x_dst; ++x) {
-                        int i = y * tile_size_x_dst + x;
-                        uint8_t r = mat_src.data[i * 3 + 0];
-                        uint8_t g = mat_src.data[i * 3 + 1];
-                        uint8_t b = mat_src.data[i * 3 + 2];
-                        int alpha = 255;
-                        if (r == 0 && g == 0 && b == 0)
-                            alpha = 0;
-                        tileImage.setPixelColor(tile_offset_x + x, tile_offset_y + y, QColor(r, g, b, alpha));
-                    }
+            for (int y = 0; y < tile_size_y_dst; ++y) {
+                for (int x = 0; x < tile_size_x_dst; ++x) {
+                    int i = y * tile_size_x_dst + x;
+                    uint8_t r = mat_src.data[i * 3 + 0];
+                    uint8_t g = mat_src.data[i * 3 + 1];
+                    uint8_t b = mat_src.data[i * 3 + 2];
+                    int alpha = 255;
+                    if (r == 0 && g == 0 && b == 0)
+                        alpha = 0;
+                    tileImage.setPixelColor(tile_offset_x + x, tile_offset_y + y, QColor(r, g, b, alpha));
                 }
-
-            if (tileImage.isNull()) {
-                qWarning() << "No se pudo cargar la imagen del tile:" << tilePos.pos();
-                return;
             }
+
+        }
+
+
+        if (!tileImage.isNull()) {
+
+            tileImage.setDevicePixelRatio(2.);
 
             auto tile = new QGVImage();
             tile->setGeometry(tilePos.toGeoRect());
@@ -625,9 +436,109 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
     }
 }
 
+void RasterTiledLayer::buildDEM(cv::Mat &mat_source)
+{
+    // Parámetros. Se tienen que establecer en los ajustes de visualización
+    double mAltitude = 45.0;   // grados sobre el horizonte
+    double mAzimuth = 315.0;   // grados desde el norte, sentido horario
+    bool mColorize = true;
+
+    double global_min = mMinMax.first;
+    double global_max = mMinMax.second;
+
+    // Copia y asegura precisión
+    cv::Mat dem64;
+    mat_source.convertTo(dem64, CV_64F);
+
+    // Tamaño de pixel (en metros/pixel). Usa valor absoluto por si la Y viene negativa.
+    const double cellSize = std::abs(reader->georeference().scale().x());
+
+    // Gradientes (Sobel 3x3) y normalización por el tamaño de pixel:
+    cv::Mat dzdx, dzdy;
+    cv::Sobel(dem64, dzdx, CV_64F, 1, 0, 3);
+    cv::Sobel(dem64, dzdy, CV_64F, 0, 1, 3);
+    dzdx /= (8.0 * cellSize);
+    dzdy /= (8.0 * cellSize);
+
+    // Normal de la superficie: n = (-p, -q, 1) / sqrt(p^2 + q^2 + 1)
+    cv::Mat p2, q2, denom, nx, ny, nz;
+    cv::multiply(dzdx, dzdx, p2);
+    cv::multiply(dzdy, dzdy, q2);
+    cv::sqrt(p2 + q2 + 1.0, denom);
+    nx = -dzdx / denom;
+    ny = -dzdy / denom;
+    cv::divide(1.0, denom, nz);
+
+    // TODO: Se puede calcular antes
+    // Vector solar: azimuth desde el norte (horario) y altitud
+    double azimuth_rad = mAzimuth * tl::consts::deg_to_rad<double>;
+    double altitud_rad = mAltitude * tl::consts::deg_to_rad<double>;
+    double zen_rad = tl::consts::half_pi<double> -altitud_rad;
+
+    // TODO: Se puede calcular antes
+    // Si el eje Y de imagen crece hacia abajo, este mapeo cuadra con Sobel:
+    double lx = std::sin(zen_rad) * std::sin(azimuth_rad); // E-O
+    double ly = std::sin(zen_rad) * std::cos(azimuth_rad); // N-S (positivo hacia abajo)
+    double lz = std::cos(zen_rad);
+
+    // Hillshade lambertiano: shade = dot(n, l)
+    cv::Mat shade = nx * lx + ny * ly + nz * lz;
+
+    // Clamp fijo a [0,1] (¡¡NO normalizar por-tile!!)
+    cv::max(shade, 0.0, shade);
+    cv::min(shade, 1.0, shade);
+
+    // (Opcional) luz ambiental/ganancia/gamma, siempre fijos para todas las teselas
+    double ambient = 0.15; // 0..1
+    double gain = 0.85;    // 0..1, tal que ambient+gain<=1
+    shade = ambient + gain * shade;
+    cv::min(shade, 1.0, shade);
+
+    // 0..1 -> 0..255
+    cv::Mat hillshade8u;
+    shade.convertTo(hillshade8u, CV_8U, 255.0);
+
+    // Salida: gris o color + sombreado
+    cv::Mat output;
+    if (mColorize) {
+        // Colorizar el DEM con RANGO GLOBAL (no por-tile)
+        cv::Mat dem8u;
+        if (global_max > global_min) {
+            double scale = 255.0 / (global_max - global_min);
+            double shift = -global_min * scale;
+            dem64.convertTo(dem8u, CV_8U, scale, shift);
+        }
+
+        cv::Mat demColor;
+        cv::applyColorMap(dem8u, demColor, cv::COLORMAP_TURBO);
+
+        cv::Mat hs3;
+        cv::cvtColor(hillshade8u, hs3, cv::COLOR_GRAY2BGR);
+        cv::multiply(demColor, hs3, output, 1.0 / 255.0);  // mezcla consistente entre tiles
+    } else {
+        output = hillshade8u;
+    }
+
+    // Devolver al buffer original     
+    bool exist_nodata = false;
+    double nodata_value = reader->noDataValue(&exist_nodata);
+    if (!exist_nodata) nodata_value = tl::NoData<float>;
+    cv::Mat mask;
+    cv::inRange(mat_source, cv::Scalar::all(nodata_value), cv::Scalar::all(nodata_value), mask);
+    cv::bitwise_not(mask, mask);
+
+    output.copyTo(mat_source, mask);
+}
+
 void RasterTiledLayer::cancel(const QGV::GeoTilePos &/*tilePos*/)
 {
     qt_noop();
 }
+
+
+
+
+
+
 
 }

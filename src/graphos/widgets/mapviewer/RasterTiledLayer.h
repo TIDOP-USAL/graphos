@@ -29,7 +29,7 @@
 
 #include <tidop/math/geometry/affine.h>
 
-//class GDALDataset;
+#include <opencv2/core.hpp>
 
 namespace tl
 {
@@ -38,6 +38,7 @@ class ImageReader;
 
 namespace graphos
 {
+
 
 class RasterTiledLayer 
   : public QGVLayerTiles
@@ -49,14 +50,15 @@ public:
     RasterTiledLayer(const QString &tifPath, bool dem = false);
     ~RasterTiledLayer();
 
-    QGV::GeoRect maxGeoExtent() const;
+    auto maxGeoExtent() const -> QGV::GeoRect;
 
 protected:
 
     void onProjection(QGVMap *geoMap) override;
-    int minZoomlevel() const override;
-    int maxZoomlevel() const override;
+    auto minZoomlevel() const -> int override;
+    auto maxZoomlevel() const -> int override;
     void request(const QGV::GeoTilePos &tilePos) override;
+    void buildDEM(cv::Mat &mat_source);
     void cancel(const QGV::GeoTilePos &tilePos) override;
 
 private:
@@ -64,7 +66,7 @@ private:
     QRect mTileGridBounds;
     QGV::GeoRect mGeoExtent;
     std::unique_ptr<tl::ImageReader> reader;
-    tl::Affine<double, 2> mGeoreference;
+    tl::Affine<double, 2> mAffineImageToWorld;
     double mGSD;
     bool mCrsTransform;
     std::string mEpsgSource;
