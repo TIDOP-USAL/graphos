@@ -26,6 +26,7 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Database.h"
+#include "graphos/core/multispectral/Vignetting.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/chrono.h>
@@ -270,7 +271,10 @@ void LoadImagesTask::loadImage(size_t imagePosition)
         bool active_metadata = false;
 
         // DJI M3M -> XMP_DJI_CaptureUUID
-        std::string value = image_metadata->metadata("XMP_DJI_CaptureUUID", active_metadata);
+        // Parrot Sequoia -> XMP_CAMERA_CaptureUUID
+        std::vector<std::string> capture_uuid = {"XMP_DJI_CaptureUUID", "XMP_CAMERA_CaptureUUID"};
+
+        std::string value = image_metadata->metadata(capture_uuid, active_metadata);
         if (active_metadata)
             mImages->at(imagePosition).addMetadata("CaptureUUID", value);
 
@@ -588,10 +592,29 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
                     auto vignetting_center_values = tl::split<float>(vignetting_center);
                     if (vignetting_center_values.size() == 2) {
                         tl::Point2d vignetting_center_point(vignetting_center_values[0], vignetting_center_values[1]);
-                        camera.setVignettingCenter(vignetting_center_point);
-                        camera.setVignettingPolynomial(vignetting_data);
+                        //camera.setVignettingCenter(vignetting_center_point);
+                        //camera.setVignettingPolynomial(vignetting_data);
+                        auto model = std::make_shared<VignettingRadial>(vignetting_center_point, vignetting_data);
+                        camera.setVignettingModel(model);
                     }
                 }
+            }
+        }
+
+        // XMP_CAMERA_VignettingPolynomial2D
+        std::string vignetting_polynomial2d = image_metadata->metadata("XMP_CAMERA_VignettingPolynomial2D", active_metadata);
+        if (active_metadata) {
+            std::string vignetting_polynomial2d_name = image_metadata->metadata("XMP_CAMERA_VignettingPolynomial2DName", active_metadata);
+            if (active_metadata) {
+                
+                auto coeffs = tl::split<float>(vignetting_polynomial2d);
+                auto powers = tl::split<float>(vignetting_polynomial2d_name);
+                std::vector<std::pair<int, int>> power_pairs(powers.size()/2);
+                for (size_t i = 0; i < powers.size(); i += 2) {
+                    power_pairs[i / 2] = std::make_pair(static_cast<int>(powers[i]), static_cast<int>(powers[i + 1]));
+                }
+                auto model = std::make_shared<VignettingPolynomial2D>(coeffs, power_pairs);
+                camera.setVignettingModel(model);
             }
         }
 

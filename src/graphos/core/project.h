@@ -51,7 +51,9 @@ class QXmlStreamReader;
 
 namespace graphos
 {
+
 class Sift;
+class Vignetting;
 
 struct DemData
 {
@@ -439,6 +441,7 @@ protected:
     void readCamera(QXmlStreamReader &stream);
     void readPriorCalibration(QXmlStreamReader &stream, Camera &camera);
     void readCalibration(QXmlStreamReader &stream, Camera &camera);
+    void readVignetting(QXmlStreamReader &stream, Camera &camera);
     void readFeatures(QXmlStreamReader &stream);
     void readFeatureExtractor(QXmlStreamReader &stream);
     void readFeatureExtractorReport(QXmlStreamReader &stream);
@@ -480,6 +483,7 @@ protected:
     void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
     void writePriorCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
     void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
+    void writeVignetting(QXmlStreamWriter &stream, std::shared_ptr<Vignetting> vignetting) const;
     void writeImages(QXmlStreamWriter &stream) const;
     void writeImage(QXmlStreamWriter &stream, const std::pair<size_t, Image> &image) const;
     void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition) const;

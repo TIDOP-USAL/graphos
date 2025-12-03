@@ -30,6 +30,7 @@
 #include <tidop/core/path.h>
 #include <tidop/vect/vectwriter.h>
 #include <tidop/graphic/entities/polygon.h>
+#include <tidop/math/geometry/affine.h>
 
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
@@ -62,6 +63,7 @@ public:
 				   const tl::Path &graphOrthos,
 				   const std::string &enuCrs,
 				   const std::string &crs,
+		           const tl::Affine<double, 2> &georeferenceOrthomosaic,
 				   const tl::Path &footprint = tl::Path(),
 				   double gsd = -1.,
 				   const std::string &interpolation = "BILINEAR",
@@ -75,8 +77,8 @@ private:
 
 	void execute(tl::Progress *progressBar = nullptr) override;
 
-	auto orthoimageGraphPolygon(const tl::Window<tl::Point<double>> &windowOrthoTerrain) const -> std::shared_ptr<tl::GPolygon>;
-	auto footprintPolygon(const tl::GPolygon &footprint) const -> std::shared_ptr<tl::GPolygon>;
+	//auto orthoimageGraphProjected(const tl::Window<tl::Point<double>> &windowOrthoTerrain) const -> std::shared_ptr<tl::GPolygon>;
+	auto footprintProjected(const tl::GPolygon &footprint) const -> std::shared_ptr<tl::GPolygon>;
 
 private:
 
@@ -86,6 +88,7 @@ private:
 	tl::Path mOrthoPath;
     std::string mEnuCrs;
 	std::string mCrs;
+	tl::Affine<double, 2> mGeoreferenceOrthomosaic;
 	std::unique_ptr<tl::VectorWriter> mFootprintWriter;
 	std::unique_ptr<tl::VectorWriter> mGraphOrthosWriter;
 	double mGsd;

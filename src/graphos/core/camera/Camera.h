@@ -31,6 +31,8 @@
 namespace graphos
 {
 
+class Vignetting;
+
 class Camera
 {
 
@@ -181,12 +183,15 @@ public:
     void setBlackLevel(uint16_t blackLevel);
     auto hasBlackLevel() const -> bool;
 
-    auto vignettingCenter() const -> tl::Point2f;
-    void setVignettingCenter(const tl::Point2f &vignetteCenter);
-    auto hasVignettingCenter() const -> bool;
-    auto vignettingPolynomial() const -> std::vector<float>;
-    void setVignettingPolynomial(const std::vector<float> &vignettePolynomial);
-    auto hasVignettingPolynomial() const -> bool;
+    //auto vignettingCenter() const -> tl::Point2f;
+    //void setVignettingCenter(const tl::Point2f &vignetteCenter);
+    //auto hasVignettingCenter() const -> bool;
+    //auto vignettingPolynomial() const -> std::vector<float>;
+    //void setVignettingPolynomial(const std::vector<float> &vignettePolynomial);
+    //auto hasVignettingPolynomial() const -> bool;
+
+    auto vignettingModel() const -> std::shared_ptr<Vignetting>;
+    void setVignettingModel(std::shared_ptr<Vignetting> model);
 
     auto calibration() const -> std::shared_ptr<Calibration>;
     void setCalibration(std::shared_ptr<Calibration> &calibration);
@@ -225,6 +230,7 @@ protected:
     tl::Matrix3x3f mCalibratedHMatrix;
     std::shared_ptr<Calibration> mCalibration;
     std::shared_ptr<Calibration> mPriorCalibration;
+    std::shared_ptr<Vignetting> mVignetting;
 };
 
 } // namespace graphos

@@ -30,36 +30,114 @@
 namespace graphos
 {
 
-auto vignettingMap(int width,
-                   int height,
-                   float centerX, 
-                   float centerY,
-                   const std::vector<float> &k) -> cv::Mat
+
+VignettingRadial::VignettingRadial(const tl::Point<float> &center, 
+                                   const std::vector<float> &poly)
+  : Vignetting(Model::radial),
+    mCenter(center),
+    mPolynomial(poly)
 {
+}
 
-    TL_ASSERT(k.size() >= 1, "At least one coefficient is required for the vignetting model.");
-
-    cv::Mat vignette_factor(height, width, CV_32F);
+auto VignettingRadial::computeMap(int width, int height) const -> cv::Mat
+{
+    cv::Mat map(height, width, CV_32F);
 
     for (int y = 0; y < height; ++y) {
-        float dy = y - centerY;
+        float dy = y - mCenter.y;
+
         for (int x = 0; x < width; ++x) {
-            float dx = x - centerX;
+
+            float dx = x - mCenter.x;
             float r = std::hypot(dx, dy);
+
             // Calcular el factor polinómico
-            float factor = 1.0;
+            float factor = 1.0f;
             float r_pow = r;
-            for (size_t i = 0; i < k.size(); ++i) {
-                factor += k[i] * r_pow;
+
+            for (float k : mPolynomial) {
+                factor += k * r_pow;
                 r_pow *= r; // siguiente potencia
             }
 
-            vignette_factor.at<float>(y, x) = factor;
+            map.at<float>(y, x) = factor;
         }
     }
-
-    return vignette_factor;
+    return map;
 }
+
+
+
+//auto vignettingMap(int width,
+//                   int height,
+//                   float centerX, 
+//                   float centerY,
+//                   const std::vector<float> &k) -> cv::Mat
+//{
+//
+//    TL_ASSERT(k.size() >= 1, "At least one coefficient is required for the vignetting model.");
+//
+//    cv::Mat vignette_factor(height, width, CV_32F);
+//
+//    for (int y = 0; y < height; ++y) {
+//        float dy = y - centerY;
+//        for (int x = 0; x < width; ++x) {
+//            float dx = x - centerX;
+//            float r = std::hypot(dx, dy);
+//            // Calcular el factor polinómico
+//            float factor = 1.0;
+//            float r_pow = r;
+//            for (size_t i = 0; i < k.size(); ++i) {
+//                factor += k[i] * r_pow;
+//                r_pow *= r; // siguiente potencia
+//            }
+//
+//            vignette_factor.at<float>(y, x) = factor;
+//        }
+//    }
+//
+//    return vignette_factor;
+//}
+
+
+
+VignettingPolynomial2D::VignettingPolynomial2D(const std::vector<float> &coeffs, 
+                                               const std::vector<std::pair<int, int>> &powers)
+  : Vignetting(Model::polynomial2d), 
+    mCoeffs(coeffs),
+    mPowers(powers)
+{
+}
+
+// No esta bien...
+auto VignettingPolynomial2D::computeMap(int width, int height) const -> cv::Mat
+{
+    cv::Mat map(height, width, CV_32F);
+
+    float cx = width / 2.f;
+    float cy = height / 2.f;
+
+    for (int y = 0; y < height; ++y) {
+
+        float dy = (y - cy);
+
+        for (int x = 0; x < width; ++x) {
+
+            float dx = (x - cx);
+
+            float value = 0.f;
+            for (size_t i = 0; i < mCoeffs.size(); ++i) {
+                int px = mPowers[i].first;
+                int py = mPowers[i].second;
+                value += mCoeffs[i] * static_cast<float>(std::pow(dx, px) * std::pow(dy, py));
+            }
+
+            map.at<float>(y, x) = value;
+        }
+    }
+    return map;
+}
+
 
 auto correctVignetting(const cv::Mat &inputImage, const cv::Mat &vignettingMap) -> cv::Mat
 {
@@ -72,6 +150,5 @@ auto correctVignetting(const cv::Mat &inputImage, const cv::Mat &vignettingMap) 
 
     return corrected;
 }
-
 
 } // namespace graphos

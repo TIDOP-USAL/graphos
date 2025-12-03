@@ -23,6 +23,7 @@
 
 
 #include "graphos/core/camera/Camera.h"
+#include "graphos/core/multispectral/Vignetting.h"
 
 namespace graphos
 {
@@ -38,7 +39,8 @@ Camera::Camera()
     mBlackLevel(0),
     mCalibratedHMatrix(tl::Matrix3x3f::identity()),
     mCalibration(nullptr),
-    mPriorCalibration(nullptr)
+    mPriorCalibration(nullptr),
+    mVignetting(nullptr)
 {
     init();
 }
@@ -60,7 +62,8 @@ Camera::Camera(std::string make,
     mBlackLevel(0),
     mCalibratedHMatrix(tl::Matrix3x3f::identity()),
     mCalibration(nullptr),
-    mPriorCalibration(nullptr)
+    mPriorCalibration(nullptr),
+    mVignetting(nullptr)
 {
     init();
 }
@@ -81,7 +84,8 @@ Camera::Camera(const Camera &camera)
     mVignettePolynomial(camera.mVignettePolynomial),
     mCalibratedHMatrix(camera.mCalibratedHMatrix),
     mCalibration(camera.mCalibration),
-    mPriorCalibration(camera.mPriorCalibration)
+    mPriorCalibration(camera.mPriorCalibration),
+    mVignetting(camera.mVignetting)
 {
 }
 
@@ -200,34 +204,14 @@ auto Camera::hasBlackLevel() const -> bool
     return mBlackLevel != 0;
 }
 
-auto Camera::vignettingCenter() const -> tl::Point2f
+void Camera::setVignettingModel(std::shared_ptr<Vignetting> model)
 {
-    return mVignetteCenter;
+    mVignetting = std::move(model);
 }
 
-void Camera::setVignettingCenter(const tl::Point2f &vignetteCenter)
+auto Camera::vignettingModel() const -> std::shared_ptr<Vignetting>
 {
-    mVignetteCenter = vignetteCenter;
-}
-
-auto Camera::hasVignettingCenter() const -> bool
-{
-    return mVignetteCenter != tl::Point2f();
-}
-
-auto Camera::vignettingPolynomial() const -> std::vector<float>
-{
-    return mVignettePolynomial;
-}
-
-void Camera::setVignettingPolynomial(const std::vector<float> &vignettePolynomial)
-{
-    mVignettePolynomial = vignettePolynomial;
-}
-
-auto Camera::hasVignettingPolynomial() const -> bool
-{
-    return !mVignettePolynomial.empty();
+    return mVignetting;
 }
 
 auto Camera::calibration() const -> std::shared_ptr<Calibration>
@@ -284,6 +268,7 @@ auto Camera::operator =(const Camera& camera) -> Camera&
         this->mCalibratedHMatrix = camera.mCalibratedHMatrix;
         this->mCalibration = camera.mCalibration;
         this->mPriorCalibration = camera.mPriorCalibration;
+        this->mVignetting = camera.mVignetting;
     }
 
     return *this;

@@ -26,8 +26,89 @@
 
 #include <opencv2/opencv.hpp>
 
+#include <tidop/geometry/entities/point.h>
+
 namespace graphos
 {
+
+class Vignetting
+{
+
+public:
+
+    enum class Model : uint8_t
+    {
+        radial,      // DJI
+        polynomial2d // Parrot Sequoia
+    };
+
+public:
+
+    Vignetting(Model model) : mModel(model) {}
+    virtual ~Vignetting() = default;
+
+    virtual auto computeMap(int width, int height) const -> cv::Mat = 0;
+
+    auto model() const -> Model { return mModel; }
+
+private:
+
+    Model mModel;
+};
+
+class VignettingRadial
+  : public Vignetting
+{
+
+public:
+
+    VignettingRadial(const tl::Point<float> &center,
+                     const std::vector<float> &poly);
+
+public:
+
+    auto center() const -> tl::Point<float> { return mCenter; }
+    auto polynomial() const -> const std::vector<float> & { return mPolynomial; }
+
+// Vignetting
+
+public:
+
+    auto computeMap(int width, int height) const -> cv::Mat override;
+
+private:
+
+    tl::Point2f mCenter;
+    std::vector<float> mPolynomial;
+};
+
+
+class VignettingPolynomial2D
+  : public Vignetting
+{
+
+public:
+
+    VignettingPolynomial2D(const std::vector<float> &coeffs,
+                           const std::vector<std::pair<int, int>> &powers);
+
+public:
+
+    auto coeffs() const -> const std::vector<float> & { return mCoeffs; }
+    auto powers() const -> const std::vector<std::pair<int, int>> & { return mPowers; }
+
+// Vignetting
+
+public:
+
+    auto computeMap(int width, int height) const -> cv::Mat override;
+
+private:
+
+    std::vector<float> mCoeffs;
+    std::vector<std::pair<int, int>> mPowers;
+};
+
 
 /*!
  * \brief Generates a vignetting map based on the DJI Mavic 3M model.
@@ -39,11 +120,11 @@ namespace graphos
  * \param[in] k Polynomial coefficients [k0, k1, ..., k5] of the vignetting.
  * \return Vignetting map.
  */
-auto vignettingMap(int width,
-                   int height,
-                   float centerX,
-                   float centerY,
-                   const std::vector<float> &k) -> cv::Mat;
+//auto vignettingMap(int width,
+//                   int height,
+//                   float centerX,
+//                   float centerY,
+//                   const std::vector<float> &k) -> cv::Mat;
 
 /*!
  * \brief Apply vignette correction according to the DJI Mavic 3M model.

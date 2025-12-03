@@ -394,18 +394,18 @@ public:
         return mIrradiance;
     }
 
-    void setMinMaxThermal(float min, float max)
+    void setMinMax(float min, float max)
     {
         mMinMax.first = min;
         mMinMax.second = max;
     }
 
-    auto minThermal() const -> float
+    auto min() const -> float
     {
         return mMinMax.first;
     }
 
-    auto maxThermal() const -> float
+    auto max() const -> float
     {
         return mMinMax.second;
     }
@@ -535,7 +535,27 @@ private:
 
 
 
-            if (camera.hasVignettingCenter() && camera.hasVignettingPolynomial()) {
+            //if (camera.hasVignettingCenter() && camera.hasVignettingPolynomial()) {
+
+            //    // Por si no aparece el BlackLevel me aseguro de convertir
+            //    if (mat.depth() != CV_32F) {
+            //        mat.convertTo(mat, CV_32F, 1.0f / 65535.0f);
+            //    }
+
+            //    if (mVignettingMaps.find(camera_id) == mVignettingMaps.end()) {
+            //        auto vignetting_center = camera.vignettingCenter();
+            //        auto vignetting_polynomial = camera.vignettingPolynomial();
+
+            //        mVignettingMaps[camera_id] = vignettingMap(mat.cols,
+            //                                                   mat.rows,
+            //                                                   vignetting_center.x,
+            //                                                   vignetting_center.y,
+            //                                                   vignetting_polynomial);
+            //    }
+            //    
+            //    data.setVignettingMap(mVignettingMaps[camera_id]);
+            //} 
+            if (auto vignetting = camera.vignettingModel()) {
 
                 // Por si no aparece el BlackLevel me aseguro de convertir
                 if (mat.depth() != CV_32F) {
@@ -543,19 +563,11 @@ private:
                 }
 
                 if (mVignettingMaps.find(camera_id) == mVignettingMaps.end()) {
-                    auto vignetting_center = camera.vignettingCenter();
-                    auto vignetting_polynomial = camera.vignettingPolynomial();
-
-                    mVignettingMaps[camera_id] = vignettingMap(mat.cols,
-                                                               mat.rows,
-                                                               vignetting_center.x,
-                                                               vignetting_center.y,
-                                                               vignetting_polynomial);
+                    mVignettingMaps[camera_id] = vignetting->computeMap(mat.cols, mat.rows);
                 }
                 
                 data.setVignettingMap(mVignettingMaps[camera_id]);
-            } 
-
+            }
             // Lectura de Parámetros de Corrección Radiométrica
 
             float exposure_time = 0.0f;
@@ -584,12 +596,12 @@ private:
                 data.setIrradiance(irradiance);
             }
 
-            if (camera.bandName() == "THERMAL") {
+            if (/*camera.bandName() == "THERMAL" || */camera.bitsPerPixel() > 8) {
                 // Si es banda de temperaturas se calcula el máximo y el mínimo para eliminar pixeles erroneos al corregir de distorsión
                 double min;
                 double max;
                 cv::minMaxLoc(mat, &min, &max, nullptr, nullptr);
-                data.setMinMaxThermal(static_cast<float>(min), static_cast<float>(max));
+                data.setMinMax(static_cast<float>(min), static_cast<float>(max));
             }
 
             queue()->push(data);
@@ -705,11 +717,11 @@ private:
 
             auto data_type = tl::openCVDataTypeToDataType(undistort_image.type());
 
-            if (data.minThermal() != std::numeric_limits<float>::min() &&
-                data.maxThermal() != std::numeric_limits<float>::max()) {
+            if (data.min() != std::numeric_limits<float>::min() &&
+                data.max() != std::numeric_limits<float>::max()) {
 
                 cv::Mat mask;
-                cv::inRange(undistort_image, data.minThermal(), data.maxThermal(), mask);
+                cv::inRange(undistort_image, data.min(), data.max(), mask);
                 cv::bitwise_not(mask, mask);
                 undistort_image.setTo(tl::NoData<float>, mask);
             }

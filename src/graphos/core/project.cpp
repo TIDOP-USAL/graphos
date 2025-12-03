@@ -30,6 +30,7 @@
 #include "graphos/core/dense/mvs.h"
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/mesh/PoissonRecon.h"
+#include "graphos/core/multispectral/Vignetting.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/exception.h>
@@ -41,6 +42,7 @@
 #include <QXmlStreamWriter>
 
 #include <fstream>
+
 
 #define GRAPHOS_PROJECT_FILE_VERSION "1.0"
 
@@ -1016,7 +1018,7 @@ void ProjectImp::readCamera(QXmlStreamReader &stream)
             camera.setBandName(stream.readElementText().toStdString());
         } else if (stream.name() == "BlackLevel") {
             camera.setBlackLevel(readInt(stream));
-        } else if (stream.name() == "VignettingCenter") {
+        } /*else if (stream.name() == "VignettingCenter") {
             auto vignetting_center = tl::split<float>(stream.readElementText().toStdString(), ';');
             if (vignetting_center.size() == 2)
                 camera.setVignettingCenter(tl::Point<float>(vignetting_center[0], vignetting_center[1]));
@@ -1024,7 +1026,7 @@ void ProjectImp::readCamera(QXmlStreamReader &stream)
             auto vignetting_polynomial = tl::split<float>(stream.readElementText().toStdString(), ';');
             if (vignetting_polynomial.size() == 6)
                 camera.setVignettingPolynomial(vignetting_polynomial);
-        } else if (stream.name() == "CalibratedHMatrix") {
+        }*/ else if (stream.name() == "CalibratedHMatrix") {
             auto hmatrix = tl::split<float>(stream.readElementText().toStdString(), ' ');
             if (hmatrix.size() == 9) {
                 tl::Matrix3x3f H;
@@ -1044,6 +1046,8 @@ void ProjectImp::readCamera(QXmlStreamReader &stream)
             this->readPriorCalibration(stream, camera);
         } else if (stream.name() == "Calibration") {
             this->readCalibration(stream, camera);
+        } else if (stream.name() == "Vignetting") {
+            this->readVignetting(stream, camera);
         } else
             stream.skipCurrentElement();
     }
@@ -1134,6 +1138,75 @@ void ProjectImp::readCalibration(QXmlStreamReader &stream, Camera &camera)
         }
 
         camera.setCalibration(calibration);
+
+    } catch (std::exception &e) {
+        tl::printException(e);
+    }
+}
+
+void ProjectImp::readVignetting(QXmlStreamReader &stream, Camera &camera)
+{
+    try {
+
+        QString vignetting_model = 0;
+        for (auto &attr : stream.attributes()) {
+            if (attr.name().compare(QString("model")) == 0) {
+                vignetting_model = attr.value().toString();
+                break;
+            }
+        }
+
+        std::shared_ptr<Vignetting> model;
+
+        if (vignetting_model == "radial") {
+
+            tl::Point2d vignetting_center_point;
+            std::vector<float> vignetting_polynomial;
+
+            while (stream.readNextStartElement()) {
+
+                if (stream.name() == "VignettingCenter") {
+                    auto vignetting_center = tl::split<float>(stream.readElementText().toStdString(), ';');
+                    if (vignetting_center.size() == 2)
+                        vignetting_center_point = tl::Point2d(vignetting_center[0], vignetting_center[1]);
+                } else if (stream.name() == "VignettingPolynomial") {
+                    auto polynomial = tl::split<float>(stream.readElementText().toStdString(), ';');
+                    if (polynomial.size() == 6)
+                        vignetting_polynomial = polynomial;
+                } else
+                    stream.skipCurrentElement();
+            }
+
+            if (!vignetting_polynomial.empty())
+                model = std::make_shared<VignettingRadial>(vignetting_center_point, vignetting_polynomial);
+
+        } else if (vignetting_model == "polynomial2d") {
+
+            std::vector<float> coeffs;
+            std::vector<std::pair<int, int>> power_pairs;
+
+            while (stream.readNextStartElement()) {
+
+                if (stream.name() == "VignettingCoeffs") {
+                    coeffs = tl::split<float>(stream.readElementText().toStdString(), ';');
+                } else if (stream.name() == "VignettingPowers") {
+                    auto powers = tl::split<float>(stream.readElementText().toStdString(), ';');
+                    power_pairs.reserve(powers.size() / 2);
+                    for (size_t i = 0; i < powers.size(); i += 2) {
+                        power_pairs.push_back(std::make_pair(static_cast<int>(powers[i]), static_cast<int>(powers[i + 1])));
+                    }
+                } else
+                    stream.skipCurrentElement();
+            }
+
+            model = std::make_shared<VignettingPolynomial2D>(coeffs, power_pairs);
+
+        } else {
+            stream.skipCurrentElement();
+            return; 
+        }
+
+        camera.setVignettingModel(model);
 
     } catch (std::exception &e) {
         tl::printException(e);
@@ -1696,18 +1769,6 @@ void ProjectImp::writeCamera(QXmlStreamWriter &stream, int id, const Camera &cam
         stream.writeTextElement("SensorSize", QString::number(camera.sensorSize()));
         if (!camera.bandName().empty()) stream.writeTextElement("BandName", QString::fromStdString(camera.bandName()));
         if (camera.hasBlackLevel()) stream.writeTextElement("BlackLevel", QString::number(camera.blackLevel()));
-        if (camera.hasVignettingCenter()) {
-            stream.writeTextElement("VignettingCenter",
-                QString::number(camera.vignettingCenter().x) + ";" +
-                QString::number(camera.vignettingCenter().y));
-        }
-        if (camera.hasVignettingPolynomial()) {
-            QStringList vignetting_polynomial;
-            for (const auto &coef : camera.vignettingPolynomial()) {
-                vignetting_polynomial.append(QString::number(coef));
-            }
-            stream.writeTextElement("VignettingPolynomial", vignetting_polynomial.join(";"));
-        }
         if (camera.hasCalibratedHMatrix()) {
             QStringList hmatrix;
             for (int i = 0; i < 3; i++) {
@@ -1719,7 +1780,7 @@ void ProjectImp::writeCamera(QXmlStreamWriter &stream, int id, const Camera &cam
         }
         writePriorCalibration(stream, camera.priorCalibration());
         writeCalibration(stream, camera.calibration());
-
+        writeVignetting(stream, camera.vignettingModel());
     }
     stream.writeEndElement(); // Camera
 }
@@ -1747,6 +1808,54 @@ void ProjectImp::writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Cali
             }
         }
         stream.writeEndElement(); // Calibration
+    }
+}
+
+void ProjectImp::writeVignetting(QXmlStreamWriter &stream, std::shared_ptr<Vignetting> vignetting) const
+{
+    if (vignetting) {
+        stream.writeStartElement("Vignetting");
+
+        auto model = vignetting->model();
+        switch (model) {
+        case Vignetting::Model::radial:
+        {
+            stream.writeAttribute("model", QString("radial"));
+
+            auto vignetting_radial = std::dynamic_pointer_cast<VignettingRadial>(vignetting);
+            stream.writeTextElement("VignettingCenter",
+                QString::number(vignetting_radial->center().x) + ";" +
+                QString::number(vignetting_radial->center().y));
+            QStringList vignetting_polynomial;
+            for (const auto &coef : vignetting_radial->polynomial()) {
+                vignetting_polynomial.append(QString::number(coef));
+            }
+            stream.writeTextElement("VignettingPolynomial", vignetting_polynomial.join(";"));
+            break;
+        }
+        case Vignetting::Model::polynomial2d:
+        {
+            stream.writeAttribute("model", QString("polynomial2d"));
+
+            auto vignetting_polynomial2d = std::dynamic_pointer_cast<VignettingPolynomial2D>(vignetting);
+            QStringList coeffs;
+            for (const auto &coef : vignetting_polynomial2d->coeffs()) {
+                coeffs.append(QString::number(coef));
+            }
+            stream.writeTextElement("VignettingCoeffs", coeffs.join(";"));
+            QStringList _powers;
+            for (const auto &power_pair : vignetting_polynomial2d->powers()) {
+                _powers.append(QString::number(power_pair.first));
+                _powers.append(QString::number(power_pair.second));
+            }
+            stream.writeTextElement("VignettingPowers", _powers.join(";"));
+            break;
+        }
+        default:
+            break;
+        }
+
+        stream.writeEndElement(); // Vignetting
     }
 }
 

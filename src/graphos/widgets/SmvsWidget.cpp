@@ -110,7 +110,7 @@ void SmvsWidget::clear()
     mOutputDepthScale->setValue(2);
     mShadingBasedOptimization->setChecked(false);
     mSemiGlobalMatching->setChecked(true);
-    mSurfaceSmoothingFactor->setValue(1.0);
+    mSurfaceSmoothingFactor->setValue(0.7);
 }
 
 void SmvsWidget::update()

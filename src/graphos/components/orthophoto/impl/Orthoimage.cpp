@@ -92,16 +92,16 @@ Orthoimage::Orthoimage(const tl::Path &image,
                        Orthorectification *orthorectification,
                        const std::string &enuCrs,
                        const std::string &crs,
-                       const tl::Size<int> &sizeEnuOrtho,
-                       const tl::Affine<double, 2> &enuOrthoGeoreference,
+                       const tl::Size<int> &sizeOrtho,
+                       const tl::Affine<double, 2> &orthoGeoreference,
                        const std::string &interpolation,
                        bool cuda)
   : mImage(image),
     mOrthorectification(orthorectification),
     mEnuCrs(enuCrs),
     mCrs(crs),
-    mSizeEnuOrtho(sizeEnuOrtho),
-    mEnuGeoreference(enuOrthoGeoreference),
+    mSizeOrtho(sizeOrtho),
+    mGeoreference(orthoGeoreference),
     mInterpolation(interpolation),
     bCuda(cuda),
     mReadWithOpenCV(true),
@@ -152,29 +152,42 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
 
         /// Ortoimagen en coordenadas proyectadas
             
-        // ENU coordinates
-        auto top_left = mEnuGeoreference.transform(tl::Point<double>(0., 0.));
-        auto top_right = mEnuGeoreference.transform(tl::Point<double>(static_cast<double>(mSizeEnuOrtho.width), 0.));
-        auto bottom_right = mEnuGeoreference.transform(tl::Point<double>(static_cast<double>(mSizeEnuOrtho.width), static_cast<double>(mSizeEnuOrtho.height)));
-        auto bottom_left = mEnuGeoreference.transform(tl::Point<double>(0., static_cast<double>(mSizeEnuOrtho.height)));
-        tl::Window<tl::Point<double>> window_total_enu(tl::Point<double>(0., 0.), tl::Point<double>(mSizeEnuOrtho.width, mSizeEnuOrtho.height));
+        //// ENU coordinates
+        //auto top_left = mEnuGeoreference.transform(tl::Point<double>(0., 0.));
+        //auto top_right = mEnuGeoreference.transform(tl::Point<double>(static_cast<double>(mSizeEnuOrtho.width), 0.));
+        //auto bottom_right = mEnuGeoreference.transform(tl::Point<double>(static_cast<double>(mSizeEnuOrtho.width), static_cast<double>(mSizeEnuOrtho.height)));
+        //auto bottom_left = mEnuGeoreference.transform(tl::Point<double>(0., static_cast<double>(mSizeEnuOrtho.height)));
+        //tl::Window<tl::Point<double>> window_total_enu(tl::Point<double>(0., 0.), tl::Point<double>(mSizeEnuOrtho.width, mSizeEnuOrtho.height));
 
-        /// Projected coordinates
-        auto top_left_projected = convertEnuToProjected(top_left);
-        auto top_right_projected = convertEnuToProjected(top_right);
-        auto bottom_right_projected = convertEnuToProjected(bottom_right);
-        auto bottom_left_projected = convertEnuToProjected(bottom_left);
+        ///// Projected coordinates
+        //auto top_left_projected = convertEnuToProjected(top_left);
+        //auto top_right_projected = convertEnuToProjected(top_right);
+        //auto bottom_right_projected = convertEnuToProjected(bottom_right);
+        //auto bottom_left_projected = convertEnuToProjected(bottom_left);
+        //tl::Window<tl::Point<double>> window_projected({top_left_projected, 
+        //                                                top_right_projected,
+        //                                                bottom_right_projected,
+        //                                                bottom_left_projected});
+
+        // Projected coordinates
+        // ¿No tiene mas sentido pasar la ventana directamente?
+        auto top_left_projected = mGeoreference.transform(tl::Point<double>(0., 0.));
+        auto top_right_projected = mGeoreference.transform(tl::Point<double>(static_cast<double>(mSizeOrtho.width), 0.));
+        auto bottom_right_projected = mGeoreference.transform(tl::Point<double>(static_cast<double>(mSizeOrtho.width), static_cast<double>(mSizeOrtho.height)));
+        auto bottom_left_projected = mGeoreference.transform(tl::Point<double>(0., static_cast<double>(mSizeOrtho.height)));
         tl::Window<tl::Point<double>> window_projected({top_left_projected, 
-                                                        top_right_projected,
-                                                        bottom_right_projected,
-                                                        bottom_left_projected});
-        tl::Affine<double, 2> affine_ortho_projected(mEnuGeoreference.scale().x(), -mEnuGeoreference.scale().y(),
-                                                     window_projected.pt1.x,
-                                                     window_projected.pt2.y, 0.0);
+                                                       top_right_projected,
+                                                       bottom_right_projected,
+                                                       bottom_left_projected});
 
-        cv::Size orto_size(window_projected.width() / mEnuGeoreference.scale().x(), window_projected.height() / mEnuGeoreference.scale().y());
+        //tl::Affine<double, 2> affine_ortho_projected(mEnuGeoreference.scale().x(), -mEnuGeoreference.scale().y(),
+        //                                             window_projected.pt1.x,
+        //                                             window_projected.pt2.y, 0.0);
 
-        orthophoto_writer->create(orto_size.height, orto_size.width, channels_ortho, data_type_ortho);
+        //cv::Size orto_size(window_projected.width() / mEnuGeoreference.scale().x(), window_projected.height() / mEnuGeoreference.scale().y());
+        cv::Size orto_size(mSizeOrtho.width, mSizeOrtho.height);
+        //tl::Message::warning("orto size ENU [{},{}]", mSizeEnuOrtho.height, mSizeEnuOrtho.width);
+        orthophoto_writer->create(mSizeOrtho.height, mSizeOrtho.width, channels_ortho, data_type_ortho);
 
         cv::Mat map_x(orto_size, CV_32F, cv::Scalar(-1));
         cv::Mat map_y(orto_size, CV_32F, cv::Scalar(-1));
@@ -215,7 +228,7 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
                 int r = std::min(iy * step, orto_size.height);
                 for (int ix = 0; ix < nx; ++ix) {
                     int c = std::min(ix * step, orto_size.width);
-                    auto proj = affine_ortho_projected.transform({(double)c,(double)r});
+                    auto proj = mGeoreference.transform({(double)c,(double)r});
                     auto enu3 = convertProjectedToEnu(tl::Point3d(proj.x, proj.y, 0.0));
                     enuMeshX[idx(ix, iy)] = enu3.x;
                     enuMeshY[idx(ix, iy)] = enu3.y;
@@ -234,7 +247,7 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
                 tl::Point<double> ortho_grid_coord(c, r);
 
                 // Se pasan a coordenadas terreno
-                auto terrain_coordinates = affine_ortho_projected.transform(ortho_grid_coord);
+                auto terrain_coordinates = mGeoreference.transform(ortho_grid_coord);
 
                 // Coordenadas de la ortofoto en el sistema de terreno
                 //tl::Point3<double> enu_coordinates = convertProjectedToEnu(terrain_coordinates);
@@ -368,7 +381,7 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         orthoimage.copyTo(ortho_with_mask, mask);
             
         orthophoto_writer->setCRS(crs.toWktFormat());
-        orthophoto_writer->setGeoreference(affine_ortho_projected);
+        orthophoto_writer->setGeoreference(mGeoreference);
         orthophoto_writer->write(ortho_with_mask);
         orthophoto_writer->close();
 

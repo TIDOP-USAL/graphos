@@ -76,7 +76,7 @@ private:
 
 
 
-    void orthoimageExposureCompensator(const tl::Path &graph_orthos, tl::Progress *progressBar);
+    //void orthoimageExposureCompensator(const tl::Path &graph_orthos, tl::Progress *progressBar);
     auto searchTiles(const tl::Path &graph_orthos,
                      const std::vector<std::vector<tl::WindowD>> &grid,
                      int maxImages = 0) -> std::vector<std::vector<std::map<double, std::string>>>;
@@ -109,6 +109,7 @@ private:
     tl::WindowD mWindowAll;
     tl::DataType mDataType;
     int mChannels;
+    std::string mMethod;
 };
 
 } // namespace graphos

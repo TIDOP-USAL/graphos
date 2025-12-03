@@ -613,11 +613,19 @@ void CmvsPmvsDensifier::copyUndistortedImages() const
             image_out_path.append(colmap::StringPrintf("%08d.jpg", mGraphosToBundlerIds.at(image_id)));
 
             cv::Mat mat = image_reader->read();
-            normalizeImage(mat, mat, this->isCudaEnabled());
+
+            double nodata_value = tl::NoData<float>;
+            cv::Mat mask;
+            cv::inRange(mat, cv::Scalar::all(nodata_value), cv::Scalar::all(nodata_value), mask);
+            cv::bitwise_not(mask, mask);
+
+            normalizeImage(mat, mat, this->isCudaEnabled(), mask);
+            cv::cvtColor(mat, mat, cv::COLOR_GRAY2RGB);
+
             auto image_writer = tl::ImageWriterFactory::create(image_out_path);
             image_writer->open();
             if (image_writer->isOpen()) {
-                image_writer->create(mat.rows, mat.cols, mat.channels(), tl::DataType::TL_8U);
+                image_writer->create(mat.rows, mat.cols, 3, tl::DataType::TL_8U);
                 image_writer->write(mat);
                 image_writer->close();
             }
@@ -658,8 +666,8 @@ void CmvsPmvsDensifier::execute(Progress *progressBar)
 
         if (status() == Status::stopping) return;
 
-        Path undistort_path(outputPath().parentPath());
-        undistort_path.append("undistort");
+        Path undistort_path(outputPath().parentPath().parentPath());
+        undistort_path.append("undistorted");
         undistort_path.createDirectories();
         this->undistort(QString::fromStdWString(undistort_path.toWString()));
         this->copyUndistortedImages();

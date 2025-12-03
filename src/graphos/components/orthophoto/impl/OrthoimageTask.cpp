@@ -79,6 +79,7 @@ OrthoimageTask::OrthoimageTask(const std::unordered_map<size_t, Image> &images,
                                      const tl::Path &graphOrthos,
                                      const std::string &enuCrs,
                                      const std::string &crs,
+                                     const tl::Affine<double, 2> &georeferenceOrthomosaic,
                                      const tl::Path &footprint,
                                      double gsd,
                                      const std::string &interpolation,
@@ -90,6 +91,7 @@ OrthoimageTask::OrthoimageTask(const std::unordered_map<size_t, Image> &images,
     mOrthoPath(orthoPath),
     mEnuCrs(enuCrs),
     mCrs(crs),
+    mGeoreferenceOrthomosaic(georeferenceOrthomosaic),
     mGsd(gsd),
     mInterpolation(interpolation),
     mCrop(crop),
@@ -212,75 +214,121 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
                 orthorectification.setCuda(bCuda);
                 if (!orthorectification.isValid()) continue;
 
-                auto footprint = orthorectification.footprint();
+                auto footprint_enu = orthorectification.footprint();
 
                 // tendría que generar la ortoimagen con el GSD óptimo si es mayor que el de destino y despues escalar la imagen
                 // Mostrar un Warning en esos casos
 
                 double gsd = mGsd;
-                if (mGsd == -1) {
-                    /// Calculo de transformación afin entre coordenadas terreno e imagen para la orto para determinar un GSD optimo
-                    std::vector<tl::Point<double>> t_coor;
-                    t_coor.push_back(footprint.at(0));
-                    t_coor.push_back(footprint.at(1));
-                    t_coor.push_back(footprint.at(2));
-                    t_coor.push_back(footprint.at(3));
+                //if (mGsd == -1) {
+                //    /// Calculo de transformación afin entre coordenadas terreno e imagen para la orto para determinar un GSD optimo
+                //    std::vector<tl::Point<double>> t_coor;
+                //    t_coor.push_back(footprint_enu.at(0));
+                //    t_coor.push_back(footprint_enu.at(1));
+                //    t_coor.push_back(footprint_enu.at(2));
+                //    t_coor.push_back(footprint_enu.at(3));
 
-                    tl::Rect<int> rect_image = orthorectification.rectImage();
-                    std::vector<tl::Point<double>> i_coor;
-                    i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.topLeft()));
-                    i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.topRight()));
-                    i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomRight()));
-                    i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomLeft()));
+                //    tl::Rect<int> rect_image = orthorectification.rectImage();
+                //    std::vector<tl::Point<double>> i_coor;
+                //    i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.topLeft()));
+                //    i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.topRight()));
+                //    i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomRight()));
+                //    i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomLeft()));
 
-                    tl::Affine<double, 2> affine_terrain_image = tl::Affine2DEstimator<double>::estimate(i_coor, t_coor);
-                    gsd = (affine_terrain_image.scale().x() + affine_terrain_image.scale().y()) / 2.;
-                }
+                //    tl::Affine<double, 2> affine_terrain_image = tl::Affine2DEstimator<double>::estimate(i_coor, t_coor);
+                //    gsd = (affine_terrain_image.scale().x() + affine_terrain_image.scale().y()) / 2.;
+                //}
+
+                /******************************************************************************************************/
+                /* 
+                   Esto se esta haciendo en coordenadas ENU lo cual provoca que las ortos generadas, aunque están bien,
+                   no están alineadas con la orto final. Para evitar interpolaciones y problemas en el método de fusión 
+                   de teselas es mejor trabajar directamente en el sistema de la orto 
+                */
 
                 // Se reserva tamaño para la orto
-                tl::Window<tl::Point<double>> window_ortho_terrain = footprint.window();
-                window_ortho_terrain = tl::expandWindow(window_ortho_terrain,
-                                                        window_ortho_terrain.width() * (mCrop - 1.) / 2.,
-                                                        window_ortho_terrain.height() * (mCrop - 1.) / 2.);
-                auto window_dem = orthorectification.windowDsm();
-                window_ortho_terrain = tl::windowIntersection(window_ortho_terrain, window_dem);
-                tl::Size<int> size_ortho_enu(static_cast<int>(std::round(window_ortho_terrain.width() / gsd)),
-                                             static_cast<int>(std::round(window_ortho_terrain.height() / gsd)));
+                tl::Window<tl::Point<double>> window_ortho_enu = footprint_enu.window();
+                //window_ortho_enu = tl::expandWindow(window_ortho_enu,
+                //                                    window_ortho_enu.width() * (mCrop - 1.) / 2.,
+                //                                    window_ortho_enu.height() * (mCrop - 1.) / 2.);
+                auto window_dem_enu = orthorectification.windowDsm();
+                window_ortho_enu = tl::windowIntersection(window_ortho_enu, window_dem_enu);
+                tl::Size<int> size_ortho_enu(static_cast<int>(std::round(window_ortho_enu.width() / gsd)),
+                                             static_cast<int>(std::round(window_ortho_enu.height() / gsd)));
+                /******************************************************************************************************/
 
+                // Huella de vuelo en el sistema de coordenadas de salida 
+                auto footprint_projected = footprintProjected(footprint_enu);
+                std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(layer.tableFields()));
+                data->setValue(0, ortho_file.toUtf8());
+                footprint_projected->setData(data);
+                layer.push_back(footprint_projected);
 
-                /// Ortofoto en coordenadas ENU
+                /// Gráfico de ortofotos en el sistema de coordenadas de salida 
 
-                std::shared_ptr<tl::GPolygon> entity_ortho = orthoimageGraphPolygon(window_ortho_terrain);
+                tl::Rect<double> rect(window_ortho_enu.pt1, window_ortho_enu.pt2);
+                rect.normalized();
+
+                std::shared_ptr<tl::GPolygon> ortho_graph_projected = std::make_shared<tl::GPolygon>();
+
+                tl::Point3d top_left_projected = static_cast<tl::Point3d>(rect.topLeft());
+                geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_projected.x, top_left_projected.y, top_left_projected.z);
+                ortho_graph_projected->push_back(static_cast<tl::Point2d>(top_left_projected));
+
+                tl::Point3d top_right_projected = static_cast<tl::Point3d>(rect.topRight());
+                geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_projected.x, top_right_projected.y, top_right_projected.z);
+                ortho_graph_projected->push_back(static_cast<tl::Point2d>(top_right_projected));
+
+                tl::Point3d bottom_right_projected = static_cast<tl::Point3d>(rect.bottomRight());
+                geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_projected.x, bottom_right_projected.y, bottom_right_projected.z);
+                ortho_graph_projected->push_back(static_cast<tl::Point2d>(bottom_right_projected));
+
+                tl::Point3d bottom_left_projected = static_cast<tl::Point3d>(rect.bottomLeft());
+                geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_projected.x, bottom_left_projected.y, bottom_left_projected.z);
+                ortho_graph_projected->push_back(static_cast<tl::Point2d>(bottom_left_projected));
+
                 std::shared_ptr<tl::TableRegister> data_ortho(new tl::TableRegister(layer_ortho_graph.tableFields()));
                 data_ortho->setValue(0, ortho_file.toUtf8());
-                entity_ortho->setData(data_ortho);
-                layer_ortho_graph.push_back(entity_ortho);
+                ortho_graph_projected->setData(data_ortho);
+                layer_ortho_graph.push_back(ortho_graph_projected);
 
+                // Ajustar a la georeferencia del mosaico
+                tl::Window<tl::Point<double>> window_ortho_terrain = ortho_graph_projected->window();
+                tl::Size<int> size_ortho_terrain(static_cast<int>(std::round(window_ortho_terrain.width() / gsd)),
+                                                 static_cast<int>(std::round(window_ortho_terrain.height() / gsd)));
+                {
+                    auto affine_ortho_inverse = mGeoreferenceOrthomosaic.inverse();
+                    tl::Point2i pt1 = affine_ortho_inverse.transform(window_ortho_terrain.pt1);
+                    tl::Point2i pt2 = affine_ortho_inverse.transform(window_ortho_terrain.pt2);
+                    window_ortho_terrain.pt1 = mGeoreferenceOrthomosaic.transform(static_cast<tl::Point<double>>(pt1));
+                    window_ortho_terrain.pt2 = mGeoreferenceOrthomosaic.transform(static_cast<tl::Point<double>>(pt2));
+                }
+ 
+                // Z-Buffer en coordenadas ENU
                 tl::Affine<double, 2> affine_ortho_enu(gsd, -gsd,
-                                                       window_ortho_terrain.pt1.x,
-                                                       window_ortho_terrain.pt2.y, 0.0);
+                                                       window_ortho_enu.pt1.x,
+                                                       window_ortho_enu.pt2.y, 0.0);
 
                 ZBuffer zBuffer(&orthorectification, size_ortho_enu, affine_ortho_enu);
                 zBuffer.run();
 
                 cv::Mat visibility_map = visibilityMap(orthorectification, zBuffer);
 
+
+                tl::Affine<double, 2> affine_ortho_terrain(gsd, -gsd,
+                                                           window_ortho_terrain.pt1.x,
+                                                           window_ortho_terrain.pt2.y, 0.0);
+
                 Orthoimage orthoimage(file,
                                       &orthorectification,
                                       mEnuCrs,
                                       mCrs,
-                                      size_ortho_enu,
-                                      affine_ortho_enu,
+                                      size_ortho_terrain,
+                                      affine_ortho_terrain,     
                                       mInterpolation,
                                       bCuda);
 
                 orthoimage.run(ortho_file, visibility_map);
-
-                auto entity = footprintPolygon(footprint);
-                std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(layer.tableFields()));
-                data->setValue(0, ortho_file.toUtf8());
-                entity->setData(data);
-                layer.push_back(entity);
 
                 tl::Message::info("Orthoimage {} generated in {:.2} minutes", ortho_file.fileName().toUtf8(), chrono_orthoimage.stop() / 60.);
 
@@ -305,35 +353,35 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
     }
 }
 
-auto OrthoimageTask::orthoimageGraphPolygon(const tl::Window<tl::Point<double>> &windowOrthoTerrain) const -> std::shared_ptr<tl::GPolygon>
-{
-    tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
+//auto OrthoimageTask::orthoimageGraphProjected(const tl::Window<tl::Point<double>> &windowOrthoTerrain) const -> std::shared_ptr<tl::GPolygon>
+//{
+//    tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
+//
+//    tl::Rect<double> rect(windowOrthoTerrain.pt1, windowOrthoTerrain.pt2);
+//    rect.normalized();
+//
+//    std::shared_ptr<tl::GPolygon> entity_ortho = std::make_shared<tl::GPolygon>();
+//
+//    tl::Point3d top_left_utm = static_cast<tl::Point3d>(rect.topLeft());
+//    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_utm.x, top_left_utm.y, top_left_utm.z);
+//    entity_ortho->push_back(static_cast<tl::Point2d>(top_left_utm));
+//
+//    tl::Point3d top_right_utm = static_cast<tl::Point3d>(rect.topRight());
+//    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_utm.x, top_right_utm.y, top_right_utm.z);
+//    entity_ortho->push_back(static_cast<tl::Point2d>(top_right_utm));
+//
+//    tl::Point3d bottom_right_utm = static_cast<tl::Point3d>(rect.bottomRight());
+//    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_utm.x, bottom_right_utm.y, bottom_right_utm.z);
+//    entity_ortho->push_back(static_cast<tl::Point2d>(bottom_right_utm));
+//
+//    tl::Point3d bottom_left_utm = static_cast<tl::Point3d>(rect.bottomLeft());
+//    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_utm.x, bottom_left_utm.y, bottom_left_utm.z);
+//    entity_ortho->push_back(static_cast<tl::Point2d>(bottom_left_utm));
+//    
+//    return entity_ortho;
+//}
 
-    tl::Rect<double> rect(windowOrthoTerrain.pt1, windowOrthoTerrain.pt2);
-    rect.normalized();
-
-    std::shared_ptr<tl::GPolygon> entity_ortho = std::make_shared<tl::GPolygon>();
-
-    tl::Point3d top_left_utm = static_cast<tl::Point3d>(rect.topLeft());
-    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_utm.x, top_left_utm.y, top_left_utm.z);
-    entity_ortho->push_back(static_cast<tl::Point2d>(top_left_utm));
-
-    tl::Point3d top_right_utm = static_cast<tl::Point3d>(rect.topRight());
-    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_utm.x, top_right_utm.y, top_right_utm.z);
-    entity_ortho->push_back(static_cast<tl::Point2d>(top_right_utm));
-
-    tl::Point3d bottom_right_utm = static_cast<tl::Point3d>(rect.bottomRight());
-    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_utm.x, bottom_right_utm.y, bottom_right_utm.z);
-    entity_ortho->push_back(static_cast<tl::Point2d>(bottom_right_utm));
-
-    tl::Point3d bottom_left_utm = static_cast<tl::Point3d>(rect.bottomLeft());
-    geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_utm.x, bottom_left_utm.y, bottom_left_utm.z);
-    entity_ortho->push_back(static_cast<tl::Point2d>(bottom_left_utm));
-    
-    return entity_ortho;
-}
-
-auto OrthoimageTask::footprintPolygon(const tl::GPolygon &footprint) const -> std::shared_ptr<tl::GPolygon>
+auto OrthoimageTask::footprintProjected(const tl::GPolygon &footprint) const -> std::shared_ptr<tl::GPolygon>
 {
     tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
 

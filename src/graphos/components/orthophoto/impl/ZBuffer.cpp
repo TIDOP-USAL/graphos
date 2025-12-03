@@ -140,19 +140,19 @@ void ZBuffer::run()
                         r < tile.rect.y || r >= tile.rect.y + tile.rect.height)
                         continue;
 
-                    std::vector<tl::Point3<double>> dem_terrain_points(4);
+                    std::vector<tl::Point3<double>> dem_enu_coordinates(4);
 
-                    dem_terrain_points[0] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c, r));
-                    dem_terrain_points[1] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c + 1, r));
-                    dem_terrain_points[2] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c + 1, r + 1));
-                    dem_terrain_points[3] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c, r + 1));
+                    dem_enu_coordinates[0] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c, r));
+                    dem_enu_coordinates[1] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c + 1, r));
+                    dem_enu_coordinates[2] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c + 1, r + 1));
+                    dem_enu_coordinates[3] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c, r + 1));
 
                     if (mOrthorectification->hasNodataValue()) {
                         double nodata_value = mOrthorectification->nodataValue();
-                        if (dem_terrain_points[0].z == nodata_value ||
-                            dem_terrain_points[1].z == nodata_value ||
-                            dem_terrain_points[2].z == nodata_value ||
-                            dem_terrain_points[3].z == nodata_value) {
+                        if (dem_enu_coordinates[0].z == nodata_value ||
+                            dem_enu_coordinates[1].z == nodata_value ||
+                            dem_enu_coordinates[2].z == nodata_value ||
+                            dem_enu_coordinates[3].z == nodata_value) {
                             continue;
                         }
                     }
@@ -162,8 +162,8 @@ void ZBuffer::run()
                     std::vector<tl::Point<double>> image_coordinates(4);
 
                     for (int i = 0; i < 4; ++i) {
-                        dem_image_coordinates[i] = inverse_transform.transform(static_cast<tl::Point<double>>(dem_terrain_points[i]));
-                        photocoordinates[i] = mOrthorectification->terrainToPhotoCoordinates(dem_terrain_points[i]);
+                        dem_image_coordinates[i] = inverse_transform.transform(static_cast<tl::Point<double>>(dem_enu_coordinates[i]));
+                        photocoordinates[i] = mOrthorectification->terrainToPhotoCoordinates(dem_enu_coordinates[i]);
                         image_coordinates[i] = mOrthorectification->photoCoordinatesToImageCoordinates(photocoordinates[i]);
                     }
 
@@ -209,9 +209,9 @@ void ZBuffer::run()
 
                     if (rect_image.contains(pt_image)) {
 
-                        tl::Point3<double> terrain_point = dem_terrain_points[0];
-                        for (size_t j = 1; j < dem_terrain_points.size(); j++) {
-                            terrain_point += (dem_terrain_points[j] - terrain_point) / (j + 1);
+                        tl::Point3<double> terrain_point = dem_enu_coordinates[0];
+                        for (size_t j = 1; j < dem_enu_coordinates.size(); j++) {
+                            terrain_point += (dem_enu_coordinates[j] - terrain_point) / (j + 1);
                         }
 
                         double distance = tl::distance3D(terrain_point, mOrthorectification->orientation().position());

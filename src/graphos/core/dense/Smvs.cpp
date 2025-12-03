@@ -277,7 +277,7 @@ void SmvsDensifier::writeMveFile()
                     stream_ini << "translation = " << xyx[0] << " " << xyx[1] << " " << xyx[2] << "\n\n";
                     stream_ini << "[view]\n";
                     stream_ini << "id = " << mve_id << "\n";
-                    stream_ini << "name = " << image.name().toStdString() << std::endl;
+                    stream_ini << "name = " << std::to_string(image_id) << std::endl;
 
                     stream_ini.close();
                 }
@@ -391,7 +391,14 @@ void SmvsDensifier::copyUndistortedImages() const
             image_out_path.append("undistorted.jpg");
 
             cv::Mat mat = image_reader->read();
-            normalizeImage(mat, mat, this->isCudaEnabled());
+            
+            double nodata_value = tl::NoData<float>;
+            cv::Mat mask;
+            cv::inRange(mat, cv::Scalar::all(nodata_value), cv::Scalar::all(nodata_value), mask);
+            cv::bitwise_not(mask, mask);
+
+            normalizeImage(mat, mat, this->isCudaEnabled(), mask);
+
             auto image_writer = tl::ImageWriterFactory::create(image_out_path);
             image_writer->open();
             if (image_writer->isOpen()) {
@@ -400,13 +407,6 @@ void SmvsDensifier::copyUndistortedImages() const
                 image_writer->close();
             }
         }
-
-        //tl::Path undistort_smvs_path = outputPath();
-        //undistort_smvs_path.append("views");
-        //undistort_smvs_path.append(colmap::StringPrintf("view_%04d.mve", mGraphosToMveIds.at(image_id)));
-        //undistort_smvs_path.append("undistorted.jpg");
-
-        //tl::Path::copy(undistort_image_path, undistort_smvs_path);
     }
 }
 
@@ -419,8 +419,8 @@ void SmvsDensifier::execute(tl::Progress *progressBar)
 
         outputPath().createDirectories();
 
-        tl::Path undistort_path(outputPath().parentPath());
-        undistort_path.append("undistort");
+        tl::Path undistort_path(outputPath().parentPath().parentPath());
+        undistort_path.append("undistorted");
         undistort_path.createDirectories();
 
         this->writeMveFile();

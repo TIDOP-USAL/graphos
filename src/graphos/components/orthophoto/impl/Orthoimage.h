@@ -72,8 +72,8 @@ public:
 	 * \param[in] orthorectification Pointer to the Orthorectification object providing DSM and camera data.
 	 * \param[in] enuCrs CRS string corresponding to the local ENU coordinate system of the project.
 	 * \param[in] crs Target coordinate reference system (CRS) for the output orthophoto.
-	 * \param[in] sizeEnuOrtho Size of the output orthophoto in pixels (for local ENU coordinate system of the project).
-	 * \param[in] enuOrthoGeoreference Affine transform defining the orthophoto georeference in the local ENU coordinate system of the project.
+	 * \param[in] sizeOrtho Size of the output orthophoto in pixels.
+	 * \param[in] orthoGeoreference Affine transform defining the orthophoto georeference in the output coordinate system of the project.
 	 * \param[in] interpolation Interpolation method ("NEAREST", "BILINEAR", "CUBIC").
 	 * \param[in] cuda True to enable CUDA-based processing, false for CPU.
 	 */
@@ -81,8 +81,8 @@ public:
 			   Orthorectification *orthorectification,
 			   const std::string &enuCrs,
 			   const std::string &crs,
-			   const tl::Size<int> &sizeEnuOrtho,
-			   const tl::Affine<double, 2> &enuOrthoGeoreference,
+			   const tl::Size<int> &sizeOrtho,
+			   const tl::Affine<double, 2> &orthoGeoreference,
 			   const std::string &interpolation = "BILINEAR",
 			   bool cuda = false);
 
@@ -111,9 +111,9 @@ private:
 	Orthorectification *mOrthorectification;
 	std::string mEnuCrs;
 	std::string mCrs;
-    tl::Size<int> mSizeEnuOrtho;
-	tl::Affine<double, 2> mEnuGeoreference;
-	tl::Window<tl::Point<double>> mWindowOrthoTerrain;
+    tl::Size<int> mSizeOrtho;
+	tl::Affine<double, 2> mGeoreference;
+	//tl::Window<tl::Point<double>> mWindowOrthoTerrain;
 	std::string mInterpolation;
 	bool bCuda;
 	bool mReadWithOpenCV;

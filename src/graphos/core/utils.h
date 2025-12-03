@@ -135,7 +135,7 @@ QString enuCrsToEpsg(const QString &enuCRS);
 
 // Por ahora aqui...
 
-bool addOverviewsToImage(const std::string &filename, const std::string &resamplingMethod = "NEAREST");
+bool addOverviewsToImage(const std::string &filename, const std::string &resamplingMethod = "AVERAGE");
 
 } // end namespace graphos
 

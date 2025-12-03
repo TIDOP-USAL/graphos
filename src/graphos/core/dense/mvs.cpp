@@ -691,7 +691,6 @@ void MvsDensifier::execute(tl::Progress *progressBar)
 
         tl::Path undistort_path(outputPath().parentPath().parentPath());
         undistort_path.append("undistorted");
-        //undistort_path.append("temp").append("export").append("images");
         undistort_path.createDirectories();
 
         /// Da problemas al escribir el fichero nvm e importarlo
@@ -740,21 +739,6 @@ void MvsDensifier::copyUndistortedImages() const
     tl::Path output_path(outputPath());
     output_path.append("temp").append("export").append("images");
     output_path.createDirectories();
-
-    //std::string extension;
-    //switch (mFormat) {
-    //case graphos::UndistortImages::Format::tiff:
-    //    extension = ".tif";
-    //    break;
-    //case graphos::UndistortImages::Format::jpeg:
-    //    extension = ".jpg";
-    //    break;
-    //case graphos::UndistortImages::Format::png:
-    //    extension = ".png";
-    //    break;
-    //default:
-    //    break;
-    //}
 
     for (const auto &pose : poses()) {
 
