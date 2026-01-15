@@ -58,6 +58,11 @@ auto ExportCameraPosesModelImp::enuCrs() const -> QString
     return mProject->enuCrs();
 }
 
+void ExportCameraPosesModelImp::graphosExport(const tl::Path &file) const
+{
+    mProject->exportCameras(file);
+}
+
 void ExportCameraPosesModelImp::init()
 {
 }

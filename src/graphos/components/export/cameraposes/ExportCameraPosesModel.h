@@ -50,6 +50,7 @@ public:
     virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
     virtual auto cameras() const -> const std::map<int, Camera> & = 0;
     virtual auto enuCrs() const -> QString = 0;
+    virtual void graphosExport(const tl::Path &file) const = 0;
 };
 
 } // namespace graphos

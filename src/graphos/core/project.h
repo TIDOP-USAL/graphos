@@ -283,6 +283,7 @@ public:
     virtual void clear() = 0;
     virtual void load(const tl::Path &file) = 0;
     virtual void save(const tl::Path &file) = 0;
+    virtual void exportCameras(const tl::Path &file) = 0;
 
     /*!
      * \brief checkOldVersion
@@ -420,6 +421,7 @@ public:
 
     void load(const tl::Path &file) override;
     void save(const tl::Path &file) override;
+    void exportCameras(const tl::Path &file) override;
     bool checkOldVersion(const tl::Path &file) const override;
     void oldVersionBak(const tl::Path &file) const override;
 
@@ -483,6 +485,7 @@ protected:
     void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
     void writePriorCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
     void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
+    void writeCalibrationUndistorted(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
     void writeVignetting(QXmlStreamWriter &stream, std::shared_ptr<Vignetting> vignetting) const;
     void writeImages(QXmlStreamWriter &stream) const;
     void writeImage(QXmlStreamWriter &stream, const std::pair<size_t, Image> &image) const;

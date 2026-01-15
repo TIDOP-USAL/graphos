@@ -48,6 +48,7 @@ public:
     auto poses() const -> const std::unordered_map<size_t, CameraPose>& override;
     auto cameras() const -> const std::map<int, Camera> & override;
     auto enuCrs() const -> QString override;
+    void graphosExport(const tl::Path &file) const override;
 
 // Model interface
 

@@ -31,6 +31,7 @@
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/mesh/PoissonRecon.h"
 #include "graphos/core/multispectral/Vignetting.h"
+#include "graphos/core/sfm/groundpoint.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/exception.h>
@@ -730,6 +731,131 @@ void ProjectImp::save(const tl::Path &file)
     }
 
     tl::Path::removeFile(tmp_file);
+}
+
+void ProjectImp::exportCameras(const tl::Path &file)
+{
+    std::lock_guard<std::mutex> lck(ProjectImp::sMutex);
+
+    try {
+
+        QFile output(QString::fromStdWString(file.toWString()));
+        if (output.open(QFile::WriteOnly)) {
+            QXmlStreamWriter stream(&output);
+            stream.setAutoFormatting(true);
+            stream.writeStartDocument();
+
+            stream.writeStartElement("GraphosCameras");
+            {
+                stream.writeStartElement("Cameras");
+                {
+                    const auto &cameras = this->cameras();
+                    for (const auto &camera_map : cameras) {
+
+                        auto id = camera_map.first;
+                        const auto &camera = camera_map.second;
+
+                        stream.writeStartElement("Camera");
+                        {
+                            stream.writeAttribute("id", QString::number(id));
+
+                            stream.writeTextElement("Make", QString::fromStdString(camera.make()));
+                            stream.writeTextElement("Model", QString::fromStdString(camera.model()));
+                            stream.writeTextElement("SerialNumber", QString::fromStdString(camera.serialNumber()));
+                            stream.writeTextElement("Type", QString::fromStdString(camera.type()));
+                            stream.writeTextElement("Focal", QString::number(camera.focal()));
+                            stream.writeTextElement("Width", QString::number(camera.width()));
+                            stream.writeTextElement("Height", QString::number(camera.height()));
+                            stream.writeTextElement("BitsPerPixel", QString::number(camera.bitsPerPixel()));
+                            stream.writeTextElement("SensorSize", QString::number(camera.sensorSize()));
+                            if (!camera.bandName().empty()) stream.writeTextElement("BandName", QString::fromStdString(camera.bandName()));
+                            if (camera.hasBlackLevel()) stream.writeTextElement("BlackLevel", QString::number(camera.blackLevel()));
+                            if (camera.hasCalibratedHMatrix()) {
+                                QStringList hmatrix;
+                                for (int i = 0; i < 3; i++) {
+                                    for (int j = 0; j < 3; j++) {
+                                        hmatrix.append(QString::number(camera.calibratedHMatrix().at(i, j), 'f', 10));
+                                    }
+                                }
+                                stream.writeTextElement("CalibratedHMatrix", hmatrix.join(" "));
+                            }
+                            writePriorCalibration(stream, camera.priorCalibration());
+                            writeCalibration(stream, camera.calibration());
+                            Undistort undistort(camera);
+                            writeCalibrationUndistorted(stream, undistort.undistortCamera().calibration());
+                            writeVignetting(stream, camera.vignettingModel());
+                        }
+                        stream.writeEndElement(); // Camera
+                    }
+                }
+                stream.writeEndElement();
+                writeImages(stream);
+
+                stream.writeStartElement("Orientations");
+                {
+                    this->writeOffset(stream);
+                    this->writePhotoOrientations(stream);
+                    this->writeOrientationReport(stream);
+                }
+                stream.writeEndElement(); // Orientations
+
+                tl::Path gcp_file = projectFolder();
+                gcp_file.append("sfm");
+                gcp_file.append("georef.xml");
+
+                if (gcp_file.exists()) {
+
+                    auto reader = GCPsReaderFactory::create("GRAPHOS");
+                    //reader->setImages(images());
+                    reader->read(gcp_file);
+                    auto crs = reader->epsgCode();
+                    auto gcps = reader->gcps();
+
+                    stream.writeStartElement("GroundControlPoints");
+                    {
+                        stream.writeTextElement("Crs", QString::fromStdString(crs));
+
+                        for (const auto &gcp : gcps) {
+
+
+                            stream.writeStartElement("GroundControlPoint");
+                            stream.writeTextElement("Name", QString::fromStdString(gcp.name()));
+                            stream.writeTextElement("x", QString::number(gcp.x, 'f', 6));
+                            stream.writeTextElement("y", QString::number(gcp.y, 'f', 6));
+                            stream.writeTextElement("z", QString::number(gcp.z, 'f', 6));
+                            stream.writeTextElement("error", QString::number(gcp.error(), 'f', 3));
+                            stream.writeStartElement("ImagePoints");
+
+                            for (const auto &point : gcp.track().points()) {
+
+                                stream.writeStartElement("ImagePoint");
+                                stream.writeAttribute("image_id", QString::number(point.first));
+                                stream.writeTextElement("x", QString::number(point.second.x));
+                                stream.writeTextElement("y", QString::number(point.second.y));
+                                stream.writeTextElement("ex", QString::number(gcp.track().error(point.first).x()));
+                                stream.writeTextElement("ey", QString::number(gcp.track().error(point.first).y()));
+                                stream.writeEndElement();
+
+                            }
+
+                            stream.writeEndElement();
+                            stream.writeEndElement();
+                        }
+                    }
+                    stream.writeEndElement();
+
+                }
+            }
+
+            stream.writeEndElement(); // GraphosCameras
+
+            output.close();
+
+        }
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("An exception has been detected when exporting the cameras.");
+    }
 }
 
 bool ProjectImp::checkOldVersion(const tl::Path &file) const
@@ -1808,6 +1934,19 @@ void ProjectImp::writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Cali
             }
         }
         stream.writeEndElement(); // Calibration
+    }
+}
+
+void ProjectImp::writeCalibrationUndistorted(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const
+{
+    if (calibration) {
+        stream.writeStartElement("CalibrationUndistorted");
+        {
+            for (auto param = calibration->begin(); param != calibration->end(); param++) {
+                stream.writeTextElement(calibration->parameterName(param->first).c_str(), QString::number(param->second, 'f', 10));
+            }
+        }
+        stream.writeEndElement(); // CalibrationUndistorted
     }
 }
 

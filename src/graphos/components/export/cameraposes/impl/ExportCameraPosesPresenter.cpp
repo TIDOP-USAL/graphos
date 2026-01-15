@@ -83,7 +83,7 @@ void ExportCameraPosesPresenterImp::open()
 {
     mExportFormat.clear();
 
-    QString filters("TXT (*.txt);;ODM (*.json)");
+    QString filters("GRAPHOS (*.xml);;TXT (*.txt);;ODM (*.json)");
 
     QString selected_filter;
     mExportFile = QFileDialog::getSaveFileName(nullptr,
@@ -94,7 +94,11 @@ void ExportCameraPosesPresenterImp::open()
 
     if (!mExportFile.isEmpty()) {
 
-        if (selected_filter.compare("TXT (*.txt)") == 0) {
+        if (selected_filter.compare("GRAPHOS (*.xml)") == 0) {
+            mExportFormat = "GRAPHOS";
+            mModel->graphosExport(tl::Path(mExportFile.toStdString()));
+            return;
+        } else if (selected_filter.compare("TXT (*.txt)") == 0) {
             mView->setCurrentFormat(mOriTxtFormatWidget->windowTitle());
         } else if (selected_filter.compare("ODM (*.json)") == 0) {
             mExportFormat = "ODM";
