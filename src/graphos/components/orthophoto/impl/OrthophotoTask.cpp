@@ -839,7 +839,7 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
     float max_dist_ref = std::sqrt((float)(rows * rows + cols * cols)) * 1.5f;
 
     cv::Mat result_lab(rows, cols, CV_32FC3, cv::Scalar(0, 0, 0));
-    cv::Mat result_hf(rows, cols, type, cv::Scalar(0, 0, 0));
+    cv::Mat result_hf(rows, cols, CV_32FC3, cv::Scalar(0, 0, 0));
 
     tl::parallel_for(0, rows, [&](size_t r) {
 
@@ -884,13 +884,13 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
                 cv::Vec3f lab = lab_images[idx].at<cv::Vec3f>(static_cast<int>(r), c);
 
                 // CIE 1976 - ΔE*
-                //float dL = lab[0] - medL;
-                //float dA = lab[1] - medA;
-                //float dB = lab[2] - medB;
-                //color_distances[idx] = std::sqrt(dL * dL + dA * dA + dB * dB);
+                float dL = lab[0] - medL;
+                float dA = lab[1] - medA;
+                float dB = lab[2] - medB;
+                color_distances[idx] = std::sqrt(dL * dL + dA * dA + dB * dB);
 
                 // CIE 2000 - ciede2000
-                color_distances[idx] = ciede2000(lab, cv::Vec3f(medL, medA, medB));
+                //color_distances[idx] = ciede2000(lab, cv::Vec3f(medL, medA, medB));
             }
 
             // normalizar color distances solo entre válidos
@@ -988,8 +988,54 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
                 result_lab.at<cv::Vec3f>(static_cast<int>(r), c) = labWeighted;
             }
 
+            //result_hf.at<cv::Vec3f>(static_cast<int>(r), c) = lab_images[scored[0].second].at<cv::Vec3f>(static_cast<int>(r), c);
+
         }
     });
+
+    //cv::Mat final_lab;
+    //cv::Mat result_hf_blurred;
+    //cv::GaussianBlur(result_hf, result_hf_blurred, cv::Size(5, 5), 0);
+
+    // Alta Frecuencia 
+    // Contiene valores cercanos a 0, positivos en bordes claros y negativos en oscuros.
+    //cv::Mat high_frequency_map;
+    //cv::subtract(result_hf, result_hf_blurred, high_frequency_map);
+
+    //Opciones para resaltar la imagen:
+    // 1 - Añadir imagen de altas frecuencias 
+    //cv::add(result_lab, high_frequency_map, final_lab);
+
+    // 2 - Control de Ganancia (alpha)
+    // No sumar el 100% de la HF para evitar realzar demasiado el ruido o artefactos.
+    //float alpha = 0.7f; // 70% de detalle
+    //cv::addWeighted(result_lab, 1.0, high_frequency_map, alpha, 0, final_lab);
+
+    // 3 - Control de Ganancia con umbral (solo realzar detalles si la HF supera cierto umbral)
+    // 3.1
+    //float hf_threshold = 0.05f; // umbral de detalle (ajustable)
+    //cv::Mat hf_mask;
+    //cv::inRange(high_frequency_map, cv::Scalar(-hf_threshold, -hf_threshold, -hf_threshold),
+    //            cv::Scalar(hf_threshold, hf_threshold, hf_threshold), hf_mask);
+    //cv::Mat hf_mask_float;
+    //hf_mask.convertTo(hf_mask_float, CV_32F, 1.0 / 255.0);
+    //cv::Mat hf_weighted;
+    //cv::multiply(high_frequency_map, hf_mask_float, hf_weighted);
+     
+    // 3.2
+    // Si el detalle es menor a 'epsilon', lo hacemos cero
+    //float epsilon = 0.05f; // Ajusta según el ruido (rango 0-1)
+    //cv::Mat mask;
+    //cv::absdiff(high_frequency_map, cv::Scalar::all(0), mask);
+    //cv::threshold(mask, mask, epsilon, 1.0, cv::THRESH_TOZERO);
+
+    // Ahora 'high_freq' solo tiene valores donde había bordes reales
+    //cv::Mat clean_hf;
+    //high_frequency_map.copyTo(clean_hf, mask > 0);
+    //cv::add(result_lab, clean_hf, final_lab);
+
+    //cv::Mat result_bgr_f;
+    //cv::cvtColor(final_lab, result_bgr_f, cv::COLOR_Lab2BGR);
 
     // Convertir Lab float -> BGR float (CV_32F 3ch)
     cv::Mat result_bgr_f;
@@ -1020,16 +1066,37 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
     return final_img;
 }
 
-static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images,
+static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images_,
                                       //const std::vector<double> &distances,
                                       const std::vector<cv::Point2f> &centers,
                                       float weight_intensity = 0.7f,
                                       float weight_distance = 0.3f)
 {
-    if (images.empty()) return cv::Mat();
+    if (images_.empty()) return cv::Mat();
+
+    float nodata_value;
+    if (images_[0].type() == CV_32F)
+        nodata_value = tl::NoData<float>;
+    //else if (images_[0].type() == CV_64F)
+    //    nodata_value = tl::NoData<double>;
+    else
+        nodata_value = 0.f;
+
+    std::vector<cv::Mat> images(images_.size());
+
+    for (size_t i = 0; i < images_.size(); ++i) {
+        if (images_[i].depth() == CV_32F) {
+            images[i] = images_[i];
+        } else if (images_[i].depth() == CV_16U) {
+            // Para imágenes de 16 bits: normalizar a [0,1]
+            images_[i].convertTo(images[i], CV_32F, 1.0 / 65535.0);
+        } else {
+            TL_THROW_EXCEPTION("Unsupported image depth");
+        }
+    }
 
     size_t images_size = images.size();
-    TL_ASSERT(images_size == centers.size(), "Number of imagenes and centers must match");
+    TL_ASSERT(images_size == centers.size(), "Number of images and centers must match");
 
     // Verificación de dimensiones y formato
     int rows = images[0].rows;
@@ -1050,7 +1117,7 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images,
     std::vector<cv::Mat> valid_masks(images_size);
     for (size_t i = 0; i < images_size; ++i) {
         cv::Mat mask_is_nodata;
-        cv::compare(images[i], tl::NoData<float>, mask_is_nodata, cv::CMP_EQ);
+        cv::compare(images[i], nodata_value, mask_is_nodata, cv::CMP_EQ);
         cv::bitwise_not(mask_is_nodata, valid_masks[i]);
     }
 
@@ -1065,13 +1132,16 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images,
 
     float max_dist_ref = std::sqrt((float)(rows * rows + cols * cols)) * 1.5f;
 
-    cv::Mat result(rows, cols, type, cv::Scalar(tl::NoData<float>));
+    cv::Mat result(rows, cols, type, cv::Scalar(nodata_value));
     //cv::Mat assigned(rows, cols, CV_8U, cv::Scalar(0));
 
     // Lambda para mediana robusta
     // Codigo repetido. Sacar a función o utilizar median de TidopLib
     auto median_of = [](std::vector<float> &v) -> float {
         size_t n = v.size(); 
+
+        if (n == 0) return 0.0f;
+
         size_t mid = n / 2;
         std::nth_element(v.begin(), v.begin() + mid, v.end());
         float med = v[mid];
@@ -1152,12 +1222,13 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images,
             // Calculamos la mediana de las desviaciones (MAD)
             float mad_val = median_of(intensity_diffs_copy);
 
-            float noise_floor = 15.0f;
+            //float noise_floor = 15.0f;
+            float noise_floor = 0.1f; // Ajustado para valores normalizados [0,1]
             float outlier_threshold = std::max(noise_floor, 3.0f * mad_val);
 
             // Calcular score de cada imagen válida
             std::vector<std::pair<float, int>> scored;
-            scored.reserve(images_size);
+            scored.reserve(valid_idxs.size());
 
             // con distancia
             //for (size_t i = 0; i < images_size; ++i) {
@@ -1173,11 +1244,12 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images,
 
                 // 1. Distancia de intensidad normalizada (0..1)
                 float intensityNorm = (intensity_diffs[idx] - min) / range;
-                // 2. Distancia Espacial Pixel a Centro
+                // 2. Distancia espacial pixel a centro
                 float dx = c - centers[idx].x;
                 float dy = r - centers[idx].y;
                 float dist_pixel = std::sqrt(dx * dx + dy * dy);
                 float distNorm = dist_pixel / max_dist_ref;
+
                 // Score final
                 float score = weight_intensity * intensityNorm + weight_distance * distNorm;
                 scored.emplace_back(score, idx);
@@ -1195,14 +1267,18 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images,
             int n = std::min<int>(TOP_N, scored.size());
 
             // Calcular media ponderada de los N mejores
-            float total_w = 0.f;
-            float sum_val = 0.f;
+            //float total_w = 0.f;
+            //float sum_val = 0.f;
 
-            float weighted_val;
+            //float weighted_val;
 
             if (n == 1) {
-                weighted_val = images[scored[0].second].at<float>(static_cast<int>(r), c);
+                //weighted_val = images[scored[0].second].at<float>(static_cast<int>(r), c);
+                result.at<float>(static_cast<int>(r), c) = images[scored[0].second].at<float>(static_cast<int>(r), c);
             } else {
+
+                float total_w = 0.f;
+                float sum_val = 0.f;
 
                 for (int i = 0; i < n; ++i) {
                     size_t idx = static_cast<size_t>(scored[i].second);
@@ -1218,11 +1294,13 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images,
                     total_w += w;
                 }
 
-                weighted_val = (total_w > 0.f) ? (sum_val / total_w)
-                    : images[scored[0].second].at<float>(static_cast<int>(r), c);
+                float weighted_val = (total_w > 0.f) ? (sum_val / total_w)
+                   : images[scored[0].second].at<float>(static_cast<int>(r), c);
+
+                result.at<float>(static_cast<int>(r), c) = weighted_val;
             }
 
-            result.at<float>(static_cast<int>(r), c) = weighted_val;
+            //result.at<float>(static_cast<int>(r), c) = weighted_val;
             //assigned.at<uchar>(static_cast<int>(r), c) = 255;
 
         }
@@ -1253,6 +1331,12 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images,
     //        }
     //    }
     //});
+
+    if (images_[0].depth() == CV_16U) {
+        cv::Mat result_16u;
+        result.convertTo(result_16u, CV_16U, 65535.0);
+        return result_16u;
+    }
 
     return result;
 }

@@ -253,7 +253,7 @@ void Orthorectification::init()
 
                 tl::Rect<int> rect_full(tl::Point<int>(), dtmReader->cols(), dtmReader->rows());
 
-                tl::Point<double> pt(terrain_coordinates.x, terrain_coordinates.y);
+                //tl::Point<double> pt(terrain_coordinates.x, terrain_coordinates.y);
                 if (rect_full.contains(image_point)) {
                     tl::Rect<int> rect(image_point, 1, 1);
                     cv::Mat image = dtmReader->read(rect);

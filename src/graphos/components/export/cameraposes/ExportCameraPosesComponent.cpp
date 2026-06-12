@@ -51,7 +51,7 @@ ExportCameraPosesComponent::~ExportCameraPosesComponent()
 
 void ExportCameraPosesComponent::init()
 {
-    setName(QApplication::translate("ExportCameraPosesComponent", "Export Camera Poses"));
+    setName(QApplication::translate("ExportCameraPosesComponent", "Export Cameras"));
     setMenu("file_export");
 
     createCommand();

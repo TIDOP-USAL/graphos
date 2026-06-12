@@ -94,7 +94,8 @@ ReconstructionTask::ReconstructionTask(tl::Path database,
     mIncrementalMapperOptions(new colmap::IncrementalMapperOptions),
     mMapper(nullptr),
     mReconstructionManager(new colmap::ReconstructionManager),
-    mGeoTools(tl::GeoTools::getInstance())
+    mGeoTools(tl::GeoTools::getInstance()),
+    mEnuCrs("")
 {
     if (mOptions.isEnabled(Options::absolute_orientation)) {
 
@@ -383,6 +384,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
         //    ba_terminate = true;
         //    summary = bundle_adjuster.summary();
         //}
+        // Ajustar en función del numero de imagenes
         for (int i = 0; i < 5; ++i) {
             ba_terminate = false;
 
@@ -468,8 +470,6 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     geographic_center += coordinates.second / static_cast<double>(cameras_geographic.size());
                 }
 
-                tl::Path enu_path = mOutputPath;
-                enu_path.append("enu.txt");
                 mEnuCrs = mGeoTools->ptrCRSsTools()->getCRSEnu("EPSG:4326", geographic_center.x, geographic_center.y, geographic_center.z);
 
                 for (const auto &geographic_coordinates : cameras_geographic) {
@@ -561,6 +561,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
             // ceres::CostFunction *control_point_cost_function = ControlPointCostFunction::create(point3D, weight_cp);
             //problem_->AddResidualBlock(control_point_cost_function, new ceres::HuberLoss(Square(colmap::Median(errors))), gcp.point.data());
 
+            //TODO: Este if es redundante, ya se hace mas arriba
             if (mOptions.isEnabled(Options::absolute_orientation)) {
 
                 /// Lectura de los puntos de control
@@ -594,8 +595,6 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                             geographic_center += coordinates / static_cast<double>(ground_control_points.size());
                         }
 
-                        tl::Path enu_path = mOutputPath;
-                        enu_path.append("enu.txt");
                         mEnuCrs = mGeoTools->ptrCRSsTools()->getCRSEnu("EPSG:4326", geographic_center.x, geographic_center.y, geographic_center.z);
 
                     }

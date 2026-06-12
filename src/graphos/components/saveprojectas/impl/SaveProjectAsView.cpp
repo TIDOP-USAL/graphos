@@ -23,28 +23,29 @@
  
 #include "SaveProjectAsView.h"
 
-#include <QApplication>
+#include "graphos/core/Application.h"
 
 namespace graphos
 {
 
 SaveProjectAsViewImp::SaveProjectAsViewImp(QWidget *parent)
-  : SaveProjectAsView(parent)
+    : SaveProjectAsView(parent)
 {
-  this->init();
+    this->init();
 }
 
 void SaveProjectAsViewImp::setGraphosProjectsPath(const QString &directory)
 {
-  QFileDialog::setDirectory(directory);
+    QFileDialog::setDirectory(directory);
 }
 
 void SaveProjectAsViewImp::init()
 {
-  QFileDialog::setWindowTitle(QApplication::translate("SaveProjectAsComponent", "Save Project As..."));
-  QFileDialog::setNameFilter(QApplication::translate("SaveProjectAsComponent", "Graphos Project File (*.xml)"));
-  //QFileDialog::setFileMode(QFileDialog::ExistingFile);
-  QFileDialog::setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
+    QString filter = Application::applicationDisplayName() + QString(" Project File (*.xml)");
+    QFileDialog::setWindowTitle(QApplication::translate("SaveProjectAsComponent", "Save Project As..."));
+    QFileDialog::setNameFilter(filter);
+    //QFileDialog::setFileMode(QFileDialog::ExistingFile);
+    QFileDialog::setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
 }
  
 } // namespace graphos

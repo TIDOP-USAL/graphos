@@ -393,6 +393,13 @@ void SmvsDensifier::copyUndistortedImages() const
             cv::Mat mat = image_reader->read();
             
             double nodata_value = tl::NoData<float>;
+            if (mat.type() == CV_32F)
+                nodata_value = tl::NoData<float>;
+            else if (mat.type() == CV_64F)
+                nodata_value = tl::NoData<double>;
+            else
+                nodata_value = 0;
+
             cv::Mat mask;
             cv::inRange(mat, cv::Scalar::all(nodata_value), cv::Scalar::all(nodata_value), mask);
             cv::bitwise_not(mask, mask);
