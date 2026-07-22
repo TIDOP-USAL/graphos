@@ -27,7 +27,7 @@
 #include <memory>
 #include <string>
 
-#include <tidop/core/path.h>
+#include <tidop/core/base/Path.h>
 
 #include "graphos/core/camera/Camera.h"
 

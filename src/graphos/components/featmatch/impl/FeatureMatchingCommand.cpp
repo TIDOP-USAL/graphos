@@ -28,8 +28,8 @@
 #include "graphos/core/project.h"
 #include "graphos/core/task/Progress.h"
 
-#include <tidop/core/msg/message.h>
-#include <tidop/core/progress.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/task/Progress.h>
 
 #include <colmap/feature/matching.h>
 #include <colmap/base/database.h>

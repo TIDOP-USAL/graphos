@@ -25,10 +25,10 @@
 
 #include <fstream>
 #include <colmap/base/reconstruction.h>
-#include <tidop/core/endian.h>
+#include <tidop/core/base/Endian.h>
 
-#include <tidop/core/path.h>
-#include <tidop/math/algebra/quaternion.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/math/algebra/rotations/Quaternion.h>
 
 namespace graphos
 {
@@ -87,11 +87,11 @@ public:
 
                 CameraPose camera_pose;
 
-                tl::Point3<double> coordinates;
+                tl::Point3d coordinates;
 
-                tl::read(&stream, coordinates.x);
-                tl::read(&stream, coordinates.y);
-                tl::read(&stream, coordinates.z);
+                tl::read(&stream, coordinates.x());
+                tl::read(&stream, coordinates.y());
+                tl::read(&stream, coordinates.z());
 
                 camera_pose.setPosition(coordinates);
 
@@ -129,7 +129,7 @@ public:
 
             //    CameraPose camera_pose;
 
-            //    tl::Point3<double> coordinates;
+            //    tl::Point3d coordinates;
 
             //    std::fread(&coordinates.x, sizeof(double), 1, file);
             //    std::fread(&coordinates.y, sizeof(double), 1, file);
@@ -246,7 +246,7 @@ public:
                 size_t image_id = camera_pose.first;
                 tl::write(&stream, image_id);
 
-                tl::Point3<double> coordinates = camera_pose.second.position();
+                tl::Point3d coordinates = camera_pose.second.position();
 
                 tl::write(&stream, coordinates.x);
                 tl::write(&stream, coordinates.y);
@@ -278,7 +278,7 @@ public:
             //    size_t image_id = camera_pose.first;
             //    std::fwrite(&image_id, sizeof(uint64_t), 1, file);
 
-            //    tl::Point3<double> coordinates = camera_pose.second.position();
+            //    tl::Point3d coordinates = camera_pose.second.position();
 
             //    std::fwrite(&coordinates.x, sizeof(double), 1, file);
             //    std::fwrite(&coordinates.y, sizeof(double), 1, file);
@@ -329,9 +329,9 @@ auto CameraPosesWriterFactory::create(const std::string& format) -> std::unique_
     return writer;
 }
 
-//tl::Point3<double> offsetRead(const tl::Path &path)
+//tl::Point3d offsetRead(const tl::Path &path)
 //{
-//    tl::Point3<double> coordinates;
+//    tl::Point3d coordinates;
 //
 //    try {
 //
@@ -356,7 +356,7 @@ auto CameraPosesWriterFactory::create(const std::string& format) -> std::unique_
 //    return coordinates;
 //}
 
-//void offsetWrite(const tl::Path &path, const tl::Point3<double> &coordinates)
+//void offsetWrite(const tl::Path &path, const tl::Point3d &coordinates)
 //{
 //    try {
 //

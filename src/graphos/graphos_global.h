@@ -2,7 +2,7 @@
 #define GRAPHOS_GLOBAL_H
 
 #include "config_graphos.h"
-#include <tidop/core/defs.h>
+#include <tidop/config.h>
 
 TL_DISABLE_WARNINGS
 #include <QtCore/qglobal.h>

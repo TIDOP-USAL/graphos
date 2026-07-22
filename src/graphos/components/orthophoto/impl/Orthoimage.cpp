@@ -26,7 +26,7 @@
 #include "graphos/components/orthophoto/impl/ZBuffer.h"
 #include "graphos/components/orthophoto/impl/Orthorectification.h"
 
-#include <tidop/core/progress.h>
+#include <tidop/core/task/Progress.h>
 #include <tidop/graphic/layer.h>
 #include <tidop/geotools/GeoTools.h>
 #include <tidop/geotools/CRSsTools.h>
@@ -250,8 +250,8 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
                 auto terrain_coordinates = mGeoreference.transform(ortho_grid_coord);
 
                 // Coordenadas de la ortofoto en el sistema de terreno
-                //tl::Point3<double> enu_coordinates = convertProjectedToEnu(terrain_coordinates);
-                tl::Point3<double> enu_coordinates;
+                //tl::Point3d enu_coordinates = convertProjectedToEnu(terrain_coordinates);
+                tl::Point3d enu_coordinates;
                 //if (crs.isProjected()) {
                 //    enu_coordinates = affine_projected_to_enu.transform(terrain_coordinates);
                 //} else {

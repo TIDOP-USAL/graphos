@@ -50,7 +50,6 @@ void OpenCVCalibrationWriter::write(const tl::Path &path,
         TL_ASSERT(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate), "Unable to open file for writing.");
 
         QTextStream stream(&file);
-        stream.setCodec("UTF-8");
 
         double fx = 0.0, fy = 0.0, cx = 0.0, cy = 0.0;
 

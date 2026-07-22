@@ -23,7 +23,8 @@
 
 #include "graphos/core/sfm/groundpoint.h"
 
-#include <tidop/core/endian.h>
+#include <tidop/core/base/Endian.h>
+#include <tidop/core/base/Split.h>
 
 #include <QFile>
 #include <QXmlStreamReader>
@@ -42,8 +43,8 @@ GroundControlPoint::GroundControlPoint()
 {
 }
 
-GroundControlPoint::GroundControlPoint(const tl::Point3<double> &point3d)
-  : tl::Point3<double>(point3d)
+GroundControlPoint::GroundControlPoint(const tl::Point3d &point3d)
+  : tl::Point3d(point3d)
 {
 }
 
@@ -59,11 +60,11 @@ void GroundControlPoint::setName(const std::string &name)
     mName = name;
 }
 
-void GroundControlPoint::setPoint(const tl::Point3<double> &point)
+void GroundControlPoint::setPoint(const tl::Point3d &point)
 {
-    this->x = point.x;
-    this->y = point.y;
-    this->z = point.z;
+    this->x() = point.x();
+    this->y() = point.y();
+    this->z() = point.z();
 }
 
 auto GroundControlPoint::error() const -> double/*tl::Vector3d*/
@@ -208,11 +209,11 @@ private:
             if (stream.name() == "Name") {
                 gcp.setName(stream.readElementText().toStdString());
             } else if (stream.name() == "x") {
-                gcp.x = stream.readElementText().toDouble();
+                gcp.x() = stream.readElementText().toDouble();
             } else if (stream.name() == "y") {
-                gcp.y = stream.readElementText().toDouble();
+                gcp.y() = stream.readElementText().toDouble();
             } else if (stream.name() == "z") {
-                gcp.z = stream.readElementText().toDouble();
+                gcp.z() = stream.readElementText().toDouble();
             } else if (stream.name() == "error") {
                 gcp.setError(stream.readElementText().toDouble());
             } else if (stream.name() == "ImagePoints") {
@@ -233,9 +234,9 @@ private:
 
                         while (stream.readNextStartElement()) {
                             if (stream.name() == "x") {
-                                point_2d.x = stream.readElementText().toDouble();
+                                point_2d.x() = stream.readElementText().toDouble();
                             } else if (stream.name() == "y") {
-                                point_2d.y = stream.readElementText().toDouble();
+                                point_2d.y() = stream.readElementText().toDouble();
                             } else if (stream.name() == "ex") {
                                 error[0] = stream.readElementText().toDouble();
                             } else if (stream.name() == "ey") {
@@ -309,10 +310,10 @@ public:
 
             ss << line;
 
-            tl::Point3<double> point;
+            tl::Point3d point;
             tl::Point<double> image_point;
             std::string image_name;
-            ss >> point.x >> point.y >> point.z >> image_point.x >> image_point.y >> image_name;
+            ss >> point.x() >> point.y() >> point.z() >> image_point.x() >> image_point.y() >> image_name;
             ss.clear();
 
             size_t image_id = 0;
@@ -329,9 +330,9 @@ public:
 
                 bool exists_gcp = false;
                 for (auto &ground_control_point : ground_control_points) {
-                    if (ground_control_point.x == point.x &&
-                        ground_control_point.y == point.y &&
-                        ground_control_point.z == point.z) {
+                    if (ground_control_point.x() == point.x() &&
+                        ground_control_point.y() == point.y() &&
+                        ground_control_point.z() == point.z()) {
 
                         ground_control_point.addPointToTrack(image_id, image_point);
 
@@ -479,9 +480,9 @@ public:
 
                     stream.writeStartElement("GroundControlPoint");
                     stream.writeTextElement("Name", QString::fromStdString(gcp.name()));
-                    stream.writeTextElement("x", QString::number(gcp.x, 'f', 6));
-                    stream.writeTextElement("y", QString::number(gcp.y, 'f', 6));
-                    stream.writeTextElement("z", QString::number(gcp.z, 'f', 6));
+                    stream.writeTextElement("x", QString::number(gcp.x(), 'f', 6));
+                    stream.writeTextElement("y", QString::number(gcp.y(), 'f', 6));
+                    stream.writeTextElement("z", QString::number(gcp.z(), 'f', 6));
                     stream.writeTextElement("error", QString::number(gcp.error(), 'f', 3));
                     stream.writeStartElement("ImagePoints");
 
@@ -489,8 +490,8 @@ public:
 
                         stream.writeStartElement("ImagePoint");
                         stream.writeAttribute("image_id", QString::number(point.first));
-                        stream.writeTextElement("x", QString::number(point.second.x));
-                        stream.writeTextElement("y", QString::number(point.second.y));
+                        stream.writeTextElement("x", QString::number(point.second.x()));
+                        stream.writeTextElement("y", QString::number(point.second.y()));
                         stream.writeTextElement("ex", QString::number(gcp.track().error(point.first).x()));
                         stream.writeTextElement("ey", QString::number(gcp.track().error(point.first).y()));
                         stream.writeEndElement();
@@ -543,7 +544,7 @@ public:
 
             for (const auto &point : gcp.track().points()) {
 
-                stream << gcp.x << " " << gcp.y << " " << gcp.z << " " << point.second.x << " " << point.second.y << " " << images().at(point.first).name().toStdString() <<
+                stream << gcp.x() << " " << gcp.y() << " " << gcp.z() << " " << point.second.x() << " " << point.second.y() << " " << images().at(point.first).name().toStdString() <<
                     '\n';
             }
         }
@@ -590,18 +591,18 @@ auto GCPsWriterFactory::create(const std::string &format) -> std::unique_ptr<GCP
 
 GroundPoint::GroundPoint() = default;
 
-GroundPoint::GroundPoint(const tl::Point3<double> &point3d)
-  : tl::Point3<double>(point3d)
+GroundPoint::GroundPoint(const tl::Point3d &point3d)
+  : tl::Point3d(point3d)
 {
 }
 
 GroundPoint::~GroundPoint() = default;
 
-void GroundPoint::setPoint(const tl::Point3<double> &point)
+void GroundPoint::setPoint(const tl::Point3d &point)
 {
-    this->x = point.x;
-    this->y = point.y;
-    this->z = point.z;
+    this->x() = point.x();
+    this->y() = point.y();
+    this->z() = point.z();
 }
 
 auto GroundPoint::color() const -> tl::Color
@@ -708,14 +709,14 @@ public:
 
                 for (auto &ground_point : ground_points) {
 
-                    tl::read(&stream, ground_point.x);
-                    tl::read(&stream, ground_point.y);
-                    tl::read(&stream, ground_point.z);
+                    tl::read(&stream, ground_point.x());
+                    tl::read(&stream, ground_point.y());
+                    tl::read(&stream, ground_point.z());
 
                     uint32_t color = 0;
                     tl::read(&stream, color);
                     if (color)
-                        ground_point.setColor(tl::Color(color));
+                        ground_point.setColor(tl::Color::fromRGB(color));
 
                     size = 0;
                     tl::read(&stream, size);
@@ -841,11 +842,11 @@ public:
 
             for (auto &ground_point : this->groundPoints()) {
 
-                tl::write(&stream, ground_point.x);
-                tl::write(&stream, ground_point.y);
-                tl::write(&stream, ground_point.z);
+                tl::write(&stream, ground_point.x());
+                tl::write(&stream, ground_point.y());
+                tl::write(&stream, ground_point.z());
 
-                uint32_t color = ground_point.color();
+                uint32_t color = ground_point.color().rgb();
 
                 tl::write(&stream, color);
 

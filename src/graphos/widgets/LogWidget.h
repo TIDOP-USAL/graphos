@@ -29,7 +29,7 @@
 #include <mutex>
 
 #include <tidop/core/defs.h>
-#include <tidop/core/flags.h>
+#include <tidop/core/base/flags.h>
 #include <tidop/core/msg/handler.h>
 #include <tidop/core/log.h>
 

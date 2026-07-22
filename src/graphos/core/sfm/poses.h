@@ -26,9 +26,9 @@
 
 #include <QString>
 
-#include <tidop/geometry/entities/point.h>
-#include <tidop/math/algebra/rotation_matrix.h>
-#include <tidop/math/algebra/quaternion.h>
+#include <tidop/geometry/primitives/Point.h>
+#include <tidop/math/algebra/rotations/RotationMatrix.h>
+#include <tidop/math/algebra/rotations/Quaternion.h>
 
 namespace graphos
 {
@@ -73,7 +73,7 @@ public:
      * \param[in] rotationMatrix Rotation matrix representing the orientation of the camera.
      */
     CameraPose(double x, double y, double z,
-               const tl::RotationMatrix<double> &rotationMatrix);
+               const tl::RotationMatrix<double> &rotationMatrix); // Quitar
 
     /*!
      * \brief Constructor.
@@ -83,8 +83,8 @@ public:
      * \param[in] center Center point of the camera.
      * \param[in] rotationMatrix Rotation matrix representing the orientation of the camera.
      */
-    CameraPose(const tl::Point3<double> &center,
-               const tl::RotationMatrix<double> &rotationMatrix);
+    CameraPose(tl::Point3d center,
+               const tl::RotationMatrix<double> &rotationMatrix); // Quitar
 
     /*!
      * \brief Constructor.
@@ -97,7 +97,7 @@ public:
      * \param[in] quaternion Quaternion representing the orientation of the camera.
      */
     CameraPose(double x, double y, double z,
-               const tl::Quaternion<double> &quaternion);
+               tl::Quaternion<double> quaternion);
 
     /*!
      * \brief Constructor.
@@ -107,8 +107,8 @@ public:
      * \param[in] center Center point of the camera.
      * \param[in] quaternion Quaternion representing the orientation of the camera.
      */
-    CameraPose(const tl::Point3<double> &center,
-               const tl::Quaternion<double> &quaternion);
+    CameraPose(tl::Point3d center,
+               tl::Quaternion<double> quaternion);
 
     ~CameraPose();
 
@@ -120,14 +120,14 @@ public:
      *
      * \return The position of the camera as a 3D point.
      */
-    auto position() const -> tl::Point3<double>;
+    auto position() const -> tl::Point3d;
 
     /*!
      * \brief Set the position of the camera.
      *
      * \param[in] position The position of the camera as a 3D point.
      */
-    void setPosition(const tl::Point3<double> &position);
+    void setPosition(const tl::Point3d &position);
 
     auto accuracy() const -> tl::Vector3d;
 
@@ -138,28 +138,28 @@ public:
      *
      * \return The orientation of the camera as a quaternion.
      */
-    auto quaternion() const -> tl::Quaterniond;
+    auto quaternion() const -> tl::Quaternion<double>;
 
     /*!
      * \brief Set the orientation of the camera as a quaternion.
      *
      * \param[in] quaternion The orientation of the camera as a quaternion.
      */
-    void setQuaternion(const tl::Quaterniond &quaternion);
+    void setQuaternion(tl::Quaternion<double> quaternion);
 
     /*!
      * \brief Get the orientation of the camera as a rotation matrix.
      *
      * \return The orientation of the camera as a rotation matrix.
      */
-    auto rotationMatrix() const -> tl::RotationMatrix<double>;
+    auto rotationMatrix() const -> tl::RotationMatrix<double>; // Quitar
 
     /*!
      * \brief Set the orientation of the camera as a rotation matrix.
      *
      * \param[in] rotationMatrix The orientation of the camera as a rotation matrix.
      */
-    void setRotationMatrix(const tl::RotationMatrix<double> &rotationMatrix);
+    void setRotationMatrix(const tl::RotationMatrix<double> &rotationMatrix);  // Quitar
 
     /*!
      * \brief Get the coordinate reference system (CRS) of the camera.
@@ -208,7 +208,8 @@ private:
 
     tl::Point3d mPosition;
     tl::Vector3d mAccuracy;
-    std::shared_ptr<tl::Orientation> mRotation;
+    //std::shared_ptr<tl::Orientation> mRotation;
+    tl::Quaternion<double> mRotation;
     QString mCrs;
     QString mSource;
     int mRtkFlag;

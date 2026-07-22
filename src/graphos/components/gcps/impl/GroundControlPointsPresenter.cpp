@@ -29,7 +29,7 @@
 #include "graphos/core/image.h"
 
 #include <tidop/core/defs.h>
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 
 #include <QFileInfo>
 #include <QAbstractItemModel>

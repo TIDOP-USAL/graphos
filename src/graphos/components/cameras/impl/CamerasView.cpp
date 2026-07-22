@@ -40,7 +40,7 @@
 #include <QTabWidget>
 
 #include <tidop/core/defs.h>
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 
 namespace graphos
 {

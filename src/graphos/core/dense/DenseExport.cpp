@@ -37,21 +37,21 @@ DenseExport::DenseExport(tl::Path denseModel)
 
 }
 
-void DenseExport::setOffset(const tl::Point3<double> &point)
+void DenseExport::setOffset(const tl::Vector3d &offset)
 {
-    mOffset = point;
+    mOffset = offset;
 }
 
 void DenseExport::exportToCSV(const std::string &csv,
                               const tl::EnumFlags<Fields> &flag,
-                              tl::BoundingBox<tl::Point3<double>> *bbox) const
+                              tl::BoundingBox<tl::Point3d> *bbox) const
 {
 
     std::ofstream stream(csv, std::ios::trunc);
 
     if (stream.is_open()) {
 
-        tl::Point3<double> point;
+        tl::Point3d point;
 
         stream << "X;Y;Z";
         if (flag.isEnabled(Fields::rgb)) {
@@ -68,25 +68,25 @@ void DenseExport::exportToCSV(const std::string &csv,
         for (auto &colmap_point : colmap_points)
         {
 
-            point.x = colmap_point.x;
-            point.y = colmap_point.y;
-            point.z = colmap_point.z;
+            point.x() = colmap_point.x;
+            point.y() = colmap_point.y;
+            point.z() = colmap_point.z;
 
             point += mOffset;
 
             if (bbox) {
-                bbox->pt1.x = std::min(bbox->pt1.x, point.x);
-                bbox->pt1.y = std::min(bbox->pt1.y, point.y);
-                bbox->pt1.z = std::min(bbox->pt1.z, point.z);
-                bbox->pt2.x = std::max(bbox->pt2.x, point.x);
-                bbox->pt2.y = std::max(bbox->pt2.y, point.y);
-                bbox->pt2.z = std::max(bbox->pt2.z, point.z);
+                bbox->min().x() = std::min(bbox->min().x(), point.x());
+                bbox->min().y() = std::min(bbox->min().y(), point.y());
+                bbox->min().z() = std::min(bbox->min().z(), point.z());
+                bbox->max().x() = std::max(bbox->max().x(), point.x());
+                bbox->max().y() = std::max(bbox->max().y(), point.y());
+                bbox->max().z() = std::max(bbox->max().z(), point.z());
             }
 
             stream << std::fixed << std::setprecision(3)
-                   << point.x << ";"
-                   << point.y << ";"
-                   << point.z;
+                   << point.x() << ";"
+                   << point.y() << ";"
+                   << point.z();
 
             if (flag.isEnabled(Fields::rgb)) {
                 stream << ";" 

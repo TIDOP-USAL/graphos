@@ -51,7 +51,7 @@ Orthorectification::Orthorectification(const tl::Path &dtm,
     init();
 }
 
-auto Orthorectification::terrainToImage(const tl::Point3<double> &terrainPoint) const -> tl::Point<int>
+auto Orthorectification::terrainToImage(const tl::Point3d &terrainPoint) const -> tl::Point<int>
 {
     tl::Point<int> image_coordinates;
 
@@ -67,7 +67,7 @@ auto Orthorectification::terrainToImage(const tl::Point3<double> &terrainPoint) 
     return image_coordinates;
 }
 
-auto Orthorectification::terrainToPhotoCoordinates(const tl::Point3<double> &terrainPoint) const -> tl::Point<double>
+auto Orthorectification::terrainToPhotoCoordinates(const tl::Point3d &terrainPoint) const -> tl::Point<double>
 {
     tl::Point<double> photocoordinates;
 
@@ -82,9 +82,9 @@ auto Orthorectification::terrainToPhotoCoordinates(const tl::Point3<double> &ter
     return photocoordinates;
 }
 
-auto Orthorectification::imageToTerrain(const tl::Point<int> &imageCoordinates) const -> tl::Point3<double>
+auto Orthorectification::imageToTerrain(const tl::Point<int> &imageCoordinates) const -> tl::Point3d
 {
-    tl::Point3<double> terrain_coordinates;
+    tl::Point3d terrain_coordinates;
 
     try {
 
@@ -98,11 +98,11 @@ auto Orthorectification::imageToTerrain(const tl::Point<int> &imageCoordinates) 
     return terrain_coordinates;
 }
 
-auto Orthorectification::photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const -> tl::Point3<double>
+auto Orthorectification::photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const -> tl::Point3d
 {
     double z = mIniZ;
     int it = 10;
-    tl::Point3<double> terrain_coordinates;
+    tl::Point3d terrain_coordinates;
 
     try {
 
@@ -146,9 +146,9 @@ auto Orthorectification::photoCoordinatesToImageCoordinates(const tl::Point<doub
     return mAffinePhotocoordinatesToImage.transform(photocoordinates);
 }
 
-auto Orthorectification::dsmImageCoordinatesToTerrain(const tl::Point<int> &imagePoint) const -> tl::Point3<double>
+auto Orthorectification::dsmImageCoordinatesToTerrain(const tl::Point<int> &imagePoint) const -> tl::Point3d
 {
-    tl::Point3<double> dtm_terrain_point;
+    tl::Point3d dtm_terrain_point;
 
     try {
 
@@ -162,7 +162,7 @@ auto Orthorectification::dsmImageCoordinatesToTerrain(const tl::Point<int> &imag
     return dtm_terrain_point;
 }
 
-auto Orthorectification::terrainToDsmImageCoordinates(const tl::Point3<double> &terrainPoint) const -> tl::Point<int>
+auto Orthorectification::terrainToDsmImageCoordinates(const tl::Point3d &terrainPoint) const -> tl::Point<int>
 {
     return mAffineTerrainToDsmImage.transform(static_cast<tl::Point<double>>(terrainPoint));
 }
@@ -233,9 +233,9 @@ auto Orthorectification::nodataValue() const -> double
 void Orthorectification::init()
 {
 
-    auto image_to_terrain = [&](const tl::Point<int> &imageCoordinates, tl::ImageReader *dtmReader) -> tl::Point3<double>
+    auto image_to_terrain = [&](const tl::Point<int> &imageCoordinates, tl::ImageReader *dtmReader) -> tl::Point3d
     {
-        tl::Point3<double> terrain_coordinates;
+        tl::Point3d terrain_coordinates;
 
         try {
 
@@ -288,7 +288,7 @@ void Orthorectification::init()
         mAffineDsmImageToTerrain = dtm_reader->georeference();
         mAffineTerrainToDsmImage = mAffineDsmImageToTerrain.inverse();
 
-        tl::Point<float> principal_point = this->principalPoint();
+        tl::Point2f principal_point = this->principalPoint();
 
         mAffineImageToPhotocoordinates = tl::Affine<double, 2>(1., -1., -principal_point.x, principal_point.y, 0.);
         mAffinePhotocoordinatesToImage = mAffineImageToPhotocoordinates.inverse();
@@ -380,9 +380,9 @@ auto Orthorectification::focal() const -> float
     return (focal_x + focal_y) / 2.f;
 }
 
-auto Orthorectification::principalPoint() const -> tl::Point<float>
+auto Orthorectification::principalPoint() const -> tl::Point2f
 {
-    tl::Point<float> principal_point;
+    tl::Point2f principal_point;
 
     std::shared_ptr<Calibration> calibration = mUndistortedCamera.calibration();
 

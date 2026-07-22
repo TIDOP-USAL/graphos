@@ -23,7 +23,7 @@
 
 #include "LogWidget.h"
 
-#include <tidop/core/chrono.h>
+#include <tidop/core/base/Chrono.h>
 
 TL_DISABLE_WARNINGS
 #include <QToolBar>

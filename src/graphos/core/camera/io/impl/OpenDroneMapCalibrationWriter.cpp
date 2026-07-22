@@ -115,7 +115,7 @@ void OpenDroneMapCalibrationWriter::write(const tl::Path &path,
         TL_ASSERT(file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text), "Unable to open file for writing.");
 
         QTextStream out(&file);
-        out.setCodec("UTF-8");
+
         out.setRealNumberNotation(QTextStream::FixedNotation);
         out.setRealNumberPrecision(8);
 

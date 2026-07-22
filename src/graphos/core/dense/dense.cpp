@@ -24,10 +24,11 @@
 #include "graphos/core/dense/dense.h"
 
 #include "graphos/core/camera/Camera.h"
+#include "graphos/core/sfm/poses.h"
 #include "graphos/core/image.h"
 
 /* TidopLib */
-#include <tidop/core/path.h>
+#include <tidop/core/base/Path.h>
 
 /* CloudCompare*/
 #ifdef GRAPHOS_GUI

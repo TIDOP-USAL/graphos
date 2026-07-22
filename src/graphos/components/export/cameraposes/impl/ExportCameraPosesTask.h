@@ -28,7 +28,7 @@
 
 #include <QObject>
 
-#include <tidop/core/task.h>
+#include <tidop/core/task/Task.h>
 
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"

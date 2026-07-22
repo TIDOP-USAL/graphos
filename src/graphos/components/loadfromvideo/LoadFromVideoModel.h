@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_LOADFROMVIDEO_MODEL_INTERFACE_H
 #define GRAPHOS_LOADFROMVIDEO_MODEL_INTERFACE_H
 
-#include <tidop/core/path.h>
+#include <tidop/core/base/Path.h>
 
 #include "graphos/core/mvp.h"
 #include "graphos/core/camera/Camera.h"

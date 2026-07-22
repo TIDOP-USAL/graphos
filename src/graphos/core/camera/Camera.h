@@ -26,7 +26,7 @@
 
 #include "graphos/core/camera/Calibration.h"
 
-#include <tidop/math/algebra/matrix.h>
+#include <tidop/math/algebra/matrix/Matrix.h>
 
 namespace graphos
 {

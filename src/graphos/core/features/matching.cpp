@@ -23,17 +23,19 @@
 
 #include "graphos/core/features/matching.h"
 
-#include <tidop/core/msg/message.h>
-#include <tidop/core/exception.h>
-#include <tidop/core/progress.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/base/Exception.h>
+#include <tidop/core/task/Progress.h>
 
 TL_DISABLE_WARNINGS
-#include <colmap/util/option_manager.h>
-#include <colmap/util/misc.h>
 #include <colmap/feature/sift.h>
-#include <colmap/feature/matching.h>
-#include <colmap/base/gps.h>
-#include <flann/flann.h>
+#include <colmap/feature/utils.h>
+#include <colmap/retrieval/visual_index.h>
+#include <colmap/util/cuda.h>
+#include <colmap/util/misc.h>
+#include <colmap/estimators/two_view_geometry.h>
+#include <colmap/controllers/feature_matching_utils.h>
+
 TL_DEFAULT_WARNINGS
 
 namespace graphos
@@ -123,81 +125,47 @@ FeatureMatchingTask::FeatureMatchingTask(tl::Path database,
 
 FeatureMatchingTask::~FeatureMatchingTask() = default;
 
-void FeatureMatchingTask::execute(tl::Progress *progressBar)
+void FeatureMatchingTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
 {
     try {
 
-        colmap::SiftMatchingOptions sift_matching_options;
-        sift_matching_options.max_error = mFeatureMatching->maxError();
-        sift_matching_options.cross_check = mFeatureMatching->crossCheck();
-        sift_matching_options.max_ratio = mFeatureMatching->ratio();
-        sift_matching_options.max_distance = mFeatureMatching->distance();
-        sift_matching_options.confidence = mFeatureMatching->confidence();
-        sift_matching_options.use_gpu = bUseCuda;
-        sift_matching_options.min_num_inliers = 15;// 100;
+        auto database = colmap::Database::Open(mDatabase.toUtf8());
+        TL_ASSERT(database->NumKeypoints() > 0, "Keypoints not found in the database");
 
-        colmap::Database database(mDatabase.toUtf8());
-        TL_ASSERT(database.NumKeypoints() > 0, "Keypoints not found in the database");
+        colmap::FeatureMatchingOptions matching_options;
+        matching_options.sift = std::make_shared<colmap::SiftMatchingOptions>();
+        matching_options.sift->cross_check = mFeatureMatching->crossCheck();
+        matching_options.sift->max_ratio = mFeatureMatching->ratio();
+        matching_options.sift->max_distance = mFeatureMatching->distance();
+        matching_options.use_gpu = bUseCuda;
 
-        colmap::ExhaustiveMatchingOptions exhaustive_matching_options;
+        colmap::TwoViewGeometryOptions geometry_options;
+        geometry_options.min_num_inliers = 15;
+        geometry_options.ransac_options.confidence = mFeatureMatching->confidence();
+        geometry_options.ransac_options.max_error = mFeatureMatching->maxError();
 
-        colmap::FeatureMatcherCache cache(5 * exhaustive_matching_options.block_size, &database);
-        colmap::SiftFeatureMatcher matcher(sift_matching_options, &database, &cache);
 
-        TL_ASSERT(matcher.Setup(), "");
-        cache.Setup();
+        colmap::ExhaustivePairingOptions pairing_options;
+        auto cache = std::make_shared<colmap::FeatureMatcherCache>(pairing_options.CacheSize(), database);
 
-        const std::vector<colmap::image_t> image_ids = cache.GetImageIds();
+        colmap::FeatureMatcherController matcher_(matching_options, geometry_options, cache);
+        TL_ASSERT(matcher_.Setup(), "");
 
-        const size_t block_size = static_cast<size_t>(exhaustive_matching_options.block_size);
-        //const size_t num_blocks = static_cast<size_t>(std::ceil(static_cast<double>(image_ids.size()) / block_size));
-        const size_t num_pairs_per_block = block_size * (block_size - 1) / 2;
+        auto pair_generator = std::make_unique<colmap::ExhaustivePairGenerator>(pairing_options, cache);
 
-        std::vector<std::pair<colmap::image_t, colmap::image_t>> image_pairs;
-        image_pairs.reserve(num_pairs_per_block);
+        while (!pair_generator->HasFinished()) {
 
-        for (size_t start_idx1 = 0; start_idx1 < image_ids.size(); start_idx1 += block_size) {
+            interruptionPoint(stopToken); // Emite una excepción
+            pausePoint(stopToken);
 
-            size_t end_idx1 = std::min(image_ids.size(), start_idx1 + block_size) - 1;
+            const auto &image_pairs = pair_generator->Next();
+            matcher_.Match(image_pairs);
 
-            for (size_t start_idx2 = 0; start_idx2 < image_ids.size(); start_idx2 += block_size) {
-
-                size_t end_idx2 = std::min(image_ids.size(), start_idx2 + block_size) - 1;
-
-                if (status() == Status::stopping) {
-                    return;
-                }
-
-                image_pairs.clear();
-
-                for (size_t idx1 = start_idx1; idx1 <= end_idx1; ++idx1) {
-
-                    size_t block_id1 = idx1 % block_size;
-                    auto image_id1 = image_ids[idx1];
-
-                    for (size_t idx2 = start_idx2; idx2 <= end_idx2; ++idx2) {
-
-                        size_t block_id2 = idx2 % block_size;
-
-                        if ((idx1 > idx2 && block_id1 <= block_id2) || (idx1 < idx2 && block_id1 < block_id2)) {
-                            // Avoid duplicate pairs
-                            image_pairs.emplace_back(image_id1, image_ids[idx2]);
-                        }
-                    }
-                }
-
-                colmap::DatabaseTransaction database_transaction(&database);
-                matcher.Match(image_pairs);
-
-                if (progressBar) (*progressBar)();
-
-            }
+            if (progressBar) (*progressBar)();
         }
 
-        
-
-        size_t num_matches = database.NumMatches();
-        database.Close();
+        size_t num_matches = database->NumMatches();
+        database->Close();
 
         if (status() != Status::stopping) {
 
@@ -269,204 +237,51 @@ SpatialMatchingTask::SpatialMatchingTask(tl::Path database,
 
 SpatialMatchingTask::~SpatialMatchingTask() = default;
 
-void SpatialMatchingTask::execute(tl::Progress *progressBar)
+void SpatialMatchingTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
 {
     try {
 
-        colmap::SiftMatchingOptions sift_matching_options;
-        sift_matching_options.max_error = mFeatureMatching->maxError();
-        sift_matching_options.cross_check = mFeatureMatching->crossCheck();
-        sift_matching_options.max_ratio = mFeatureMatching->ratio();
-        sift_matching_options.max_distance = mFeatureMatching->distance();
-        sift_matching_options.confidence = mFeatureMatching->confidence();
-        sift_matching_options.use_gpu = bUseCuda;
-        sift_matching_options.min_num_inliers = 15;// 100;
+        auto database = colmap::Database::Open(mDatabase.toUtf8());
+        TL_ASSERT(database->NumKeypoints() > 0, "Keypoints not found in the database");
 
-        colmap::Database database(mDatabase.toUtf8());
-        TL_ASSERT(database.NumKeypoints() > 0, "Keypoints not found in the database");
+        colmap::FeatureMatchingOptions matching_options;
+        matching_options.sift = std::make_shared<colmap::SiftMatchingOptions>();
+        matching_options.sift->cross_check = mFeatureMatching->crossCheck();
+        matching_options.sift->max_ratio = mFeatureMatching->ratio();
+        matching_options.sift->max_distance = mFeatureMatching->distance();
+        matching_options.use_gpu = bUseCuda;
 
-        colmap::SpatialMatchingOptions spatial_matching_options;
-        spatial_matching_options.max_num_neighbors = 100;// 500;
-        //spatialMatchingOptions.max_distance = 250;
-        spatial_matching_options.ignore_z = true;
-        spatial_matching_options.is_gps = mGeodeticCoordinates;
+        colmap::TwoViewGeometryOptions geometry_options;
+        geometry_options.min_num_inliers = 15;
+        geometry_options.ransac_options.confidence = mFeatureMatching->confidence();
+        geometry_options.ransac_options.max_error = mFeatureMatching->maxError();
 
-        // Extraido de colmap para incluir barra de progreso
+        colmap::SpatialPairingOptions spatial_pairing_options;
+        spatial_pairing_options.max_distance = 250;
+        spatial_pairing_options.ignore_z = true;
+        spatial_pairing_options.max_num_neighbors = 100;
 
-        colmap::FeatureMatcherCache cache(5 * spatial_matching_options.max_num_neighbors, &database);
-        colmap::SiftFeatureMatcher matcher(sift_matching_options, &database, &cache);
+        auto cache = std::make_shared<colmap::FeatureMatcherCache>(spatial_pairing_options.CacheSize(), database);
 
-        TL_ASSERT(matcher.Setup(), "");
-        cache.Setup();
-
-        const std::vector<colmap::image_t> image_ids = cache.GetImageIds();
-
-        //////////////////////////////////////////////////////////////////////////////
-        // Spatial indexing
-        //////////////////////////////////////////////////////////////////////////////
-
-        tl::Message::info("Indexing images");
-
-        colmap::GPSTransform gps_transform;
-
-        size_t num_locations = 0;
-        Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor> location_matrix(image_ids.size(), 3);
-
-        std::vector<size_t> location_idxs;
-        location_idxs.reserve(image_ids.size());
-        std::vector<size_t> not_location_idxs;
-        not_location_idxs.reserve(image_ids.size());
-
-        /// Compute offset
-        Eigen::Vector3d offset(0., 0., 0.);
-        for (size_t i = 0, j=0; i < image_ids.size(); ++i) {
-
-            auto image_id = image_ids[i];
-            const auto &image = cache.GetImage(image_id);
-
-            if (image.HasTvecPrior()) {
-                offset += (image.TvecPrior() - offset) / (++j);
-            }
-
-        }
-
-        std::vector<Eigen::Vector3d> ells(1);
-
-        for (size_t i = 0; i < image_ids.size(); ++i) {
-
-            auto image_id = image_ids[i];
-            const auto &image = cache.GetImage(image_id);
-
-            if (!image.HasTvecPrior() || (image.TvecPrior(0) == 0 && image.TvecPrior(1) == 0 && spatial_matching_options.ignore_z) ||
-                (image.TvecPrior(0) == 0 && image.TvecPrior(1) == 0 && image.TvecPrior(2) == 0 && !spatial_matching_options.ignore_z)) {
-                not_location_idxs.push_back(i);
-                continue;
-            }
-
-            location_idxs.push_back(i);
-
-            if (spatial_matching_options.is_gps) {
-
-                ells[0](0) = image.TvecPrior(0);
-                ells[0](1) = image.TvecPrior(1);
-                ells[0](2) = spatial_matching_options.ignore_z ? 0 : image.TvecPrior(2);
-
-                const auto xyzs = gps_transform.EllToXYZ(ells);
-
-                location_matrix(num_locations, 0) = static_cast<float>(xyzs[0](0));
-                location_matrix(num_locations, 1) = static_cast<float>(xyzs[0](1));
-                location_matrix(num_locations, 2) = static_cast<float>(xyzs[0](2));
-
-            } else {
-
-                location_matrix(num_locations, 0) = static_cast<float>(image.TvecPrior(0) - offset.x());
-                location_matrix(num_locations, 1) = static_cast<float>(image.TvecPrior(1) - offset.y());
-                location_matrix(num_locations, 2) = static_cast<float>(spatial_matching_options.ignore_z ? 0 : image.TvecPrior(2) - offset.z());
-
-            }
-
-            num_locations += 1;
-        }
-
-        //////////////////////////////////////////////////////////////////////////////
-        // Building spatial index
-        //////////////////////////////////////////////////////////////////////////////
-
-        tl::Message::info("Building search index");
-
-        flann::Matrix<float> locations(location_matrix.data(), num_locations, location_matrix.cols());
-
-        flann::LinearIndexParams index_params;
-        flann::LinearIndex<flann::L2<float>> search_index(index_params);
-        search_index.buildIndex(locations);
-
-        //////////////////////////////////////////////////////////////////////////////
-        // Searching spatial index
-        //////////////////////////////////////////////////////////////////////////////
-
-        tl::Message::info("Searching for nearest neighbors");
-
-        int knn = std::min<int>(spatial_matching_options.max_num_neighbors, num_locations);
-
-        Eigen::Matrix<size_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> index_matrix(num_locations, knn);
-        flann::Matrix<size_t> indices(index_matrix.data(), num_locations, knn);
-
-        Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> distance_matrix(num_locations, knn);
-        flann::Matrix<float> distances(distance_matrix.data(), num_locations, knn);
-
-        flann::SearchParams search_params(flann::FLANN_CHECKS_AUTOTUNED);
-        search_params.cores = std::thread::hardware_concurrency() <= 0 ? 1 : std::thread::hardware_concurrency();
-
-        search_index.knnSearch(locations, indices, distances, knn, search_params);
-
-        //////////////////////////////////////////////////////////////////////////////
-        // Matching
-        //////////////////////////////////////////////////////////////////////////////
-
-        float max_distance = static_cast<float>(spatial_matching_options.max_distance * spatial_matching_options.max_distance);
-
-        std::vector<std::pair<colmap::image_t, colmap::image_t>> image_pairs;
-        image_pairs.reserve(knn);
-
-        for (size_t i = 0; i < num_locations; ++i) {
-            
-            if (status() == Status::stopping) {
-                return;
-            }
-
-            image_pairs.clear();
-
-            size_t idx = location_idxs[i];
-            colmap::image_t image_id = image_ids.at(idx);
-
-            for (int j = 0; j < knn; ++j) {
-                // Check if query equals result.
-                if (index_matrix(static_cast<int>(i), j) == i) {
-                    continue;
-                }
-
-                // Since the nearest neighbors are sorted by distance, we can break.
-                if (distance_matrix(static_cast<int>(i), j) > max_distance) {
-                    break;
-                }
-                
-                size_t nn_idx = location_idxs.at(index_matrix(i, j));
-                colmap::image_t nn_image_id = image_ids.at(nn_idx);
-                image_pairs.emplace_back(image_id, nn_image_id);
-            }
-
-            colmap::DatabaseTransaction database_transaction(&database);
-            matcher.Match(image_pairs);
-
-            if (progressBar) (*progressBar)();
-
-        }
+        colmap::FeatureMatcherController matcher_(matching_options, geometry_options, cache);
         
-        image_pairs.reserve(image_ids.size());
-        
-        for (auto image_id : not_location_idxs) {
-            
-            if (status() == Status::stopping) {
-                return;
-            }
-        
-            image_pairs.clear();
+        TL_ASSERT(matcher_.Setup(), "");
 
-            for (auto image_id_pair : image_ids) {
+        auto pair_generator = std::make_unique<colmap::SpatialPairGenerator>(spatial_pairing_options, cache);
 
-                if (image_id == image_id_pair) continue;
+        while (!pair_generator->HasFinished()) {
 
-                image_pairs.emplace_back(image_id, image_id_pair);
-            }
-                     
-            colmap::DatabaseTransaction database_transaction(&database);
-            matcher.Match(image_pairs);
-        
+            interruptionPoint(stopToken);
+            pausePoint(stopToken);
+
+            const auto &image_pairs = pair_generator->Next();
+            matcher_.Match(image_pairs);
+
             if (progressBar) (*progressBar)();
         }
 
-        size_t num_matches = database.NumMatches();
-        database.Close();
+        size_t num_matches = database->NumMatches();
+        database->Close();
 
         if (status() != Status::stopping) {
 

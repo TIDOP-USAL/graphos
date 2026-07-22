@@ -24,10 +24,10 @@
 #ifndef GRAPHOS_CORE_DENSE_EXPORT_H
 #define GRAPHOS_CORE_DENSE_EXPORT_H
 
-#include <tidop/core/flags.h>
-#include <tidop/core/path.h>
-#include <tidop/geometry/entities/point.h>
-#include <tidop/geometry/entities/bbox.h>
+#include <tidop/core/base/flags.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/geometry/primitives/Point.h>
+#include <tidop/geometry/spatial/BoundingBox.h>
 
 namespace graphos
 {
@@ -48,15 +48,15 @@ public:
 
     DenseExport(tl::Path denseModel);
 
-    void setOffset(const tl::Point3<double> &point);
+    void setOffset(const tl::Vector3d &offset);
     void exportToCSV(const std::string &csv,
                      const tl::EnumFlags<Fields> &flag,
-                     tl::BoundingBox<tl::Point3<double>> *bbox = nullptr) const;
+                     tl::BoundingBox<tl::Point3d> *bbox = nullptr) const;
 
 protected:
 
     tl::Path mDenseModel;
-    tl::Point3<double> mOffset;
+    tl::Vector3d mOffset;
 };
 
 } // namespace graphos

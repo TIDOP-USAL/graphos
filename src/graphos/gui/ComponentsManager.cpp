@@ -35,8 +35,8 @@
 #include "graphos/widgets/ProgressBarWidget.h"
 #include "graphos/core/Plugin.h"
 
-#include <tidop/core/console.h>
-#include <tidop/core/msg/message.h>
+#include <tidop/core/console/Console.h>
+#include <tidop/core/app/Message.h>
 
 #include <QProgressBar>
 #include <QAction>

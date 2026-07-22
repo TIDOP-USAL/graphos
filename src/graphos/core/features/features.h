@@ -30,7 +30,7 @@
 
 #include <opencv2/features2d.hpp>
 
-#include <tidop/core/flags.h>
+#include <tidop/core/base/flags.h>
 
 namespace graphos
 {

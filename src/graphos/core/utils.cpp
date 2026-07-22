@@ -25,8 +25,10 @@
 #include "graphos/core/Pdf.h"
 #include "graphos/core/ply.h"
 
-#include <tidop/core/msg/message.h>
-#include <tidop/core/chrono.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/base/Chrono.h>
+#include <tidop/core/base/Split.h>
+#include <tidop/core/base/TypeConversions.h>
 #include <tidop/geospatial/util.h>
 
 #ifdef GRAPHOS_GUI
@@ -496,7 +498,7 @@ void transformModel(const tl::Matrix<double> &transform, const std::string &mode
 QString enuCrsToEpsg(const QString &enuCRS)
 {
     auto v = tl::split<std::string>(enuCRS.toStdString(), ';');
-    auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
+    auto zone = tl::utmZoneFromLonLat(tl::convertStringTo<double>(v.at(1)), tl::convertStringTo<double>(v.at(2)));
     QString epsg_code("EPSG:326");
     epsg_code.append(QString::number(zone.first));
     return epsg_code;

@@ -28,8 +28,8 @@
 
 #include <opencv2/core/mat.hpp>
 
-#include <tidop/core/path.h>
-#include <tidop/img/imgreader.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/rastertools/io/Reader.h>
 #include <tidop/math/geometry/affine.h>
 #include <tidop/geometry/rect.h>
 #include <tidop/geospatial/diffrect.h>
@@ -86,7 +86,7 @@ public:
      * \param[in] terrainPoint Terrain point in ENU coordinates.
      * \return Pixel coordinates in the image.
      */
-    auto terrainToImage(const tl::Point3<double> &terrainPoint) const -> tl::Point<int>;
+    auto terrainToImage(const tl::Point3d &terrainPoint) const -> tl::Point<int>;
     
 
     /*!
@@ -94,21 +94,21 @@ public:
      * \param[in] terrainPoint Terrain point in ENU coordinates.
      * \return Point in photo (camera) coordinate system.
      */
-    auto terrainToPhotoCoordinates(const tl::Point3<double> &terrainPoint) const -> tl::Point<double>;
+    auto terrainToPhotoCoordinates(const tl::Point3d &terrainPoint) const -> tl::Point<double>;
 
     /*!
      * \brief Back-projects a pixel from the image into terrain space using the DSM.
      * \param[in] imageCoordinates Pixel coordinates in the image.
      * \return Corresponding terrain point in ENU coordinates.
      */
-    auto imageToTerrain(const tl::Point<int> &imageCoordinates) const -> tl::Point3<double>;
+    auto imageToTerrain(const tl::Point<int> &imageCoordinates) const -> tl::Point3d;
 
     /*!
      * \brief Back-projects photo (camera) coordinates into terrain coordinates using the DSM.
      * \param[in] photocoordinates Point in photo (camera) coordinates.
      * \return Corresponding terrain point in ENU coordinates.
      */
-    auto photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const -> tl::Point3<double>;
+    auto photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const -> tl::Point3d;
 
     /*!
      * \brief Converts image pixel coordinates to photo (camera) coordinates.
@@ -129,14 +129,14 @@ public:
      * \param[in] imagePoint Pixel coordinates in the DSM image.
      * \return Corresponding terrain point in ENU coordinates.
      */
-    auto dsmImageCoordinatesToTerrain(const tl::Point<int> &imagePoint) const -> tl::Point3<double>;
+    auto dsmImageCoordinatesToTerrain(const tl::Point<int> &imagePoint) const -> tl::Point3d;
 
     /*!
      * \brief Converts terrain (ENU) coordinates to DSM image coordinates.
      * \param[in] terrainPoint Terrain point in ENU coordinates.
      * \return Pixel coordinates in the DSM image.
      */
-    auto terrainToDsmImageCoordinates(const tl::Point3<double> &terrainPoint) const -> tl::Point<int> ;
+    auto terrainToDsmImageCoordinates(const tl::Point3d &terrainPoint) const -> tl::Point<int> ;
 
     /*!
      * \brief Returns the DSM elevation (Z) at the given terrain coordinates.
@@ -210,7 +210,7 @@ private:
     void init();
 
     auto focal() const -> float;
-    auto principalPoint() const -> tl::Point<float>;
+    auto principalPoint() const -> tl::Point2f;
 
 private:
 

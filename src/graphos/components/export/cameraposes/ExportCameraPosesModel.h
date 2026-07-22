@@ -27,7 +27,7 @@
 #include "graphos/core/mvp.h"
 
 #include <unordered_map>
-#include <tidop/geometry/entities/point.h>
+#include <tidop/geometry/primitives/Point.h>
 
 namespace graphos
 {

@@ -28,7 +28,7 @@
 #include "graphos/core/sfm/posesio.h"
 #include "graphos/core/project.h"
 
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 #include <tidop/math/geometry/affine.h>
 
 #include <QFileInfo>

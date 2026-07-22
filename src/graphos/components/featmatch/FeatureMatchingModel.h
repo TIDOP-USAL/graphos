@@ -27,7 +27,7 @@
 #include "graphos/core/mvp.h"
 #include "graphos/core/features/features.h"
 
-#include <tidop/core/path.h>
+#include <tidop/core/base/Path.h>
 
 namespace graphos
 {

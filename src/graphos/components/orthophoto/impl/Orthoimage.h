@@ -24,10 +24,10 @@
 #ifndef GRAPHOS_CORE_ORTHO_ORTHOIMAGE_H
 #define GRAPHOS_CORE_ORTHO_ORTHOIMAGE_H
 
-#include <tidop/core/path.h>
-#include <tidop/core/task.h>
-#include <tidop/img/imgreader.h>
-#include <tidop/img/imgwriter.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/core/task/Task.h>
+#include <tidop/rastertools/io/Reader.h>
+#include <tidop/rastertools/io/Writer.h>
 #include <tidop/math/geometry/affine.h>
 #include <tidop/geometry/rect.h>
 

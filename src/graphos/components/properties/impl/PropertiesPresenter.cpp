@@ -26,7 +26,7 @@
 #include "graphos/components/properties/PropertiesModel.h"
 #include "graphos/components/properties/PropertiesView.h"
 
-#include <tidop/core/exception.h>
+#include <tidop/core/base/Exception.h>
 
 #include <QFileDialog>
 

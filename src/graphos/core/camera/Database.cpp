@@ -23,7 +23,7 @@
 
 #include "graphos/core/camera/Database.h"
 
-#include <tidop/core/exception.h>
+#include <tidop/core/base/Exception.h>
 
 #include <QSqlDatabase>
 #include <QFileInfo>
@@ -31,7 +31,7 @@
 #include <QSqlError>
 #include <QVariant>
 
-#include <SQLite/sqlite3.h>
+#include <sqlite3.h>
 
 using namespace tl;
 
@@ -60,14 +60,16 @@ DatabaseCameras::~DatabaseCameras()
 
 void DatabaseCameras::open()
 {
-    try {
+    //try {
 
-        TL_ASSERT(QFileInfo(mDatabase->databaseName()).exists(), "The camera database does not exist");
-        TL_ASSERT(mDatabase->open(), "The camera database does not exist");
+    //    TL_ASSERT(QFileInfo(mDatabase->databaseName()).exists(), "The camera database does not exist");
+    //    TL_ASSERT(mDatabase->open(), "The camera database does not exist");
 
-    } catch (...){
-        TL_THROW_EXCEPTION_WITH_NESTED("Catched exception in open");
-    }
+    //} catch (...){
+    //    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception in open");
+    //}
+    if (QFileInfo(mDatabase->databaseName()).exists())
+        mDatabase->open();
 }
 
 bool DatabaseCameras::isOpen() const

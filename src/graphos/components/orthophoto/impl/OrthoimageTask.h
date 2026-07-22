@@ -26,8 +26,8 @@
 
 #include <unordered_map>
 
-#include <tidop/core/task.h>
-#include <tidop/core/path.h>
+#include <tidop/core/task/Task.h>
+#include <tidop/core/base/Path.h>
 #include <tidop/vect/vectwriter.h>
 #include <tidop/graphic/entities/polygon.h>
 #include <tidop/math/geometry/affine.h>

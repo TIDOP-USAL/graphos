@@ -26,6 +26,8 @@
 #include "graphos/core/task/TaskPresenter.h"
 #include "graphos/core/command.h"
 
+#include <tidop/core/base/Meta.h>
+
 #include <QAction>
 #include <QMenu>
 #include <QMainWindow>

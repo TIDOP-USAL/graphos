@@ -26,8 +26,8 @@
 
 #include <unordered_map>
 
-#include <tidop/core/path.h>
-#include <tidop/math/algebra/matrix.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/math/algebra/matrix/Matrix.h>
 
 #include "graphos/core/mvp.h"
 #include "graphos/core/sfm/poses.h"

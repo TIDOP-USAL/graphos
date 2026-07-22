@@ -26,7 +26,7 @@
 
 #include <QObject>
 
-#include <tidop/core/progress.h>
+#include <tidop/core/task/Progress.h>
 
 namespace graphos
 {

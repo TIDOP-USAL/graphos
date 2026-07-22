@@ -27,7 +27,7 @@
 #include "graphos/core/dense/dense.h"
 #include "graphos/core/sfm/groundpoint.h"
 
-#include <tidop/core/console.h>
+#include <tidop/core/console/Console.h>
 
 #include <QSettings>
 

@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_SCALE_MODEL_INTERFACE_H
 #define GRAPHOS_SCALE_MODEL_INTERFACE_H
 
-#include <tidop/math/algebra/matrix.h>
+#include <tidop/math/algebra/matrix/Matrix.h>
 
 #include "graphos/core/mvp.h"
 

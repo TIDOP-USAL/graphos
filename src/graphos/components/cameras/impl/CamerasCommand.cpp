@@ -24,7 +24,7 @@
 #include "CamerasCommand.h"
 
 #include <tidop/core/log.h>
-#include <tidop/core/exception.h>
+#include <tidop/core/base/Exception.h>
 
 #include "graphos/core/project.h"
 #include "graphos/core/camera/io/CalibrationReader.h"

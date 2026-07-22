@@ -28,8 +28,8 @@
 #include "graphos/core/AppStatus.h"
 
 #include <tidop/core/utils.h>
-#include <tidop/core/progress.h>
-#include <tidop/img/imgreader.h>
+#include <tidop/core/task/Progress.h>
+#include <tidop/rastertools/io/Reader.h>
 
 TL_DISABLE_WARNINGS
 #include <QFileInfo>

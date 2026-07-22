@@ -25,6 +25,7 @@
 #define GRAPHOS_UTILS_PDF_H
 
 #include <functional>
+#include <map>
 
 #include <QFont>
 #include <QPen>

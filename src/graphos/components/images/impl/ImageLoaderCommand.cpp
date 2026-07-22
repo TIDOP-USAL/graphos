@@ -27,13 +27,14 @@
 #include "graphos/components/images/impl/ImageLoaderTask.h"
 #include "graphos/core/task/Progress.h"
 
-#include <tidop/core/msg/message.h>
-#include <tidop/core/progress.h>
-#include <tidop/img/imgreader.h>
-#include <tidop/img/metadata.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/task/Progress.h>
+#include <tidop/core/console/ValuesValidator.h>
+#include <tidop/rastertools/io/Reader.h>
+#include <tidop/rastertools/io/Metadata.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
-#include <tidop/core/log.h>
+#include <tidop/core/app/Logger.h>
 
 #include <QFileInfo>
 #include <QSqlQuery>
@@ -83,14 +84,13 @@ bool ImageLoaderCommand::run()
 {
     bool r = false;
 
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
 
     try {
 
         auto project_path = this->value<tl::Path>("prj");
         auto image_path = this->value<tl::Path>("image");
         auto image_list_path = this->value<tl::Path>("image_list");
-        auto image_list_path2 = this->value<std::string>("image_list");
         bool delete_image = this->value<bool>("delete");
         auto progress_bar = this->value<std::string>("progress_bar");
         auto camera_type = this->value<std::string>("camera");
@@ -102,7 +102,7 @@ bool ImageLoaderCommand::run()
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
-        ProjectImp project;
+        Project project;
         project.load(project_path);
 
         std::vector<Image> images;

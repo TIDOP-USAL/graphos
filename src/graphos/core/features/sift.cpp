@@ -23,12 +23,13 @@
 
 #include "graphos/core/features/sift.h"
 
-#include <tidop/core/msg/message.h>
-#include <tidop/core/exception.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/base/Exception.h>
 
 #include <colmap/util/opengl_utils.h>
+#include <colmap/util/misc.h>
 #include <colmap/feature/sift.h>
-#include "SiftGPU/SiftGPU.h"
+#include <colmap/thirdparty/SiftGPU/SiftGPU.h>
 
 #include <opencv2/imgcodecs.hpp>
 
@@ -287,17 +288,114 @@ SiftCudaDetectorDescriptor::~SiftCudaDetectorDescriptor() = default;
 
 void SiftCudaDetectorDescriptor::update()
 {
-    colmap::SiftExtractionOptions options;
-    options.max_num_features = Sift::featuresNumber();
-    options.octave_resolution = Sift::octaveLayers();
-    options.edge_threshold = Sift::edgeThreshold();
-    options.peak_threshold = Sift::contrastThreshold();
+    colmap::FeatureExtractionOptions options;
+    options.sift = std::make_shared<colmap::SiftExtractionOptions>();
+    options.sift->max_num_features = Sift::featuresNumber();
+    options.sift->octave_resolution = Sift::octaveLayers();
+    options.sift->edge_threshold = Sift::edgeThreshold();
+    options.sift->peak_threshold = Sift::contrastThreshold();
     //options.domain_size_pooling = Sift::domainSizePooling();
     options.use_gpu = true;
 
+    std::lock_guard<std::mutex> lck(mMutex);
+
     mSiftGpu.reset(new SiftGPU);
 
-    TL_ASSERT(CreateSiftGPUExtractor(options, mSiftGpu.get()), "Error creating SiftGPUExtractor");
+    std::vector<int> gpu_indices = colmap::CSVToVector<int>(options.gpu_index);
+    TL_ASSERT(gpu_indices.size() == 1, "SiftGPU can only run on one GPU");
+
+    std::vector<std::string> sift_gpu_args;
+
+    sift_gpu_args.push_back("./sift_gpu");
+
+#if defined(COLMAP_CUDA_ENABLED)
+    // Use CUDA version by default if darkness adaptivity is disabled.
+    if (!options.sift->darkness_adaptivity && gpu_indices[0] < 0) {
+        gpu_indices[0] = 0;
+    }
+
+    if (gpu_indices[0] >= 0) {
+        sift_gpu_args.push_back("-cuda");
+        sift_gpu_args.push_back(std::to_string(gpu_indices[0]));
+    }
+#endif  // COLMAP_CUDA_ENABLED
+
+    // Darkness adaptivity (hidden feature). Significantly improves
+    // distribution of features. Only available in GLSL version.
+    //if (options.sift->darkness_adaptivity) {
+    //    if (gpu_indices[0] >= 0) {
+    //        WarnDarknessAdaptivityNotAvailable();
+    //    }
+    //    sift_gpu_args.push_back("-da");
+    //}
+
+    // No verbose logging.
+    sift_gpu_args.push_back("-v");
+    sift_gpu_args.push_back("0");
+
+    // Set maximum image dimension.
+    // Note the max dimension of SiftGPU is the maximum dimension of the
+    // first octave in the pyramid (which is the 'first_octave').
+    const int compensation_factor = 1
+        << -std::min(0, options.sift->first_octave);
+    sift_gpu_args.push_back("-maxd");
+    sift_gpu_args.push_back(
+        std::to_string(options.EffMaxImageSize() * compensation_factor));
+
+    // Keep the highest level features.
+    sift_gpu_args.push_back("-tc2");
+    sift_gpu_args.push_back(std::to_string(options.sift->max_num_features));
+
+    // First octave level.
+    sift_gpu_args.push_back("-fo");
+    sift_gpu_args.push_back(std::to_string(options.sift->first_octave));
+
+    // Number of octave levels.
+    sift_gpu_args.push_back("-d");
+    sift_gpu_args.push_back(std::to_string(options.sift->octave_resolution));
+
+    // Peak threshold.
+    sift_gpu_args.push_back("-t");
+    sift_gpu_args.push_back(std::to_string(options.sift->peak_threshold));
+
+    // Edge threshold.
+    sift_gpu_args.push_back("-e");
+    sift_gpu_args.push_back(std::to_string(options.sift->edge_threshold));
+
+    if (options.sift->upright) {
+        // Fix the orientation to 0 for upright features.
+        sift_gpu_args.push_back("-ofix");
+        // Maximum number of orientations.
+        sift_gpu_args.push_back("-mo");
+        sift_gpu_args.push_back("1");
+    } else {
+        // Maximum number of orientations.
+        sift_gpu_args.push_back("-mo");
+        sift_gpu_args.push_back(
+            std::to_string(options.sift->max_num_orientations));
+    }
+
+    std::vector<const char *> sift_gpu_args_cstr;
+    sift_gpu_args_cstr.reserve(sift_gpu_args.size());
+    for (const auto &arg : sift_gpu_args) {
+        sift_gpu_args_cstr.push_back(arg.c_str());
+    }
+
+    //auto extractor = std::make_unique<SiftGPUFeatureExtractor>(options);
+
+    // Note that the SiftGPU object is not movable (for whatever reason).
+    // If we instead create the object here and move it to the constructor, the
+    // program segfaults inside SiftGPU.
+
+    mSiftGpu->ParseParam(sift_gpu_args_cstr.size(),
+                         sift_gpu_args_cstr.data());
+
+    mSiftGpu->gpu_index = gpu_indices[0];
+    //if (sift_gpu_mutexes_.count(gpu_indices[0]) == 0) {
+    //    sift_gpu_mutexes_.emplace(gpu_indices[0], std::make_unique<std::mutex>());
+    //}
+
+    TL_ASSERT(mSiftGpu->VerifyContextGL() != SiftGPU::SIFTGPU_FULL_SUPPORTED, "Error creating SiftGPUExtractor");
 }
 
 void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
@@ -308,9 +406,15 @@ void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
 
     try {
 
+        TL_ASSERT(bitmap.type() == CV_8UC1, "SiftCudaDetectorDescriptor supports only 8-bit, single-channel images.");
+
         update();
 
-        int err = mSiftGpu->RunSIFT(bitmap.cols, bitmap.rows, bitmap.data, GL_LUMINANCE, GL_UNSIGNED_BYTE);
+        int err = mSiftGpu->RunSIFT(bitmap.cols,
+                                    bitmap.rows, 
+                                    bitmap.data, 
+                                    GL_LUMINANCE, 
+                                    GL_UNSIGNED_BYTE);
 
         TL_ASSERT(err == 1, "ExtractSiftFeaturesGPU fail");
 

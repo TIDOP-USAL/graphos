@@ -32,9 +32,9 @@
 
 /* TidopLib */
 #include <tidop/core/messages.h>
-#include <tidop/core/exception.h>
-#include <tidop/core/progress.h>
-#include <tidop/core/chrono.h>
+#include <tidop/core/base/Exception.h>
+#include <tidop/core/task/Progress.h>
+#include <tidop/core/base/Chrono.h>
 #include <tidop/geospatial/crs.h>
 #include <tidop/vect/vectreader.h>
 #include <tidop/graphic/layer.h>

@@ -27,7 +27,7 @@
 #include "graphos/core/project.h"
 #include "graphos/components/export/cameraposes/impl/ExportCameraPosesTask.h"
 
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 #include <tidop/core/log.h>
 
 

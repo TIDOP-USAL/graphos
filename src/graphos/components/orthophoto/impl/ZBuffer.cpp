@@ -25,7 +25,7 @@
 
 #include <opencv2/imgproc.hpp>
 
-#include <tidop/core/chrono.h>
+#include <tidop/core/base/Chrono.h>
 
 namespace graphos
 {
@@ -140,7 +140,7 @@ void ZBuffer::run()
                         r < tile.rect.y || r >= tile.rect.y + tile.rect.height)
                         continue;
 
-                    std::vector<tl::Point3<double>> dem_enu_coordinates(4);
+                    std::vector<tl::Point3d> dem_enu_coordinates(4);
 
                     dem_enu_coordinates[0] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c, r));
                     dem_enu_coordinates[1] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c + 1, r));
@@ -209,7 +209,7 @@ void ZBuffer::run()
 
                     if (rect_image.contains(pt_image)) {
 
-                        tl::Point3<double> terrain_point = dem_enu_coordinates[0];
+                        tl::Point3d terrain_point = dem_enu_coordinates[0];
                         for (size_t j = 1; j < dem_enu_coordinates.size(); j++) {
                             terrain_point += (dem_enu_coordinates[j] - terrain_point) / (j + 1);
                         }

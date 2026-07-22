@@ -24,9 +24,9 @@
 #ifndef GRAPHOS_EXPORT_POINT_CLOUD_TASK_H
 #define GRAPHOS_EXPORT_POINT_CLOUD_TASK_H
 
-#include <tidop/core/task.h>
-#include <tidop/core/progress.h>
-#include <tidop/geometry/entities/point.h>
+#include <tidop/core/task/Task.h>
+#include <tidop/core/task/Progress.h>
+#include <tidop/geometry/primitives/Point.h>
 
 #include <QObject>
 

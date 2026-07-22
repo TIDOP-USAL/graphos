@@ -32,8 +32,8 @@
 #include "graphos/widgets/SiftWidget.h"
 #include "graphos/core/camera/Camera.h"
 
-#include <tidop/core/msg/message.h>
-#include <tidop/core/task.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/task/Task.h>
 
 #include <QDir>
 #include <QImageReader>

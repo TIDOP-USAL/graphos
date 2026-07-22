@@ -26,13 +26,13 @@
 
 #include <QObject>
 
-#include <tidop/core/task.h>
+#include <tidop/core/task/Task.h>
 
 #include "graphos/core/image.h"
 
 namespace tl
 {
-class ImageReader;
+class RasterReader;
 class Process;
 class Crs;
 }
@@ -45,7 +45,7 @@ class Camera;
 
 class LoadImagesTask
   : public QObject,
-    public tl::TaskBase
+    public tl::Task
 {
 
     Q_OBJECT
@@ -54,8 +54,7 @@ public:
 
     LoadImagesTask(std::vector<Image> *images,
                    std::vector<Camera> *cameras,
-                   std::string cameraType/*,
-                   QString epsg = QString()*/);
+                   std::string cameraType);
     ~LoadImagesTask() override;
 
 signals:
@@ -73,22 +72,19 @@ private:
                     const QString &serialNumber = "", 
                     const QString &bandName = "") const -> int;
     void loadImage(size_t imageId);
-    auto loadCamera(tl::ImageReader *imageReader) -> int;
+    auto loadCamera(const tl::RasterReader &imageReader) -> int;
     auto parseFocal(const std::string &focal, double def) -> double;
 
 // tl::TaskBase interface
 
 protected:
 
-    void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 protected:
 
     std::vector<Image> *mImages;
     std::vector<Camera> *mCameras;
-    //QString mEPSG;
-    //std::shared_ptr<tl::Crs> mCrsIn;
-    //std::shared_ptr<tl::Crs> mCrsOut;
     QString mDatabaseCamerasPath;
     std::string mCameraType;
 };

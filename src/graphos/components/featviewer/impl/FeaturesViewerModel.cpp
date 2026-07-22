@@ -25,7 +25,7 @@
 
 #include "graphos/core/project.h"
 
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 
 #include <colmap/base/database.h>
 

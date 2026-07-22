@@ -130,22 +130,21 @@ endif(BUILD_TRANSLATION)
 
 target_link_libraries(${PROJECT_NAME}
                       TidopLib::Core
-                      TidopLib::Geom
+                      TidopLib::Geometry
                       TidopLib::Geospatial
-                      TidopLib::Img
+                      TidopLib::RasterTools
                       TidopLib::Math
-                      TidopLib::Vect
+                      TidopLib::VectorTools
                       TidopLib::Graphic
                       TidopLib::GeoTools
                       TidopLib::PointCloudTools
-                      Qt5::Core
-                      $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
-                      $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Help>
-                      Qt5::Concurrent
-                      Qt5::Sql
-                      Qt5::PrintSupport
-                      Qt5::OpenGL
-                      Qt5::OpenGLExtensions
+                      Qt6::Core
+                      $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Widgets>
+                      $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Help>
+                      Qt6::Concurrent
+                      Qt6::Sql
+                      Qt6::PrintSupport
+                      Qt6::OpenGL
                       Graphos::Core
                       $<$<BOOL:${GRAPHOS_GUI}>:Graphos::Widgets>
                       $<$<BOOL:${GRAPHOS_HAVE_ABOUT}>:Graphos::About>

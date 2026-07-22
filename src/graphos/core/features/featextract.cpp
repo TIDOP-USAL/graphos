@@ -27,10 +27,10 @@
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/utils.h"
 
-#include <tidop/core/msg/message.h>
-#include <tidop/core/exception.h>
-#include <tidop/core/concurrency.h>
-#include <tidop/img/imgreader.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/base/Exception.h>
+#include <tidop/core/concurrency/QueueMPMC.h>
+#include <tidop/rastertools/io/Reader.h>
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
@@ -161,11 +161,11 @@ private:
                 colmap::Image image_colmap;
                 image_colmap.SetName(image_path);
 
-                tl::Point3<double> position = image.cameraPose().position();
-                if (position != tl::Point3<double>()) {
-                    image_colmap.TvecPrior(0) = image.cameraPose().position().x;
-                    image_colmap.TvecPrior(1) = image.cameraPose().position().y;
-                    image_colmap.TvecPrior(2) = image.cameraPose().position().z;
+                tl::Point3d position = image.cameraPose().position();
+                if (position != tl::Point3d()) {
+                    image_colmap.TvecPrior(0) = image.cameraPose().position().x();
+                    image_colmap.TvecPrior(1) = image.cameraPose().position().y();
+                    image_colmap.TvecPrior(2) = image.cameraPose().position().z();
                 }
 
                 tl::Quaternion<double> q = image.cameraPose().quaternion();
@@ -241,25 +241,24 @@ private:
 
         if (!featextract_opencv_read) {
 
-            auto image_reader = tl::ImageReaderFactory::create(image.path().toStdString());
-            image_reader->open();
-            TL_ASSERT(image_reader->isOpen(), "The image could not be read");
+            RasterReader image_reader(image.path().toStdString());
+            TL_ASSERT(image_reader.isOpen(), "The image could not be read");
 
-            double max_dimension = std::max(image_reader->cols(), image_reader->rows());
+            double max_dimension = std::max(image_reader.cols(), image_reader.rows());
 
             if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
                 scale = mMaxImageSize / max_dimension;
-                mat = image_reader->read(scale, scale);
+                mat = image_reader.read(scale, scale);
                 scale = 1. / scale;
             } else {
-                mat = image_reader->read();
+                mat = image_reader.read();
             }
 
             if (mat.channels() >= 3) {
                 convertToGray(mat, mat, bUseGPU);
             }
 
-            image_reader->close();
+            image_reader.close();
         }
 
         normalizeImage(mat, mat, bUseGPU);

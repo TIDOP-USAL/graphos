@@ -35,13 +35,13 @@ TL_DISABLE_WARNINGS
 #include "csf/src/CSF.h"
 TL_DEFAULT_WARNINGS
 
-#include <tidop/core/msg/message.h>
-//#include <tidop/core/chrono.h>
-#include <tidop/core/path.h>
-#include <tidop/geometry/entities/point.h>
+#include <tidop/core/app/Message.h>
+//#include <tidop/core/base/Chrono.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/geometry/primitives/Point.h>
 #include <tidop/geometry/size.h>
 #include <tidop/img/img.h>
-#include <tidop/img/imgwriter.h>
+#include <tidop/rastertools/io/Writer.h>
 #include <tidop/geospatial/crs.h>
 #include <tidop/geometry/entities/bbox.h>
 
@@ -209,7 +209,7 @@ cv::Mat extractDTMfromTIN(const DelaunayTriangulation &tin,
 
             if (demTask->status() == DemTask::Status::stopping)  break;
 
-            tl::Point3<double> point = georeference.transform(tl::Point<double>(c, r));
+            tl::Point3d point = georeference.transform(tl::Point<double>(c, r));
             Point_3 query(point.x, point.y, 0.);
             location = tin.locate(query, location);
 
@@ -494,7 +494,7 @@ void DemTask::execute(tl::Progress *progressBar)
             for (int r = 0; r < dsm_raster_enu.rows; r++) {
                 for (int c = 0; c < dsm_raster_enu.cols; c++) {
 
-                    tl::Point3<double> point = georeference_enu.transform(tl::Point<double>(c, r));
+                    tl::Point3d point = georeference_enu.transform(tl::Point<double>(c, r));
                     point.z = dsm_raster_enu.at<float>(r, c);
                     if (point.z == -9999) continue;
                     auto _point = point;
@@ -527,7 +527,7 @@ void DemTask::execute(tl::Progress *progressBar)
         for (int r = 0; r < dsm_raster.rows; r++) {
             for (int c = 0; c < dsm_raster.cols; c++) {
 
-                tl::Point3<double> point = georeference.transform(tl::Point<double>(c, r));
+                tl::Point3d point = georeference.transform(tl::Point<double>(c, r));
                 point.z = dsm_raster.at<float>(r, c);
                 if (point.z == -9999) continue;
                 points_dsm.insert(Point_3(point.x, point.y, point.z));

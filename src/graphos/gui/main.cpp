@@ -30,7 +30,7 @@
 #include "ComponentsManager.h"
 #endif // GRAPHOS_GUI
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 #include "graphos/widgets/TabWidget.h"
@@ -126,9 +126,9 @@
 #include "graphos/components/crs/CoordinateReferenceSystemComponent.h"
 #endif // GRAPHOS_HAVE_CRS
 
-#include <tidop/core/console.h>
-#include <tidop/core/log.h>
-#include <tidop/core/msg/message.h>
+#include <tidop/core/console/Console.h>
+#include <tidop/core/app/Logger.h>
+#include <tidop/core/app/Message.h>
 #include <tidop/geotools/GeoTools.h>
 #include <tidop/geotools/CRSsTools.h>
 
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
         } 
     }
 
-    ProjectImp project;
+    Project project;
     app.setProject(&project);
 
     QIcon::setThemeName("Material");
@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
     //TabComponent tab_component(&app);
 
     // Log file
-    tl::Log &log = tl::Log::instance();
+    tl::Logger &log = tl::Logger::instance();
     log.setMessageLevel(tl::MessageLevel::all);
     tl::Message::addMessageHandler(&log);
 

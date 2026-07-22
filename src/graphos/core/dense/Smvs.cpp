@@ -33,12 +33,13 @@
 #include "graphos/core/ply.h"
 
 /* TIDOP LIB */
-#include <tidop/core/task.h>
-#include <tidop/core/path.h>
-#include <tidop/core/app.h>
-#include <tidop/img/imgreader.h>
-#include <tidop/img/imgwriter.h>
-#include <tidop/core/progress.h>
+#include <tidop/core/task/Task.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/core/app/App.h>
+#include <tidop/rastertools/io/Reader.h>
+#include <tidop/rastertools/io/Writer.h>
+#include <tidop/core/task/Progress.h>
+#include <tidop/core/task/Process.h>
 
 /* COLMAP */
 #include <colmap/util/string.h>
@@ -252,7 +253,7 @@ void SmvsDensifier::writeMveFile()
                 auto projection_center = pose.second.position();
                 auto rotation_matrix = pose.second.rotationMatrix();
 
-                auto xyx = rotation_matrix * -projection_center.vector();
+                tl::Vector3d xyx = rotation_matrix * -projection_center.vector();
 
                 tl::Path ini_file = outputPath();
                 ini_file.append(colmap::StringPrintf("\\views\\view_%04d.mve", mve_id));
@@ -292,9 +293,9 @@ void SmvsDensifier::writeMveFile()
 
             for (auto &points_3d : groundPoints()) {
 
-                stream << points_3d.x << " "
-                    << points_3d.y << " "
-                    << points_3d.z << "\n";
+                stream << points_3d.x() << " "
+                    << points_3d.y() << " "
+                    << points_3d.z() << "\n";
 
                 stream << points_3d.color().red() << " "
                     << points_3d.color().green() << " "
@@ -382,15 +383,14 @@ void SmvsDensifier::copyUndistortedImages() const
         std::string file_name = std::to_string(image_id).append(".tif");
         undistort_image_path.append(file_name);
 
-        auto image_reader = tl::ImageReaderFactory::create(undistort_image_path);
-        image_reader->open();
-        if (image_reader->isOpen()) {
+        tl::RasterReader image_reader(undistort_image_path);
+        if (image_reader.isOpen()) {
 
             tl::Path image_out_path = output_path;
             image_out_path.append(colmap::StringPrintf("view_%04d.mve", mGraphosToMveIds.at(image_id)));
             image_out_path.append("undistorted.jpg");
 
-            cv::Mat mat = image_reader->read();
+            cv::Mat mat = image_reader.read();
             
             double nodata_value = tl::NoData<float>;
             if (mat.type() == CV_32F)
@@ -406,18 +406,17 @@ void SmvsDensifier::copyUndistortedImages() const
 
             normalizeImage(mat, mat, this->isCudaEnabled(), mask);
 
-            auto image_writer = tl::ImageWriterFactory::create(image_out_path);
-            image_writer->open();
-            if (image_writer->isOpen()) {
-                image_writer->create(mat.rows, mat.cols, mat.channels(), tl::DataType::TL_8U);
-                image_writer->write(mat);
-                image_writer->close();
+            tl::RasterWriter image_writer(image_out_path);
+            if (image_writer.isOpen()) {
+                image_writer.create(mat.rows, mat.cols, mat.channels(), tl::DataType::TL_8U);
+                image_writer.write(mat);
+                image_writer.close();
             }
         }
     }
 }
 
-void SmvsDensifier::execute(tl::Progress *progressBar)
+void SmvsDensifier::execute(tl::Progress *progressBar, std::stop_token stopToken)
 {
 
     try {

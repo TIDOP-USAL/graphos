@@ -45,7 +45,7 @@ message(STATUS ${GRAPHOS_HOMEPAGE_URL})
 
 # Configuration 
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -77,6 +77,7 @@ set(CMAKE_AUTORCC ON)
 
 if(MSVC)
     add_compile_options("/W3" "/EHsc" "-D_SCL_SECURE_NO_WARNINGS" "-D_CRT_SECURE_NO_DEPRECATE")
+    add_compile_definitions(_USE_MATH_DEFINES)
 else()
     #add_compile_options("-Wall" "-Wextra" "-Werror")
     add_compile_options("-Wall" "-Wextra")
@@ -358,6 +359,8 @@ endif()
 # Colmap (REQUIRED)                                                      #
 ##########################################################################   
 
+enable_language(C) # OpenMP
+
 set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
 find_package(COLMAP REQUIRED)
 set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
@@ -395,56 +398,89 @@ find_package(GLEW REQUIRED)
 
 set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
 
-find_package(Qt5 REQUIRED 
-             COMPONENTS 
-               Core 
-               OpenGL  
-               Sql 
-               Concurrent 
-               LinguistTools
-               PrintSupport)
-			   
+set(QT_COMPONENTS
+    Core
+    OpenGL
+    Sql
+    Concurrent
+    LinguistTools
+    PrintSupport
+)
+
 if(BUILD_GUI)
-find_package(Qt5 REQUIRED 
-             COMPONENTS 
-			   Widgets
-               Network
-               Help)		   
+    list(APPEND QT_COMPONENTS
+        Widgets
+        OpenGLWidgets
+        Network
+        Help
+    )
 endif(BUILD_GUI)
 
 if(BUILD_TEST)
-  find_package(Qt5 REQUIRED
-               COMPONENTS
-                 Test)
+    list(APPEND QT_COMPONENTS Test)
 endif(BUILD_TEST)
 
-find_package(Qt5 REQUIRED
-             COMPONENTS
-               OpenGLExtensions)
-			   
+find_package(Qt6 REQUIRED COMPONENTS ${QT_COMPONENTS})
+
+#find_package(Qt5 REQUIRED 
+#             COMPONENTS 
+#               Core 
+#               OpenGL  
+#               Sql 
+#               Concurrent 
+#               LinguistTools
+#               PrintSupport)
+#			   
+#if(BUILD_GUI)
+#find_package(Qt5 REQUIRED 
+#             COMPONENTS 
+#			   Widgets
+#               Network
+#               Help)		   
+#endif(BUILD_GUI)
+#
+#if(BUILD_TEST)
+#  find_package(Qt5 REQUIRED
+#               COMPONENTS
+#                 Test)
+#endif(BUILD_TEST)
+#
+#find_package(Qt5 REQUIRED
+#             COMPONENTS
+#               OpenGLExtensions)
+#			   
 set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
 	
-if (Qt5_POSITION_INDEPENDENT_CODE)
-  SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+#if (Qt5_POSITION_INDEPENDENT_CODE)
+#  SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+#endif()
+
+#if(Qt5_FOUND)
+#    message(STATUS "  Found Qt (version ${Qt5_VERSION})")
+#
+#	include_directories(${Qt5Core_INCLUDE_DIRS}
+#                        ${Qt5OpenGL_INCLUDE_DIRS}
+#                        ${Qt5Widgets_INCLUDE_DIRS}
+#                        ${Qt5Help_INCLUDE_DIRS}
+#                        ${Qt5Sql_INCLUDE_DIRS}
+#                        ${Qt5Concurrent_INCLUDE_DIRS}
+#                        ${Qt5LinguistTools_INCLUDE_DIRS}
+#                        ${Qt5OpenGLExtensions_INCLUDE_DIRS})
+#	if(BUILD_TEST)
+#		include_directories(${Qt5Test_INCLUDE_DIRS})
+#	endif(BUILD_TEST)
+#
+#endif()
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+if(Qt6_FOUND)
+    message(STATUS "  Found Qt (version ${Qt6_VERSION})")
+    
+    #include_directories(${Qt6Core_INCLUDE_DIRS})
 endif()
-
-if(Qt5_FOUND)
-    message(STATUS "  Found Qt (version ${Qt5_VERSION})")
-
-	include_directories(${Qt5Core_INCLUDE_DIRS}
-                        ${Qt5OpenGL_INCLUDE_DIRS}
-                        ${Qt5Widgets_INCLUDE_DIRS}
-                        ${Qt5Help_INCLUDE_DIRS}
-                        ${Qt5Sql_INCLUDE_DIRS}
-                        ${Qt5Concurrent_INCLUDE_DIRS}
-                        ${Qt5LinguistTools_INCLUDE_DIRS}
-                        ${Qt5OpenGLExtensions_INCLUDE_DIRS})
-	if(BUILD_TEST)
-		include_directories(${Qt5Test_INCLUDE_DIRS})
-	endif(BUILD_TEST)
-
-endif()
-
 
 if(BUILD_GUI)
 set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
@@ -496,25 +532,23 @@ if(WITH_PIXKIT)
 endif(WITH_PIXKIT)
 ]]
 
-if (BUILD_DEM_COMPONENT)
-
-    set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
-    find_package(CGAL REQUIRED)
-	set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
+find_package(CGAL REQUIRED)
+set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
 		
-    message(STATUS "  Found CGAL (version ${CGAL_VERSION})")
-    #find_package(Boost OPTIONAL_COMPONENTS serialization iostreams)
-    #
-    #include(CGAL_Eigen3_support)
-    #include(CGAL_Boost_serialization_support)
-    #include(CGAL_Boost_iostreams_support)
-
-endif ()
+message(STATUS "  Found CGAL (version ${CGAL_VERSION})")
+#find_package(Boost OPTIONAL_COMPONENTS serialization iostreams)
+#
+#include(CGAL_Eigen3_support)
+#include(CGAL_Boost_serialization_support)
+#include(CGAL_Boost_iostreams_support)
 
 
 ##########################################################################
 # QGeoView (REQUIRED)                                                    #
 ##########################################################################
+
+if(BUILD_GUI)
 
 set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
 find_package(QGeoView REQUIRED)
@@ -528,7 +562,7 @@ else()
     message(STATUS "  Found QGeoView")
 endif()
 
-
+endif (BUILD_GUI)
 
 include_directories("${PROJECT_BINARY_DIR}")
 add_subdirectory(third_party)

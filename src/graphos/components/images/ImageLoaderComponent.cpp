@@ -29,7 +29,7 @@
 #include "graphos/components/images/impl/ImageLoaderPresenter.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/images/impl/ImageLoaderCommand.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

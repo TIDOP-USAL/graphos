@@ -26,10 +26,13 @@
 
 #include "graphos/graphos_global.h"
 
+#include <stop_token>
+
+#include <tidop/core/task/Task.h>
+#include <tidop/core/base/Path.h>
+
 #include "graphos/core/utils.h"
 
-#include <tidop/core/task.h>
-#include <tidop/core/path.h>
 
 namespace tl
 {
@@ -148,7 +151,7 @@ private:
  * The task takes an input path where the input data is stored and an output path where the reconstructed mesh will be saved.
  */
 class PoissonReconTask final
-  : public tl::TaskBase,
+  : public tl::Task,
     public PoissonReconProperties
 {
 
@@ -183,7 +186,7 @@ private:
 
 protected:
 
-    void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 private:
 

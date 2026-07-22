@@ -27,9 +27,9 @@
 #include <map>
 #include <unordered_map>
 
-#include <tidop/core/path.h>
-#include <tidop/core/task.h>
-#include <tidop/geometry/entities/point.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/core/task/Task.h>
+#include <tidop/geometry/primitives/Point.h>
 
 #include "graphos/core/sfm/OrientationReport.h"
 

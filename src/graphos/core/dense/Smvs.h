@@ -28,11 +28,12 @@
 
 #include "graphos/core/dense/dense.h"
 
-#include <tidop/core/path.h>
+#include <tidop/core/base/Path.h>
 
 #include <QString>
 
 #include <unordered_map>
+#include <stop_token>
 
 namespace graphos
 {
@@ -240,7 +241,7 @@ protected:
 
 protected:
 
-    void execute(tl::Progress *progressBar = nullptr) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 private:
 

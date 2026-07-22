@@ -28,7 +28,7 @@
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
 
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 
 namespace graphos
 {

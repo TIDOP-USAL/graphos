@@ -26,7 +26,7 @@
 
 #include <unordered_map>
 
-#include <tidop/core/task.h>
+#include <tidop/core/task/Task.h>
 
 #include "graphos/widgets/GraphosWidget.h"
 #include "graphos/core/image.h"

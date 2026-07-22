@@ -23,7 +23,7 @@
 
 #include "FeaturesViewerPresenter.h"
 
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 
 #include "graphos/components/featviewer/FeaturesViewerModel.h"
 #include "graphos/components/featviewer/FeaturesViewerView.h"

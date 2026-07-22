@@ -27,7 +27,7 @@
 #include "graphos/core/mvp.h"
 #include "graphos/core/dense/dense.h"
 
-#include <tidop/core/path.h>
+#include <tidop/core/base/Path.h>
 
 #include <unordered_map>
 

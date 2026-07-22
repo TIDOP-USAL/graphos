@@ -33,7 +33,7 @@
 #include "graphos/core/task/Progress.h"
 
 #include <tidop/core/defs.h>
-#include <tidop/geometry/entities/point.h>
+#include <tidop/geometry/primitives/Point.h>
 
 #include <QApplication>
 #include <QFileDialog>

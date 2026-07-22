@@ -28,7 +28,7 @@
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"
 #include "graphos/components/orthophoto/impl/OrthophotoTask.h"
 
-//#include <tidop/img/imgreader.h>
+//#include <tidop/rastertools/io/Reader.h>
 
 #include <QFileInfo>
 #include <QMessageBox>

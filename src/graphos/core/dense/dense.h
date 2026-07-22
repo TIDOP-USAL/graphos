@@ -33,9 +33,9 @@
 
 #include <QString>
 
-#include <tidop/core/flags.h>
-#include <tidop/core/path.h>
-#include <tidop/core/task.h>
+#include <tidop/core/base/flags.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/core/task/Task.h>
 
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/camera/Undistort.h"
@@ -123,7 +123,7 @@ public:
 
 class DensifierBase
   : public Densifier,
-    public tl::TaskBase
+    public tl::Task
 {
 
 public:

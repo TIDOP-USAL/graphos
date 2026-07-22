@@ -26,7 +26,7 @@
 
 #include "graphos/graphos_global.h"
 
-#include <tidop/core/flags.h>
+#include <tidop/core/base/flags.h>
 
 #include <QString>
 

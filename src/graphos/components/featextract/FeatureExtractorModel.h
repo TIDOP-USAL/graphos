@@ -26,7 +26,7 @@
 
 #include <unordered_map>
 
-#include <tidop/core/path.h>
+#include <tidop/core/base/Path.h>
 
 #include "graphos/core/mvp.h"
 #include "graphos/core/image.h"

@@ -33,7 +33,7 @@
 #include "graphos/widgets/SmvsWidget.h"
 #include "graphos/widgets/MvsWidget.h"
 
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 
 #include <QMessageBox>
 #include <QFileInfo>

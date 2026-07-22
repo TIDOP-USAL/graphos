@@ -24,12 +24,11 @@
 #ifndef GRAPHOS_CORE_PLY_H
 #define GRAPHOS_CORE_PLY_H
 
-#include <tidop/core/exception.h>
-#include <tidop/core/flags.h>
-#include <tidop/core/path.h>
-#include <tidop/core/utils.h>
-#include <tidop/core/endian.h>
-#include <tidop/geometry/entities/point.h>
+#include <tidop/core/base/Exception.h>
+#include <tidop/core/base/flags.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/core/base/Endian.h>
+#include <tidop/geometry/primitives/Point.h>
 #include <tidop/graphic/color.h>
 
 #include <fstream>

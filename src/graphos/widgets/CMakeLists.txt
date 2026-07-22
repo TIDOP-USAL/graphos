@@ -121,7 +121,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
                       TidopLib::Core
-                      TidopLib::Img
+                      TidopLib::RasterTools
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Network>
                       ${CloudCompare_LIBRARIES})
 

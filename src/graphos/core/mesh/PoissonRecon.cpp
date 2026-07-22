@@ -25,11 +25,12 @@
 
 #include "graphos/core/AppStatus.h"
 
-#include <tidop/core/exception.h>
-#include <tidop/core/app.h>
-#include <tidop/core/path.h>
-#include <tidop/core/progress.h>
-#include <tidop/core/chrono.h>
+#include <tidop/core/base/Exception.h>
+#include <tidop/core/app/App.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/core/task/Progress.h>
+#include <tidop/core/task/Process.h>
+#include <tidop/core/base/Chrono.h>
 
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/Point_set_3.h>
@@ -237,7 +238,7 @@ void PoissonReconTask::surfaceTrimmer(const tl::Path &app_path) const
     }
 }
 
-void PoissonReconTask::execute(tl::Progress *progressBar)
+void PoissonReconTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
 {
 
     try {

@@ -34,10 +34,10 @@
 #include <QImage>
 
 /* TidopLib */
-#include <tidop/core/msg/message.h>
-#include <tidop/core/console.h>
-#include <tidop/core/path.h>
-#include <tidop/geometry/entities/point.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/console/Console.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/geometry/primitives/Point.h>
 #include <tidop/graphic/color.h>
 
 class QMainWindow;
@@ -103,8 +103,8 @@ public:
                            double z,
                            const std::array<std::array<float, 3>, 3> &rot) = 0;
     virtual void drawLine(const std::string &name, 
-                          const tl::Point3<double> &point1, 
-                          const tl::Point3<double> &point2, 
+                          const tl::Point3d &point1, 
+                          const tl::Point3d &point2, 
                           const tl::Color &color, int width) = 0;
     virtual void addPrimitive(ccGenericPrimitive *primitive) = 0;
     virtual bool isEDL() const = 0;

@@ -26,10 +26,11 @@
 #include "graphos/core/AppStatus.h"
 #include "graphos/core/Component.h"
 #include "graphos/core/command.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/settings.h"
 
-#include <tidop/core/console.h>
+#include <tidop/core/console/Console.h>
+#include <tidop/core/console/CommandList.h>
 
 #include <gdal.h>
 #include <cpl_conv.h>
@@ -163,7 +164,7 @@ void Application::addComponent(Component *component)
     if (component) {
         mComponents.push_back(component);
         if (std::shared_ptr<Command> command = component->command())
-            commandList()->push_back(command);
+            commandList()->addCommand(command);
     }
 }
 
@@ -245,7 +246,7 @@ auto Application::translationFile() const -> tl::Path
     translations_path.append("translations");
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
     auto lang = settings.value("lang", "en").toString();
-    auto translation_file = tl::Message::format("graphos_{}.qm", lang.toStdString());
+    auto translation_file = tl::format("graphos_{}.qm", lang.toStdString());
     translations_path.append(translation_file);
     translations_path.normalize();
     return translations_path;

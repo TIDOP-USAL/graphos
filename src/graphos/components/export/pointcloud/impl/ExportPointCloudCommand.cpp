@@ -29,7 +29,7 @@
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudTask.h"
 #include "graphos/core/sfm/posesio.h"
 
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 #include <tidop/core/log.h>
 
 #include <QFileInfo>

@@ -25,7 +25,7 @@
 #include "graphos/core/utils.h"
 
 /* TidopLib */
-#include <tidop/img/imgreader.h>
+#include <tidop/rastertools/io/Reader.h>
 #include <tidop/geotools/CRSsTools.h>
 #include <tidop/geotools/GeoTools.h>
 #include <tidop/geometry/algorithms/distance.h>

@@ -26,7 +26,7 @@
 
 #include <QObject>
 
-#include <tidop/core/task.h>
+#include <tidop/core/task/Task.h>
 
 #include "graphos/core/mvp.h"
 
@@ -74,7 +74,7 @@ protected:
      *
      * \param[in] event The error event.
      */
-    virtual void onError(tl::TaskErrorEvent *event);
+    virtual void onError(tl::TaskErrorEvent &event);
 
     /*!
      * \brief Finished handler for task events
@@ -83,7 +83,7 @@ protected:
      *
      * \param[in] event The finished event.
      */
-    virtual void onFinished(tl::TaskFinalizedEvent *event);
+    virtual void onFinished(tl::TaskFinalizedEvent &event);
 
     /*!
      * \brief Stopped handler for task events
@@ -92,7 +92,7 @@ protected:
      *
      * \param[in] event The stopped event.
      */
-    virtual void onStopped(tl::TaskStoppedEvent *event);
+    virtual void onStopped(tl::TaskStoppedEvent &event);
 
     /*!
      * \brief Get the progress handler

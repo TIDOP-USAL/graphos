@@ -29,7 +29,7 @@
 #include "graphos/components/orthophoto/impl/OrthophotoTask.h"
 #include "graphos/core/sfm/posesio.h"
 
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 #include <tidop/core/log.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
@@ -112,7 +112,7 @@ bool OrthophotoCommand::run()
         tl::Path ground_points_path(mProject->reconstructionPath());
         ground_points_path.append("ground_points.bin");
 
-        //tl::Point3<double> offset = offsetRead(mProject->offset());
+        //tl::Point3d offset = offsetRead(mProject->offset());
         auto enu_crs = mProject->enuCrs().toStdString();
 
         if (crs.empty()) {

@@ -26,7 +26,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <tidop/geometry/entities/point.h>
+#include <tidop/geometry/primitives/Point.h>
 
 namespace graphos
 {
@@ -62,12 +62,12 @@ class VignettingRadial
 
 public:
 
-    VignettingRadial(const tl::Point<float> &center,
+    VignettingRadial(const tl::Point2f &center,
                      const std::vector<float> &poly);
 
 public:
 
-    auto center() const -> tl::Point<float> { return mCenter; }
+    auto center() const -> tl::Point2f { return mCenter; }
     auto polynomial() const -> const std::vector<float> & { return mPolynomial; }
 
 // Vignetting

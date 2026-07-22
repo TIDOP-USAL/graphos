@@ -26,7 +26,7 @@
 #include "EDLfilter/ccEDLFilter.h"
 
 /* TidopLib */
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 #include <tidop/math/math.h>
 
 TL_DISABLE_WARNINGS
@@ -458,8 +458,8 @@ void CCViewer3D::addCamera(const QString &id,
 }
 
 void CCViewer3D::drawLine(const std::string &name, 
-                  const tl::Point3<double> &point1, 
-                  const tl::Point3<double> &point2, 
+                  const tl::Point3d &point1, 
+                  const tl::Point3d &point2, 
                   const tl::Color &color, int width)
 {
     ccHObject *currentRoot = getSceneDB();

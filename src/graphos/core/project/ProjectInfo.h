@@ -21,49 +21,59 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_CAMERA_CALIBRATION_READER_H
-#define GRAPHOS_CORE_CAMERA_CALIBRATION_READER_H
+#pragma once
+
+#include "graphos/graphos_global.h"
+
+#include <string>
 
 #include <tidop/core/base/Path.h>
-
-#include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
 
-/* Calibration reader */
+constexpr auto project_file_version = "1.0";
 
-class CalibrationReader
-{
-
-public:
-
-    CalibrationReader();
-
-    virtual ~CalibrationReader() = default;
-
-    virtual void read(const tl::Path &path, Camera &camera, bool prior = false) = 0;
-    virtual auto format() const -> std::string = 0;
-
-};
-
-
-/* Calibration reader factory */
-
-class CalibrationReaderFactory
+class ProjectInfo
 {
 
 private:
 
-    CalibrationReaderFactory() = default;
+    tl::Path mProjectPath;
+    std::string mDescription;
+    std::string mVersion = project_file_version;
+	
+public: 
 
-public:
+    ProjectInfo() = default;
+    explicit ProjectInfo(tl::Path projectPath, 
+                         std::string description);
 
-    static auto create(const std::string &format) -> std::unique_ptr<CalibrationReader>;
+    [[nodiscard]]
+    auto projectPath() const -> tl::Path;
+
+    void setProjectPath(tl::Path path);
+	
+    [[nodiscard]]
+    auto name() const -> std::string;
+
+    [[nodiscard]]
+    auto description() const -> std::string;
+
+    void setDescription(std::string description);
+
+    [[nodiscard]]
+    auto projectFolder() const -> tl::Path;
+
+    [[nodiscard]]
+    auto database() const -> const tl::Path;
+
+    [[nodiscard]]
+    auto version() const -> std::string;
+
+    void clear();
 
 };
 
 
-} // namespace graphos
-
-#endif // GRAPHOS_CORE_CAMERA_CALIBRATION_READER_H
+} // end namespace graphos

@@ -26,7 +26,7 @@
 #include "graphos/core/camera/Calibration.h"
 #include "graphos/core/camera/Camera.h"
 
-#include <colmap/base/reconstruction.h>
+#include <colmap/scene/reconstruction.h>
 
 
 namespace graphos
@@ -58,7 +58,7 @@ auto ReadCalibration::calibration(int cameraId) const -> std::shared_ptr<Calibra
     if (mReconstruction->ExistsCamera(static_cast<colmap::image_t>(cameraId))) {
 
         auto &camera = mReconstruction->Camera(static_cast<colmap::image_t>(cameraId));
-        auto &params = camera.Params();
+        auto &params = camera.params;
 
         std::string model_name = camera.ModelName();
 

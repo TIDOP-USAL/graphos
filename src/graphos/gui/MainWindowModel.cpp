@@ -27,7 +27,7 @@
 #include "graphos/core/sfm/orientationcolmap.h"
 #include "graphos/core/ply.h"
 
-#include <tidop/img/imgreader.h>
+#include <tidop/rastertools/io/Reader.h>
 
 #include <QSettings>
 

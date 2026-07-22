@@ -28,7 +28,7 @@
 
 #include <unordered_map>
 
-#include <tidop/core/path.h>
+#include <tidop/core/base/Path.h>
 
 namespace graphos
 {

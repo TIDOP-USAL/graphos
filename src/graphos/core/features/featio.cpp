@@ -23,7 +23,7 @@
 
 #include "graphos/core/features/featio.h"
 
-#include <tidop/core/exception.h>
+#include <tidop/core/base/Exception.h>
 
 #include <colmap/base/database.h>
 

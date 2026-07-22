@@ -33,7 +33,7 @@
 #include "graphos/components/orientation/OrientationView.h"
 
 #include <tidop/core/messages.h>
-#include <tidop/core/task.h>
+#include <tidop/core/task/Task.h>
 
 #include <QFileInfo>
 #include <QMessageBox>

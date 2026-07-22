@@ -23,10 +23,8 @@
 
 #include "graphos/core/sfm/poses.h"
 
-#include <tidop/core/path.h>
-#include <tidop/math/algebra/rotation_convert.h>
-
-using namespace tl;
+#include <tidop/core/base/Path.h>
+//#include <tidop/math/algebra/rotation_convert.h>
 
 namespace graphos
 {
@@ -34,7 +32,7 @@ namespace graphos
 
 CameraPose::CameraPose()
     : mAccuracy({10., 10., 10.}),
-      mRotation(nullptr),
+      mRotation(tl::Quaternion<double>::identity()),
       mCrs(""),
       mSource(""),
       mRtkFlag(0)
@@ -55,10 +53,10 @@ CameraPose::CameraPose(CameraPose &&pose) noexcept
 }
 
 CameraPose::CameraPose(double x, double y, double z,
-                       const RotationMatrix<double> &rotationMatrix)
+                       const tl::RotationMatrix<double> &rotationMatrix)
     : mPosition(x, y, z),
       mAccuracy({10., 10., 10.}),
-      mRotation(new RotationMatrix<double>(rotationMatrix)),
+      mRotation(rotationMatrix),
       mCrs(""),
       mSource(""),
       mRtkFlag(0)
@@ -66,11 +64,11 @@ CameraPose::CameraPose(double x, double y, double z,
 
 }
 
-CameraPose::CameraPose(const Point3<double> &center,
-                       const RotationMatrix<double> &rotationMatrix)
-    : mPosition(center),
+CameraPose::CameraPose(tl::Point3d center,
+                       const tl::RotationMatrix<double> &rotationMatrix)
+    : mPosition(std::move(center)),
       mAccuracy({10., 10., 10.}),
-      mRotation(new RotationMatrix<double>(rotationMatrix)),
+      mRotation(rotationMatrix),
       mCrs(""),
       mSource(""),
       mRtkFlag(0)
@@ -78,21 +76,21 @@ CameraPose::CameraPose(const Point3<double> &center,
 }
 
 CameraPose::CameraPose(double x, double y, double z,
-                       const Quaternion<double> &quaternion)
+                       tl::Quaternion<double> quaternion)
     : mPosition(x, y, z),
       mAccuracy({10., 10., 10.}),
-      mRotation(new Quaternion<double>(quaternion)),
+      mRotation(std::move(quaternion)),
       mCrs(""),
       mSource(""),
       mRtkFlag(0)
 {
 }
 
-CameraPose::CameraPose(const Point3<double> &center,
-                       const Quaternion<double> &quaternion)
-    : mPosition(center),
+CameraPose::CameraPose(tl::Point3d center,
+                       tl::Quaternion<double> quaternion)
+    : mPosition(std::move(center)),
       mAccuracy({10., 10., 10.}),
-      mRotation(new Quaternion<double>(quaternion)),
+      mRotation(std::move(quaternion)),
       mCrs(""),
       mSource(""),
       mRtkFlag(0)
@@ -129,12 +127,12 @@ auto CameraPose::operator=(CameraPose &&pose) noexcept -> CameraPose&
     return *this;
 }
 
-auto CameraPose::position() const -> Point3<double>
+auto CameraPose::position() const -> tl::Point3d
 {
     return mPosition;
 }
 
-void CameraPose::setPosition(const Point3<double> &position)
+void CameraPose::setPosition(const tl::Point3d &position)
 {
     mPosition = position;
 }
@@ -149,48 +147,38 @@ void CameraPose::setAccuracy(const tl::Vector3d &accuracy)
     mAccuracy = accuracy;
 }
 
-auto CameraPose::quaternion() const -> Quaterniond
+auto CameraPose::quaternion() const -> tl::Quaternion<double>
 {
-    Quaterniond quaternion = Quaterniond::zero();
+    //tl::Quaternion<double> quaternion = tl::Quaternion<double>::zero();
 
-    if (mRotation) {
+    //if (mRotation) {
 
-        Orientation::Type type = mRotation->type();
-        if (type == Orientation::Type::quaternion) {
-            quaternion = *dynamic_cast<Quaterniond *>(mRotation.get());
-        } else if (type == Orientation::Type::rotation_matrix) {
-            RotationConverter<double>::convert(*dynamic_cast<RotationMatrix<double> *>(mRotation.get()), quaternion);
-        }
+    //    Orientation::Type type = mRotation->type();
+    //    if (type == Orientation::Type::quaternion) {
+    //        quaternion = *dynamic_cast<Quaterniond *>(mRotation.get());
+    //    } else if (type == Orientation::Type::rotation_matrix) {
+    //        RotationConverter<double>::convert(*dynamic_cast<RotationMatrix<double> *>(mRotation.get()), quaternion);
+    //    }
 
-    }
+    //}
 
-    return quaternion;
+    return mRotation;
 }
 
-void CameraPose::setQuaternion(const Quaterniond &quaternion)
+void CameraPose::setQuaternion(tl::Quaternion<double> quaternion)
 {
-    mRotation = std::make_shared<Quaternion<double>>(quaternion);
+    mRotation = std::move(quaternion);
 }
 
-auto CameraPose::rotationMatrix() const -> RotationMatrix<double>
+auto CameraPose::rotationMatrix() const -> tl::RotationMatrix<double>
 {
-    RotationMatrix<double> rotation_matrix = RotationMatrix<double>::zero();
-
-    if (mRotation) {
-        Orientation::Type type = mRotation->type();
-        if (type == Orientation::Type::quaternion) {
-            RotationConverter<double>::convert(*dynamic_cast<Quaternion<double> *>(mRotation.get()), rotation_matrix);
-        } else if (type == Orientation::Type::rotation_matrix) {
-            rotation_matrix = *dynamic_cast<RotationMatrix<double> *>(mRotation.get());
-        }
-    }
-
+    tl::RotationMatrix<double> rotation_matrix = mRotation;
     return rotation_matrix;
 }
 
-void CameraPose::setRotationMatrix(const RotationMatrix<double> &rotationMatrix)
+void CameraPose::setRotationMatrix(const tl::RotationMatrix<double> &rotationMatrix)
 {
-    mRotation = std::make_shared<RotationMatrix<double>>(rotationMatrix);
+    mRotation = rotationMatrix;
 }
 
 auto CameraPose::crs() const -> QString
@@ -225,7 +213,7 @@ void CameraPose::setSource(const QString &source)
 
 auto CameraPose::isEmpty() const -> bool
 {
-    return mPosition == Point3<double>();
+    return mPosition == tl::Point3d();
 }
 
 } // namespace graphos

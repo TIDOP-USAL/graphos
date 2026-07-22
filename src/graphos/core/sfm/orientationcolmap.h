@@ -32,9 +32,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include <tidop/core/task.h>
-#include <tidop/core/path.h>
-#include <tidop/geometry/entities/point.h>
+#include <tidop/core/task/Task.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/geometry/primitives/Point.h>
 
 namespace tl
 {
@@ -388,7 +388,7 @@ private:
 //    tl::Path mDatabase;
 //    bool mFixCalibration;
 //    bool mFixPoses;
-//    tl::Point3<double> mOffset;
+//    tl::Point3d mOffset;
 //    std::unordered_map<size_t, int> mGraphosToColmapId;
 //    OrientationReport mOrientationReport;
 //};

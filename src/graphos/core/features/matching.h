@@ -26,10 +26,12 @@
 
 #include "graphos/graphos_global.h"
 
+#include <stop_token>
+
 #include <QObject>
 
-#include <tidop/core/task.h>
-#include <tidop/core/path.h>
+#include <tidop/core/task/Task.h>
+#include <tidop/core/base/Path.h>
 
 #include "graphos/core/features/features.h"
 
@@ -73,7 +75,7 @@ private:
 
 class FeatureMatchingTask
   : public QObject,
-    public tl::TaskBase
+    public tl::Task
 {
 
     Q_OBJECT
@@ -102,7 +104,7 @@ public:
 
 protected:
 
-    void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 private:
 
@@ -117,7 +119,7 @@ private:
 
 class SpatialMatchingTask
   : public QObject,
-    public tl::TaskBase
+    public tl::Task
 {
 
     Q_OBJECT
@@ -147,7 +149,7 @@ public:
 
 protected:
 
-    void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 private:
 

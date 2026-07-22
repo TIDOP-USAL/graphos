@@ -28,10 +28,11 @@
 
 #include "graphos/core/dense/dense.h"
 
-#include <tidop/core/path.h>
+#include <tidop/core/base/Path.h>
 
 #include <QString>
 #include <unordered_map>
+#include <stop_token>
 
 namespace colmap
 {
@@ -293,7 +294,7 @@ protected:
      * Overrides the execute method from the TaskBase class.
      * \param progressBar Pointer to a progress bar for tracking progress (default is nullptr).
      */
-    void execute(tl::Progress *progressBar = nullptr) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 private:
 

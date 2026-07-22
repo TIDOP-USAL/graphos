@@ -26,8 +26,8 @@
 
 #include <unordered_map>
 
-#include <tidop/core/path.h>
-#include <tidop/geometry/entities/point.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/geometry/primitives/Point.h>
 
 #include "graphos/core/mvp.h"
 #include "graphos/core/reports/orthophoto.h"

@@ -29,8 +29,8 @@
 #include "graphos/core/task/Progress.h"
 #include "graphos/widgets/FeatureMatchingWidget.h"
 
-#include <tidop/core/msg/message.h>
-#include <tidop/core/task.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/task/Task.h>
 
 #include <QMessageBox>
 #include <QApplication>

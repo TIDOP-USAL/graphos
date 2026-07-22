@@ -28,7 +28,7 @@
 
 #include <QMainWindow>
 
-#include <tidop/core/flags.h>
+#include <tidop/core/base/flags.h>
 
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"

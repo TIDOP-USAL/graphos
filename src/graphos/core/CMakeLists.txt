@@ -35,7 +35,7 @@ add_files_to_project(${PROJECT_NAME}
                          ColorTable.cpp
                          Component.cpp
                          image.cpp
-                         project.cpp
+                         #project.cpp
                          settings.cpp
                          Pdf.cpp
                          ply.cpp
@@ -60,22 +60,24 @@ add_files_to_project(${PROJECT_NAME}
                          dense/Smvs.cpp
                          dense/mvs.cpp
                          dense/DenseExport.cpp
-                         features/featextract.cpp
-                         features/featio.cpp
+                         #features/featextract.cpp
+                         #features/featio.cpp
                          features/sift.cpp
                          features/matching.cpp
                          mesh/PoissonRecon.cpp
                          #multispectral/Radiance.cpp
                          #multispectral/Reflectance.cpp
                          multispectral/Vignetting.cpp
-                         sfm/orientationcolmap.cpp
-                         sfm/orientationexport.cpp
+                         project/Project.cpp
+                         project/ProjectInfo.cpp
+                         #sfm/orientationcolmap.cpp
+                         #sfm/orientationexport.cpp
                          sfm/poses.cpp
-                         sfm/posesio.cpp
+                         #sfm/posesio.cpp
                          sfm/groundpoint.cpp
                          sfm/track.cpp
-                         sfm/BundleAdjuster.cpp
-                         sfm/Reconstruction.cpp
+                         #sfm/BundleAdjuster.cpp
+                         #sfm/Reconstruction.cpp
                          task/TaskPresenter.cpp         
                          task/TaskView.cpp
                          task/Progress.cpp
@@ -96,7 +98,7 @@ add_files_to_project(${PROJECT_NAME}
                          mvp.h
                          Pdf.h
                          ply.h
-                         project.h
+                         #project.h
                          settings.h
                          utils.h
                          camera/Calibration.h
@@ -119,27 +121,29 @@ add_files_to_project(${PROJECT_NAME}
                          dense/Smvs.h
                          dense/mvs.h
                          dense/DenseExport.h
-                         features/featextract.h
+                         #features/featextract.h
                          features/features.h
-                         features/featio.h
+                         #features/featio.h
                          features/sift.h
                          features/matching.h
                          mesh/PoissonRecon.h
                          #multispectral/Radiance.h
                          #multispectral/Reflectance.h
                          multispectral/Vignetting.h
+                         project/Project.h
+                         project/ProjectInfo.h
                          reports/dem.h
                          reports/orthophoto.h
-                         sfm/orientation.h
-                         sfm/orientationcolmap.h
-                         sfm/orientationexport.h
+                         #sfm/orientation.h
+                         #sfm/orientationcolmap.h
+                         #sfm/orientationexport.h
                          sfm/poses.h
-                         sfm/posesio.h
+                         #sfm/posesio.h
                          sfm/groundpoint.h
                          sfm/track.h
                          sfm/OrientationReport.h
-                         sfm/BundleAdjuster.h
-                         sfm/Reconstruction.h
+                         #sfm/BundleAdjuster.h
+                         #sfm/Reconstruction.h
                          task/TaskPresenter.h            
                          task/TaskView.h
                          task/Progress.h
@@ -169,24 +173,24 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
                       TidopLib::Core
-                      TidopLib::Geom
+                      TidopLib::Geometry
                       TidopLib::Geospatial
-                      TidopLib::Img
+                      TidopLib::RasterTools
                       TidopLib::Math
-                      TidopLib::Vect
+                      TidopLib::VectorTools
                       TidopLib::Graphic
                       glog::glog
-                      Qt5::PrintSupport
-                      Qt5::Sql
+                      Qt6::PrintSupport
+                      Qt6::Sql
                       Eigen3::Eigen
                       Ceres::ceres
-                      ${COLMAP_LIBRARIES}
+                      colmap::colmap
                       ${CUDA_LIBRARIES}
                       ${CUDA_cublas_LIBRARY}
                       ${FREEIMAGE_LIBRARIES}
                       GLEW::glew
-                      ${Boost_PROGRAM_OPTIONS_LIBRARY}
                       CGAL::CGAL
+                      ${Boost_PROGRAM_OPTIONS_LIBRARY}
                       #[[${PIXKIT_LIBRARIES}]])
 
 

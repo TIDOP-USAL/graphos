@@ -79,7 +79,7 @@ void SaveProjectModelImp::save()
                 poses_reader->read(poses_path);
                 auto poses = poses_reader->cameraPoses();
 
-                tl::Point3<double> point;
+                tl::Point3d point;
                 for (auto &pose : poses) {
 
                     size_t image_id = pose.first;

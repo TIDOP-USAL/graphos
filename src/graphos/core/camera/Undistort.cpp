@@ -26,11 +26,13 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/multispectral/Vignetting.h"
 
-#include <tidop/core/concurrency.h>
-#include <tidop/core/progress.h>
-#include <tidop/core/chrono.h>
-#include <tidop/img/imgreader.h>
-#include <tidop/img/imgwriter.h>
+#include <tidop/core/concurrency/QueueMPMC.h>
+#include <tidop/core/concurrency/Producer.h>
+#include <tidop/core/concurrency/Consumer.h>
+#include <tidop/core/task/Progress.h>
+#include <tidop/core/base/Chrono.h>
+#include <tidop/rastertools/io/Reader.h>
+#include <tidop/rastertools/io/Writer.h>
 
 #include <opencv2/imgproc.hpp>
 #include <opencv2/calib3d.hpp>
@@ -230,9 +232,9 @@ auto Undistort::undistortImage(const cv::Mat &image, bool cuda) const -> cv::Mat
     return img_undistort;
 }
 
-auto Undistort::undistortPoint(const tl::Point<float>& point) const -> tl::Point<float>
+auto Undistort::undistortPoint(const tl::Point2f& point) const -> tl::Point2f
 {
-    std::vector<cv::Point2f> cv_point{cv::Point2f(point.x, point.y)};
+    std::vector<cv::Point2f> cv_point{cv::Point2f(point.x(), point.y())};
     std::vector<cv::Point2f> cv_point_out;
     bool b_fisheye = mCamera.calibration()->checkCameraType(Calibration::CameraType::fisheye);
 
@@ -242,7 +244,7 @@ auto Undistort::undistortPoint(const tl::Point<float>& point) const -> tl::Point
         cv::undistortPoints(cv_point, cv_point_out, mCameraMatrix, mDistCoeffs, cv::Mat(), mOptimalNewCameraMatrix);
     }
     
-    return {cv_point_out[0].x, cv_point_out[0].y};
+    return tl::Point2f{cv_point_out[0].x, cv_point_out[0].y};
 }
 
 void Undistort::init()
@@ -619,13 +621,11 @@ private:
     {
         cv::Mat mat;
 
-        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image.path().toStdString());
-        imageReader->open();
-        if (imageReader->isOpen()) {
+        tl::RasterReader reader(image.path().toStdString());
+        if (reader.isOpen()){
+            mat = reader.read();
 
-            mat = imageReader->read();
-
-            imageReader->close();
+            reader.close();
         }
 
         if (mNormalize) normalizeImage(mat, mat, bUseGPU);
@@ -754,22 +754,20 @@ private:
 
             }
 
+            tl::RasterWriter writer(data.undistortImage());
+            if (writer.isOpen()) {
 
-            std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(data.undistortImage());
-            image_writer->open();
-            if (image_writer->isOpen()) {
-
-                image_writer->create(undistort_image.rows,
-                                     undistort_image.cols,
-                                     undistort_image.channels(),
-                                     data_type);
+                writer.create(undistort_image.rows,
+                              undistort_image.cols,
+                              undistort_image.channels(),
+                              data_type);
 
                 if (data_type == tl::DataType::TL_32F || data_type == tl::DataType::TL_64F)
-                    image_writer->setNoDataValue(tl::NoData<float>);
+                    writer.setNoDataValue(tl::NoData<float>);
 
-                image_writer->write(undistort_image);
+                writer.write(undistort_image);
 
-                image_writer->close();
+                writer.close();
             }
 
             double time = chrono.stop();
@@ -819,7 +817,7 @@ UndistortImages::UndistortImages(const std::unordered_map<size_t, Image> &images
 
 UndistortImages::~UndistortImages() = default;
 
-void UndistortImages::execute(tl::Progress *progressBar)
+void UndistortImages::execute(tl::Progress *progressBar, std::stop_token stopToken)
 {
 
     try {

@@ -23,6 +23,8 @@
 
 #include "graphos/core/Pdf.h"
 
+#include <tidop/core/base/TypeConversions.h>
+
 #include <QTextDocument>
 #include <QPrinter>
 #include <QFileInfo>
@@ -32,7 +34,6 @@
 #include <utility>
 
 #include <math.h> 
-#include <tidop/core/defs.h>
 
 namespace graphos
 {
@@ -699,13 +700,13 @@ auto Pdf::drawImage(const QImage &image, const QString &caption, int options) ->
             if (_image.width() * scale > mWidth) {
                 _image = _image.scaledToWidth(mWidth);
             } else {
-                _image = _image.scaledToWidth(tl::roundToInteger(_image.width() * scale));
+                _image = _image.scaledToWidth(tl::numberCast<int>(_image.width() * scale));
             }
         } else {
             if (_image.height() * scale > mHeight) {
                 _image = _image.scaledToHeight(mHeight);
             } else {
-                _image = _image.scaledToHeight(tl::roundToInteger(_image.height() * scale));
+                _image = _image.scaledToHeight(tl::numberCast<int>(_image.height() * scale));
             }
         }
 
@@ -843,7 +844,7 @@ QRect Pdf::drawTable(const TablePdf &table,
                         if (check_rect.width() * 1.25 > w) {
                             double scale = check_rect.width() * 1.25 / w;
                             for (int i = 0; i < cell->colspan(); i++) {
-                                max_width[c + i] =  tl::roundToInteger(scale * static_cast<double>(max_width[c + i]));
+                                max_width[c + i] =  tl::numberCast<int>(scale * static_cast<double>(max_width[c + i]));
                             }
                         }
                     }

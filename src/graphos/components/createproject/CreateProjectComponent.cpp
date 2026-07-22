@@ -29,7 +29,7 @@
 #include "graphos/components/createproject/impl/CreateProjectPresenter.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/createproject/impl/CreateProjectCommand.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 /* Qt */

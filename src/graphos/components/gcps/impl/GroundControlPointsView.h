@@ -26,7 +26,7 @@
 
 #include "graphos/components/gcps/GroundControlPointsView.h"
 
-#include <tidop/geometry/entities/point.h>
+#include <tidop/geometry/primitives/Point.h>
 
 #include <QItemSelection>
 

@@ -24,7 +24,7 @@
 #include "graphos/core/ColorTable.h"
 
 /* TidopLib */
-#include <tidop/math/math.h>
+#include <tidop/math/base/Constants.h>
 
 namespace graphos
 {
@@ -55,16 +55,16 @@ auto ColorTable::color(int code) const -> tl::Color
 
 void ColorTable::setVisible(int code, bool visible)
 {
-    mColors.at(code).second.setOpacity(visible ?
-                                       static_cast<uint8_t>(255) :
-                                       tl::consts::zero<uint8_t>);
+    mColors.at(code).second.setAlpha(visible ?
+                                     static_cast<uint8_t>(255) :
+                                     tl::consts::zero<uint8_t>);
 
     emit change();
 }
 
 auto ColorTable::isVisible(int code) const -> bool
 {
-    return mColors.at(code).second.opacity() == static_cast<uint8_t>(255);
+    return mColors.at(code).second.alpha() == static_cast<uint8_t>(255);
 }
 
 auto ColorTable::size() const -> size_t

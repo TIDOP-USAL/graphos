@@ -24,7 +24,7 @@
 #include "graphos/core/settings.h"
 #include "graphos/core/utils.h"
 
-#include "tidop/core/msg/message.h"
+#include "tidop/core/app/Message.h"
 
 #include <QSettings>
 #include <QLocale>

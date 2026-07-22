@@ -27,7 +27,7 @@
 #include "graphos/widgets/GraphicItem.h"
 #include "graphos/core/utils.h"
 
-#include <tidop/img/imgreader.h>
+#include <tidop/rastertools/io/Reader.h>
 
 #include <QGridLayout>
 #include <QLabel>

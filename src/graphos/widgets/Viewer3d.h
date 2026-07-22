@@ -164,8 +164,8 @@ public:
                    double z,
                    const std::array<std::array<float, 3>, 3> &rot) override;
     void drawLine(const std::string &name, 
-                  const tl::Point3<double> &point1, 
-                  const tl::Point3<double> &point2, 
+                  const tl::Point3d &point1, 
+                  const tl::Point3d &point2, 
                   const tl::Color &color, int width) override;
     void addPrimitive(ccGenericPrimitive *primitive) override;
 

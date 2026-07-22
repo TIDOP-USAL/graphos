@@ -27,10 +27,10 @@
 #include "graphos/core/utils.h"
 
 /* TidopLib */
-#include <tidop/core/chrono.h>
-#include <tidop/core/progress.h>
+#include <tidop/core/base/Chrono.h>
+#include <tidop/core/task/Progress.h>
 #include <tidop/math/algebra/rotation_convert.h>
-#include <tidop/math/algebra/quaternion.h>
+#include <tidop/math/algebra/rotations/Quaternion.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geotools/CRSsTools.h>
 #include <tidop/geotools/GeoTools.h>
@@ -132,11 +132,11 @@ void ExportCameraPosesTask::odmExport()
 
         EulerAngles<double> angles = quaternion;
 
-        tl::Point3<double> pose_utm;
+        tl::Point3d pose_utm;
         if (!enu.empty() && !epsg.empty())
             pose_utm = ptrGeoTools->ptrCRSsTools()->crsOperation(enu, epsg, position);
 
-        tl::Point3<double> pose_geo;
+        tl::Point3d pose_geo;
         if (!enu.empty() && !epsg.empty())
             pose_geo = ptrGeoTools->ptrCRSsTools()->crsOperation(enu, "EPSG:4326", position);
         

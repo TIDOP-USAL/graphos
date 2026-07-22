@@ -26,8 +26,7 @@
 
 #include "graphos/graphos_global.h"
 
-#include <tidop/core/defs.h>
-#include <tidop/geometry/entities/point.h>
+#include <tidop/geometry/primitives/Point.h>
 
 namespace colmap
 {
@@ -44,7 +43,7 @@ class TL_EXPORT OrientationExport
 public:
 
     OrientationExport(const colmap::Reconstruction *reconstruction,
-                      const tl::Point3<double> &offset = tl::Point3<double>(0, 0, 0));
+                      const tl::Point3d &offset = tl::Point3d(0, 0, 0));
     ~OrientationExport();
 
     /*!
@@ -106,7 +105,7 @@ public:
 private:
 
     const colmap::Reconstruction *mReconstruction;
-    tl::Point3<double> mOffset;
+    tl::Point3d mOffset;
 };
 
 } // namespace graphos

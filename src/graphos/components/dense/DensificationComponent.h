@@ -25,7 +25,7 @@
 #define GRAPHOS_DENSIFICATION_COMPONENT_H
 
 /* TidopLib */
-#include <tidop/core/flags.h>
+#include <tidop/core/base/flags.h>
 
 /* GRAPHOS */
 #include "graphos/core/Component.h"

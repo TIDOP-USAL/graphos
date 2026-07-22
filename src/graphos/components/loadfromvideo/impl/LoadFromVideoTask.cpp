@@ -28,10 +28,10 @@
 #include "graphos/core/camera/Database.h"
 #include "graphos/core/image.h"
 
-#include <tidop/core/msg/message.h>
-#include <tidop/core/chrono.h>
-#include <tidop/core/progress.h>
-#include <tidop/img/imgwriter.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/base/Chrono.h>
+#include <tidop/core/task/Progress.h>
+#include <tidop/rastertools/io/Writer.h>
 #include <tidop/img/metadata.h>
 #include <tidop/math/angles.h>
 #include <tidop/geospatial/crstransf.h>

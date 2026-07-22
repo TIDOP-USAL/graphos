@@ -25,8 +25,7 @@
 
 //#include <stdexcept>
 
-#include <tidop/core/exception.h>
-#include <tidop/math/algebra/rotation_convert.h>
+#include <tidop/core/base/Exception.h>
 
 namespace graphos
 {

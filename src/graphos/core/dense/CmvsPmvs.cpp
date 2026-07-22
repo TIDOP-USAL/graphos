@@ -33,16 +33,17 @@
 
 /* TidopLib */ 
 
-#include <tidop/core/task.h>
-#include <tidop/core/path.h>
-#include <tidop/core/app.h>
-#include <tidop/img/imgreader.h>
-#include <tidop/img/imgwriter.h>
-#include <tidop/core/progress.h>
+#include <tidop/core/task/Task.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/core/app/App.h>
+#include <tidop/rastertools/io/Reader.h>
+#include <tidop/rastertools/io/Writer.h>
+#include <tidop/core/task/Process.h>
+#include <tidop/core/task/Progress.h>
 
 /* COLMAP */
 
-#include <colmap/base/database.h>
+#include <colmap/scene/database.h>
 #include <colmap/util/string.h>
 
 #include <fstream>
@@ -265,9 +266,8 @@ void CmvsPmvsDensifier::writeBundleFile()
 {
     try {
 
-        colmap::Database database;
-        database.Open(mDatabase.toUtf8());
-        const auto &colmap_images = database.ReadAllImages();
+        auto database = colmap::Database::Open(mDatabase.toUtf8());
+        const auto &colmap_images = database->ReadAllImages();
 
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
 
@@ -326,7 +326,7 @@ void CmvsPmvsDensifier::writeBundleFile()
                 auto projection_center = pose.second.position();
                 auto rotation_matrix = pose.second.rotationMatrix();
 
-                auto xyx = rotation_matrix * -projection_center.vector();
+                tl::Vector3d xyx = rotation_matrix * -projection_center.vector();
 
                 // En el formato bundler r10, r11, r12, r20, r21, r22, T1 y T2 se invierte el signo
                 stream << new_focal << " 0 0 \n";
@@ -379,9 +379,9 @@ void CmvsPmvsDensifier::writeBundleFile()
 
             for (auto &points_3d : groundPoints()) {
 
-                stream << points_3d.x << " "
-                       << points_3d.y << " "
-                       << points_3d.z << "\n";
+                stream << points_3d.x() << " "
+                       << points_3d.y() << " "
+                       << points_3d.z() << "\n";
 
                 stream << points_3d.color().red() << " "
                        << points_3d.color().green() << " "
@@ -396,7 +396,7 @@ void CmvsPmvsDensifier::writeBundleFile()
                     size_t image_id = map.first;
                     size_t point_id = map.second;
 
-                    auto keypoints = database.ReadKeypoints(graphos_to_colmap_image_ids.at(image_id));
+                    auto keypoints = database->ReadKeypoints(graphos_to_colmap_image_ids.at(image_id));
                     auto _undistort = undistort.at(images().at(image_id).cameraId());
 
                     Camera undistort_camera = _undistort.undistortCamera();
@@ -406,8 +406,8 @@ void CmvsPmvsDensifier::writeBundleFile()
                     Point<float> undistort_point = _undistort.undistortPoint(Point<float>(keypoints[point_id].x, keypoints[point_id].y));
                     stream << " " << static_cast<int>(mGraphosToBundlerIds.at(image_id))
                         << " " << point_id
-                        << " " << undistort_point.x - ppx
-                        << " " << ppy - undistort_point.y << " ";
+                        << " " << undistort_point.x() - ppx
+                        << " " << ppy - undistort_point.y() << " ";
 
                 }
 
@@ -432,9 +432,8 @@ void CmvsPmvsDensifier::writeVisibility()
 
         ///////////////////////////////////////////////////////////////////////////////
         /// TODO: Repetido
-        colmap::Database database;
-        database.Open(mDatabase.toUtf8());
-        const auto &colmap_images = database.ReadAllImages();
+        auto database = colmap::Database::Open(mDatabase.toUtf8());
+        const auto &colmap_images = database->ReadAllImages();
 
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
 
@@ -571,7 +570,7 @@ void CmvsPmvsDensifier::densify()
         cmd_cmvs.append("/\" option-all");
 
         Message::info("Process: {}", cmd_cmvs);
-        Process process(cmd_cmvs);
+        tl::Process process(cmd_cmvs);
         process.run();
 
         TL_ASSERT(process.status() == Process::Status::finalized, "Densify Point Cloud error");
@@ -605,14 +604,13 @@ void CmvsPmvsDensifier::copyUndistortedImages() const
         std::string file_name = std::to_string(image_id).append(".tif");
         undistort_image_path.append(file_name);
 
-        auto image_reader = tl::ImageReaderFactory::create(undistort_image_path);
-        image_reader->open();
-        if (image_reader->isOpen()) {
+        RasterReader image_reader(undistort_image_path);
+        if (image_reader.isOpen()) {
 
             Path image_out_path = output_path;
             image_out_path.append(colmap::StringPrintf("%08d.jpg", mGraphosToBundlerIds.at(image_id)));
 
-            cv::Mat mat = image_reader->read();
+            cv::Mat mat = image_reader.read();
 
             double nodata_value = tl::NoData<float>;
             if (mat.type() == CV_32F)
@@ -629,19 +627,18 @@ void CmvsPmvsDensifier::copyUndistortedImages() const
             normalizeImage(mat, mat, this->isCudaEnabled(), mask);
             cv::cvtColor(mat, mat, cv::COLOR_GRAY2RGB);
 
-            auto image_writer = tl::ImageWriterFactory::create(image_out_path);
-            image_writer->open();
-            if (image_writer->isOpen()) {
-                image_writer->create(mat.rows, mat.cols, 3, tl::DataType::TL_8U);
-                image_writer->write(mat);
-                image_writer->close();
+            RasterWriter image_writer(image_out_path);
+            if (image_writer.isOpen()) {
+                image_writer.create(mat.rows, mat.cols, 3, tl::DataType::TL_8U);
+                image_writer.write(mat);
+                image_writer.close();
             }
         }
     }
 }
 
 
-void CmvsPmvsDensifier::execute(Progress *progressBar)
+void CmvsPmvsDensifier::execute(Progress *progressBar, std::stop_token stopToken)
 {
 
     try {

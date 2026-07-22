@@ -27,7 +27,7 @@
 
 #include "graphos/components/loadfromvideo/LoadFromVideoView.h"
 
-#include <tidop/core/flags.h>
+#include <tidop/core/base/flags.h>
 
 /* Prueba carga de video */
 #include <opencv2/opencv.hpp>

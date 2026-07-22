@@ -28,8 +28,8 @@
 #include <colmap/util/misc.h>
 #include <colmap/base/camera_database.h>
 
-#include <tidop/core/msg/message.h>
-#include <tidop/math/algebra/rotation_matrix.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/math/algebra/rotations/RotationMatrix.h>
 
 #include <QDir>
 #include <QSqlQuery>
@@ -49,7 +49,7 @@ namespace graphos
 {
 
 OrientationExport::OrientationExport(const colmap::Reconstruction *reconstruction,
-                                     const tl::Point3<double> &offset)
+                                     const tl::Point3d &offset)
   : mReconstruction(reconstruction),
     mOffset(offset)
 {
@@ -234,7 +234,7 @@ void OrientationExport::exportPLY(const tl::Path &path) const
 //
 //                    tl::RotationMatrix<double> rotation_transpose = _rotation_matrix.transpose();
 //
-//                    tl::Point3<double> position;
+//                    tl::Point3d position;
 //
 //                    position.x = -(rotation_transpose.at(0, 0) * translation[0] +
 //                                   rotation_transpose.at(0, 1) * -translation[1] +

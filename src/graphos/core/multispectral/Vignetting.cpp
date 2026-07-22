@@ -23,7 +23,7 @@
 
 #include "graphos/core/multispectral/Vignetting.h"
 
-#include <tidop/core/exception.h>
+#include <tidop/core/base/Exception.h>
 
 #include <opencv2/opencv.hpp>
 
@@ -31,7 +31,7 @@ namespace graphos
 {
 
 
-VignettingRadial::VignettingRadial(const tl::Point<float> &center, 
+VignettingRadial::VignettingRadial(const tl::Point2f &center, 
                                    const std::vector<float> &poly)
   : Vignetting(Model::radial),
     mCenter(center),
@@ -44,11 +44,11 @@ auto VignettingRadial::computeMap(int width, int height) const -> cv::Mat
     cv::Mat map(height, width, CV_32F);
 
     for (int y = 0; y < height; ++y) {
-        float dy = y - mCenter.y;
+        float dy = y - mCenter.y();
 
         for (int x = 0; x < width; ++x) {
 
-            float dx = x - mCenter.x;
+            float dx = x - mCenter.x();
             float r = std::hypot(dx, dy);
 
             // Calcular el factor polinómico

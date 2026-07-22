@@ -29,7 +29,7 @@
 
 #include <QString>
 
-#include <tidop/core/path.h>
+#include <tidop/core/base/Path.h>
 
 #include "graphos/core/sfm/poses.h"
 

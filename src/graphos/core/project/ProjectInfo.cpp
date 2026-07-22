@@ -21,49 +21,64 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_CAMERA_CALIBRATION_READER_H
-#define GRAPHOS_CORE_CAMERA_CALIBRATION_READER_H
+#include "graphos/core/project/ProjectInfo.h"
 
-#include <tidop/core/base/Path.h>
-
-#include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
 
-/* Calibration reader */
-
-class CalibrationReader
+ProjectInfo::ProjectInfo(tl::Path projectPath, std::string description)
+  : mProjectPath(std::move(projectPath)),
+    mDescription(std::move(description))
 {
+    mProjectPath.normalize();
+}
 
-public:
-
-    CalibrationReader();
-
-    virtual ~CalibrationReader() = default;
-
-    virtual void read(const tl::Path &path, Camera &camera, bool prior = false) = 0;
-    virtual auto format() const -> std::string = 0;
-
-};
-
-
-/* Calibration reader factory */
-
-class CalibrationReaderFactory
+auto ProjectInfo::projectPath() const -> tl::Path
 {
+    return mProjectPath;
+}
 
-private:
+void ProjectInfo::setProjectPath(tl::Path path)
+{ 
+    mProjectPath = std::move(path);
+    mProjectPath.normalize();
+}
 
-    CalibrationReaderFactory() = default;
+auto ProjectInfo::name() const -> std::string
+{
+    return mProjectPath.baseName().toString();
+}
 
-public:
+auto ProjectInfo::description() const -> std::string
+{
+    return mDescription;
+}
 
-    static auto create(const std::string &format) -> std::unique_ptr<CalibrationReader>;
+void ProjectInfo::setDescription(std::string description)
+{
+    mDescription = std::move(description);
+}
 
-};
+auto ProjectInfo::projectFolder() const -> tl::Path
+{
+    return mProjectPath.parentPath();
+}
 
+auto ProjectInfo::database() const -> const tl::Path
+{
+    return tl::Path(mProjectPath).replaceExtension(".db");
+}
 
-} // namespace graphos
+auto ProjectInfo::version() const -> std::string
+{
+    return mVersion;
+}
 
-#endif // GRAPHOS_CORE_CAMERA_CALIBRATION_READER_H
+void ProjectInfo::clear()
+{
+    mProjectPath.clear();
+    mDescription = "";
+}
+
+} // end namespace graphos

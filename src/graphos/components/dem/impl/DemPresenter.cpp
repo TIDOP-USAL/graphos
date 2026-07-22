@@ -28,7 +28,7 @@
 #include "graphos/components/dem/impl/DemTask.h"
 #include "graphos/core/task/Progress.h"
 
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 
 #include <QDir>
 #include <QApplication>

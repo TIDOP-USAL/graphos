@@ -27,9 +27,9 @@
 #include <unordered_map>
 #include <map>
 
-#include <tidop/core/flags.h>
-#include <tidop/core/path.h>
-#include <tidop/math/algebra/rotation_matrix.h>
+#include <tidop/core/base/flags.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/math/algebra/rotations/RotationMatrix.h>
 
 
 namespace graphos

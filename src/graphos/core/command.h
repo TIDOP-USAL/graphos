@@ -25,8 +25,8 @@
 #ifndef GRAPHOS_COMMAND_H
 #define GRAPHOS_COMMAND_H
 
-#include <tidop/core/console.h>
-
+#include <tidop/core/console/Console.h>
+#include <tidop/core/console/Command.h>
 
 namespace graphos
 {

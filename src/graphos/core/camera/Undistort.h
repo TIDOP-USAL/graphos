@@ -25,12 +25,13 @@
 #define GRAPHOS_CORE_CAMERA_UNDISTORT
 
 #include <unordered_map>
+#include <stop_token>
 
 #include <QString>
 
 #include <opencv2/core/core.hpp>
 
-#include <tidop/core/task.h>
+#include <tidop/core/task/Task.h>
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Calibration.h"
@@ -69,7 +70,7 @@ public:
     auto undistortCamera() const -> Camera;
     auto undistortImage(const cv::Mat &image,
                         bool cuda = false) const -> cv::Mat;
-    auto undistortPoint(const tl::Point<float> &point) const -> tl::Point<float>;
+    auto undistortPoint(const tl::Point2f &point) const -> tl::Point2f;
 
 private:
 
@@ -96,7 +97,7 @@ private:
  * \brief Task for the correction of a set of images
  */
 class UndistortImages
-  : public tl::TaskBase
+  : public tl::Task
 {
 
 public:
@@ -120,11 +121,11 @@ public:
 
     ~UndistortImages() override;
 
-    // TaskBase
+// Task
 
 protected:
 
-    void execute(tl::Progress *progressBar = nullptr) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 private:
 

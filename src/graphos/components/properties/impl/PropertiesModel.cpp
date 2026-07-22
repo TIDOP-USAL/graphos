@@ -26,7 +26,7 @@
 #include "graphos/core/project.h"
 #include "graphos/components/properties/PropertiesParser.h"
 
-#include <tidop/img/imgreader.h>
+#include <tidop/rastertools/io/Reader.h>
 #include <tidop/img/metadata.h>
 
 #include "graphos/core/dense/CmvsPmvs.h"

@@ -28,9 +28,9 @@
 
 #include <QObject>
 
-#include <tidop/core/task.h>
-#include <tidop/core/progress.h>
-#include <tidop/core/path.h>
+#include <tidop/core/task/Task.h>
+#include <tidop/core/task/Progress.h>
+#include <tidop/core/base/Path.h>
 
 #include "graphos/core/features/features.h"
 #include "graphos/core/image.h"

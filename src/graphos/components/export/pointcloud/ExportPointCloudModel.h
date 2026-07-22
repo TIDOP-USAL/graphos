@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_EXPORT_POINT_CLOUD_MODEL_INTERFACE_H
 #define GRAPHOS_EXPORT_POINT_CLOUD_MODEL_INTERFACE_H
 
-#include <tidop/core/path.h>
+#include <tidop/core/base/Path.h>
 
 #include "ExportPointCloudComponent.h"
 #include "graphos/core/mvp.h"

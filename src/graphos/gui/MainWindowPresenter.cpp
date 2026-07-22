@@ -35,8 +35,8 @@
 #include "graphos/gui/MainWindowModel.h"
 
 /* TidopLib */
-#include <tidop/core/msg/message.h>
-#include <tidop/core/exception.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/base/Exception.h>
 #include <tidop/core/log.h>
 #include <tidop/math/geometry/affine.h>
 

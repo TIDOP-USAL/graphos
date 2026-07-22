@@ -25,7 +25,7 @@
 #include "UndistortImagesCommand.h"
 
 #include <tidop/core/log.h>
-#include <tidop/core/progress.h>
+#include <tidop/core/task/Progress.h>
 
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/core/utils.h"

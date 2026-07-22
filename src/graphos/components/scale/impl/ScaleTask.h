@@ -24,8 +24,8 @@
 #ifndef GRAPHOS_SCALE_TASK_H
 #define GRAPHOS_SCALE_TASK_H
 
-#include <tidop/core/task.h>
-#include <tidop/math/algebra/matrix.h>
+#include <tidop/core/task/Task.h>
+#include <tidop/math/algebra/matrix/Matrix.h>
 
 class ccHObject;
 

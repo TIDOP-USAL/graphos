@@ -30,7 +30,7 @@
 #include "graphos/core/dense/Smvs.h"
 #include "graphos/core/dense/mvs.h"
 
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 
 #include <QFileInfo>
 #include <tidop/core/log.h>

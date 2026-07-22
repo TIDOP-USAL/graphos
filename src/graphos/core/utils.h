@@ -27,9 +27,8 @@
 
 #include "graphos/graphos_global.h"
 
-#include <tidop/core/defs.h>
-#include <tidop/math/angles.h>
-#include <tidop/math/algebra/matrix.h>
+#include <tidop/math/geometry/angles/Degrees.h>
+#include <tidop/math/algebra/matrix/Matrix.h>
 
 #include <opencv2/photo.hpp>
 
@@ -122,7 +121,7 @@ public:
 
 void openPdf(const QString &pdf);
 
-tl::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const std::string &ref);
+auto formatDegreesFromExif(const std::string &exifAngle, const std::string &ref) -> tl::Degrees<double>;
 
 
 

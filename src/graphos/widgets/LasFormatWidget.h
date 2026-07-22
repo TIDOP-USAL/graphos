@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_POINT_CLOUD_LAS_FORMAT_WIDGET_H
 #define GRAPHOS_POINT_CLOUD_LAS_FORMAT_WIDGET_H
 
-#include <tidop/core/flags.h>
+#include <tidop/core/base/flags.h>
 
 #include "graphos/widgets/GraphosWidget.h"
 

@@ -32,17 +32,18 @@
 #include "graphos/core/ply.h"
 
 /* TidopLib */
-#include <tidop/core/task.h>
-#include <tidop/core/path.h>
-#include <tidop/core/app.h>
-#include <tidop/img/imgreader.h>
-#include <tidop/img/imgwriter.h>
-#include <tidop/core/progress.h>
-#include <tidop/math/algebra/rotation_convert.h>
+#include <tidop/core/task/Task.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/core/app/App.h>
+#include <tidop/core/task/Process.h>
+#include <tidop/math/algebra/rotations/RotationMatrix.h>
+#include <tidop/rastertools/io/Reader.h>
+#include <tidop/rastertools/io/Writer.h>
+#include <tidop/core/task/Progress.h>
 
 /* Colmap */
-#include <colmap/base/database.h>
-#include <feature/types.h>
+#include <colmap/scene/database.h>
+#include <colmap/feature/types.h>
 
 #include <fstream>
 #include <iomanip>
@@ -339,12 +340,12 @@ void MvsDensifier::exportImages(const std::unordered_map<size_t, colmap::image_t
 
         tl::Quaternion<double> quaternion = pose.second.quaternion();
 
-        auto xyx = rotation_matrix * -projection_center.vector();
+        tl::Vector3d xyx = rotation_matrix * -projection_center.vector();
         std::string file_name = std::to_string(image_id).append(".tif");
 
         auto colmap_image_id = graphosToColmapImageIds.at(image_id);
 
-        ofs << colmap_image_id << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
+        ofs << colmap_image_id << " " << quaternion.w() << " " << quaternion.x() << " " << quaternion.y() << " " << quaternion.z() << " "
             << xyx[0] << " " << xyx[1] << " " << xyx[2] << " " << image.cameraId() << " " << file_name << std::endl;
 
         for (size_t i = 0; i < groundPoints().size(); i++) {
@@ -389,9 +390,9 @@ void MvsDensifier::exportPoints(const std::unordered_map<size_t, colmap::image_t
     for (auto &points_3d : groundPoints()) {
 
         ofs << ++point_id << " "
-            << points_3d.x << " "
-            << points_3d.y << " "
-            << points_3d.z << " "
+            << points_3d.x() << " "
+            << points_3d.y() << " "
+            << points_3d.z() << " "
             << points_3d.color().red() << " "
             << points_3d.color().green() << " "
             << points_3d.color().blue() << " 0";
@@ -413,9 +414,8 @@ void MvsDensifier::exportToColmap() const
 {
     try {
 
-        colmap::Database database;
-        database.Open(mDatabase.toUtf8());
-        const auto &colmap_images = database.ReadAllImages();
+        auto database = colmap::Database::Open(mDatabase.toUtf8());
+        const auto &colmap_images = database->ReadAllImages();
 
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
         std::unordered_map<size_t, colmap::FeatureKeypoints> keypoints;
@@ -431,13 +431,13 @@ void MvsDensifier::exportToColmap() const
 
                 if (image_path.equivalent(colmap_image_path)) {
                     graphos_to_colmap_image_ids[graphos_image_id] = colmap_image.ImageId();
-                    keypoints[colmap_image.ImageId()] = database.ReadKeypoints(colmap_image.ImageId());
+                    keypoints[colmap_image.ImageId()] = database->ReadKeypoints(colmap_image.ImageId());
                     break;
                 }
             }
 
         }
-        database.Close();
+        database->Close();
 
         std::map<int, Undistort> undistort_map;
 
@@ -464,9 +464,8 @@ void MvsDensifier::writeNvmFile() const
 {
     try {
 
-        colmap::Database database;
-        database.Open(mDatabase.toUtf8());
-        const auto &colmap_images = database.ReadAllImages();
+        auto database = colmap::Database::Open(mDatabase.toUtf8());
+        const auto &colmap_images = database->ReadAllImages();
 
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
         std::unordered_map<size_t, colmap::FeatureKeypoints> keypoints;
@@ -481,14 +480,14 @@ void MvsDensifier::writeNvmFile() const
 
                 if (image_path.equivalent(colmap_image_path)) {
                     graphos_to_colmap_image_ids[graphos_image_id] = colmap_image.ImageId();
-                    keypoints[colmap_image.ImageId()] = database.ReadKeypoints(colmap_image.ImageId());
+                    keypoints[colmap_image.ImageId()] = database->ReadKeypoints(colmap_image.ImageId());
                     break;
                 }
             }
 
         }
 
-        database.Close();
+        database->Close();
 
         tl::Path nvm_path(outputPath());
         nvm_path.append("model.nvm");
@@ -521,17 +520,17 @@ void MvsDensifier::writeNvmFile() const
                 auto projection_center = pose.second.position();
                 auto quaternion = pose.second.quaternion();
                 auto rotation_matrix = pose.second.rotationMatrix();
-                auto xyx = rotation_matrix * -projection_center.vector();
+                tl::Vector3d xyx = rotation_matrix * -projection_center.vector();
 
                 tl::Path undistort_image(image.path().toStdString());
                 undistort_image.replaceExtension(".tif");
 
                 stream << "undistort/" << undistort_image.fileName().toString() << " ";
                 stream << new_focal << " ";
-                stream << quaternion.w << " ";
-                stream << quaternion.x << " ";
-                stream << quaternion.y << " ";
-                stream << quaternion.z << " ";
+                stream << quaternion.w() << " ";
+                stream << quaternion.x() << " ";
+                stream << quaternion.y() << " ";
+                stream << quaternion.z() << " ";
                 stream << xyx[0] << " ";
                 stream << xyx[1] << " ";
                 stream << xyx[2] << " ";
@@ -544,9 +543,9 @@ void MvsDensifier::writeNvmFile() const
 
             for (auto &points_3d : groundPoints()) {
 
-                stream << points_3d.x << " "
-                       << points_3d.y << " "
-                       << points_3d.z << " "
+                stream << points_3d.x() << " "
+                       << points_3d.y() << " "
+                       << points_3d.z() << " "
                        << points_3d.color().red() << " "
                        << points_3d.color().green() << " "
                        << points_3d.color().blue() << " ";
@@ -563,12 +562,12 @@ void MvsDensifier::writeNvmFile() const
                     auto &keypoint = keypoints[graphos_to_colmap_image_ids.at(image_id)][point_id];
                     auto &_undistort = undistort.at(images().at(image_id).cameraId());
 
-                    tl::Point<float> undistort_point = _undistort.undistortPoint(tl::Point<float>(keypoint.x, keypoint.y));
+                    tl::Point2f undistort_point = _undistort.undistortPoint(tl::Point2f(keypoint.x, keypoint.y));
 
                     stream << " " << static_cast<int>(graphos_to_mvs_ids.at(image_id))
                            << " " << point_id
-                           << " " << undistort_point.x
-                           << " " << undistort_point.y;
+                           << " " << undistort_point.x()
+                           << " " << undistort_point.y();
                 }
 
                 stream << std::endl;
@@ -685,7 +684,7 @@ void MvsDensifier::densify()
     }
 }
 
-void MvsDensifier::execute(tl::Progress *progressBar)
+void MvsDensifier::execute(tl::Progress *progressBar, std::stop_token stopToken)
 {
     try {
 
@@ -749,20 +748,19 @@ void MvsDensifier::copyUndistortedImages() const
         std::string file_name = std::to_string(image_id).append(".tif");
         image_path.append(file_name);
 
-        auto image_reader = tl::ImageReaderFactory::create(image_path);
-        image_reader->open();
-        if (image_reader->isOpen()) {
+        tl::RasterReader image_reader(image_path);
+        if (image_reader.isOpen()) {
 
             tl::Path image_out_path = output_path;
             image_out_path.append(image_path.fileName());
             image_out_path.replaceExtension(".tif");
 
-            if (image_reader->depth() == 8 /*&& mFormat == graphos::UndistortImages::Format::tiff*/) {
+            if (image_reader.depth() == 8 /*&& mFormat == graphos::UndistortImages::Format::tiff*/) {
                // Solo copia
                 tl::Path::copy(image_path, image_out_path);
             } else {
 
-                cv::Mat mat = image_reader->read();
+                cv::Mat mat = image_reader.read();
 
                 //double nodata_value = tl::NoData<float>;
                 double nodata_value;
@@ -778,16 +776,15 @@ void MvsDensifier::copyUndistortedImages() const
                 cv::bitwise_not(mask, mask);
 
                 normalizeImage(mat, mat, this->isCudaEnabled(), mask);
-                auto image_writer = tl::ImageWriterFactory::create(image_out_path);
-                image_writer->open();
-                if (image_writer->isOpen()) {
-                    image_writer->create(mat.rows, mat.cols, mat.channels(), tl::DataType::TL_8U);
-                    image_writer->write(mat);
-                    image_writer->close();
+                tl::RasterWriter image_writer(image_out_path);
+                if (image_writer.isOpen()) {
+                    image_writer.create(mat.rows, mat.cols, mat.channels(), tl::DataType::TL_8U);
+                    image_writer.write(mat);
+                    image_writer.close();
                 }
             }
 
-            image_reader->close();
+            image_reader.close();
         }
     }
 }

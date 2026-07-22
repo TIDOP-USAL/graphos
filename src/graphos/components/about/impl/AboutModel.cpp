@@ -24,7 +24,7 @@
 #include "AboutModel.h"
 
 #include <tidop/core/licence.h>
-#include <tidop/core/path.h>
+#include <tidop/core/base/Path.h>
 
 #include <QJsonDocument>
 #include <QJsonObject>

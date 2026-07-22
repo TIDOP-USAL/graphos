@@ -25,13 +25,13 @@
 
 #include "graphos/core/project.h"
 
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 #include <tidop/geospatial/crstransf.h>
-#include <tidop/geometry/entities/point.h>
+#include <tidop/geometry/primitives/Point.h>
 #include <tidop/math/math.h>
 #include <tidop/math/algebra/rotation_convert.h>
 #include <tidop/math/algebra/euler_angles.h>
-#include <tidop/math/algebra/quaternion.h>
+#include <tidop/math/algebra/rotations/Quaternion.h>
 
 ///TODO: Esto no deber�a estar aqui
 #include <colmap/base/database.h>
@@ -778,15 +778,15 @@ void ImportCamerasModelImp::importCameras()
                     //if (bTrfCrs) {
                     //    tl::CrsTransform crs_trf(crs_in, crs_out);
 
-                    //    tl::Point3<double> pt_in;
-                    //    pt_in = tl::Point3<double>(x.toDouble(), y.toDouble(), z.toDouble());
+                    //    tl::Point3d pt_in;
+                    //    pt_in = tl::Point3d(x.toDouble(), y.toDouble(), z.toDouble());
 
-                    //    tl::Point3<double> pt_out = crs_trf.transform(pt_in);
+                    //    tl::Point3d pt_out = crs_trf.transform(pt_in);
 
                     //    camera_pose.setPosition(pt_out);
                     //    camera_pose.setCrs(mOutputCrs);
                     //} else {
-                        camera_pose.setPosition(tl::Point3<double>(x.toDouble(), y.toDouble(), z.toDouble()));
+                        camera_pose.setPosition(tl::Point3d(x.toDouble(), y.toDouble(), z.toDouble()));
                         camera_pose.setCrs(mCrs);
                         //TODO: Se tiene que pasar la precisión de los puntos
                         camera_pose.setAccuracy({0.01, 0.01, 0.01});
@@ -920,7 +920,7 @@ void ImportCamerasModelImp::importCamerasFromMRK(const QString &file)
                 // Buscar si el índice aparece en el nombre del archivo
                 if (name.find(pattern) != std::string::npos) {
 
-                    tl::Point3<double> pt(entry.longitude, entry.latitude, entry.height);
+                    tl::Point3d pt(entry.longitude, entry.latitude, entry.height);
 
                     CameraPose camera_pose;
                     camera_pose.setSource(file);

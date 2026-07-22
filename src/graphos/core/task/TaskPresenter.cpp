@@ -24,7 +24,9 @@
 #include "graphos/core/task/TaskPresenter.h"
 #include "graphos/core/task/Progress.h"
 
-#include <tidop/core/progress.h>
+#include <tidop/core/task/Progress.h>
+#include <tidop/core/task/events/Events.h>
+#include <tidop/core/base/Exception.h>
 
 #include <QStandardPaths>
 #include <QDir>
@@ -42,12 +44,12 @@ TaskPresenter::TaskPresenter()
 
 TaskPresenter::~TaskPresenter() = default;
 
-void TaskPresenter::onError(tl::TaskErrorEvent *event)
+void TaskPresenter::onError(tl::TaskErrorEvent &event)
 {
     if (mProgressHandler) {
         mProgressHandler->finish();
         mProgressHandler->reset();
-        mProgressHandler->setDescription(QString::fromStdString(event->errorMessage()));
+        mProgressHandler->setDescription(QString::fromStdString(event.errorMessage()));
         mProgressHandler->setRange(0, 100);
 
         disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
@@ -56,7 +58,7 @@ void TaskPresenter::onError(tl::TaskErrorEvent *event)
     emit failed();
 }
 
-void TaskPresenter::onFinished(tl::TaskFinalizedEvent *event)
+void TaskPresenter::onFinished(tl::TaskFinalizedEvent &event)
 {
     tl::unusedParameter(event);
 
@@ -71,7 +73,7 @@ void TaskPresenter::onFinished(tl::TaskFinalizedEvent *event)
     emit finished();
 }
 
-void TaskPresenter::onStopped(tl::TaskStoppedEvent *event)
+void TaskPresenter::onStopped(tl::TaskStoppedEvent &event)
 {
     tl::unusedParameter(event);
 
@@ -108,17 +110,17 @@ void TaskPresenter::run()
 
         TL_ASSERT(mTask, "Empty process");
 
-        mTask->subscribe([this](tl::TaskErrorEvent *event)
+        mTask->subscribe([this](tl::TaskErrorEvent &event)
         {
             onError(event);
         });
 
-        mTask->subscribe([this](tl::TaskFinalizedEvent *event)
+        mTask->subscribe([this](tl::TaskFinalizedEvent &event)
         {
             onFinished(event);
         });
 
-        mTask->subscribe([this](tl::TaskStoppedEvent *event)
+        mTask->subscribe([this](tl::TaskStoppedEvent &event)
         {
             onStopped(event);
         });

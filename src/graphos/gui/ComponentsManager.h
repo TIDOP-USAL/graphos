@@ -28,7 +28,7 @@
 
 #include <QObject>
 
-#include <tidop/core/flags.h>
+#include <tidop/core/base/flags.h>
 
 namespace graphos
 {

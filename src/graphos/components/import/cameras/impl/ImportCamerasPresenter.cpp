@@ -27,7 +27,7 @@
 #include "graphos/components/import/cameras/impl/ImportCamerasView.h"
 
 #include <tidop/core/defs.h>
-#include <tidop/core/exception.h>
+#include <tidop/core/base/Exception.h>
 
 #include <QFileDialog>
 #include <QApplication>

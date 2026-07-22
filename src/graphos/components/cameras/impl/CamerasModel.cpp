@@ -25,7 +25,7 @@
 #include "graphos/core/camera/io/CalibrationWriter.h"
 #include "graphos/core/camera/io/CalibrationReader.h"
 
-#include <tidop/core/msg/message.h>
+#include <tidop/core/app/Message.h>
 
 #include <QXmlStreamReader>
 #include <QDir>

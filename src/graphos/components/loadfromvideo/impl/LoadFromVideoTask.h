@@ -26,8 +26,8 @@
 
 #include <QObject>
 
-#include <tidop/core/task.h>
-#include <tidop/core/path.h>
+#include <tidop/core/task/Task.h>
+#include <tidop/core/base/Path.h>
 
 namespace tl
 {

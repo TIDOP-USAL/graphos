@@ -29,7 +29,7 @@
 #include "graphos/components/orthophoto/impl/Orthoimage.h"
 #include "graphos/components/orthophoto/impl/Orthorectification.h"
 
-#include <tidop/core/progress.h>
+#include <tidop/core/task/Progress.h>
 #include <tidop/graphic/layer.h>
 #include <tidop/geotools/GeoTools.h>
 #include <tidop/geotools/CRSsTools.h>

@@ -30,7 +30,6 @@
 
 #include <QString>
 
-#include <tidop/core/defs.h>
 ///TODO: Quitar la cabecera de aqui
 TL_DISABLE_WARNINGS
 #include <colmap/feature/sift.h>

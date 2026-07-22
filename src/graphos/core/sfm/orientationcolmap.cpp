@@ -30,11 +30,11 @@
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Colmap.h"
 
-#include <tidop/core/msg/message.h>
-#include <tidop/core/path.h>
-#include <tidop/core/chrono.h>
-#include <tidop/core/progress.h>
-#include <tidop/math/algebra/rotation_matrix.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/core/base/Chrono.h>
+#include <tidop/core/task/Progress.h>
+#include <tidop/math/algebra/rotations/RotationMatrix.h>
 #include <tidop/math/algebra/rotation_convert.h>
 
 #include <colmap/base/reconstruction.h>
@@ -573,7 +573,7 @@ auto ColmapReconstructionConvert::groundPoints() const -> std::vector<GroundPoin
     for (auto &points_3d : mReconstruction->Points3D()) {
 
         GroundPoint ground_point;
-        ground_point.setPoint(tl::Point3<double>(points_3d.second.X(),
+        ground_point.setPoint(tl::Point3d(points_3d.second.X(),
                               points_3d.second.Y(),
                               points_3d.second.Z()));
 
@@ -611,7 +611,7 @@ auto ColmapReconstructionConvert::cameraPoses() const -> std::unordered_map<size
 
         const Eigen::Matrix<double, 3, 4> inv_proj_matrix = colmap_image.InverseProjectionMatrix();
         const Eigen::Vector3d pc = inv_proj_matrix.rightCols<1>();
-        photoOrientation.setPosition(tl::Point3<double>(pc(0), pc(1), pc(2)));
+        photoOrientation.setPosition(tl::Point3d(pc(0), pc(1), pc(2)));
 
         //auto &qvec = colmap_image.Qvec();
         //Eigen::Vector4d normalized_qvec = colmap::NormalizeQuaternion(qvec);
@@ -1175,7 +1175,7 @@ auto ColmapReconstructionConvert::readCalibration(size_t cameraId) const -> std:
 //
 //                    ref_image_names.push_back(colmap_image.second.Name());
 //
-//                    tl::Point3<double> coordinates = graphos_image.cameraPose().position();
+//                    tl::Point3d coordinates = graphos_image.cameraPose().position();
 //
 //                    Eigen::Vector3d camera_coordinates;
 //                    camera_coordinates[0] = coordinates.x;
@@ -1249,7 +1249,7 @@ auto ColmapReconstructionConvert::readCalibration(size_t cameraId) const -> std:
 //
 //        /// writeOffset
 //        
-//        offsetWrite(offset_path, tl::Point3<double>(offset[0], offset[1], offset[2]));
+//        offsetWrite(offset_path, tl::Point3d(offset[0], offset[1], offset[2]));
 //        tl::Message::info("Camera offset: {},{},{}", offset[0], offset[1], offset[2]);
 //
 //
@@ -1609,7 +1609,7 @@ auto ColmapReconstructionConvert::readCalibration(size_t cameraId) const -> std:
 //                if (reconstruction.ExistsImage(mGraphosToColmapId[mImages[i].id()])) {
 //
 //                    const colmap::Image &image = reconstruction.Image(mGraphosToColmapId[mImages[i].id()]);
-//                    tl::Point3<double> position = mImages[i].cameraPose().position();
+//                    tl::Point3d position = mImages[i].cameraPose().position();
 //                    position -= mOffset;
 //                    Eigen::Vector3d pos_ini;
 //                    pos_ini[0] = position.x;
@@ -1690,7 +1690,7 @@ auto ColmapReconstructionConvert::readCalibration(size_t cameraId) const -> std:
 //            tl::Quaternion<double> quaternion = camera_pose.quaternion();
 //            TL_TODO("Las rutas con espacios pueden dar problemas")
 //            std::string file_name = image.path().toStdString();
-//            tl::Point3<double> position = camera_pose.position();
+//            tl::Point3d position = camera_pose.position();
 //
 //            if (!isCoordinatesLocal()) {
 //                position -= mOffset;

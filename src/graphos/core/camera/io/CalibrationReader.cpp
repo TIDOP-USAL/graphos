@@ -27,7 +27,7 @@
 #include "graphos/core/camera/io/impl/Pix4DCalibrationReader.h"
 #include "graphos/core/camera/io/impl/OpenDroneMapCalibrationReader.h"
 
-#include <tidop/core/exception.h>
+#include <tidop/core/base/Exception.h>
 
 namespace graphos
 {

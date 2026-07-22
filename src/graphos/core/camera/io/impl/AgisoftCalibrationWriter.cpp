@@ -51,7 +51,6 @@ void AgisoftCalibrationWriter::write(const tl::Path &path,
         TL_ASSERT(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate), "Unable to open file for writing.");
 
         QTextStream stream(&file);
-        stream.setCodec("UTF-8");
 
         stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
         stream << "<calibration>\n";

@@ -25,8 +25,8 @@
 
 #include "config_graphos.h"
 
-#include <tidop/core/msg/message.h>
-#include <tidop/core/exception.h>
+#include <tidop/core/app/Message.h>
+#include <tidop/core/base/Exception.h>
 
 #include <QHelpEngine>
 #include <QHelpContentWidget>

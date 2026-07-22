@@ -32,8 +32,8 @@
 #include "graphos/core/sfm/orientationexport.h"
 #include "graphos/core/camera/Camera.h"
 
-#include <tidop/core/exception.h>
-#include <tidop/core/progress.h>
+#include <tidop/core/base/Exception.h>
+#include <tidop/core/task/Progress.h>
 
 #include <colmap/base/reconstruction.h>
 #include <colmap/controllers/hierarchical_mapper.h>
@@ -435,11 +435,11 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
             }
 
             double robust_fitting_error = 2.0;
-            std::unordered_map<size_t, tl::Point3<double>> cameras_enu;
+            std::unordered_map<size_t, tl::Point3d> cameras_enu;
 
             if (mOptions.isEnabled(Options::use_poses)) {
 
-                std::unordered_map<size_t, tl::Point3<double>> cameras_geographic;
+                std::unordered_map<size_t, tl::Point3d> cameras_geographic;
                 
                 for (const auto &image : mImages) {
                 
@@ -465,7 +465,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                 /// Cálculo del centro
 
-                tl::Point3<double> geographic_center;
+                tl::Point3d geographic_center;
                 for (const auto &coordinates : cameras_geographic) {
                     geographic_center += coordinates.second / static_cast<double>(cameras_geographic.size());
                 }
@@ -586,7 +586,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
 
                         /// Cálculo del centro
-                        tl::Point3<double> geographic_center;
+                        tl::Point3d geographic_center;
                         double i = 1.;
                         for (const auto &gcp : ground_control_points) {
                             auto coordinates = gcp;
@@ -903,7 +903,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                         if (reconstruction.ExistsImage(image_ids_graphos_to_colmap[graphos_image_id])) {
 
                             const colmap::Image &colmap_image = reconstruction.Image(image_ids_graphos_to_colmap[graphos_image_id]);
-                            tl::Point3<double> position = image.cameraPose().position();
+                            tl::Point3d position = image.cameraPose().position();
                             Eigen::Vector3d pos_ini;
                             pos_ini[0] = cameras_enu[graphos_image_id].x;
                             pos_ini[1] = cameras_enu[graphos_image_id].y;

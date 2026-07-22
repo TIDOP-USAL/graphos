@@ -31,8 +31,8 @@
 #include "graphos/core/sfm/posesio.h"
 
 #include <tidop/core/messages.h>
-#include <tidop/core/chrono.h>
-#include <tidop/math/algebra/rotation_matrix.h>
+#include <tidop/core/base/Chrono.h>
+#include <tidop/math/algebra/rotations/RotationMatrix.h>
 #include <tidop/math/algebra/rotation_convert.h>
 
 #include <colmap/base/reconstruction.h>

@@ -28,8 +28,8 @@
 
 #include <unordered_map>
 
-#include <tidop/core/path.h>
-#include <tidop/geometry/entities/point.h>
+#include <tidop/core/base/Path.h>
+#include <tidop/geometry/primitives/Point.h>
 #include <tidop/graphic/color.h>
 
 #include "graphos/core/sfm/track.h"
@@ -46,10 +46,10 @@ namespace graphos
  * This class represents a ground control point, which is a point in 3D space.
  * A ground control point has an associated track with the corresponding points
  * on the images.
- * It inherits from tl::Point3<double>, which provides the x, y, and z coordinates.
+ * It inherits from tl::Point3d, which provides the x, y, and z coordinates.
  */
 class GroundControlPoint
-  : public tl::Point3<double>
+  : public tl::Point3d
 {
 
 public:
@@ -63,12 +63,12 @@ public:
      * \brief Constructor with a 3D point.
      * \param[in] point3d A point in 3D space.
      */
-    explicit GroundControlPoint(const tl::Point3<double> &point3d);
+    explicit GroundControlPoint(const tl::Point3d &point3d);
 
     /*!
      * \brief Destructor.
      */
-    ~GroundControlPoint() override;
+    ~GroundControlPoint();
 
     /*!
      * \brief Get the name of the ground control point.
@@ -86,7 +86,7 @@ public:
      * \brief Set the 3D point of the ground control point.
      * \param[in] point The 3D point to set.
      */
-    void setPoint(const tl::Point3<double> &point);
+    void setPoint(const tl::Point3d &point);
 
     auto error() const -> double/*tl::Vector3d*/;
 
@@ -350,10 +350,10 @@ public:
  * \brief Ground Points
  *
  * The `GroundPoint` class represents a point on the ground in a three-dimensional space.
- * It inherits from `tl::Point3<double>`, providing x, y, and z coordinates.
+ * It inherits from `tl::Point3d`, providing x, y, and z coordinates.
  */
 class GroundPoint
-    : public tl::Point3<double>
+    : public tl::Point3d
 {
 
 public:
@@ -372,8 +372,8 @@ public:
      *
      * \param[in] point3d A point in three-dimensional space.
      */
-    explicit GroundPoint(const tl::Point3<double> &point3d);
-    ~GroundPoint() override;
+    explicit GroundPoint(const tl::Point3d &point3d);
+    ~GroundPoint();
 
     /*!
      * \brief Set the point coordinates.
@@ -382,7 +382,7 @@ public:
      *
      * \param[in] point The point to set.
      */
-    void setPoint(const tl::Point3<double> &point);
+    void setPoint(const tl::Point3d &point);
 
     /*!
      * \brief Get the color of the ground point.
