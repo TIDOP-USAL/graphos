@@ -25,23 +25,42 @@
 #define GRAPHOS_CORE_CAMERA_H
 
 #include "graphos/core/camera/Calibration.h"
+#include "graphos/core/multispectral/Vignetting.h"
+
+#include <optional>
 
 #include <tidop/math/algebra/matrix/Matrix.h>
 
 namespace graphos
 {
 
-class Vignetting;
-
 class Camera
 {
+
+protected:
+
+    std::string mMake;
+    std::string mModel;
+    std::string mSerialNumber;
+    std::string mType{"OpenCV 1"};
+    std::string mBandName{"RGB"};
+    double mFocal{1.0};
+    int mWidth{0};
+    int mHeight{0};
+    int mBitsPerPixel{-1};
+    double mSensorSize{1.0};
+    std::optional<uint16_t> mBlackLevel; 
+    std::optional<tl::Matrix3x3f>mCalibratedHMatrix;
+    std::shared_ptr<Vignetting> mVignetting;
+    std::shared_ptr<Calibration> mCalibration;
+    std::shared_ptr<Calibration> mPriorCalibration;
 
 public:
 
     /*!
      * \brief Default constructor for Camera
      */
-    Camera();
+    Camera() = default;
 
     /*!
      * \brief Camera constructor
@@ -59,66 +78,85 @@ public:
      * \brief Camera copy constructor
      * \param[in] camera
      */
-    Camera(const Camera &camera);
+    Camera(const Camera &camera) = default;
+    Camera(Camera &&camera) noexcept = default;
 
     /*!
      * \brief Destructor
      */
     ~Camera() = default;
 
+
+    /*!
+     * \brief Assignment operator
+     * \param[in] camera Object to assign
+     * \return Reference to the Camera object
+     */
+    auto operator =(const Camera &camera) -> Camera & = default;
+    auto operator =(Camera &&camera) noexcept -> Camera & = default;
+
     /*!
      * \brief Returns the camera make
      * \return Camera make
      */
-    auto make() const -> std::string;
+    [[nodiscard]]
+    auto make() const -> const std::string &;
 
     /*!
      * \brief Sets the camera make
      * \param[in] make Camera make
      */
-    void setMake(const std::string &make);
+    void setMake(std::string make);
 
     /*!
      * \brief Returns the camera model
      * \return Camera model
      */
-    auto model() const -> std::string;
+    [[nodiscard]]
+    auto model() const -> const std::string &;
 
     /*!
      * \brief Sets the camera model
      * \param[in] model Camera model
      */
-    void setModel(const std::string &model);
+    void setModel(std::string model);
 
     /*!
      * \brief Returns the camera serial number
      * \return Serial number
      */
-    auto serialNumber() const->std::string;
+    [[nodiscard]]
+    auto serialNumber() const -> const std::string &;
 
     /*!
      * \brief Sets the camera serial number
      * \param[in] serialNumber Serial number
      */
-    void setSerialNumber(const std::string &serialNumber);
+    void setSerialNumber(std::string serialNumber);
 
     /*!
      * \brief Returns the camera type
      * \return
      */
-    auto type() const -> std::string;
+    [[nodiscard]]
+    auto type() const -> const std::string &;
 
     /*!
      * \brief Sets the camera type
      * The camera type is used for self-calibration
      * \param[in] type Camera type
      */
-    void setType(const std::string &type);
+    void setType(std::string type);
+
+    [[nodiscard]]
+    auto bandName() const -> const std::string &;
+    void setBandName(std::string bandName);
 
     /*!
      * \brief Returns the camera focal length in millimeters
      * \return Camera focal length
      */
+    [[nodiscard]]
     auto focal() const -> double;
 
     /*!
@@ -131,6 +169,7 @@ public:
      * \brief Returns the sensor width in pixels
      * \return Sensor width in pixels
      */
+    [[nodiscard]]
     auto width() const -> int;
 
     /*!
@@ -143,6 +182,7 @@ public:
      * \brief Sensor height in pixels
      * \return
      */
+    [[nodiscard]]
     auto height() const -> int;
 
     /*!
@@ -155,6 +195,7 @@ public:
      * \brief Bits per pixel
      * \return Bits per pixel
      */
+    [[nodiscard]]
     auto bitsPerPixel() const -> int;
 
     /*!
@@ -168,6 +209,7 @@ public:
      * If the camera does not exist in the database, 1 is returned
      * \return Sensor size
      */
+    [[nodiscard]]
     auto sensorSize() const -> double;
 
     /*!
@@ -176,61 +218,30 @@ public:
      */
     void setSensorSize(double sensorSize);
 
-    auto bandName() const->std::string;
-    void setBandName(const std::string &bandName);
-
-    auto blackLevel() const ->uint16_t;
+    [[nodiscard]]
+    auto blackLevel() const -> std::optional<uint16_t>;
     void setBlackLevel(uint16_t blackLevel);
-    auto hasBlackLevel() const -> bool;
 
-    //auto vignettingCenter() const -> tl::Point2f;
-    //void setVignettingCenter(const tl::Point2f &vignetteCenter);
-    //auto hasVignettingCenter() const -> bool;
-    //auto vignettingPolynomial() const -> std::vector<float>;
-    //void setVignettingPolynomial(const std::vector<float> &vignettePolynomial);
-    //auto hasVignettingPolynomial() const -> bool;
-
+    [[nodiscard]]
     auto vignettingModel() const -> std::shared_ptr<Vignetting>;
     void setVignettingModel(std::shared_ptr<Vignetting> model);
 
+    [[nodiscard]]
     auto calibration() const -> std::shared_ptr<Calibration>;
-    void setCalibration(std::shared_ptr<Calibration> &calibration);
+    void setCalibration(std::shared_ptr<Calibration> calibration);
+
+    [[nodiscard]]
     auto priorCalibration() const -> std::shared_ptr<Calibration>;
-    void setPriorCalibration(std::shared_ptr<Calibration> &calibration);
-    auto calibratedHMatrix() const -> tl::Matrix3x3f;
+    void setPriorCalibration(std::shared_ptr<Calibration> calibration);
+
+    [[nodiscard]]
+    auto calibratedHMatrix() const -> const std::optional<tl::Matrix3x3f> &;
     void setCalibratedHMatrix(const tl::Matrix3x3f &hMatrix);
-    auto hasCalibratedHMatrix() const -> bool;
+    //[[nodiscard]]
+    //auto hasCalibratedHMatrix() const -> bool;
 
-    /*!
-     * \brief Assignment operator
-     * \param[in] camera Object to assign
-     * \return Reference to the Camera object
-     */
-    auto operator =(const Camera &camera) -> Camera&;
-
-private:
-
-    void init();
-
-protected:
-
-    std::string mMake;
-    std::string mModel;
-    std::string mSerialNumber;
-    std::string mType;
-    double mFocal;
-    int mWidth;
-    int mHeight;
-    int mBitsPerPixel;
-    double mSensorSize;
-    std::string mBandName;
-    uint16_t mBlackLevel;
-    tl::Point2f mVignetteCenter;
-    std::vector<float> mVignettePolynomial;
-    tl::Matrix3x3f mCalibratedHMatrix;
-    std::shared_ptr<Calibration> mCalibration;
-    std::shared_ptr<Calibration> mPriorCalibration;
-    std::shared_ptr<Vignetting> mVignetting;
+    [[nodiscard]]
+    auto signature() const -> std::string;
 };
 
 } // namespace graphos

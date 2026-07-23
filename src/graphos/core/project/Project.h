@@ -36,34 +36,36 @@
 #include <QSize>
 
 #include "graphos/core/project/ProjectInfo.h"
-#include "graphos/core/features/matching.h"
-#include "graphos/core/camera/Camera.h"
-#include "graphos/core/image.h"
-#include "graphos/core/features/features.h"
-#include "graphos/core/sfm/poses.h"
-#include "graphos/core/sfm/OrientationReport.h"
-#include "graphos/core/dense/dense.h"
-#include "graphos/core/mesh/PoissonRecon.h"
-#include "graphos/core/reports/dem.h"
-#include "graphos/core/reports/orthophoto.h"
+//#include "graphos/core/features/matching.h"
+//#include "graphos/core/camera/Camera.h"
+//#include "graphos/core/Image.h"
+//#include "graphos/core/features/features.h"
+//#include "graphos/core/sfm/poses.h"
+//#include "graphos/core/sfm/OrientationReport.h"
+//#include "graphos/core/dense/dense.h"
+//#include "graphos/core/mesh/PoissonRecon.h"
+//#include "graphos/core/reports/dem.h"
+//#include "graphos/core/reports/orthophoto.h"
+#include "graphos/core/repositories/CameraRepository.h"
+#include "graphos/core/repositories/ImageRepository.h"
 
 // extraer de aqui a XmlSerializer.h
-class QXmlStreamWriter;
-class QXmlStreamReader;
+//class QXmlStreamWriter;
+//class QXmlStreamReader;
 
 namespace graphos
 {
 
-class Sift;
-class Vignetting;
-
-struct DemData
-{
-    QString epsgCode;
-    tl::Path dtmPath;
-    tl::Path dsmPath;
-    double gsd = 0.1;
-};
+//class Sift;
+//class Vignetting;
+//
+//struct DemData
+//{
+//    QString epsgCode;
+//    tl::Path dtmPath;
+//    tl::Path dsmPath;
+//    double gsd = 0.1;
+//};
 
 class Project
 {
@@ -77,37 +79,39 @@ protected:
     //QString mVersion;
     //tl::Path mDatabase;
     ProjectInfo mProjectInfo;
+    CameraRepository mCameraRepository;
+    ImageRepository mImageRepository;
 
     QString mCrs;
 
-    std::unordered_map<size_t, Image> mImages;
-    std::map<int, Camera> mCameras;
-    std::shared_ptr<Feature> mFeatureExtractor;
-    FeatureExtractorReport mFeatureExtractorReport;
-    std::unordered_map<size_t, QString> mFeatures;
-    std::shared_ptr<FeatureMatching> mFeatureMatching;
-    FeatureMatchingReport mFeatureMatchingReport;
-    std::unordered_map<size_t, std::vector<size_t>> mImagesPairs;
-    std::unordered_map<size_t, CameraPose> mPhotoOrientation;
+    ////std::unordered_map<size_t, Image> mImages;
+    ////std::map<int, Camera> mCameras;
+    //std::shared_ptr<Feature> mFeatureExtractor;
+    //FeatureExtractorReport mFeatureExtractorReport;
+    //std::unordered_map<size_t, QString> mFeatures;
+    //std::shared_ptr<FeatureMatching> mFeatureMatching;
+    //FeatureMatchingReport mFeatureMatchingReport;
+    //std::unordered_map<size_t, std::vector<size_t>> mImagesPairs;
+    //std::unordered_map<size_t, CameraPose> mPhotoOrientation;
 
-    tl::Path mSparseModel;
-    QString mEnuCrs;
-    tl::Path mGroundPoints;
-    OrientationReport mOrientationReport;
-    //tl::Path mReconstructionPath;
-    std::shared_ptr<Densification> mDensification;
-    tl::Path mDenseModel;
-    DenseReport mDenseReport;
-    std::shared_ptr<PoissonReconProperties> mMeshProperties;
-    tl::Path mMeshModel;
-    MeshReport mMeshReport;
-    DemData mDem;
-    DemReport mDemReport;
-    std::map<size_t, OrthophotoData> mOrthophotos;
-    static std::mutex sMutex;
-    int mCameraCount;
-    //tl::Path mOrthophoto;
-    tl::Matrix<double, 4, 4> mTransform;
+    //tl::Path mSparseModel;
+    //QString mEnuCrs;
+    //tl::Path mGroundPoints;
+    //OrientationReport mOrientationReport;
+    ////tl::Path mReconstructionPath;
+    //std::shared_ptr<Densification> mDensification;
+    //tl::Path mDenseModel;
+    //DenseReport mDenseReport;
+    //std::shared_ptr<PoissonReconProperties> mMeshProperties;
+    //tl::Path mMeshModel;
+    //MeshReport mMeshReport;
+    //DemData mDem;
+    //DemReport mDemReport;
+    //std::map<size_t, OrthophotoData> mOrthophotos;
+    //static std::mutex sMutex;
+    ////int mCameraCount;
+    ////tl::Path mOrthophoto;
+    //tl::Matrix<double, 4, 4> mTransform;
 
 public:
 
@@ -117,204 +121,210 @@ public:
     auto info() -> ProjectInfo &;
     auto info() const -> const ProjectInfo &;
 
-    void addImage(const Image &img);
-    bool updateImage(size_t imageId, const Image &image);
-    void removeImage(size_t imageId);
-    auto findImageById(size_t id) const -> Image;
-    auto existImage(size_t imageId) const -> bool;
-    auto images() const -> const std::unordered_map<size_t, Image>&;
-    auto imagesCount() const -> size_t;
+    auto cameras() -> CameraRepository &;
+    auto cameras() const -> const CameraRepository &;
 
-    auto addCamera(const Camera &camera) -> int;
-    auto findCamera(const QString &make, 
-                    const QString &model, 
-                    const QString &serialNumber, 
-                    const QString &bandName) const -> Camera;
-    auto findCamera(int idCamera) const -> Camera;
-    auto cameraId(const QString &make,
-                  const QString &model,
-                  const QString &serialNumber,
-                  const QString &bandName) const -> int;
-    auto existCamera(const QString &make,
-                     const QString &model, 
-                     const QString &serialNumber, 
-                     const QString &bandName) const -> bool;
-    auto updateCamera(int idCamera, const Camera &camera) -> bool;
-    auto removeCamera(int idCamera) -> bool;
-    auto cameras() const -> const std::map<int, Camera> &;
-    size_t camerasCount() const;
+    auto images() -> ImageRepository &;
+    auto images() const -> const ImageRepository &;
 
-    std::shared_ptr<Feature> featureExtractor() const;
-    void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor);
-    FeatureExtractorReport featureExtractorReport() const;
-    void setFeatureExtractorReport(const FeatureExtractorReport& report);
+    //void addImage(const Image &img);
+    //bool updateImage(size_t imageId, const Image &image);
+    //void removeImage(size_t imageId);
+    //auto findImageById(size_t id) const -> Image;
+    //auto existImage(size_t imageId) const -> bool;
+    //auto images() const -> const std::unordered_map<size_t, Image>&;
+    //auto imagesCount() const -> size_t;
 
-    QString features(size_t imageId) const;
-    void addFeatures(size_t imageId, const QString &featureFile);
-    void removeFeatures();
-    void removeFeatures(size_t imageId);
-    const std::unordered_map<size_t, QString> &features() const;
+    //auto addCamera(const Camera &camera) -> int;
+    //auto findCamera(const QString &make, 
+    //                const QString &model, 
+    //                const QString &serialNumber, 
+    //                const QString &bandName) const -> Camera;
+    //auto findCamera(int idCamera) const -> Camera;
+    //auto cameraId(const QString &make,
+    //              const QString &model,
+    //              const QString &serialNumber,
+    //              const QString &bandName) const -> int;
+    //auto existCamera(const QString &make,
+    //                 const QString &model, 
+    //                 const QString &serialNumber, 
+    //                 const QString &bandName) const -> bool;
+    //auto updateCamera(int idCamera, const Camera &camera) -> bool;
+    //auto removeCamera(int idCamera) -> bool;
+    //auto cameras() const -> const std::map<int, Camera> &;
+    //size_t camerasCount() const;
 
-    std::shared_ptr<FeatureMatching> featureMatching() const;
-    void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
-    FeatureMatchingReport featureMatchingReport() const;
-    void setFeatureMatchingReport(const FeatureMatchingReport &report);
+    //std::shared_ptr<Feature> featureExtractor() const;
+    //void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor);
+    //FeatureExtractorReport featureExtractorReport() const;
+    //void setFeatureExtractorReport(const FeatureExtractorReport& report);
 
-    void addMatchesPair(size_t imageLeftId, size_t imageRightId);
-    const std::vector<size_t> matchesPairs(size_t imageLeftId) const;
-    void removeMatchesPair();
-    void removeMatchesPair(size_t imageLeftId);
+    //QString features(size_t imageId) const;
+    //void addFeatures(size_t imageId, const QString &featureFile);
+    //void removeFeatures();
+    //void removeFeatures(size_t imageId);
+    //const std::unordered_map<size_t, QString> &features() const;
 
-    tl::Path sparseModel() const;
-    void setSparseModel(const tl::Path &sparseModel);
-    QString enuCrs() const;
-    void setEnuCrs(const QString &enuCrs);
-    tl::Path groundPoints() const;
-    void setGroundPoints(const tl::Path &groundPoints);
-    tl::Path reconstructionPath() const;
-    //void setReconstructionPath(const tl::Path &reconstructionPath);
-    bool isPhotoOriented(size_t imageId) const;
-    CameraPose photoOrientation(size_t imageId) const;
-    const std::unordered_map<size_t, CameraPose> &poses() const;
-    void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation);
-    void clearReconstruction();
-    OrientationReport orientationReport() const;
-    void setOrientationReport(const OrientationReport &orientationReport);
+    //std::shared_ptr<FeatureMatching> featureMatching() const;
+    //void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
+    //FeatureMatchingReport featureMatchingReport() const;
+    //void setFeatureMatchingReport(const FeatureMatchingReport &report);
 
-    std::shared_ptr<Densification> densification() const;
-    void setDensification(const std::shared_ptr<Densification> &densification);
-    tl::Path denseModel() const;
-    void setDenseModel(const tl::Path &denseModel);
-    DenseReport denseReport() const;
-    void setDenseReport(const DenseReport &denseReport);
-    void clearDensification();
+    //void addMatchesPair(size_t imageLeftId, size_t imageRightId);
+    //const std::vector<size_t> matchesPairs(size_t imageLeftId) const;
+    //void removeMatchesPair();
+    //void removeMatchesPair(size_t imageLeftId);
 
-    std::shared_ptr<PoissonReconProperties> meshProperties() const;
-    void setMeshProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties);
-    tl::Path meshPath() const;
-    void setMeshPath(const tl::Path &meshPath);
-    MeshReport meshReport() const;
-    void setMeshReport(const MeshReport &report);
-    void clearMesh();
+    //tl::Path sparseModel() const;
+    //void setSparseModel(const tl::Path &sparseModel);
+    //QString enuCrs() const;
+    //void setEnuCrs(const QString &enuCrs);
+    //tl::Path groundPoints() const;
+    //void setGroundPoints(const tl::Path &groundPoints);
+    //tl::Path reconstructionPath() const;
+    ////void setReconstructionPath(const tl::Path &reconstructionPath);
+    //bool isPhotoOriented(size_t imageId) const;
+    //CameraPose photoOrientation(size_t imageId) const;
+    //const std::unordered_map<size_t, CameraPose> &poses() const;
+    //void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation);
+    //void clearReconstruction();
+    //OrientationReport orientationReport() const;
+    //void setOrientationReport(const OrientationReport &orientationReport);
 
-    const DemData &dem() const;
-    DemData &dem();
-    void setDem(const DemData &dem);
-    DemReport demReport() const;
-    void setDemReport(const DemReport &report);
-    void clearDem();
+    //std::shared_ptr<Densification> densification() const;
+    //void setDensification(const std::shared_ptr<Densification> &densification);
+    //tl::Path denseModel() const;
+    //void setDenseModel(const tl::Path &denseModel);
+    //DenseReport denseReport() const;
+    //void setDenseReport(const DenseReport &denseReport);
+    //void clearDensification();
 
-    auto orthophotos() const -> const std::map<size_t, OrthophotoData>& ;
-    auto orthophotos() -> std::map<size_t, OrthophotoData>&;
-    void setOrthophoto(const OrthophotoData &orthophoto);
-    void clearOrthophoto();
+    //std::shared_ptr<PoissonReconProperties> meshProperties() const;
+    //void setMeshProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties);
+    //tl::Path meshPath() const;
+    //void setMeshPath(const tl::Path &meshPath);
+    //MeshReport meshReport() const;
+    //void setMeshReport(const MeshReport &report);
+    //void clearMesh();
+
+    //const DemData &dem() const;
+    //DemData &dem();
+    //void setDem(const DemData &dem);
+    //DemReport demReport() const;
+    //void setDemReport(const DemReport &report);
+    //void clearDem();
+
+    //auto orthophotos() const -> const std::map<size_t, OrthophotoData>& ;
+    //auto orthophotos() -> std::map<size_t, OrthophotoData>&;
+    //void setOrthophoto(const OrthophotoData &orthophoto);
+    //void clearOrthophoto();
 
     void clear();
 
-    void load(const tl::Path &file);
-    void save(const tl::Path &file);
-    void exportCameras(const tl::Path &file);
-    bool checkOldVersion(const tl::Path &file) const;
-    void oldVersionBak(const tl::Path &file) const;
+    //void load(const tl::Path &file);
+    //void save(const tl::Path &file);
+    //void exportCameras(const tl::Path &file);
+    //bool checkOldVersion(const tl::Path &file) const;
+    //void oldVersionBak(const tl::Path &file) const;
 
-    tl::Matrix<double, 4, 4> &transform();
-    const tl::Matrix<double, 4, 4> &transform() const;
-    void setTransform(const tl::Matrix<double, 4, 4> &transform);
+    //tl::Matrix<double, 4, 4> &transform();
+    //const tl::Matrix<double, 4, 4> &transform() const;
+    //void setTransform(const tl::Matrix<double, 4, 4> &transform);
 
 protected:
 
-    void read(QXmlStreamReader &stream);
-    void readGeneral(QXmlStreamReader &stream);
-    //void readDatabase(QXmlStreamReader &stream);
-    //void readCrs(QXmlStreamReader &stream);
-    void readImages(QXmlStreamReader &stream);
-    Image readImage(QXmlStreamReader &stream);
-    CameraPose readCameraPosition(QXmlStreamReader &stream);
-    void readImageMetadata(QXmlStreamReader &stream, Image &image);
-    void readCameras(QXmlStreamReader &stream);
-    void readCamera(QXmlStreamReader &stream);
-    void readPriorCalibration(QXmlStreamReader &stream, Camera &camera);
-    void readCalibration(QXmlStreamReader &stream, Camera &camera);
-    void readVignetting(QXmlStreamReader &stream, Camera &camera);
-    void readFeatures(QXmlStreamReader &stream);
-    void readFeatureExtractor(QXmlStreamReader &stream);
-    void readFeatureExtractorReport(QXmlStreamReader &stream);
-    void readSIFT(QXmlStreamReader &stream);
-    void readFeatureFiles(QXmlStreamReader &stream);
-    void readFeatureFile(QXmlStreamReader &stream);
-    void readMatches(QXmlStreamReader &stream);
-    void readMatchingMethod(QXmlStreamReader &stream);
-    void readFeatureMatchingReport(QXmlStreamReader &stream);
-    void readPairs(QXmlStreamReader &stream);
-    void readOrientations(QXmlStreamReader &stream);
-    //void readReconstructionPath(QXmlStreamReader &stream);
-    void readOrientationSparseModel(QXmlStreamReader &stream);
-    void readEnuCrs(QXmlStreamReader &stream);
-    void readGroundPoints(QXmlStreamReader &stream);
-    void readPhotoOrientations(QXmlStreamReader &stream);
-    void readOrientationReport(QXmlStreamReader& stream);
-    void readDensification(QXmlStreamReader &stream);
-    void readDenseModel(QXmlStreamReader &stream);
-    void readDenseReport(QXmlStreamReader &stream);
-    void readDensificationMethod(QXmlStreamReader &stream);
-    void readSmvs(QXmlStreamReader &stream);
-    void readCmvsPmvs(QXmlStreamReader &stream);
-    void readMVS(QXmlStreamReader &stream);
-    void readMesh(QXmlStreamReader &stream);
-    void readMeshModel(QXmlStreamReader &stream);
-    void readMeshReport(QXmlStreamReader &stream);
-    void readMeshParameters(QXmlStreamReader &stream);
-    void readDem(QXmlStreamReader &stream);
-    void readDemReport(QXmlStreamReader &stream);
-    auto readOrthophoto(QXmlStreamReader &stream) -> OrthophotoData;
-    auto readOrthophotoReport(QXmlStreamReader &stream) -> OrthophotoReport;
+    //void read(QXmlStreamReader &stream);
+    //void readGeneral(QXmlStreamReader &stream);
+    ////void readDatabase(QXmlStreamReader &stream);
+    ////void readCrs(QXmlStreamReader &stream);
+    //void readImages(QXmlStreamReader &stream);
+    //Image readImage(QXmlStreamReader &stream);
+    //CameraPose readCameraPosition(QXmlStreamReader &stream);
+    //void readImageMetadata(QXmlStreamReader &stream, Image &image);
+    //void readCameras(QXmlStreamReader &stream);
+    //void readCamera(QXmlStreamReader &stream);
+    //void readPriorCalibration(QXmlStreamReader &stream, Camera &camera);
+    //void readCalibration(QXmlStreamReader &stream, Camera &camera);
+    //void readVignetting(QXmlStreamReader &stream, Camera &camera);
+    //void readFeatures(QXmlStreamReader &stream);
+    //void readFeatureExtractor(QXmlStreamReader &stream);
+    //void readFeatureExtractorReport(QXmlStreamReader &stream);
+    //void readSIFT(QXmlStreamReader &stream);
+    //void readFeatureFiles(QXmlStreamReader &stream);
+    //void readFeatureFile(QXmlStreamReader &stream);
+    //void readMatches(QXmlStreamReader &stream);
+    //void readMatchingMethod(QXmlStreamReader &stream);
+    //void readFeatureMatchingReport(QXmlStreamReader &stream);
+    //void readPairs(QXmlStreamReader &stream);
+    //void readOrientations(QXmlStreamReader &stream);
+    ////void readReconstructionPath(QXmlStreamReader &stream);
+    //void readOrientationSparseModel(QXmlStreamReader &stream);
+    //void readEnuCrs(QXmlStreamReader &stream);
+    //void readGroundPoints(QXmlStreamReader &stream);
+    //void readPhotoOrientations(QXmlStreamReader &stream);
+    //void readOrientationReport(QXmlStreamReader& stream);
+    //void readDensification(QXmlStreamReader &stream);
+    //void readDenseModel(QXmlStreamReader &stream);
+    //void readDenseReport(QXmlStreamReader &stream);
+    //void readDensificationMethod(QXmlStreamReader &stream);
+    //void readSmvs(QXmlStreamReader &stream);
+    //void readCmvsPmvs(QXmlStreamReader &stream);
+    //void readMVS(QXmlStreamReader &stream);
+    //void readMesh(QXmlStreamReader &stream);
+    //void readMeshModel(QXmlStreamReader &stream);
+    //void readMeshReport(QXmlStreamReader &stream);
+    //void readMeshParameters(QXmlStreamReader &stream);
+    //void readDem(QXmlStreamReader &stream);
+    //void readDemReport(QXmlStreamReader &stream);
+    //auto readOrthophoto(QXmlStreamReader &stream) -> OrthophotoData;
+    //auto readOrthophotoReport(QXmlStreamReader &stream) -> OrthophotoReport;
 
-    void writeVersion(QXmlStreamWriter &stream) const;
-    void writeGeneral(QXmlStreamWriter &stream) const;
-    void writeDatabase(QXmlStreamWriter &stream) const;
-    //void writeCrs(QXmlStreamWriter &stream) const;
-    void writeCameras(QXmlStreamWriter &stream) const;
-    void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
-    void writePriorCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
-    void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
-    void writeCalibrationUndistorted(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
-    void writeVignetting(QXmlStreamWriter &stream, std::shared_ptr<Vignetting> vignetting) const;
-    void writeImages(QXmlStreamWriter &stream) const;
-    void writeImage(QXmlStreamWriter &stream, const std::pair<size_t, Image> &image) const;
-    void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition) const;
-    void writeImageMetadata(QXmlStreamWriter &stream, const Image &image) const; 
-    void writeFeatures(QXmlStreamWriter &stream) const;
-    void writeFeatureExtractor(QXmlStreamWriter &stream) const;
-    void writeFeatureExtractorReport(QXmlStreamWriter &stream) const;
-    void writeSIFT(QXmlStreamWriter &stream, const Sift *sift) const;
-    void writeFeatureFiles(QXmlStreamWriter &stream) const;
-    void writeMatches(QXmlStreamWriter &stream) const;
-    void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;
-    void writeFeatureMatchingReport(QXmlStreamWriter &stream) const;
-    void writePairs(QXmlStreamWriter &stream) const;
-    void writeOrientations(QXmlStreamWriter &stream) const;
-    //void writeReconstructionPath(QXmlStreamWriter &stream) const;
-    void writeOrientationSparseModel(QXmlStreamWriter &stream) const;
-    void writeOffset(QXmlStreamWriter &stream) const;
-    void writeGroundPoints(QXmlStreamWriter &stream) const;
-    void writePhotoOrientations(QXmlStreamWriter &stream) const;
-    void writeOrientationReport(QXmlStreamWriter &stream) const;
-    void writeDensification(QXmlStreamWriter &stream) const;
-    void writeDenseModel(QXmlStreamWriter &stream) const;
-    void writeDenseReport(QXmlStreamWriter &stream) const;
-    void writeDensificationMethod(QXmlStreamWriter &stream) const;
-    void writeMesh(QXmlStreamWriter &stream) const;
-    void writeMeshModel(QXmlStreamWriter &stream) const;
-    void writeMeshReport(QXmlStreamWriter &stream) const;
-    void writeMeshParameters(QXmlStreamWriter &stream) const;
-    void writeDem(QXmlStreamWriter &stream) const;
-    void writeDemReport(QXmlStreamWriter &stream) const;
-    void writeOrthophoto(QXmlStreamWriter &stream) const;
+    //void writeVersion(QXmlStreamWriter &stream) const;
+    //void writeGeneral(QXmlStreamWriter &stream) const;
+    //void writeDatabase(QXmlStreamWriter &stream) const;
+    ////void writeCrs(QXmlStreamWriter &stream) const;
+    //void writeCameras(QXmlStreamWriter &stream) const;
+    //void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
+    //void writePriorCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
+    //void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
+    //void writeCalibrationUndistorted(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
+    //void writeVignetting(QXmlStreamWriter &stream, std::shared_ptr<Vignetting> vignetting) const;
+    //void writeImages(QXmlStreamWriter &stream) const;
+    //void writeImage(QXmlStreamWriter &stream, const std::pair<size_t, Image> &image) const;
+    //void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition) const;
+    //void writeImageMetadata(QXmlStreamWriter &stream, const Image &image) const; 
+    //void writeFeatures(QXmlStreamWriter &stream) const;
+    //void writeFeatureExtractor(QXmlStreamWriter &stream) const;
+    //void writeFeatureExtractorReport(QXmlStreamWriter &stream) const;
+    //void writeSIFT(QXmlStreamWriter &stream, const Sift *sift) const;
+    //void writeFeatureFiles(QXmlStreamWriter &stream) const;
+    //void writeMatches(QXmlStreamWriter &stream) const;
+    //void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;
+    //void writeFeatureMatchingReport(QXmlStreamWriter &stream) const;
+    //void writePairs(QXmlStreamWriter &stream) const;
+    //void writeOrientations(QXmlStreamWriter &stream) const;
+    ////void writeReconstructionPath(QXmlStreamWriter &stream) const;
+    //void writeOrientationSparseModel(QXmlStreamWriter &stream) const;
+    //void writeOffset(QXmlStreamWriter &stream) const;
+    //void writeGroundPoints(QXmlStreamWriter &stream) const;
+    //void writePhotoOrientations(QXmlStreamWriter &stream) const;
+    //void writeOrientationReport(QXmlStreamWriter &stream) const;
+    //void writeDensification(QXmlStreamWriter &stream) const;
+    //void writeDenseModel(QXmlStreamWriter &stream) const;
+    //void writeDenseReport(QXmlStreamWriter &stream) const;
+    //void writeDensificationMethod(QXmlStreamWriter &stream) const;
+    //void writeMesh(QXmlStreamWriter &stream) const;
+    //void writeMeshModel(QXmlStreamWriter &stream) const;
+    //void writeMeshReport(QXmlStreamWriter &stream) const;
+    //void writeMeshParameters(QXmlStreamWriter &stream) const;
+    //void writeDem(QXmlStreamWriter &stream) const;
+    //void writeDemReport(QXmlStreamWriter &stream) const;
+    //void writeOrthophoto(QXmlStreamWriter &stream) const;
 
-    QSize readSize(QXmlStreamReader &stream) const;
-    int readInt(QXmlStreamReader &stream) const;
-    double readDouble(QXmlStreamReader &stream) const;
-    bool readBoolean(QXmlStreamReader &stream) const;
+    //QSize readSize(QXmlStreamReader &stream) const;
+    //int readInt(QXmlStreamReader &stream) const;
+    //double readDouble(QXmlStreamReader &stream) const;
+    //bool readBoolean(QXmlStreamReader &stream) const;
 
 };
 

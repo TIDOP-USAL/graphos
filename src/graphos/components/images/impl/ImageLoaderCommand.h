@@ -27,7 +27,7 @@
 #include "graphos/core/command.h"
 #include "graphos/core/project/Project.h"
 
-#include <QStandardPaths>
+#include <QObject>
 
 namespace graphos
 {
@@ -48,7 +48,7 @@ public:
 
 private:
 
-    bool run() override;
+    auto run() -> bool override;
 
 };
 

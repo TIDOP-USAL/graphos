@@ -25,7 +25,7 @@
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/sfm/poses.h"
-#include "graphos/core/image.h"
+#include "graphos/core/Image.h"
 
 /* TidopLib */
 #include <tidop/core/base/Path.h>

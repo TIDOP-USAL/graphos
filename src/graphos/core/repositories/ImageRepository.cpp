@@ -21,32 +21,17 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_COMMAND_H
-#define GRAPHOS_CREATE_PROJECT_COMMAND_H
+#include "graphos/core/repositories/ImageRepository.h"
 
-#include "graphos/core/command.h"
 
 namespace graphos
 {
 
-class CreateProjectCommand
-  : public Command
+auto ImageRepository::add(Image image) -> size_t
 {
+    size_t id = Image::id(image);
+    mData[id] = std::move(image);
+    return id;
+}
 
-public:
-
-    CreateProjectCommand();
-    ~CreateProjectCommand() override;
-
-private:
-
-// Command interface
-
-    auto run() -> bool override;
-
-};
-
-
-} // namespace graphos
-
-#endif // GRAPHOS_CREATE_PROJECT_COMMAND_H
+} // end namespace graphos

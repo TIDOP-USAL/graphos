@@ -492,7 +492,7 @@ private:
             tl::Chrono chrono;
             chrono.run();
 
-            std::string image_path = image.path().toStdString();
+            std::string image_path = image.path().toUtf8();
             int camera_id = image.cameraId();
 
             if (mUndistort.find(camera_id) == mUndistort.end()) {
@@ -511,9 +511,9 @@ private:
 
             const auto &camera = mCameras->at(camera_id);
 
-            if (camera.hasBlackLevel()) {
+            if (camera.blackLevel()) {
 
-                auto black_level = camera.blackLevel();
+                auto black_level = camera.blackLevel().value();
 
                 int bits_per_sample = camera.bitsPerPixel();
                 float normalization_factor = 1.0f / 65535.0f;
@@ -621,7 +621,7 @@ private:
     {
         cv::Mat mat;
 
-        tl::RasterReader reader(image.path().toStdString());
+        tl::RasterReader reader(image.path());
         if (reader.isOpen()){
             mat = reader.read();
 

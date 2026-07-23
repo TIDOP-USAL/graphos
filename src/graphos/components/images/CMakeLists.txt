@@ -39,11 +39,11 @@ if(BUILD_IMAGE_LOAD_COMPONENT)
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              ImageLoaderComponent.cpp
-                             impl/ImageLoaderTask.cpp
+                             impl/LoadImagesTask.cpp
                              impl/ImageLoaderCommand.cpp
                          HEADER_FILES
                              ImageLoaderComponent.h
-                             impl/ImageLoaderTask.h
+                             impl/LoadImagesTask.h
                              impl/ImageLoaderCommand.h)
 
 if (BUILD_GUI)   

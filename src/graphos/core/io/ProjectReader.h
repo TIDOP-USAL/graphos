@@ -21,32 +21,31 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_COMMAND_H
-#define GRAPHOS_CREATE_PROJECT_COMMAND_H
+#pragma once
 
-#include "graphos/core/command.h"
+#include "graphos/graphos_global.h"
+
+#include "tidop/core/base/Path.h"
+
+#include "graphos/core/project/Project.h"
+
+class QXmlStreamReader;
 
 namespace graphos
 {
 
-class CreateProjectCommand
-  : public Command
+class ProjectReader
 {
-
 public:
 
-    CreateProjectCommand();
-    ~CreateProjectCommand() override;
+    void read(const tl::Path &file, Project &project);
 
 private:
 
-// Command interface
-
-    auto run() -> bool override;
-
+    void readProject(QXmlStreamReader &stream, Project &project);
+    void readInfo(QXmlStreamReader &stream, ProjectInfo &projectInfo);
+    void readCameras(QXmlStreamReader &stream, CameraRepository &cameraRepository);
+    void readImages(QXmlStreamReader &stream, ImageRepository &imageRepository);
 };
 
-
-} // namespace graphos
-
-#endif // GRAPHOS_CREATE_PROJECT_COMMAND_H
+} // end namespace graphos

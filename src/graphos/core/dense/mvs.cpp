@@ -26,7 +26,7 @@
 #include "graphos/core/camera/Calibration.h"
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/camera/Undistort.h"
-#include "graphos/core/image.h"
+#include "graphos/core/Image.h"
 #include "graphos/core/utils.h"
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/ply.h"
@@ -424,7 +424,7 @@ void MvsDensifier::exportToColmap() const
 
             size_t graphos_image_id = pose.first;
 
-            tl::Path image_path(images().at(graphos_image_id).path().toStdString());
+            tl::Path image_path = images().at(graphos_image_id).path();
 
             for (const auto &colmap_image : colmap_images) {
                 tl::Path colmap_image_path(colmap_image.Name());
@@ -473,7 +473,7 @@ void MvsDensifier::writeNvmFile() const
         for (const auto &pose : poses()) {
 
             size_t graphos_image_id = pose.first;
-            tl::Path image_path(images().at(graphos_image_id).path().toStdString());
+            tl::Path image_path = images().at(graphos_image_id).path();
 
             for (const auto &colmap_image : colmap_images) {
                 tl::Path colmap_image_path(colmap_image.Name());
@@ -522,7 +522,7 @@ void MvsDensifier::writeNvmFile() const
                 auto rotation_matrix = pose.second.rotationMatrix();
                 tl::Vector3d xyx = rotation_matrix * -projection_center.vector();
 
-                tl::Path undistort_image(image.path().toStdString());
+                tl::Path undistort_image = image.path();
                 undistort_image.replaceExtension(".tif");
 
                 stream << "undistort/" << undistort_image.fileName().toString() << " ";

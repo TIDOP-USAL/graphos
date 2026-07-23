@@ -34,7 +34,7 @@ add_files_to_project(${PROJECT_NAME}
                          AppStatus.cpp
                          ColorTable.cpp
                          Component.cpp
-                         image.cpp
+                         Image.cpp
                          #project.cpp
                          settings.cpp
                          Pdf.cpp
@@ -64,12 +64,16 @@ add_files_to_project(${PROJECT_NAME}
                          #features/featio.cpp
                          features/sift.cpp
                          features/matching.cpp
+                         io/ProjectReader.cpp
+                         io/ProjectWriter.cpp
                          mesh/PoissonRecon.cpp
                          #multispectral/Radiance.cpp
                          #multispectral/Reflectance.cpp
                          multispectral/Vignetting.cpp
                          project/Project.cpp
                          project/ProjectInfo.cpp
+                         repositories/CameraRepository.cpp
+                         repositories/ImageRepository.cpp
                          #sfm/orientationcolmap.cpp
                          #sfm/orientationexport.cpp
                          sfm/poses.cpp
@@ -94,7 +98,7 @@ add_files_to_project(${PROJECT_NAME}
                          ColorTable.h
                          command.h
                          Component.h
-                         image.h
+                         Image.h
                          mvp.h
                          Pdf.h
                          ply.h
@@ -126,6 +130,8 @@ add_files_to_project(${PROJECT_NAME}
                          #features/featio.h
                          features/sift.h
                          features/matching.h
+                         io/ProjectReader.h
+                         io/ProjectWriter.h
                          mesh/PoissonRecon.h
                          #multispectral/Radiance.h
                          #multispectral/Reflectance.h
@@ -134,6 +140,9 @@ add_files_to_project(${PROJECT_NAME}
                          project/ProjectInfo.h
                          reports/dem.h
                          reports/orthophoto.h
+                         repositories/CameraRepository.h
+                         repositories/ImageRepository.h
+                         repositories/Repository.h
                          #sfm/orientation.h
                          #sfm/orientationcolmap.h
                          #sfm/orientationexport.h

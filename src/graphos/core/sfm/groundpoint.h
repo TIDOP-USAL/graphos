@@ -33,7 +33,7 @@
 #include <tidop/graphic/color.h>
 
 #include "graphos/core/sfm/track.h"
-#include "graphos/core/image.h"
+#include "graphos/core/Image.h"
 
 
 namespace graphos

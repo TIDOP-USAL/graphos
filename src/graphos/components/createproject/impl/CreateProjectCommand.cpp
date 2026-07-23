@@ -25,11 +25,13 @@
 #include "CreateProjectCommand.h"
 
 #include "graphos/core/project/Project.h"
+#include "graphos/core/io/ProjectWriter.h"
+
+#include <tidop/core/app/Logger.h>
 
 #include <QDir>
 #include <QFileInfo>
 #include <QStandardPaths>
-#include <tidop/core/app/Logger.h>
 
 namespace graphos
 {
@@ -108,7 +110,9 @@ bool CreateProjectCommand::run()
 
         Project project;
         project.info() = projectInfo;
-        project.save(project_path);
+
+        ProjectWriter writer;
+        writer.write(project_path, project);
 
         tl::Message::success("Project created at {}", project_path.toUtf8());
         tl::Message::info("- Name: {}", project_path.baseName().toUtf8());

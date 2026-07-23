@@ -21,32 +21,20 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_COMMAND_H
-#define GRAPHOS_CREATE_PROJECT_COMMAND_H
+#include "graphos/core/repositories/CameraRepository.h"
 
-#include "graphos/core/command.h"
 
 namespace graphos
 {
 
-class CreateProjectCommand
-  : public Command
+auto CameraRepository::add(Camera camera) -> int
 {
+    int id = mNextId++;
 
-public:
+    mSignatureIndex[camera.signature()] = id;
+    mData[id] = std::move(camera);
+    
+    return id;
+}
 
-    CreateProjectCommand();
-    ~CreateProjectCommand() override;
-
-private:
-
-// Command interface
-
-    auto run() -> bool override;
-
-};
-
-
-} // namespace graphos
-
-#endif // GRAPHOS_CREATE_PROJECT_COMMAND_H
+} // end namespace graphos

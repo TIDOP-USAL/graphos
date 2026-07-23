@@ -274,7 +274,7 @@ void CmvsPmvsDensifier::writeBundleFile()
         for (const auto &pose : poses()) {
 
             size_t graphos_image_id = pose.first;
-            Path image_path(images().at(graphos_image_id).path().toStdString());
+            Path image_path(images().at(graphos_image_id).path());
 
             for (const auto &colmap_image : colmap_images) {
                 Path colmap_image_path(colmap_image.Name());
@@ -440,7 +440,7 @@ void CmvsPmvsDensifier::writeVisibility()
         for (const auto &pose : poses()) {
 
             size_t graphos_image_id = pose.first;
-            tl::Path image_path(images().at(graphos_image_id).path().toStdString());
+            tl::Path image_path(images().at(graphos_image_id).path());
 
             for (const auto &colmap_image : colmap_images) {
                 Path colmap_image_path(colmap_image.Name());

@@ -24,11 +24,13 @@
 #ifndef GRAPHOS_LOADER_IMAGES_TASK_H
 #define GRAPHOS_LOADER_IMAGES_TASK_H
 
+#include <string_view>
+
 #include <QObject>
 
 #include <tidop/core/task/Task.h>
 
-#include "graphos/core/image.h"
+#include "graphos/core/Image.h"
 
 namespace tl
 {
@@ -41,7 +43,7 @@ namespace graphos
 {
 
 
-class Camera;
+class CameraRepository;
 
 class LoadImagesTask
   : public QObject,
@@ -52,10 +54,13 @@ class LoadImagesTask
 
 public:
 
-    LoadImagesTask(std::vector<Image> *images,
-                   std::vector<Camera> *cameras,
+    LoadImagesTask(std::vector<Image> &images,
+                   CameraRepository &cameraRepo,
                    std::string cameraType);
-    ~LoadImagesTask() override;
+    ~LoadImagesTask() override = default;
+
+    TL_DISABLE_COPY(LoadImagesTask)
+    TL_DISABLE_MOVE(LoadImagesTask)
 
 signals:
 
@@ -63,19 +68,13 @@ signals:
 
 private:
 
-    auto existCamera(const QString &make, 
-                     const QString &model,
-                     const QString &serialNumber = "", 
-                     const QString &bandName = "") const -> bool;
-    auto findCamera(const QString &make, 
-                    const QString &model, 
-                    const QString &serialNumber = "", 
-                    const QString &bandName = "") const -> int;
-    void loadImage(size_t imageId);
+    void loadImage(size_t imageIndex);
+    [[nodiscard]]
     auto loadCamera(const tl::RasterReader &imageReader) -> int;
-    auto parseFocal(const std::string &focal, double def) -> double;
+    [[nodiscard]]
+    auto parseFocal(std::string_view focal, double def) -> double;
 
-// tl::TaskBase interface
+// tl::Task interface
 
 protected:
 
@@ -83,8 +82,8 @@ protected:
 
 protected:
 
-    std::vector<Image> *mImages;
-    std::vector<Camera> *mCameras;
+    std::vector<Image> &mImages;
+    CameraRepository &mCameraRepo;
     QString mDatabaseCamerasPath;
     std::string mCameraType;
 };

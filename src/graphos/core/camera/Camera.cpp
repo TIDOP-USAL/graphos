@@ -23,27 +23,25 @@
 
 
 #include "graphos/core/camera/Camera.h"
-#include "graphos/core/multispectral/Vignetting.h"
 
 namespace graphos
 {
 
-Camera::Camera()
-  : mType("OpenCV 1"),
-    mFocal(1.),
-    mWidth(0),
-    mHeight(0),
-    mBitsPerPixel(-1),
-    mSensorSize(1.),
-    mBandName("RGB"),
-    mBlackLevel(0),
-    mCalibratedHMatrix(tl::Matrix3x3f::identity()),
-    mCalibration(nullptr),
-    mPriorCalibration(nullptr),
-    mVignetting(nullptr)
-{
-    init();
-}
+//Camera::Camera()
+//  : mType("OpenCV 1"),
+//    mFocal(1.),
+//    mWidth(0),
+//    mHeight(0),
+//    mBitsPerPixel(-1),
+//    mSensorSize(1.),
+//    mBandName("RGB"),
+//    mBlackLevel(0),
+//    mCalibratedHMatrix(tl::Matrix3x3f::identity()),
+//    mCalibration(nullptr),
+//    mPriorCalibration(nullptr),
+//    mVignetting(nullptr)
+//{
+//}
 
 Camera::Camera(std::string make, 
                std::string model, 
@@ -65,68 +63,77 @@ Camera::Camera(std::string make,
     mPriorCalibration(nullptr),
     mVignetting(nullptr)
 {
-    init();
 }
 
-Camera::Camera(const Camera &camera)
-  : mMake(camera.mMake),
-    mModel(camera.mModel),
-    mSerialNumber(camera.mSerialNumber),
-    mType(camera.mType),
-    mFocal(camera.mFocal),
-    mWidth(camera.mWidth),
-    mHeight(camera.mHeight),
-    mBitsPerPixel(camera.mBitsPerPixel),
-    mSensorSize(camera.mSensorSize),
-    mBandName(camera.mBandName),
-    mBlackLevel(camera.mBlackLevel),
-    mVignetteCenter(camera.mVignetteCenter),
-    mVignettePolynomial(camera.mVignettePolynomial),
-    mCalibratedHMatrix(camera.mCalibratedHMatrix),
-    mCalibration(camera.mCalibration),
-    mPriorCalibration(camera.mPriorCalibration),
-    mVignetting(camera.mVignetting)
-{
-}
+//Camera::Camera(const Camera &camera)
+//  : mMake(camera.mMake),
+//    mModel(camera.mModel),
+//    mSerialNumber(camera.mSerialNumber),
+//    mType(camera.mType),
+//    mFocal(camera.mFocal),
+//    mWidth(camera.mWidth),
+//    mHeight(camera.mHeight),
+//    mBitsPerPixel(camera.mBitsPerPixel),
+//    mSensorSize(camera.mSensorSize),
+//    mBandName(camera.mBandName),
+//    mBlackLevel(camera.mBlackLevel),
+//    mVignetteCenter(camera.mVignetteCenter),
+//    mVignettePolynomial(camera.mVignettePolynomial),
+//    mCalibratedHMatrix(camera.mCalibratedHMatrix),
+//    mCalibration(camera.mCalibration),
+//    mPriorCalibration(camera.mPriorCalibration),
+//    mVignetting(camera.mVignetting)
+//{
+//}
 
-auto Camera::make() const -> std::string
+auto Camera::make() const -> const std::string &
 {
     return mMake;
 }
 
-void Camera::setMake(const std::string &make)
+void Camera::setMake(std::string make)
 {
-    mMake = make;
+    mMake = std::move(make);
 }
 
-auto Camera::model() const -> std::string
+auto Camera::model() const -> const std::string &
 {
     return mModel;
 }
 
-void Camera::setModel(const std::string &model)
+void Camera::setModel(std::string model)
 {
-    mModel = model;
+    mModel = std::move(model);
 }
 
-auto Camera::serialNumber() const -> std::string
+auto Camera::serialNumber() const -> const std::string &
 {
     return mSerialNumber;
 }
 
-void Camera::setSerialNumber(const std::string &serialNumber)
+void Camera::setSerialNumber(std::string serialNumber)
 {
-    mSerialNumber = serialNumber;
+    mSerialNumber = std::move(serialNumber);
 }
 
-auto Camera::type() const -> std::string
+auto Camera::type() const -> const std::string &
 {
     return mType;
 }
 
-void Camera::setType(const std::string &type)
+void Camera::setType(std::string type)
 {
-    mType = type;
+    mType = std::move(type);
+}
+
+auto Camera::bandName() const -> const std::string &
+{
+    return mBandName;
+}
+
+void Camera::setBandName(std::string bandName)
+{
+    mBandName = std::move(bandName);
 }
 
 auto Camera::focal() const -> double
@@ -179,17 +186,7 @@ void Camera::setSensorSize(double sensorSize)
     mSensorSize = sensorSize;
 }
 
-auto Camera::bandName() const -> std::string
-{
-    return mBandName;
-}
-
-void Camera::setBandName(const std::string &bandName)
-{
-    mBandName = bandName;
-}
-
-auto Camera::blackLevel() const -> uint16_t
+auto Camera::blackLevel() const -> std::optional<uint16_t>
 {
     return mBlackLevel;
 }
@@ -197,11 +194,6 @@ auto Camera::blackLevel() const -> uint16_t
 void Camera::setBlackLevel(uint16_t blackLevel)
 {
     mBlackLevel = blackLevel;
-}
-
-auto Camera::hasBlackLevel() const -> bool
-{
-    return mBlackLevel != 0;
 }
 
 void Camera::setVignettingModel(std::shared_ptr<Vignetting> model)
@@ -219,9 +211,9 @@ auto Camera::calibration() const -> std::shared_ptr<Calibration>
     return mCalibration;
 }
 
-void Camera::setCalibration(std::shared_ptr<Calibration> &calibration)
+void Camera::setCalibration(std::shared_ptr<Calibration> calibration)
 {
-    mCalibration = calibration;
+    mCalibration = std::move(calibration);
 }
 
 auto Camera::priorCalibration() const -> std::shared_ptr<Calibration>
@@ -229,12 +221,12 @@ auto Camera::priorCalibration() const -> std::shared_ptr<Calibration>
     return mPriorCalibration;
 }
 
-void Camera::setPriorCalibration(std::shared_ptr<Calibration> &calibration)
+void Camera::setPriorCalibration(std::shared_ptr<Calibration> calibration)
 {
-    mPriorCalibration = calibration;
+    mPriorCalibration = std::move(calibration);
 }
 
-auto Camera::calibratedHMatrix() const -> tl::Matrix3x3f
+auto Camera::calibratedHMatrix() const -> const std::optional<tl::Matrix3x3f> &
 {
     return mCalibratedHMatrix;
 }
@@ -244,38 +236,39 @@ void Camera::setCalibratedHMatrix(const tl::Matrix3x3f &hMatrix)
     mCalibratedHMatrix = hMatrix;
 }
 
-auto Camera::hasCalibratedHMatrix() const -> bool
+//auto Camera::hasCalibratedHMatrix() const -> bool
+//{
+//    return mCalibratedHMatrix != tl::Matrix3x3f::identity();
+//}
+
+auto Camera::signature() const -> std::string
 {
-    return mCalibratedHMatrix != tl::Matrix3x3f::identity();
+    return mMake + "|" + mModel + "|" + mSerialNumber + "|" + mBandName;
 }
 
-auto Camera::operator =(const Camera& camera) -> Camera&
-{
-    if (this != &camera) {
-        this->mMake = camera.mMake;
-        this->mModel = camera.mModel;
-        this->mSerialNumber = camera.mSerialNumber;
-        this->mType = camera.mType;
-        this->mFocal = camera.mFocal;
-        this->mWidth = camera.mWidth;
-        this->mHeight = camera.mHeight;
-        this->mBitsPerPixel = camera.mBitsPerPixel;
-        this->mSensorSize = camera.mSensorSize;
-        this->mBandName = camera.mBandName;
-        this->mBlackLevel = camera.mBlackLevel;
-        this->mVignetteCenter = camera.mVignetteCenter;
-        this->mVignettePolynomial = camera.mVignettePolynomial;
-        this->mCalibratedHMatrix = camera.mCalibratedHMatrix;
-        this->mCalibration = camera.mCalibration;
-        this->mPriorCalibration = camera.mPriorCalibration;
-        this->mVignetting = camera.mVignetting;
-    }
-
-    return *this;
-}
-
-void Camera::init()
-{
-}
+//auto Camera::operator =(const Camera& camera) -> Camera&
+//{
+//    if (this != &camera) {
+//        this->mMake = camera.mMake;
+//        this->mModel = camera.mModel;
+//        this->mSerialNumber = camera.mSerialNumber;
+//        this->mType = camera.mType;
+//        this->mFocal = camera.mFocal;
+//        this->mWidth = camera.mWidth;
+//        this->mHeight = camera.mHeight;
+//        this->mBitsPerPixel = camera.mBitsPerPixel;
+//        this->mSensorSize = camera.mSensorSize;
+//        this->mBandName = camera.mBandName;
+//        this->mBlackLevel = camera.mBlackLevel;
+//        this->mVignetteCenter = camera.mVignetteCenter;
+//        this->mVignettePolynomial = camera.mVignettePolynomial;
+//        this->mCalibratedHMatrix = camera.mCalibratedHMatrix;
+//        this->mCalibration = camera.mCalibration;
+//        this->mPriorCalibration = camera.mPriorCalibration;
+//        this->mVignetting = camera.mVignetting;
+//    }
+//
+//    return *this;
+//}
 
 } // namespace graphos

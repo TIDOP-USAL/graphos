@@ -21,32 +21,28 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_COMMAND_H
-#define GRAPHOS_CREATE_PROJECT_COMMAND_H
+#pragma once
 
-#include "graphos/core/command.h"
+#include "graphos/graphos_global.h"
+
+#include <unordered_map>
+
+#include "graphos/core/Image.h"
+#include "graphos/core/repositories/Repository.h"
 
 namespace graphos
 {
 
-class CreateProjectCommand
-  : public Command
+class ImageRepository
+  : public Repository<size_t, Image>
 {
 
 public:
 
-    CreateProjectCommand();
-    ~CreateProjectCommand() override;
+    ImageRepository() = default;
 
-private:
-
-// Command interface
-
-    auto run() -> bool override;
+    auto add(Image image) -> size_t;
 
 };
 
-
-} // namespace graphos
-
-#endif // GRAPHOS_CREATE_PROJECT_COMMAND_H
+} // end namespace graphos

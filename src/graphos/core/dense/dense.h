@@ -39,7 +39,7 @@
 
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/camera/Undistort.h"
-#include "graphos/core/image.h"
+#include "graphos/core/Image.h"
 
 namespace graphos
 {

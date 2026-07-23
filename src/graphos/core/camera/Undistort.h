@@ -35,7 +35,7 @@
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Calibration.h"
-#include "graphos/core/image.h"
+#include "graphos/core/Image.h"
 
 namespace tl
 {

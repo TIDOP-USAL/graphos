@@ -21,32 +21,83 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_COMMAND_H
-#define GRAPHOS_CREATE_PROJECT_COMMAND_H
+#include "graphos/core/Image.h"
 
-#include "graphos/core/command.h"
 
 namespace graphos
 {
 
-class CreateProjectCommand
-  : public Command
+Image::Image(tl::Path file)
+  : mFilePath(std::move(file))
 {
+}
 
-public:
+auto Image::path() const -> const tl::Path &
+{
+    return mFilePath;
+}
 
-    CreateProjectCommand();
-    ~CreateProjectCommand() override;
+void Image::setPath(tl::Path file)
+{
+    mFilePath = std::move(file);
+}
 
-private:
+auto Image::name() const -> QString
+{
+    return QString::fromStdString(mFilePath.fileName().toUtf8());
+}
 
-// Command interface
+auto Image::cameraId() const -> int
+{
+    return mCameraId;
+}
 
-    auto run() -> bool override;
+void Image::setCameraId(int cameraId)
+{
+    mCameraId = cameraId;
+}
 
-};
+auto Image::cameraPose() -> CameraPose &
+{
+    return mCameraPose;
+}
 
+auto Image::cameraPose() const -> const CameraPose &
+{
+    return mCameraPose;
+}
+
+//void Image::setCameraPose(const CameraPose &cameraPose)
+//{
+//    mCameraPose = cameraPose;
+//}
+
+void Image::addMetadata(std::string key, std::string value)
+{
+    mMetadata[std::move(key)] = std::move(value);
+}
+
+auto Image::hasMetadata(std::string_view key) const -> bool
+{
+    return mMetadata.contains(key);
+}
+
+auto Image::metadata(std::string_view key) const -> std::string
+{
+    if (auto it = mMetadata.find(key); it != mMetadata.end()) {
+        return it->second;
+    }
+    return {};
+}
+
+auto Image::metadata() const -> const Metadata &
+{
+    return mMetadata;
+}
+
+auto Image::id(const Image &image) -> size_t
+{
+    return tl::Path::hash(image.path());
+}
 
 } // namespace graphos
-
-#endif // GRAPHOS_CREATE_PROJECT_COMMAND_H

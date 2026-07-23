@@ -24,7 +24,11 @@
 
 #include "ImageLoaderCommand.h"
 
-#include "graphos/components/images/impl/ImageLoaderTask.h"
+#include "graphos/components/images/impl/LoadImagesTask.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/io/ProjectReader.h"
+#include "graphos/core/io/ProjectWriter.h"
+#include "graphos/core/Image.h"
 #include "graphos/core/task/Progress.h"
 
 #include <tidop/core/app/Message.h>
@@ -80,7 +84,7 @@ ImageLoaderCommand::ImageLoaderCommand()
 
 ImageLoaderCommand::~ImageLoaderCommand() = default;
 
-bool ImageLoaderCommand::run()
+auto ImageLoaderCommand::run() -> bool
 {
     bool r = false;
 
@@ -103,21 +107,29 @@ bool ImageLoaderCommand::run()
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
         Project project;
-        project.load(project_path);
+        ProjectReader reader;
+        reader.read(project_path, project);
 
-        std::vector<Image> images;
+        auto &image_repository = project.images();
+        auto &camera_repository = project.cameras();
+
+        std::vector<Image> new_images;
+
+        auto try_add_path = [&](const tl::Path &p) {
+            size_t hash_id = tl::Path::hash(p.toString());
+            if (!image_repository.contains(hash_id)) {
+                new_images.emplace_back(p);
+            }
+        };
 
         if (!image_path.empty()) {
-            Image img(image_path);
-            if (!project.existImage(Image::id(img)))
-                images.push_back(img);
+            try_add_path(image_path);
         }
 
         if (!image_list_path.empty() && image_list_path.exists()) {
 
-            std::ifstream ifs;
-            ifs.open(image_list_path.toString(), std::ifstream::in);
-            TL_ASSERT(ifs.is_open(), "Images could not be loaded");
+            std::ifstream ifs(image_list_path.toString());
+            TL_ASSERT(ifs.is_open(), "Images list could not be opened");
 
             std::string line;
             while (std::getline(ifs, line)) {
@@ -125,14 +137,8 @@ bool ImageLoaderCommand::run()
                 if (line.empty()) continue;
                 tl::trim(line);
 
-                Image img(line);
-                if (!project.existImage(Image::id(img)))
-                    images.push_back(img);
+                try_add_path(tl::Path(line));
             }
-
-            ifs.close();
-            
-
         }
 
         if (delete_image) {
@@ -154,43 +160,28 @@ bool ImageLoaderCommand::run()
             //}
         } else {
 
-            std::vector<Camera> cameras;
-
-            for (const auto &camera : project.cameras()) {
-                cameras.push_back(camera.second);
+            if (new_images.empty()) {
+                log.info("No new images to add to the project.");
+                return true;
             }
 
-            LoadImagesTask image_loader_process(&images, &cameras, camera_type/*, project.crs()*/);
+            LoadImagesTask image_loader_task(new_images, camera_repository, camera_type);
 
-            connect(&image_loader_process, &LoadImagesTask::imageAdded,
-                    [&](int imageId, int cameraId) {
-
-                        Image image = images[imageId];
-                        Camera camera = cameras[cameraId];
-                        int id_camera = 0;
-                        for (const auto &_camera : project.cameras()) {
-                            std::string camera_make = _camera.second.make();
-                            std::string camera_model = _camera.second.model();
-                            if (camera.make() == camera_make &&
-                                camera.model() == camera_model) {
-                                id_camera = _camera.first;
-                                break;
-                            }
-                        }
-                        if (id_camera == 0)
-                            id_camera = project.addCamera(camera);
-
-                        image.setCameraId(id_camera);
-                        project.addImage(image);
+            connect(&image_loader_task, &LoadImagesTask::imageAdded,
+                    [&](int imageIndex, int cameraId) {
+                        Image &image = new_images[imageIndex];
+                        image.setCameraId(cameraId);
+                        image_repository.add(std::move(image));
 
                     });
 
-            auto progress = getProgressBar(progress_bar, images.size());
-            image_loader_process.run(progress.get());
+            auto progress = getProgressBar(progress_bar, new_images.size());
+            image_loader_task.run(progress.get());
 
         }
 
-        project.save(project_path);
+        ProjectWriter writer;
+        writer.write(project_path, project);
 
     } catch (const std::exception &e) {
 

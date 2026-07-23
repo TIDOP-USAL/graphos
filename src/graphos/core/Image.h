@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_IMAGE_H
-#define GRAPHOS_CORE_IMAGE_H
+#pragma once
 
 #include <memory>
 #include <map>
@@ -39,38 +38,41 @@ namespace graphos
 
 class Image
 {
+public:
+
+    using Metadata = std::map<std::string, std::string, std::less<>>;
+
+protected:
+
+    tl::Path mFilePath;
+    int mCameraId{0};
+    CameraPose mCameraPose{};
+    Metadata mMetadata;
 
 public:
 
     /*!
      * \brief Default constructor for Image
      */
-    Image();
-
-    /*!
-     * \brief Constructor Image
-     * \param[in] file Image file
-     */
-    TL_DEPRECATED("Image(const tl::Path &file)", 2.0.0)
-    Image(const QString &file);
+    Image() = default;
 
     /*!
      * \brief Constructor Image
      * \param[in] file Image file path
      */
-    Image(tl::Path file);
+    explicit Image(tl::Path file);
 
     /*!
      * \brief Copy constructor for Image
      * \param[in] image Image object to copy
      */
-    Image(const Image &image);
+    Image(const Image &image) = default;
 
     /*!
      * \brief Move constructor for Image
      * \param[in] image Image object to move
      */
-    Image(Image &&image) noexcept;
+    Image(Image &&image) noexcept = default;
 
     /*!
      * \brief Destructor for Image
@@ -78,36 +80,44 @@ public:
     ~Image() = default;
 
     /*!
+     * \brief Assignment operator for Image
+     * \param[in] image Image object to assign
+     * \return Reference to the Image object
+     */
+    auto operator =(const Image &image) -> Image & = default;
+
+    /*!
+     * \brief Move assignment operator for Image
+     * \param[in] image Image object to move
+     * \return Reference to the Image object
+     */
+    auto operator =(Image &&image) noexcept -> Image & = default;
+
+    /*!
      * \brief Returns the path of the image file
      * \return Image file path
      */
-    auto path() const -> QString;
-    // reemplazar QString path() por:
-    //tl::Path path() const;
+    [[nodiscard]]
+    auto path() const -> const tl::Path &;
     
     /*!
      * \brief Sets the path of the image file
      * \param[in] file Image file path
      */
-    TL_DEPRECATED("Image::setPath(const tl::Path &file)", 2.0.0)
-    void setPath(const QString &file);
-    
-    /*!
-     * \brief Sets the path of the image file
-     * \param[in] file Image file path
-     */
-    void setPath(const tl::Path &file);
+    void setPath(tl::Path file);
 
     /*!
      * \brief Returns the name of the image file
      * \return Image file name
      */
+    [[nodiscard]]
     auto name() const -> QString;
 
     /*!
      * \brief Returns the identifier of the camera
      * \return Camera identifier
      */
+    [[nodiscard]]
     auto cameraId() const -> int;
 
     /*!
@@ -120,50 +130,35 @@ public:
      * \brief Returns the position and orientation of the image
      * \return Camera pose
      */
-    auto cameraPose() const -> CameraPose;
+    auto cameraPose() -> CameraPose &;
 
-    /*!
-     * \brief Sets the position and orientation of the image
-     * \param[in] cameraPose Camera pose
-     */
-    void setCameraPose(const CameraPose &cameraPose);
+    [[nodiscard]]
+    auto cameraPose() const -> const CameraPose &;
 
     /*!
      * \brief Adds metadata to the image
      * \param[in] key Metadata key
      * \param[in] value Metadata value
      */
-    void addMetadata(const std::string &key, const std::string &value);
+    void addMetadata(std::string key, std::string value);
 
     /*!
      * \brief Checks if the image has metadata with the given key
      * \param[in] key Metadata key
      * \return True if the metadata exists, false otherwise
      */
-    auto hasMetadata(const std::string &key) const -> bool;
+    [[nodiscard]]
+    auto hasMetadata(std::string_view key) const -> bool;
 
     /*!
      * \brief Returns the metadata value for the given key
      * \param[in] key Metadata key
      * \return Metadata value, or empty string if the key does not exist
      */
-    auto metadata(const std::string &key) const->std::string;
+    [[nodiscard]]
+    auto metadata(std::string_view key) const -> std::string;
 
-    auto metadata() const -> const std::map<std::string, std::string> &;
-
-    /*!
-     * \brief Assignment operator for Image
-     * \param[in] image Image object to assign
-     * \return Reference to the Image object
-     */
-    auto operator =(const Image& image) -> Image&;
-
-    /*!
-     * \brief Move assignment operator for Image
-     * \param[in] image Image object to move
-     * \return Reference to the Image object
-     */
-    auto operator =(Image&& image) noexcept -> Image&;
+    auto metadata() const -> const Metadata &;
 
     /*!
      * \brief Returns the identifier of the Image
@@ -172,14 +167,6 @@ public:
      */
     static auto id(const Image &image) -> size_t;
 
-protected:
-
-    tl::Path mFilePath;
-    int mCameraId;
-    CameraPose mCameraPose;
-    std::map<std::string, std::string> mMetadata;
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_IMAGE_H

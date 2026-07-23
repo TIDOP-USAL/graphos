@@ -26,7 +26,7 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/camera/Undistort.h"
-#include "graphos/core/image.h"
+#include "graphos/core/Image.h"
 #include "graphos/core/utils.h"
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/sfm/orientationexport.h"
