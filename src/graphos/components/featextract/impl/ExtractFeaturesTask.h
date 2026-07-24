@@ -21,103 +21,72 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_FEATURES_H
-#define GRAPHOS_CORE_FEATURES_H
+#ifndef GRAPHOS_CORE_FEATURE_EXTRACTOR_TASK_H
+#define GRAPHOS_CORE_FEATURE_EXTRACTOR_TASK_H
 
-#include "graphos/graphos_global.h"
+#include <unordered_map>
 
-#include <QString>
+#include <QObject>
 
-#include <opencv2/features2d.hpp>
+#include <tidop/core/task/Task.h>
+#include <tidop/core/task/Progress.h>
+#include <tidop/core/base/Path.h>
 
-#include <tidop/core/base/flags.h>
+#include "graphos/core/features/Features.h"
+#include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
+
 
 namespace graphos
 {
 
+class ImageRepository;
+class CameraRepository;
 
-class Feature
+class ExtractFeaturesTask
+  : public QObject,
+    public tl::Task
 {
 
-public:
-
-    enum class Type
-    {
-        //akaze,
-        sift
-    };
+    Q_OBJECT
 
 public:
 
-    explicit Feature(Type type) : mFeatType(type) {}
-    virtual ~Feature() = default;
+    ExtractFeaturesTask(const ImageRepository &imageRepo,
+                        const CameraRepository &cameraRepo,
+                        tl::Path database,
+                        int maxImageSize,
+                        bool cuda,
+                        const std::shared_ptr<FeatureExtractor> &featureExtractor);
 
-    /*!
-     * \brief Recover the default values
-     */
-    virtual void reset() = 0;
+    ~ExtractFeaturesTask() override = default;
 
-    auto type() const -> Type { return mFeatType.flags(); }
-    virtual auto name() const -> QString = 0;
+    TL_DISABLE_COPY(ExtractFeaturesTask)
+    TL_DISABLE_MOVE(ExtractFeaturesTask)
+
+    auto report() const -> FeatureExtractorReport;
+
+signals:
+
+    void features_extracted(qulonglong, QString);
+
+// tl::TaskBase interface
 
 protected:
 
-    tl::EnumFlags<Type> mFeatType;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
+protected:
+
+    const ImageRepository &mImageRepo;
+    const CameraRepository &mCameraRepo;
+    tl::Path mDatabase;
+    int mMaxImageSize;
+    bool bUseCuda;
+    std::shared_ptr<FeatureExtractor> mFeatureExtractor;
+    FeatureExtractorReport mReport;
 };
-ALLOW_BITWISE_FLAG_OPERATIONS(Feature::Type)
-
-
-
-
-
-class FeatureExtractor
-{
-
-public:
-
-    FeatureExtractor() = default;
-    virtual ~FeatureExtractor() = default;
-
-    /*!
-     * \brief Detect keypoints and extract descriptors
-     * \param[in] bitmap Image
-     * \param[out] keyPoints Detected keypoints
-     * \param[out] descriptors Computed descriptors
-     */
-    virtual void run(const cv::Mat &bitmap,
-                     std::vector<cv::KeyPoint> &keyPoints,
-                     cv::Mat &descriptors) = 0;
-
-};
-
-
-
-struct FeatureExtractorReport
-{
-    double time = 0.0;
-    int features = 0;
-    bool cuda = false;
-
-    bool isEmpty() const
-    {
-        return time == 0. && features == 0;
-    }
-};
-
-struct FeatureMatchingReport
-{
-    double time = 0.0;
-    int matches = 0;
-    bool cuda = false;
-
-    bool isEmpty() const
-    {
-        return time == 0. && matches == 0;
-    }
-};
-
 
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_FEATURES_H
+#endif // GRAPHOS_CORE_FEATURE_EXTRACTOR_TASK_H

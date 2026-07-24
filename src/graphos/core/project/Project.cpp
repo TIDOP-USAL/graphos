@@ -23,27 +23,27 @@
 
 #include "graphos/core/project/Project.h"
 
-#include "graphos/core/features/sift.h"
-#include "graphos/core/features/matching.h"
-#include "graphos/core/dense/Smvs.h"
-#include "graphos/core/dense/CmvsPmvs.h"
-#include "graphos/core/dense/mvs.h"
-#include "graphos/core/camera/Colmap.h"
-#include "graphos/core/mesh/PoissonRecon.h"
-#include "graphos/core/multispectral/Vignetting.h"
-#include "graphos/core/sfm/groundpoint.h"
+//#include "graphos/core/features/sift.h"
+//#include "graphos/core/features/matching.h"
+//#include "graphos/core/dense/Smvs.h"
+//#include "graphos/core/dense/CmvsPmvs.h"
+//#include "graphos/core/dense/mvs.h"
+//#include "graphos/core/camera/Colmap.h"
+//#include "graphos/core/mesh/PoissonRecon.h"
+//#include "graphos/core/multispectral/Vignetting.h"
+//#include "graphos/core/sfm/groundpoint.h"
+//
+//#include <tidop/core/app/Message.h>
+//#include <tidop/core/base/Exception.h>
+//#include <tidop/core/base/Split.h>
 
-#include <tidop/core/app/Message.h>
-#include <tidop/core/base/Exception.h>
-#include <tidop/core/base/Split.h>
-
-#include <colmap/scene/database.h>
-
-#include <QFile>
-#include <QFileInfo>
-#include <QXmlStreamWriter>
-
-#include <fstream>
+//#include <colmap/scene/database.h>
+//
+//#include <QFile>
+//#include <QFileInfo>
+//#include <QXmlStreamWriter>
+//
+//#include <fstream>
 
 
 #define GRAPHOS_PROJECT_FILE_VERSION "1.0"
@@ -91,6 +91,40 @@ auto Project::images() const -> const ImageRepository &
     return mImageRepository;
 }
 
+auto Project::featureConfig() const -> std::shared_ptr<Feature> 
+{
+    return mFeatConfig;
+}
+
+void Project::setFeatureConfig(std::shared_ptr<Feature> config) { 
+    mFeatConfig = std::move(config); 
+}
+
+auto Project::featureReport() const -> const FeatureExtractorReport & 
+{ 
+    return mFeatReport; 
+}
+
+void Project::setFeatureReport(const FeatureExtractorReport &report)
+{
+    mFeatReport = report;
+}
+
+auto Project::features() -> FeaturesRepository & 
+{ 
+    return mFeatureRepo;
+}
+
+auto Project::features() const -> const FeaturesRepository & 
+{
+    return mFeatureRepo;
+}
+
+void Project::removeFeatures()
+{
+    mFeatureRepo.clear();
+    //this->removeMatchesPair();
+}
 
 //void Project::addImage(const Image &img)
 //{
@@ -289,13 +323,7 @@ auto Project::images() const -> const ImageRepository &
 //{
 //    mFeatures[imageId] = featureFile;
 //}
-//
-//void Project::removeFeatures()
-//{
-//    mFeatures.clear();
-//    this->removeMatchesPair();
-//}
-//
+
 //void Project::removeFeatures(size_t imageId)
 //{
 //    auto it = mFeatures.find(imageId);
@@ -584,10 +612,10 @@ void Project::clear()
     mCrs = "";
     mImageRepository.clear();
     mCameraRepository.clear();
-    //mImages.clear();
-    //mCameras.clear();
-    //mFeatureExtractor.reset();
-    //mFeatureExtractorReport = FeatureExtractorReport();
+    mFeatConfig.reset();
+    mFeatReport = FeatureExtractorReport();
+    mFeatureRepo.clear();
+
     //mFeatures.clear();
     //mFeatureMatching.reset();
     //mImagesPairs.clear();

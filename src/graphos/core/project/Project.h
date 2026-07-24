@@ -39,7 +39,7 @@
 //#include "graphos/core/features/matching.h"
 //#include "graphos/core/camera/Camera.h"
 //#include "graphos/core/Image.h"
-//#include "graphos/core/features/features.h"
+
 //#include "graphos/core/sfm/poses.h"
 //#include "graphos/core/sfm/OrientationReport.h"
 //#include "graphos/core/dense/dense.h"
@@ -47,7 +47,9 @@
 //#include "graphos/core/reports/dem.h"
 //#include "graphos/core/reports/orthophoto.h"
 #include "graphos/core/repositories/CameraRepository.h"
+#include "graphos/core/repositories/FeaturesRepository.h"
 #include "graphos/core/repositories/ImageRepository.h"
+#include "graphos/core/features/Features.h"
 
 // extraer de aqui a XmlSerializer.h
 //class QXmlStreamWriter;
@@ -81,14 +83,12 @@ protected:
     ProjectInfo mProjectInfo;
     CameraRepository mCameraRepository;
     ImageRepository mImageRepository;
+    std::shared_ptr<Feature> mFeatConfig;
+    FeatureExtractorReport mFeatReport;
+    FeaturesRepository mFeatureRepo;
 
     QString mCrs;
 
-    ////std::unordered_map<size_t, Image> mImages;
-    ////std::map<int, Camera> mCameras;
-    //std::shared_ptr<Feature> mFeatureExtractor;
-    //FeatureExtractorReport mFeatureExtractorReport;
-    //std::unordered_map<size_t, QString> mFeatures;
     //std::shared_ptr<FeatureMatching> mFeatureMatching;
     //FeatureMatchingReport mFeatureMatchingReport;
     //std::unordered_map<size_t, std::vector<size_t>> mImagesPairs;
@@ -127,43 +127,18 @@ public:
     auto images() -> ImageRepository &;
     auto images() const -> const ImageRepository &;
 
-    //void addImage(const Image &img);
-    //bool updateImage(size_t imageId, const Image &image);
-    //void removeImage(size_t imageId);
-    //auto findImageById(size_t id) const -> Image;
-    //auto existImage(size_t imageId) const -> bool;
-    //auto images() const -> const std::unordered_map<size_t, Image>&;
-    //auto imagesCount() const -> size_t;
+    // Features
 
-    //auto addCamera(const Camera &camera) -> int;
-    //auto findCamera(const QString &make, 
-    //                const QString &model, 
-    //                const QString &serialNumber, 
-    //                const QString &bandName) const -> Camera;
-    //auto findCamera(int idCamera) const -> Camera;
-    //auto cameraId(const QString &make,
-    //              const QString &model,
-    //              const QString &serialNumber,
-    //              const QString &bandName) const -> int;
-    //auto existCamera(const QString &make,
-    //                 const QString &model, 
-    //                 const QString &serialNumber, 
-    //                 const QString &bandName) const -> bool;
-    //auto updateCamera(int idCamera, const Camera &camera) -> bool;
-    //auto removeCamera(int idCamera) -> bool;
-    //auto cameras() const -> const std::map<int, Camera> &;
-    //size_t camerasCount() const;
+    auto featureConfig() const -> std::shared_ptr<Feature>;
+    void setFeatureConfig(std::shared_ptr<Feature> config);
 
-    //std::shared_ptr<Feature> featureExtractor() const;
-    //void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor);
-    //FeatureExtractorReport featureExtractorReport() const;
-    //void setFeatureExtractorReport(const FeatureExtractorReport& report);
+    auto featureReport() const -> const FeatureExtractorReport &;
+    void setFeatureReport(const FeatureExtractorReport &report);
 
-    //QString features(size_t imageId) const;
-    //void addFeatures(size_t imageId, const QString &featureFile);
-    //void removeFeatures();
-    //void removeFeatures(size_t imageId);
-    //const std::unordered_map<size_t, QString> &features() const;
+    auto features() -> FeaturesRepository &;
+    auto features() const -> const FeaturesRepository &;
+
+    void removeFeatures();
 
     //std::shared_ptr<FeatureMatching> featureMatching() const;
     //void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
@@ -233,25 +208,6 @@ public:
 
 protected:
 
-    //void read(QXmlStreamReader &stream);
-    //void readGeneral(QXmlStreamReader &stream);
-    ////void readDatabase(QXmlStreamReader &stream);
-    ////void readCrs(QXmlStreamReader &stream);
-    //void readImages(QXmlStreamReader &stream);
-    //Image readImage(QXmlStreamReader &stream);
-    //CameraPose readCameraPosition(QXmlStreamReader &stream);
-    //void readImageMetadata(QXmlStreamReader &stream, Image &image);
-    //void readCameras(QXmlStreamReader &stream);
-    //void readCamera(QXmlStreamReader &stream);
-    //void readPriorCalibration(QXmlStreamReader &stream, Camera &camera);
-    //void readCalibration(QXmlStreamReader &stream, Camera &camera);
-    //void readVignetting(QXmlStreamReader &stream, Camera &camera);
-    //void readFeatures(QXmlStreamReader &stream);
-    //void readFeatureExtractor(QXmlStreamReader &stream);
-    //void readFeatureExtractorReport(QXmlStreamReader &stream);
-    //void readSIFT(QXmlStreamReader &stream);
-    //void readFeatureFiles(QXmlStreamReader &stream);
-    //void readFeatureFile(QXmlStreamReader &stream);
     //void readMatches(QXmlStreamReader &stream);
     //void readMatchingMethod(QXmlStreamReader &stream);
     //void readFeatureMatchingReport(QXmlStreamReader &stream);
@@ -279,25 +235,6 @@ protected:
     //auto readOrthophoto(QXmlStreamReader &stream) -> OrthophotoData;
     //auto readOrthophotoReport(QXmlStreamReader &stream) -> OrthophotoReport;
 
-    //void writeVersion(QXmlStreamWriter &stream) const;
-    //void writeGeneral(QXmlStreamWriter &stream) const;
-    //void writeDatabase(QXmlStreamWriter &stream) const;
-    ////void writeCrs(QXmlStreamWriter &stream) const;
-    //void writeCameras(QXmlStreamWriter &stream) const;
-    //void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
-    //void writePriorCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
-    //void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
-    //void writeCalibrationUndistorted(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
-    //void writeVignetting(QXmlStreamWriter &stream, std::shared_ptr<Vignetting> vignetting) const;
-    //void writeImages(QXmlStreamWriter &stream) const;
-    //void writeImage(QXmlStreamWriter &stream, const std::pair<size_t, Image> &image) const;
-    //void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition) const;
-    //void writeImageMetadata(QXmlStreamWriter &stream, const Image &image) const; 
-    //void writeFeatures(QXmlStreamWriter &stream) const;
-    //void writeFeatureExtractor(QXmlStreamWriter &stream) const;
-    //void writeFeatureExtractorReport(QXmlStreamWriter &stream) const;
-    //void writeSIFT(QXmlStreamWriter &stream, const Sift *sift) const;
-    //void writeFeatureFiles(QXmlStreamWriter &stream) const;
     //void writeMatches(QXmlStreamWriter &stream) const;
     //void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;
     //void writeFeatureMatchingReport(QXmlStreamWriter &stream) const;

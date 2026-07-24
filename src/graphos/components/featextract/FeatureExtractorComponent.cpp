@@ -29,7 +29,7 @@
 #include "graphos/components/featextract/impl/FeatureExtractorPresenter.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/featextract/impl/FeatureExtractorCommand.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

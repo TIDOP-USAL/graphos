@@ -26,19 +26,17 @@
 
 #include "graphos/core/utils.h"
 #include "graphos/core/features/featio.h"
-#include "graphos/core/features/featextract.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/io/ProjectReader.h"
+#include "graphos/core/io/ProjectWriter.h"
 #include "graphos/core/task/Progress.h"
+#include "graphos/components/featextract/impl/ExtractFeaturesTask.h"
+#include "graphos/components/featextract/impl/SiftCPUExtractor.h"
+#include "graphos/components/featextract/impl/SiftGPUExtractor.h"
 
 #include <tidop/core/app/Message.h>
-
-#include <QDir>
-#include <QFile>
-
-#include <atomic>
-#include <tidop/core/log.h>
-
-using namespace tl;
+#include <tidop/core/console/ValuesValidator.h>
+#include <tidop/core/app/Logger.h>
 
 namespace graphos
 {
@@ -54,7 +52,6 @@ FeatureExtractorCommand::FeatureExtractorCommand()
     this->addArgument<int>("octave_resolution", std::string("SIFT: Number of layers per octave (default = ").append(std::to_string(sift_properties.octaveLayers())).append(")"), sift_properties.octaveLayers());
     this->addArgument<double>("contrast_threshold", std::string("SIFT: Contrast threshold (default = ").append(std::to_string(sift_properties.contrastThreshold())).append(")"), sift_properties.contrastThreshold());
     this->addArgument<double>("edge_threshold", std::string("SIFT: Edge threshold used to filter out edge-like features (default = ").append(std::to_string(sift_properties.edgeThreshold())).append(")"), sift_properties.edgeThreshold());  
-    //this->addArgument<bool>("domain_size_pooling", std::string("SIFT: domain size pooling (default = true)"));  
     auto arg_progress_bar = tl::Argument::make<std::string>("progress_bar", "Type of progress bar", "COLOR");
     auto progress_bar_validator = tl::ValuesValidator<std::string>::create({"NORMAL", "COLOR", "PERCENT", "SPINNER", "DISABLE"});
     arg_progress_bar->setValidator(progress_bar_validator);
@@ -78,11 +75,11 @@ FeatureExtractorCommand::FeatureExtractorCommand()
 
 FeatureExtractorCommand::~FeatureExtractorCommand() = default;
 
-bool FeatureExtractorCommand::run()
+auto FeatureExtractorCommand::run() -> bool
 {
-    bool r = false;
+    bool has_error = false;
 
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
 
     try {
 
@@ -92,7 +89,6 @@ bool FeatureExtractorCommand::run()
         int octave_resolution = this->value<int>("octave_resolution");
         double contrast_threshold = this->value<double>("contrast_threshold");
         double edge_threshold = this->value<double>("edge_threshold");
-        //bool domain_size_pooling = this->value<bool>("domain_size_pooling");
         auto progress_bar = this->value<std::string>("progress_bar");
 
         if (!mDisableCuda)
@@ -103,61 +99,66 @@ bool FeatureExtractorCommand::run()
         log.open(log_path);
 
 
-        TL_ASSERT(project_path.exists(), "Project doesn't exist");
-        TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
+        TL_ASSERT(project_path.exists(), "Project file doesn't exist: {}", project_path.toString());
 
-        ProjectImp project;
-        project.load(project_path);
-        tl::Path database_path = project.database();
+        Project project;
+        ProjectReader reader;
+        reader.read(project_path, project);
 
+        tl::Path database_path = project.info().database();
         tl::Path::removeFile(database_path);
         project.removeFeatures();
 
+
+        auto sift_config = std::make_shared<Sift>();
+        sift_config->setFeaturesNumber(max_features_number);
+        sift_config->setOctaveLayers(octave_resolution);
+        sift_config->setContrastThreshold(contrast_threshold);
+        sift_config->setEdgeThreshold(edge_threshold);
+
+
         std::shared_ptr<FeatureExtractor> feature_extractor;
-
         if (mDisableCuda) {
-            feature_extractor = std::make_shared<SiftCPUDetectorDescriptor>(max_features_number,
-                                                                            octave_resolution,
-                                                                            edge_threshold,
-                                                                            contrast_threshold);
-
+            feature_extractor = std::make_shared<SiftCPUExtractor>(*sift_config);
         } else {
-            feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(max_features_number,
-                                                                             octave_resolution,
-                                                                             edge_threshold,
-                                                                             contrast_threshold/*,
-                                                                             domain_size_pooling*/);
+            feature_extractor = std::make_shared<SiftGPUExtractor>(*sift_config);
         }
 
-        FeatureExtractorTask feature_extractor_task(project.images(),
-                                                    project.cameras(),
-                                                    database_path,
-                                                    max_image_size,
-                                                    !mDisableCuda,
-                                                    feature_extractor);
 
-        connect(&feature_extractor_task, &FeatureExtractorTask::features_extracted,
+        ExtractFeaturesTask feature_extractor_task(project.images(),
+                                                   project.cameras(),
+                                                   database_path,
+                                                   max_image_size,
+                                                   !mDisableCuda,
+                                                   feature_extractor);
+
+        auto &features = project.features();
+
+        connect(&feature_extractor_task, &ExtractFeaturesTask::features_extracted,
                 [&](size_t imageId, const QString &featuresFile) {
-                    project.addFeatures(imageId, featuresFile);
+                features.add(imageId, featuresFile.toStdString());
                 });
 
         auto progress = getProgressBar(progress_bar, project.images().size());
         feature_extractor_task.run(progress.get());
 
-        project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
-        project.setFeatureExtractorReport(feature_extractor_task.report());
-        project.save(project_path);
+
+        project.setFeatureConfig(sift_config);
+        project.setFeatureReport(feature_extractor_task.report());
+
+        ProjectWriter writer;
+        writer.write(project_path, project);
 
     } catch (const std::exception &e) {
 
-        printException(e);
+        tl::printException(e);
 
-        r = true;
+        has_error = true;
     }
 
     log.close();
 
-    return r;
+    return has_error;
 }
 
 } // namespace graphos

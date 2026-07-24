@@ -46,6 +46,7 @@ private:
     void readInfo(QXmlStreamReader &stream, ProjectInfo &projectInfo);
     void readCameras(QXmlStreamReader &stream, CameraRepository &cameraRepository);
     void readImages(QXmlStreamReader &stream, ImageRepository &imageRepository);
+    void readFeatures(QXmlStreamReader &stream, Project &project);
 };
 
 } // end namespace graphos

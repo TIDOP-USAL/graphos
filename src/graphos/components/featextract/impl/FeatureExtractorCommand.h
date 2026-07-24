@@ -26,11 +26,7 @@
 
 #include "graphos/core/command.h"
 
-#include <unordered_map>
-
 #include <QObject>
-
-#include "graphos/core/features/sift.h"
 
 namespace graphos
 {
@@ -51,7 +47,7 @@ public:
 
 private:
 
-    bool run() override;
+    auto run() -> bool override;
 
 private:
 

@@ -21,65 +21,74 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_FEATURE_EXTRACTOR_TASK_H
-#define GRAPHOS_CORE_FEATURE_EXTRACTOR_TASK_H
-
-#include <unordered_map>
-
-#include <QObject>
-
-#include <tidop/core/task/Task.h>
-#include <tidop/core/task/Progress.h>
-#include <tidop/core/base/Path.h>
-
-#include "graphos/core/features/features.h"
-#include "graphos/core/image.h"
-#include "graphos/core/camera/Camera.h"
+#include "graphos/core/features/Sift.h"
 
 namespace graphos
 {
 
-class FeatureExtractorTask
-  : public QObject,
-    public tl::TaskBase
+Sift::Sift()
+  : Feature("SIFT")
 {
+    clear();
+}
 
-    Q_OBJECT
+auto Sift::featuresNumber() const -> int
+{
+    return mProperties.getProperty<int>("FeaturesNumber");
+}
 
-public:
+auto Sift::octaveLayers() const -> int
+{
+    return mProperties.getProperty<int>("OctaveLayers");
+}
 
-    FeatureExtractorTask(const std::unordered_map<size_t, Image> &images,
-                         const std::map<int, Camera> &cameras,
-                         tl::Path database,
-                         int maxImageSize,
-                         bool cuda,
-                         const std::shared_ptr<FeatureExtractor> &featureExtractor);
+auto Sift::constrastThresholdAuto() const -> bool
+{
+    return mProperties.getProperty<bool>("ContrastThresholdAuto");
+}
 
-    ~FeatureExtractorTask() override = default;
+auto Sift::contrastThreshold() const -> double
+{
+    return constrastThresholdAuto() ? 0.02 / octaveLayers() : mProperties.getProperty<double>("ContrastThreshold");
+}
 
-    auto report() const -> FeatureExtractorReport;
+auto Sift::edgeThreshold() const -> double
+{
+    return mProperties.getProperty<double>("EdgeThreshold");
+}
 
-signals:
+void Sift::setFeaturesNumber(int featuresNumber)
+{
+    mProperties.setProperty("FeaturesNumber", featuresNumber);
+}
 
-    void features_extracted(qulonglong, QString);
+void Sift::setOctaveLayers(int octaveLayers)
+{
+    mProperties.setProperty("OctaveLayers", octaveLayers);
+}
 
-// tl::TaskBase interface
+void Sift::setContrastThresholdAuto(bool active)
+{
+    mProperties.setProperty("ContrastThresholdAuto", active);
+}
 
-protected:
+void Sift::setContrastThreshold(double contrastThreshold)
+{
+    mProperties.setProperty("ContrastThreshold", contrastThreshold);
+}
 
-    void execute(tl::Progress *progressBar) override;
+void Sift::setEdgeThreshold(double edgeThreshold)
+{
+    mProperties.setProperty("EdgeThreshold", edgeThreshold);
+}
 
-protected:
-
-    std::unordered_map<size_t, Image> mImages;
-    std::map<int, Camera> mCameras;
-    tl::Path mDatabase;
-    int mMaxImageSize;
-    bool bUseCuda;
-    std::shared_ptr<FeatureExtractor> mFeatureExtractor;
-    FeatureExtractorReport mReport;
-};
+void Sift::clear()
+{
+    setFeaturesNumber(5000);
+    setOctaveLayers(3);
+    setContrastThresholdAuto(true);
+    setContrastThreshold(0.02 / 3.);
+    setEdgeThreshold(10.);
+}
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_FEATURE_EXTRACTOR_TASK_H

@@ -21,37 +21,19 @@
  *                                                                      *
  ************************************************************************/
 
-#pragma once
-
-#include "graphos/graphos_global.h"
-
-#include "tidop/core/base/Path.h"
-
-#include "graphos/core/project/Project.h"
-
-class QXmlStreamWriter;
+#include "graphos/core/features/Features.h"
+#include "graphos/core/features/Sift.h"
 
 namespace graphos
 {
-
-class ProjectWriter
+auto FeatureFactory::create(const std::string &type) -> std::shared_ptr<Feature>
 {
+    if (type == "SIFT") {
+        return std::make_shared<Sift>();
+    }
 
-public:
+    tl::Message::warning("Unknown Feature type: {}", type);
+    return nullptr;
+}
 
-    void write(const tl::Path &file, const Project &project);
-
-private:
-
-    void writeInfo(QXmlStreamWriter &stream, const ProjectInfo &projectInfo);
-    void writeCameras(QXmlStreamWriter &stream, const CameraRepository &cameraRepository);
-    void writePriorCalibration(QXmlStreamWriter &stream, const Calibration *calibration);
-    void writeCalibration(QXmlStreamWriter &stream, const Calibration *calibration);
-    void writeVignetting(QXmlStreamWriter &stream, const Vignetting *vignetting);
-    void writeImages(QXmlStreamWriter &stream, const ImageRepository &imageRepository);
-    void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition);
-    void writeImageMetadata(QXmlStreamWriter &stream, const Image::Metadata &metadata);
-    void writeFeatures(QXmlStreamWriter &stream, const Project &project);
-};
-
-} // end namespace graphos
+} // graphos

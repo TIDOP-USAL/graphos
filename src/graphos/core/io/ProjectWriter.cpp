@@ -23,6 +23,8 @@
 
 #include "graphos/core/io/ProjectWriter.h"
 
+#include "graphos/core/features/sift.h"
+
 #include <QFile>
 #include <QFileInfo>
 #include <QXmlStreamWriter>
@@ -31,6 +33,54 @@
 
 namespace graphos
 {
+
+void writeFeatureConfig(QXmlStreamWriter &stream, 
+                        std::shared_ptr<Feature> config)
+{
+    if (config) {
+        stream.writeStartElement("FeatureExtractor");
+
+        stream.writeAttribute("type", config->name());
+
+        for (auto &[key, value] : *config) {
+            stream.writeTextElement(key, value->toString());
+        }
+        stream.writeEndElement();
+    }
+}
+
+void writeFeatureReport(QXmlStreamWriter &stream, const FeatureExtractorReport &report)
+{
+    if (!report.isEmpty()) {
+
+        stream.writeStartElement("Report");
+
+        stream.writeTextElement("Features", QString::number(report.features));
+        stream.writeTextElement("Time", QString::number(report.time, 'f', 10));
+        stream.writeTextElement("Cuda", report.time ? "true" : "false");
+
+        stream.writeEndElement(); // Report
+    }
+}
+
+
+
+void writeFeatureFiles(QXmlStreamWriter &stream, const FeaturesRepository &features)
+{
+    stream.writeStartElement("Files");
+    {
+        for (const auto &features : features) {
+            stream.writeStartElement("FeatFile");
+            {
+                stream.writeAttribute("image_id", QString::number(features.first));
+                stream.writeCharacters(features.second);
+            }
+            stream.writeEndElement(); // FeatFile
+        }
+    }
+    stream.writeEndElement(); // Files
+}
+
 
 void ProjectWriter::write(const tl::Path &file, const Project &project)
 {
@@ -62,6 +112,7 @@ void ProjectWriter::write(const tl::Path &file, const Project &project)
                 writeInfo(stream, project.info());
                 writeCameras(stream, project.cameras());
                 writeImages(stream, project.images());
+                writeFeatures(stream, project);
             }
 
             stream.writeEndElement(); // Graphos
@@ -268,6 +319,17 @@ void ProjectWriter::writeImageMetadata(QXmlStreamWriter &stream, const Image::Me
         stream.writeAttribute(QString::fromStdString(key), QString::fromStdString(value));
         stream.writeEndElement();
     }
+}
+
+void ProjectWriter::writeFeatures(QXmlStreamWriter &stream, const Project &project)
+{
+    stream.writeStartElement("Features");
+    {
+        writeFeatureConfig(stream, project.featureConfig());
+        writeFeatureReport(stream, project.featureReport());
+        writeFeatureFiles(stream, project.features());
+    }
+    stream.writeEndElement();
 }
 
 } // end namespace graphos

@@ -40,10 +40,16 @@ if(BUILD_FEATEXTRACT_COMPONENT)
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              FeatureExtractorComponent.cpp
+                             impl/ExtractFeaturesTask.cpp
                              impl/FeatureExtractorCommand.cpp
+                             impl/SiftCPUExtractor.cpp
+                             impl/SiftGPUExtractor.cpp
                          HEADER_FILES
                              FeatureExtractorComponent.h
-                             impl/FeatureExtractorCommand.h)
+                             impl/ExtractFeaturesTask.h
+                             impl/FeatureExtractorCommand.h
+                             impl/SiftCPUExtractor.h
+                             impl/SiftGPUExtractor.h)
 
 if (BUILD_GUI)        
     add_files_to_project(${PROJECT_NAME}
@@ -68,8 +74,8 @@ endif(BUILD_GUI)
                 ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
-                          Qt5::Core
-                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
+                          Qt6::Core
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Widgets>
                           Graphos::Core
                           $<$<BOOL:${GRAPHOS_GUI}>:Graphos::Widgets>
                           Eigen3::Eigen

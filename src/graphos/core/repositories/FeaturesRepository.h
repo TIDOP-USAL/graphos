@@ -25,33 +25,25 @@
 
 #include "graphos/graphos_global.h"
 
-#include "tidop/core/base/Path.h"
+#include <string>
+#include <unordered_map>
 
-#include "graphos/core/project/Project.h"
-
-class QXmlStreamWriter;
+#include "graphos/core/Image.h"
+#include "graphos/core/repositories/Repository.h"
 
 namespace graphos
 {
 
-class ProjectWriter
+class FeaturesRepository
+  : public Repository<size_t, std::string>
 {
 
 public:
 
-    void write(const tl::Path &file, const Project &project);
+    FeaturesRepository() = default;
 
-private:
+    auto add(size_t index, std::string features) -> size_t;
 
-    void writeInfo(QXmlStreamWriter &stream, const ProjectInfo &projectInfo);
-    void writeCameras(QXmlStreamWriter &stream, const CameraRepository &cameraRepository);
-    void writePriorCalibration(QXmlStreamWriter &stream, const Calibration *calibration);
-    void writeCalibration(QXmlStreamWriter &stream, const Calibration *calibration);
-    void writeVignetting(QXmlStreamWriter &stream, const Vignetting *vignetting);
-    void writeImages(QXmlStreamWriter &stream, const ImageRepository &imageRepository);
-    void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition);
-    void writeImageMetadata(QXmlStreamWriter &stream, const Image::Metadata &metadata);
-    void writeFeatures(QXmlStreamWriter &stream, const Project &project);
 };
 
 } // end namespace graphos

@@ -62,7 +62,8 @@ add_files_to_project(${PROJECT_NAME}
                          dense/DenseExport.cpp
                          #features/featextract.cpp
                          #features/featio.cpp
-                         features/sift.cpp
+                         features/Features.cpp
+                         features/Sift.cpp
                          features/matching.cpp
                          io/ProjectReader.cpp
                          io/ProjectWriter.cpp
@@ -73,6 +74,7 @@ add_files_to_project(${PROJECT_NAME}
                          project/Project.cpp
                          project/ProjectInfo.cpp
                          repositories/CameraRepository.cpp
+                         repositories/FeaturesRepository.cpp
                          repositories/ImageRepository.cpp
                          #sfm/orientationcolmap.cpp
                          #sfm/orientationexport.cpp
@@ -126,9 +128,9 @@ add_files_to_project(${PROJECT_NAME}
                          dense/mvs.h
                          dense/DenseExport.h
                          #features/featextract.h
-                         features/features.h
+                         features/Features.h
                          #features/featio.h
-                         features/sift.h
+                         features/Sift.h
                          features/matching.h
                          io/ProjectReader.h
                          io/ProjectWriter.h
@@ -141,6 +143,7 @@ add_files_to_project(${PROJECT_NAME}
                          reports/dem.h
                          reports/orthophoto.h
                          repositories/CameraRepository.h
+                         repositories/FeaturesRepository.h
                          repositories/ImageRepository.h
                          repositories/Repository.h
                          #sfm/orientation.h

@@ -33,7 +33,7 @@
 #include <tidop/core/task/Task.h>
 #include <tidop/core/base/Path.h>
 
-#include "graphos/core/features/features.h"
+#include "graphos/core/features/Features.h"
 
 namespace graphos
 {
