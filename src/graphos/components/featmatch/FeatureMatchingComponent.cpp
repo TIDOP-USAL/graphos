@@ -29,7 +29,7 @@
 #include "graphos/components/featmatch/impl/FeatureMatchingPresenter.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/featmatch/impl/FeatureMatchingCommand.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

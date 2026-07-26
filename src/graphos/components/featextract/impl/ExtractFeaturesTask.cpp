@@ -501,6 +501,7 @@ private:
 
         colmap::FeatureDescriptors descriptors_colmap;
         descriptors_colmap.data = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float);
+        descriptors_colmap.type = colmap::FeatureExtractorType::SIFT;
 
         mDatabase->WriteKeypoints(image_id, keypoints_colmap);
         mDatabase->WriteDescriptors(image_id, descriptors_colmap);

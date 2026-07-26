@@ -64,7 +64,7 @@ add_files_to_project(${PROJECT_NAME}
                          #features/featio.cpp
                          features/Features.cpp
                          features/Sift.cpp
-                         features/matching.cpp
+                         features/FeatureMatching.cpp
                          io/ProjectReader.cpp
                          io/ProjectWriter.cpp
                          mesh/PoissonRecon.cpp
@@ -76,6 +76,7 @@ add_files_to_project(${PROJECT_NAME}
                          repositories/CameraRepository.cpp
                          repositories/FeaturesRepository.cpp
                          repositories/ImageRepository.cpp
+                         repositories/MatchingRepository.cpp
                          #sfm/orientationcolmap.cpp
                          #sfm/orientationexport.cpp
                          sfm/poses.cpp
@@ -131,7 +132,7 @@ add_files_to_project(${PROJECT_NAME}
                          features/Features.h
                          #features/featio.h
                          features/Sift.h
-                         features/matching.h
+                         features/FeatureMatching.h
                          io/ProjectReader.h
                          io/ProjectWriter.h
                          mesh/PoissonRecon.h
@@ -145,6 +146,7 @@ add_files_to_project(${PROJECT_NAME}
                          repositories/CameraRepository.h
                          repositories/FeaturesRepository.h
                          repositories/ImageRepository.h
+                         repositories/MatchingRepository.h
                          repositories/Repository.h
                          #sfm/orientation.h
                          #sfm/orientationcolmap.h

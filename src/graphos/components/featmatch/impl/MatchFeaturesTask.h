@@ -23,52 +23,53 @@
 
 #pragma once
 
-#include "graphos/core/Component.h"
+#include "graphos/graphos_global.h"
 
+#include <stop_token>
+
+#include <QObject>
+
+#include <tidop/core/task/Task.h>
+#include <tidop/core/base/Path.h>
+
+#include "graphos/core/features/FeatureMatching.h"
+#include "graphos/core/features/FeatureMatchingReport.h"
 
 namespace graphos
 {
 
-class FeatureExtractorTask;
-
-class FeatureExtractorComponent
-  : public TaskComponent
+class MatchFeaturesTask
+  : public QObject,
+    public tl::Task
 {
 
     Q_OBJECT
 
 public:
 
-    FeatureExtractorComponent(Application *application);
-    ~FeatureExtractorComponent() override;
+    MatchFeaturesTask(tl::Path database,
+                        bool cuda,
+                        const std::shared_ptr<FeatureMatching> &featureMatching);
+    ~MatchFeaturesTask() override;
 
-private:
+public:
 
-    void init();
+    auto report() const -> FeatureMatchingReport;
 
-signals:
-
-    void features_extracted(size_t);
-    void features_deleted();
-
-// ComponentBase
+// tl::TaskBase interface
 
 protected:
 
-    void createModel() override;
-    void createView() override;
-    void createPresenter() override;
-    void createCommand() override;
-    void update() override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
-// TaskComponent
+private:
 
-protected slots:
-
-    void onRunning() override;
-    void onFinished() override;
-    void onFailed() override;
+    tl::Path mDatabase;
+    bool bUseCuda;
+    std::shared_ptr<FeatureMatching> mFeatureMatching;
+    FeatureMatchingReport mReport;
 
 };
+
 
 } // namespace graphos

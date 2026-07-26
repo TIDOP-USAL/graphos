@@ -23,7 +23,8 @@
 
 #include "graphos/core/io/ProjectWriter.h"
 
-#include "graphos/core/features/sift.h"
+#include "graphos/core/features/Sift.h"
+#include "graphos/core/features/FeatureMatching.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -55,7 +56,7 @@ void writeFeatureReport(QXmlStreamWriter &stream, const FeatureExtractorReport &
 
         stream.writeStartElement("Report");
 
-        stream.writeTextElement("Features", QString::number(report.features));
+        stream.writeTextElement("Matches", QString::number(report.features));
         stream.writeTextElement("Time", QString::number(report.time, 'f', 10));
         stream.writeTextElement("Cuda", report.time ? "true" : "false");
 
@@ -79,6 +80,33 @@ void writeFeatureFiles(QXmlStreamWriter &stream, const FeaturesRepository &featu
         }
     }
     stream.writeEndElement(); // Files
+}
+
+void writeFeatureMatcherConfig(QXmlStreamWriter &stream, 
+                               std::shared_ptr<FeatureMatching> config)
+{
+    if (config) {
+        stream.writeStartElement("Config");
+        for (auto &[key, value] : *config) {
+            stream.writeTextElement(key, value->toString());
+        }
+        stream.writeEndElement();
+    }
+}
+
+void writeFeatureMatchingReport(QXmlStreamWriter &stream, 
+                                FeatureMatchingReport report)
+{
+    if (!report.isEmpty()) {
+
+        stream.writeStartElement("Report");
+
+        stream.writeTextElement("Features", QString::number(report.matches));
+        stream.writeTextElement("Time", QString::number(report.time, 'f', 10));
+        stream.writeTextElement("Cuda", report.time ? "true" : "false");
+
+        stream.writeEndElement(); // Report
+    }
 }
 
 
@@ -113,6 +141,7 @@ void ProjectWriter::write(const tl::Path &file, const Project &project)
                 writeCameras(stream, project.cameras());
                 writeImages(stream, project.images());
                 writeFeatures(stream, project);
+                writeMatches(stream, project);
             }
 
             stream.writeEndElement(); // Graphos
@@ -330,6 +359,16 @@ void ProjectWriter::writeFeatures(QXmlStreamWriter &stream, const Project &proje
         writeFeatureFiles(stream, project.features());
     }
     stream.writeEndElement();
+}
+
+void ProjectWriter::writeMatches(QXmlStreamWriter &stream, const Project &project)
+{
+    stream.writeStartElement("Matches");
+
+    writeFeatureMatcherConfig(stream, project.featureMatcherConfig());
+    writeFeatureMatchingReport(stream, project.featureMatchingReport());
+
+    stream.writeEndElement(); // Matches
 }
 
 } // end namespace graphos

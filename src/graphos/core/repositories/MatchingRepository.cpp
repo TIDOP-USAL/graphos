@@ -21,54 +21,22 @@
  *                                                                      *
  ************************************************************************/
 
-#pragma once
+#include "graphos/core/repositories/MatchingRepository.h"
 
-#include "graphos/core/Component.h"
+#include <colmap/scene/database.h>
 
 
 namespace graphos
 {
 
-class FeatureExtractorTask;
 
-class FeatureExtractorComponent
-  : public TaskComponent
+void MatchingRepository::clear()
 {
+    if (auto database = colmap::Database::Open(mDbPath.toUtf8())) {
+        database->ClearMatches();
+        database->ClearTwoViewGeometries();
+        database->Close();
+    }
+}
 
-    Q_OBJECT
-
-public:
-
-    FeatureExtractorComponent(Application *application);
-    ~FeatureExtractorComponent() override;
-
-private:
-
-    void init();
-
-signals:
-
-    void features_extracted(size_t);
-    void features_deleted();
-
-// ComponentBase
-
-protected:
-
-    void createModel() override;
-    void createView() override;
-    void createPresenter() override;
-    void createCommand() override;
-    void update() override;
-
-// TaskComponent
-
-protected slots:
-
-    void onRunning() override;
-    void onFinished() override;
-    void onFailed() override;
-
-};
-
-} // namespace graphos
+} // end namespace graphos

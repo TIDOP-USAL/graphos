@@ -105,9 +105,9 @@ auto Project::featureReport() const -> const FeatureExtractorReport &
     return mFeatReport; 
 }
 
-void Project::setFeatureReport(const FeatureExtractorReport &report)
+void Project::setFeatureReport(FeatureExtractorReport report)
 {
-    mFeatReport = report;
+    mFeatReport = std::move(report);
 }
 
 auto Project::features() -> FeaturesRepository & 
@@ -120,287 +120,49 @@ auto Project::features() const -> const FeaturesRepository &
     return mFeatureRepo;
 }
 
-void Project::removeFeatures()
+void Project::clearFeatures()
 {
     mFeatureRepo.clear();
-    //this->removeMatchesPair();
+    clearMatches();
 }
 
-//void Project::addImage(const Image &img)
-//{
-//    TL_TODO("Comprobar el id por si se modifica a mano el xml")
-//    size_t image_id = Image::id(img);
-//    auto it = mImages.find(image_id);
-//    if (it != mImages.end()) {
-//        tl::Message::warning("Image {} already in the project", img.path().toStdString());
-//    } else {
-//        mImages[image_id] = img;
-//    }
-//}
-//
-//bool Project::updateImage(size_t imageId, const Image &image)
-//{
-//    auto it = mImages.find(imageId);
-//    if (it != mImages.end()) {
-//        mImages[imageId] = image;
-//        return true;
-//    } else {
-//        return false;
-//    }
-//}
-//
-//void Project::removeImage(size_t imageId)
-//{
-//    auto it = mImages.find(imageId);
-//    if (it != mImages.end()) {
-//        mImages.erase(it);
-//    }
-//
-//    TL_TODO("Borrar las features, matches, etc")
-//}
-//
-//auto Project::findImageById(size_t id) const -> Image
-//{
-//    try {
-//        return mImages.at(id);
-//    } catch (...) {
-//        TL_THROW_EXCEPTION_WITH_NESTED("Image ID not found");
-//    }
-//}
-//
-//auto Project::existImage(size_t imageId) const -> bool
-//{
-//    auto it = mImages.find(imageId);
-//    return it != mImages.end();
-//}
-//
-//auto Project::images() const -> const std::unordered_map<size_t, Image> &
-//{
-//    return mImages;
-//}
-//
-//size_t Project::imagesCount() const
-//{
-//    return mImages.size();
-//}
-//
-//auto Project::addCamera(const Camera &camera) -> int
-//{
-//    mCameras.try_emplace(++mCameraCount, camera);
-//    return mCameraCount;
-//}
-//
-//auto Project::cameras() const -> const std::map<int, Camera> &
-//{
-//    return mCameras;
-//}
-//
-//auto Project::findCamera(const QString &make,
-//                              const QString &model, 
-//                              const QString &serialNumber, 
-//                              const QString &bandName) const -> Camera
-//{
-//    for (const auto &camera : mCameras) {
-//        Camera _camera = camera.second;
-//        if (_camera.make() == make.toStdString() &&
-//            _camera.model() == model.toStdString() &&
-//            _camera.serialNumber() == serialNumber.toStdString() &&
-//            _camera.bandName() == bandName.toStdString()) {
-//            return _camera;
-//        }
-//    }
-//
-//    TL_THROW_EXCEPTION("Camera not found: {} {}", make.toStdString(), model.toStdString());
-//}
-//
-//auto Project::findCamera(int idCamera) const -> Camera
-//{
-//    auto it = mCameras.find(idCamera);
-//    if (it != mCameras.end()) {
-//        return mCameras.at(idCamera);
-//    } else {
-//        throw std::runtime_error("Camera not exist");
-//    }
-//}
-//
-//auto Project::existCamera(const QString &make, 
-//                             const QString &model, 
-//                             const QString &serialNumber, 
-//                             const QString &bandName) const -> bool
-//{
-//    for (const auto &camera : mCameras) {
-//        Camera _camera = camera.second;
-//        if (_camera.make() == make.toStdString() &&
-//            _camera.model() == model.toStdString() &&
-//            _camera.serialNumber() == serialNumber.toStdString() &&
-//            _camera.bandName() == bandName.toStdString()) {
-//            return true;
-//        }
-//    }
-//    return false;
-//}
-//
-//auto Project::updateCamera(int idCamera, const Camera &camera) -> bool
-//{
-//    auto it = mCameras.find(idCamera);
-//    if (it != mCameras.end()) {
-//        it->second = camera;
-//
-//        colmap::camera_t camera_id = static_cast<colmap::camera_t>(idCamera);
-//        //colmap::Database database(this->database().toUtf8());
-//        auto database = colmap::Database::Open(mProjectInfo.database().toUtf8());
-//        colmap::Camera camera_colmap = database->ReadCamera(camera_id);
-//        QString colmap_camera_type = cameraToColmapType(camera);
-//        //camera_colmap.SetModelIdFromName(colmap_camera_type.toStdString());
-//        camera_colmap.model_id = colmap::CameraModelNameToId(colmap_camera_type.toStdString());
-//        database->UpdateCamera(camera_colmap);
-//        database->Close();
-//
-//        return true;
-//    } else {
-//        return false;
-//    }
-//}
+auto Project::featureMatcherConfig() const -> std::shared_ptr<FeatureMatching>
+{
+    return mFeatureMatchingConfig;
+}
 
-//auto Project::removeCamera(int idCamera) -> bool
-//{
-//    auto it = mCameras.find(idCamera);
-//    if (it != mCameras.end()) {
-//        mCameras.erase(it);
-//        return true;
-//    } else {
-//        return false;
-//    }
-//}
+void Project::setFeatureMatcherConfig(std::shared_ptr<FeatureMatching> config)
+{
+    mFeatureMatchingConfig = std::move(config);
+}
 
-//auto Project::cameraId(const QString &make,
-//                          const QString &model,
-//                          const QString &serialNumber,
-//                          const QString &bandName) const -> int
-//{
-//    for (const auto &camera : mCameras) {
-//        if (camera.second.make() == make.toStdString() &&
-//            camera.second.model() == model.toStdString() &&
-//            camera.second.serialNumber() == serialNumber.toStdString() &&
-//            camera.second.bandName() == bandName.toStdString()) {
-//            return camera.first;
-//        }
-//    }
-//    return 0;
-//}
+auto Project::featureMatchingReport() const -> FeatureMatchingReport
+{
+    return mFeatureMatchingReport;
+}
 
-//size_t Project::camerasCount() const
-//{
-//    return mCameras.size();
-//}
+void Project::setFeatureMatchingReport(FeatureMatchingReport report)
+{
+    mFeatureMatchingReport = std::move(report);
+}
 
-//std::shared_ptr<Feature> Project::featureExtractor() const
-//{
-//    return mFeatureExtractor;
-//}
-//
-//void Project::setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor)
-//{
-//    mFeatureExtractor = featureExtractor;
-//}
-//
-//FeatureExtractorReport Project::featureExtractorReport() const
-//{
-//    return mFeatureExtractorReport;
-//}
-//
-//void Project::setFeatureExtractorReport(const FeatureExtractorReport &report)
-//{
-//    mFeatureExtractorReport = report;
-//}
-//
-//QString Project::features(size_t imageId) const
-//{
-//    return mFeatures.at(imageId);
-//}
-//
-//void Project::addFeatures(size_t imageId, const QString &featureFile)
-//{
-//    mFeatures[imageId] = featureFile;
-//}
+auto Project::matches() -> MatchingRepository &
+{
+    return mMatchingRepository;
+}
 
-//void Project::removeFeatures(size_t imageId)
-//{
-//    auto it = mFeatures.find(imageId);
-//    if (it != mFeatures.end()) {
-//        mFeatures.erase(it);
-//    }
-//}
-//
-//const std::unordered_map<size_t, QString> &Project::features() const
-//{
-//    return mFeatures;
-//}
-//
-//std::shared_ptr<FeatureMatching> Project::featureMatching() const
-//{
-//    return mFeatureMatching;
-//}
-//
-//void Project::setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching)
-//{
-//    mFeatureMatching = featureMatching;
-//}
-//
-//FeatureMatchingReport Project::featureMatchingReport() const
-//{
-//    return mFeatureMatchingReport;
-//}
-//
-//void Project::setFeatureMatchingReport(const FeatureMatchingReport &report)
-//{
-//    mFeatureMatchingReport = report;
-//}
-//
-//void Project::addMatchesPair(size_t imageLeftId,
-//                                size_t imageRightId)
-//{
-//    auto it = mImagesPairs.find(imageLeftId);
-//    if (it != mImagesPairs.end()) {
-//        for (auto &pair : it->second) {
-//            if (pair == imageRightId) {
-//                return;
-//            }
-//        }
-//    }
-//
-//    mImagesPairs[imageLeftId].push_back(imageRightId);
-//    mImagesPairs[imageRightId].push_back(imageLeftId);
-//}
-//
-//const std::vector<size_t> Project::matchesPairs(size_t imageId) const
-//{
-//    std::vector<size_t> pairs;
-//
-//    for (auto &matches : mImagesPairs) {
-//        if (imageId == matches.first) {
-//            pairs = matches.second;
-//            break;
-//        }
-//    }
-//
-//    return pairs;
-//}
-//
-//void Project::removeMatchesPair()
-//{
-//    mImagesPairs.clear();
-//    this->clearReconstruction();
-//}
-//
-//void Project::removeMatchesPair(size_t imageLeftId)
-//{
-//    auto it = mImagesPairs.find(imageLeftId);
-//    if (it != mImagesPairs.end()) {
-//        mImagesPairs.erase(it);
-//    }
-//}
-//
+auto Project::matches() const -> const MatchingRepository &
+{
+    return mMatchingRepository;
+}
+
+void Project::clearMatches()
+{
+    mMatchingRepository.clear();
+    clearReconstruction();
+}
+
+
 //tl::Path Project::sparseModel() const
 //{
 //    return mSparseModel;
@@ -456,16 +218,16 @@ void Project::removeFeatures()
 //{
 //    mPhotoOrientation[imageId] = photoOrientation;
 //}
-//
-//void Project::clearReconstruction()
-//{
+
+void Project::clearReconstruction()
+{
 //    mPhotoOrientation.clear();
 //    mSparseModel.clear();
 //    mEnuCrs.clear();
 //    mOrientationReport = OrientationReport();
 //    this->clearDensification();
-//}
-//
+}
+
 //OrientationReport Project::orientationReport() const
 //{
 //    return mOrientationReport;
@@ -613,8 +375,11 @@ void Project::clear()
     mImageRepository.clear();
     mCameraRepository.clear();
     mFeatConfig.reset();
-    mFeatReport = FeatureExtractorReport();
+    mFeatReport.clear();
     mFeatureRepo.clear();
+    mFeatureMatchingConfig.reset();
+    mFeatureMatchingReport.clear();
+    mMatchingRepository.clear();
 
     //mFeatures.clear();
     //mFeatureMatching.reset();

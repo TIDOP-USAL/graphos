@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_FEATURES_H
-#define GRAPHOS_CORE_FEATURES_H
+#pragma once
 
 #include "graphos/graphos_global.h"
 
@@ -40,6 +39,10 @@ namespace graphos
 class Feature
 {
 
+protected:
+
+    tl::Properties mProperties;
+
 public:
 
     Feature(std::string name) 
@@ -52,7 +55,9 @@ public:
      */
     virtual void clear() = 0;
 
-    auto name() const -> std::string { return mProperties.name(); }
+    [[nodiscard]]
+    auto name() const -> std::string;
+
     auto begin() const
     {
         return mProperties.begin();
@@ -63,21 +68,13 @@ public:
         return mProperties.end();
     }
 
-    // Asignación genérica desde string
-    void setProperty(const std::string &key, const std::string &value)
-    {
-        mProperties.setProperty(key, value);
-    }
+    void setProperty(const std::string &key, const std::string &value);
 
     template<typename T>
     void setProperty(const std::string &key, T value)
     {
         mProperties.setProperty(key, value);
     }
-
-protected:
-
-    tl::Properties mProperties;
 
 };
 
@@ -112,32 +109,4 @@ public:
 };
 
 
-
-struct FeatureExtractorReport
-{
-    double time = 0.0;
-    int features = 0;
-    bool cuda = false;
-
-    bool isEmpty() const
-    {
-        return time == 0. && features == 0;
-    }
-};
-
-struct FeatureMatchingReport
-{
-    double time = 0.0;
-    int matches = 0;
-    bool cuda = false;
-
-    bool isEmpty() const
-    {
-        return time == 0. && matches == 0;
-    }
-};
-
-
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_FEATURES_H

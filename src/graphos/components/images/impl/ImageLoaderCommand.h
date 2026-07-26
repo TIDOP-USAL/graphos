@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_IMAGE_LOADER_COMMAND_H
-#define GRAPHOS_IMAGE_LOADER_COMMAND_H
+#pragma once
 
 #include "graphos/core/command.h"
 #include "graphos/core/project/Project.h"
@@ -54,5 +53,3 @@ private:
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_IMAGE_LOADER_COMMAND_H

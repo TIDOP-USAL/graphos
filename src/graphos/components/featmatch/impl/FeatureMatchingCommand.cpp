@@ -24,18 +24,23 @@
 #include "FeatureMatchingCommand.h"
 
 #include "graphos/core/utils.h"
-#include "graphos/core/features/matching.h"
-#include "graphos/core/project.h"
+#include "graphos/core/features/FeatureMatching.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/io/ProjectReader.h"
+#include "graphos/core/io/ProjectWriter.h"
 #include "graphos/core/task/Progress.h"
+#include "graphos/components/featmatch/impl/MatchFeaturesTask.h"
+#include "graphos/components/featmatch/impl/MatchSpatiallyTask.h"
 
 #include <tidop/core/app/Message.h>
+#include <tidop/core/app/Logger.h>
 #include <tidop/core/task/Progress.h>
+#include <tidop/core/console/ValuesValidator.h>
 
-#include <colmap/feature/matching.h>
-#include <colmap/base/database.h>
+//#include <colmap/feature/matching.h>
+//#include <colmap/scene/database.h>
 
-#include <QFileInfo>
-#include <tidop/core/log.h>
+//#include <QFileInfo>
 
 using namespace tl;
 
@@ -87,7 +92,7 @@ bool FeatureMatchingCommand::run()
 {
     bool r = false;
 
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
 
     try {
 
@@ -111,16 +116,19 @@ bool FeatureMatchingCommand::run()
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
 
-        ProjectImp project;
-        project.load(project_path);
+        Project project;
+        ProjectReader reader;
+        reader.read(project_path, project);
 
-        {
-            colmap::Database database(project.database().toUtf8());
-            database.ClearMatches();
-            database.ClearTwoViewGeometries();
-            database.Close();
-            project.removeMatchesPair();
-        }
+        project.clearMatches();
+        
+        //{
+        //    auto database = colmap::Database::Open(database_path.toUtf8());
+        //    database->ClearMatches();
+        //    database->ClearTwoViewGeometries();
+        //    database->Close();
+        //    project.removeMatchesPair();
+        //}
 
 
         auto feature_matching_properties = std::make_shared<FeatureMatching>();
@@ -141,18 +149,20 @@ bool FeatureMatchingCommand::run()
             }
         }
 
+        auto database_path = project.info().database();
+
         if (spatial_matching) {
-            SpatialMatchingTask featmatching_process(project.database(),
+            MatchSpatiallyTask feature_matching_task(database_path,
                                                      !mDisableCuda,
                                                      feature_matching_properties);
 
             auto progress = getProgressBar(progress_bar, project.images().size());
-            featmatching_process.run(progress.get());
+            feature_matching_task.run(progress.get());
 
-            project.setFeatureMatchingReport(featmatching_process.report());
+            project.setFeatureMatchingReport(feature_matching_task.report());
 
         } else {
-            FeatureMatchingTask feature_matching_task(project.database(),
+            MatchFeaturesTask feature_matching_task(database_path,
                                                      !mDisableCuda,
                                                      feature_matching_properties);
 
@@ -164,9 +174,12 @@ bool FeatureMatchingCommand::run()
             project.setFeatureMatchingReport(feature_matching_task.report());
         }
 
-        project.setFeatureMatching(feature_matching_properties);
-        writeMatchPairs(&project);
-        project.save(project_path);
+        project.setFeatureMatcherConfig(feature_matching_properties);
+        ProjectWriter writer;
+        writer.write(project_path, project);
+        //writeMatchPairs(&project);
+
+        //project.save(project_path);
 
     } catch (const std::exception &e) {
 
@@ -180,59 +193,59 @@ bool FeatureMatchingCommand::run()
     return r;
 }
 
-void FeatureMatchingCommand::writeMatchPairs(Project *project)
-{
-    tl::Path database_file = project->database();
-    colmap::Database database(database_file.toString());
-    std::vector<colmap::Image> db_images = database.ReadAllImages();
-    colmap::image_t colmap_image_id_l = 0;
-    colmap::image_t colmap_image_id_r = 0;
-
-    for (size_t i = 0; i < db_images.size(); i++) {
-
-        colmap_image_id_l = db_images[i].ImageId();
-
-        for (size_t j = 0; j < i; j++) {
-            colmap_image_id_r = db_images[j].ImageId();
-
-            colmap::FeatureMatches matches = database.ReadMatches(colmap_image_id_l, colmap_image_id_r);
-
-            if (!matches.empty()) {
-
-                tl::Path colmap_image1(db_images[i].Name());
-                tl::Path colmap_image2(db_images[j].Name());
-
-                bool find_id_1 = false;
-                bool find_id_2 = false;
-                size_t image_id_1 = 0;
-                size_t image_id_2 = 0;
-
-                for (const auto &image_pair : project->images()) {
-
-                    tl::Path image(image_pair.second.path().toStdString());
-
-                    if (!find_id_1 && image.equivalent(colmap_image1)) {
-                        find_id_1 = true;
-                        image_id_1 = image_pair.first;
-                    }
-
-                    if (!find_id_2 && image.equivalent(colmap_image2)) {
-                        find_id_2 = true;
-                        image_id_2 = image_pair.first;
-                    }
-
-                    if (find_id_1 && find_id_2) {
-                        project->addMatchesPair(image_id_1, image_id_2);
-                    }
-                }
-
-            }
-
-        }
-
-    }
-
-    database.Close();
-}
+//void FeatureMatchingCommand::writeMatchPairs(Project &project)
+//{
+//    tl::Path database_file = project.info().database();
+//    auto database = colmap::Database::Open(database_file.toString());
+//    std::vector<colmap::Image> db_images = database->ReadAllImages();
+//    colmap::image_t colmap_image_id_l = 0;
+//    colmap::image_t colmap_image_id_r = 0;
+//
+//    for (size_t i = 0; i < db_images.size(); i++) {
+//
+//        colmap_image_id_l = db_images[i].ImageId();
+//
+//        for (size_t j = 0; j < i; j++) {
+//            colmap_image_id_r = db_images[j].ImageId();
+//
+//            colmap::FeatureMatches matches = database->ReadMatches(colmap_image_id_l, colmap_image_id_r);
+//
+//            if (!matches.empty()) {
+//
+//                tl::Path colmap_image1(db_images[i].Name());
+//                tl::Path colmap_image2(db_images[j].Name());
+//
+//                bool find_id_1 = false;
+//                bool find_id_2 = false;
+//                size_t image_id_1 = 0;
+//                size_t image_id_2 = 0;
+//
+//                for (const auto &image_pair : project.images()) {
+//
+//                    tl::Path image(image_pair.second.path());
+//
+//                    if (!find_id_1 && image.equivalent(colmap_image1)) {
+//                        find_id_1 = true;
+//                        image_id_1 = image_pair.first;
+//                    }
+//
+//                    if (!find_id_2 && image.equivalent(colmap_image2)) {
+//                        find_id_2 = true;
+//                        image_id_2 = image_pair.first;
+//                    }
+//
+//                    if (find_id_1 && find_id_2) {
+//                        project.addMatchesPair(image_id_1, image_id_2);
+//                    }
+//                }
+//
+//            }
+//
+//        }
+//
+//    }
+//
+//    database->Close();
+//}
 
 } // namespace graphos

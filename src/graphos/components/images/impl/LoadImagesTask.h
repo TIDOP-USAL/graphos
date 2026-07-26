@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_LOADER_IMAGES_TASK_H
-#define GRAPHOS_LOADER_IMAGES_TASK_H
+#pragma once
 
 #include <string_view>
 
@@ -89,5 +88,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_LOADER_IMAGES_TASK_H

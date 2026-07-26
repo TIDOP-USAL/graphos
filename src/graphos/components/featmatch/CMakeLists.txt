@@ -41,9 +41,13 @@ if(BUILD_FEATMATCH_COMPONENT)
                          SOURCE_FILES
                              FeatureMatchingComponent.cpp
                              impl/FeatureMatchingCommand.cpp
+                             impl/MatchFeaturesTask.cpp
+                             impl/MatchSpatiallyTask.cpp
                          HEADER_FILES
                              FeatureMatchingComponent.h
-                             impl/FeatureMatchingCommand.h)
+                             impl/FeatureMatchingCommand.h
+                             impl/MatchFeaturesTask.h
+                             impl/MatchSpatiallyTask.h)
 
 if (BUILD_GUI)
     add_files_to_project(${PROJECT_NAME}
@@ -68,8 +72,8 @@ endif(BUILD_GUI)
                 ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
-                          Qt5::Core
-                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
+                          Qt6::Core
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)

@@ -23,52 +23,29 @@
 
 #pragma once
 
-#include "graphos/core/Component.h"
-
+#include "graphos/graphos_global.h"
 
 namespace graphos
 {
 
-class FeatureExtractorTask;
-
-class FeatureExtractorComponent
-  : public TaskComponent
+struct FeatureMatchingReport
 {
+    double time = 0.0;
+    int matches = 0;
+    bool cuda = false;
 
-    Q_OBJECT
+    auto isEmpty() const -> bool
+    {
+        return time == 0. && matches == 0;
+    }
 
-public:
-
-    FeatureExtractorComponent(Application *application);
-    ~FeatureExtractorComponent() override;
-
-private:
-
-    void init();
-
-signals:
-
-    void features_extracted(size_t);
-    void features_deleted();
-
-// ComponentBase
-
-protected:
-
-    void createModel() override;
-    void createView() override;
-    void createPresenter() override;
-    void createCommand() override;
-    void update() override;
-
-// TaskComponent
-
-protected slots:
-
-    void onRunning() override;
-    void onFinished() override;
-    void onFailed() override;
-
+    void clear()
+    {
+        time = 0.0;
+        matches = 0;
+        cuda = false;
+    }
 };
+
 
 } // namespace graphos

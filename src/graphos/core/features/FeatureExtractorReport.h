@@ -23,52 +23,36 @@
 
 #pragma once
 
-#include "graphos/core/Component.h"
+#include "graphos/graphos_global.h"
 
+#include <string>
+
+#include <opencv2/features2d.hpp>
+
+#include <tidop/core/base/flags.h>
+#include <tidop/core/base/Property.h>
 
 namespace graphos
 {
 
-class FeatureExtractorTask;
-
-class FeatureExtractorComponent
-  : public TaskComponent
+struct FeatureExtractorReport
 {
+    double time = 0.0;
+    int features = 0;
+    bool cuda = false;
 
-    Q_OBJECT
+    auto isEmpty() const -> bool
+    {
+        return time == 0. && features == 0;
+    }
 
-public:
-
-    FeatureExtractorComponent(Application *application);
-    ~FeatureExtractorComponent() override;
-
-private:
-
-    void init();
-
-signals:
-
-    void features_extracted(size_t);
-    void features_deleted();
-
-// ComponentBase
-
-protected:
-
-    void createModel() override;
-    void createView() override;
-    void createPresenter() override;
-    void createCommand() override;
-    void update() override;
-
-// TaskComponent
-
-protected slots:
-
-    void onRunning() override;
-    void onFinished() override;
-    void onFailed() override;
-
+    void clear()
+    {
+        time = 0.0;
+        features = 0;
+        cuda = false;
+    }
 };
+
 
 } // namespace graphos

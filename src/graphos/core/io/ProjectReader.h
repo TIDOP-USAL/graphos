@@ -42,11 +42,12 @@ public:
 
 private:
 
-    void readProject(QXmlStreamReader &stream, Project &project);
+    //void readProject(QXmlStreamReader &stream, Project &project);
     void readInfo(QXmlStreamReader &stream, ProjectInfo &projectInfo);
     void readCameras(QXmlStreamReader &stream, CameraRepository &cameraRepository);
     void readImages(QXmlStreamReader &stream, ImageRepository &imageRepository);
     void readFeatures(QXmlStreamReader &stream, Project &project);
+    void readMatches(QXmlStreamReader &stream, Project &project);
 };
 
 } // end namespace graphos

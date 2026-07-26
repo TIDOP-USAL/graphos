@@ -107,7 +107,7 @@ auto FeatureExtractorCommand::run() -> bool
 
         tl::Path database_path = project.info().database();
         tl::Path::removeFile(database_path);
-        project.removeFeatures();
+        project.clearFeatures();
 
 
         auto sift_config = std::make_shared<Sift>();

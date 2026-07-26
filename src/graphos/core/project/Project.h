@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_PROJECT_H
-#define GRAPHOS_CORE_PROJECT_H
+#pragma once
 
 #include "graphos/graphos_global.h"
 
@@ -36,7 +35,7 @@
 #include <QSize>
 
 #include "graphos/core/project/ProjectInfo.h"
-//#include "graphos/core/features/matching.h"
+//
 //#include "graphos/core/camera/Camera.h"
 //#include "graphos/core/Image.h"
 
@@ -49,7 +48,11 @@
 #include "graphos/core/repositories/CameraRepository.h"
 #include "graphos/core/repositories/FeaturesRepository.h"
 #include "graphos/core/repositories/ImageRepository.h"
+#include "graphos/core/repositories/MatchingRepository.h"
 #include "graphos/core/features/Features.h"
+#include "graphos/core/features/FeatureExtractorReport.h"
+#include "graphos/core/features/FeatureMatching.h"
+#include "graphos/core/features/FeatureMatchingReport.h"
 
 // extraer de aqui a XmlSerializer.h
 //class QXmlStreamWriter;
@@ -83,14 +86,19 @@ protected:
     ProjectInfo mProjectInfo;
     CameraRepository mCameraRepository;
     ImageRepository mImageRepository;
+
     std::shared_ptr<Feature> mFeatConfig;
     FeatureExtractorReport mFeatReport;
     FeaturesRepository mFeatureRepo;
 
+    std::shared_ptr<FeatureMatching> mFeatureMatchingConfig;
+    FeatureMatchingReport mFeatureMatchingReport;
+    MatchingRepository mMatchingRepository;
+
     QString mCrs;
 
     //std::shared_ptr<FeatureMatching> mFeatureMatching;
-    //FeatureMatchingReport mFeatureMatchingReport;
+    
     //std::unordered_map<size_t, std::vector<size_t>> mImagesPairs;
     //std::unordered_map<size_t, CameraPose> mPhotoOrientation;
 
@@ -133,13 +141,27 @@ public:
     void setFeatureConfig(std::shared_ptr<Feature> config);
 
     auto featureReport() const -> const FeatureExtractorReport &;
-    void setFeatureReport(const FeatureExtractorReport &report);
+    void setFeatureReport(FeatureExtractorReport report);
 
     auto features() -> FeaturesRepository &;
     auto features() const -> const FeaturesRepository &;
 
-    void removeFeatures();
+    void clearFeatures();
 
+    // Matching
+    
+    // Configuración dinámica del Matcher (hereda de Properties)
+    auto featureMatcherConfig() const -> std::shared_ptr<FeatureMatching>;
+    void setFeatureMatcherConfig(std::shared_ptr<FeatureMatching> config);
+
+    auto featureMatchingReport() const -> FeatureMatchingReport;
+    void setFeatureMatchingReport(FeatureMatchingReport report);
+
+    auto matches() -> MatchingRepository &;
+    auto matches() const -> const MatchingRepository &;
+
+    void clearMatches();
+    
     //std::shared_ptr<FeatureMatching> featureMatching() const;
     //void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
     //FeatureMatchingReport featureMatchingReport() const;
@@ -162,7 +184,7 @@ public:
     //CameraPose photoOrientation(size_t imageId) const;
     //const std::unordered_map<size_t, CameraPose> &poses() const;
     //void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation);
-    //void clearReconstruction();
+    void clearReconstruction();
     //OrientationReport orientationReport() const;
     //void setOrientationReport(const OrientationReport &orientationReport);
 
@@ -266,5 +288,3 @@ protected:
 };
 
 } // end namespace graphos
-
-#endif // GRAPHOS_CORE_PROJECT_H

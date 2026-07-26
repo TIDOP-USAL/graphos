@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_FEATURE_EXTRACTOR_TASK_H
-#define GRAPHOS_CORE_FEATURE_EXTRACTOR_TASK_H
+#pragma once
 
 #include <unordered_map>
 
@@ -33,6 +32,7 @@
 #include <tidop/core/base/Path.h>
 
 #include "graphos/core/features/Features.h"
+#include "graphos/core/features/FeatureExtractorReport.h"
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
 
@@ -88,5 +88,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_FEATURE_EXTRACTOR_TASK_H

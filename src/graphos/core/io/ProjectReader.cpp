@@ -424,6 +424,8 @@ void ProjectReader::read(const tl::Path &file, Project &project)
                             this->readImages(stream, project.images());
                         } else if (stream.name() == "Features") {
                             this->readFeatures(stream, project);
+                        } else if (stream.name() == "Matches") {
+                            this->readMatches(stream, project);
                         } else {
                             stream.skipCurrentElement();
                         }
@@ -505,16 +507,6 @@ void ProjectReader::readImages(QXmlStreamReader &stream, ImageRepository &imageR
 
 void ProjectReader::readFeatures(QXmlStreamReader &stream, Project &project)
 {
-    //while (stream.readNextStartElement()) {
-    //    if (stream.name() == "FeatureExtractor") {
-    //        readFeatureConfig(stream, project.featureConfig());
-    //    } else if (stream.name() == "Report") {
-    //        readFeatureReport(stream, project.featureReport());
-    //    } else if (stream.name() == "Files") {
-    //        readFeatureFiles(stream, project.features());
-    //    } else
-    //        stream.skipCurrentElement();
-    //}
     while (stream.readNextStartElement()) {
         if (stream.name() == "FeatureExtractor") {
             readFeatureConfig(stream, project);
@@ -522,6 +514,49 @@ void ProjectReader::readFeatures(QXmlStreamReader &stream, Project &project)
             readFeatureReport(stream, project);
         } else if (stream.name() == "Files") {
             readFeatureFiles(stream, project);
+        } else {
+            stream.skipCurrentElement();
+        }
+    }
+}
+
+void ProjectReader::readMatches(QXmlStreamReader &stream, Project &project)
+{
+    
+    auto report = project.featureMatchingReport();
+
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "Config") {
+
+            auto config = std::make_shared<FeatureMatching>();
+
+            while (stream.readNextStartElement()) {
+                std::string key = stream.name().toString().toStdString();
+                std::string value = stream.readElementText().toStdString();
+
+                config->setProperty(key, value);
+            }
+
+            project.setFeatureMatcherConfig(config);
+
+        } else if (stream.name() == "Report") {
+
+            FeatureMatchingReport report;
+
+            while (stream.readNextStartElement()) {
+                if (stream.name() == "Features") {
+                    report.matches = stream.readElementText().toInt();
+                } else if (stream.name() == "Time") {
+                    report.time = stream.readElementText().toDouble();
+                } else if (stream.name() == "Cuda") {
+                    report.cuda = (stream.readElementText() == "true");
+                } else {
+                    stream.skipCurrentElement();
+                }
+            }
+
+            project.setFeatureMatchingReport(report);
+
         } else {
             stream.skipCurrentElement();
         }

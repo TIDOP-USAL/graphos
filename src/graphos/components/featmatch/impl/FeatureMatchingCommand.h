@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_MATCHING_COMMAND_H
-#define GRAPHOS_FEATURE_MATCHING_COMMAND_H
+#pragma once
 
 #include "graphos/core/command.h"
 
@@ -42,7 +41,7 @@ public:
 
 private:
 
-    static void writeMatchPairs(Project *project);
+    //static void writeMatchPairs(Project *project);
 
 // Command
 
@@ -57,5 +56,3 @@ private:
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_FEATURE_MATCHING_COMMAND_H

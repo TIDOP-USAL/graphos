@@ -23,52 +23,79 @@
 
 #pragma once
 
-#include "graphos/core/Component.h"
+#include "graphos/graphos_global.h"
 
+#include <tidop/core/base/Property.h>
 
 namespace graphos
 {
 
-class FeatureExtractorTask;
-
-class FeatureExtractorComponent
-  : public TaskComponent
+class FeatureMatching
 {
+protected:
 
-    Q_OBJECT
+    tl::Properties mProperties;
 
 public:
 
-    FeatureExtractorComponent(Application *application);
-    ~FeatureExtractorComponent() override;
+    FeatureMatching();
+    FeatureMatching(const FeatureMatching &featureMatching) noexcept = default;
+    FeatureMatching(FeatureMatching &&featureMatching) noexcept = default;
+    virtual ~FeatureMatching() = default;
+
+    auto operator=(const FeatureMatching &featureMatching) -> FeatureMatching & = default;
+    auto operator=(FeatureMatching &&featureMatching) noexcept -> FeatureMatching & = default;
+
+    [[nodiscard]]
+    auto crossCheck() const -> bool;
+    void enableCrossCheck(bool enable);
+    [[nodiscard]]
+    auto ratio() const -> double;
+    void setRatio(double ratio);
+    [[nodiscard]]
+    auto distance() const -> double;
+    void setDistance(double distance);
+    [[nodiscard]]
+    auto maxError() const -> double;
+    void setMaxError(double error);
+    [[nodiscard]]
+    auto confidence() const -> double;
+    void setConfidence(double confidence);
+
+    /*!
+     * \brief Recover the default values
+     */
+    void clear();
+
+    [[nodiscard]]
+    auto name() const -> std::string
+    {
+        return mProperties.name();
+    }
+
+    auto begin() const { return mProperties.begin(); }
+
+    auto end() const { return mProperties.end(); }
+
+    void setProperty(const std::string &key, const std::string &value);
+
+    template<typename T>
+    void setProperty(const std::string &key, T value)
+    {
+        mProperties.setProperty(key, value);
+    }
 
 private:
 
-    void init();
-
-signals:
-
-    void features_extracted(size_t);
-    void features_deleted();
-
-// ComponentBase
-
-protected:
-
-    void createModel() override;
-    void createView() override;
-    void createPresenter() override;
-    void createCommand() override;
-    void update() override;
-
-// TaskComponent
-
-protected slots:
-
-    void onRunning() override;
-    void onFinished() override;
-    void onFailed() override;
+    bool mCrossCheck;
+    double mRatio;
+    double mDistance;
+    double mMaxError;
+    double mConfidence;
 
 };
+
+
+
 
 } // namespace graphos

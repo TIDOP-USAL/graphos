@@ -26,6 +26,20 @@
 
 namespace graphos
 {
+
+
+auto Feature::name() const -> std::string 
+{
+    return mProperties.name(); 
+}
+
+void Feature::setProperty(const std::string &key, const std::string &value)
+{
+    mProperties.setProperty(key, value);
+}
+
+
+
 auto FeatureFactory::create(const std::string &type) -> std::shared_ptr<Feature>
 {
     if (type == "SIFT") {

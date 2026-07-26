@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_COMMAND_H
-#define GRAPHOS_CREATE_PROJECT_COMMAND_H
+#pragma once
 
 #include "graphos/core/command.h"
 
@@ -48,5 +47,3 @@ private:
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_CREATE_PROJECT_COMMAND_H
