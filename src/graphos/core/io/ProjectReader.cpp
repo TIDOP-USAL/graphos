@@ -445,10 +445,10 @@ void ProjectReader::read(const tl::Path &file, Project &project)
 void ProjectReader::readInfo(QXmlStreamReader &stream, ProjectInfo &projectInfo)
 {
     while (stream.readNextStartElement()) {
-        /*if (stream.name() == "Path") {
-            projectInfo.setProjectPath(streamToStdString(stream));
-        } else*/ if (stream.name() == "Description") {
+        if (stream.name() == "Description") {
             projectInfo.setDescription(streamToStdString(stream));
+        } else if (stream.name() == "EnuCRS") {
+            projectInfo.setEnuCrs(streamToStdString(stream));
         } else
             stream.skipCurrentElement();
     }

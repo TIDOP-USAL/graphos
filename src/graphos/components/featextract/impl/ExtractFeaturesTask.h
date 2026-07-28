@@ -54,6 +54,7 @@ public:
 
     ExtractFeaturesTask(const ImageRepository &imageRepo,
                         const CameraRepository &cameraRepo,
+                        std::string enuCrs, 
                         tl::Path database,
                         int maxImageSize,
                         bool cuda,
@@ -65,6 +66,10 @@ public:
     TL_DISABLE_MOVE(ExtractFeaturesTask)
 
     auto report() const -> FeatureExtractorReport;
+
+private:
+
+    void setupDatabaseAndMappings();
 
 signals:
 
@@ -80,9 +85,11 @@ protected:
 
     const ImageRepository &mImageRepo;
     const CameraRepository &mCameraRepo;
+    std::string mEnuCrs;
     tl::Path mDatabase;
     int mMaxImageSize;
     bool bUseCuda;
+    std::unordered_map<size_t, uint32_t> mGraphosToColmapId;
     std::shared_ptr<FeatureExtractor> mFeatureExtractor;
     FeatureExtractorReport mReport;
 };

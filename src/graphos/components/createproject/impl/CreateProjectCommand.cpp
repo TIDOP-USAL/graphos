@@ -63,7 +63,6 @@ bool CreateProjectCommand::run()
         bool force_overwrite = this->value<bool>("overwrite");
 
         tl::Path project_path = project_name;
-        
 
         if (!project_path.isAbsolutePath()) {
 
@@ -84,6 +83,10 @@ bool CreateProjectCommand::run()
             project_path = project_folder_path;
             project_path.append(file_name);
 
+        } else {
+            if (!tl::compareInsensitiveCase(project_path.extension().toString(), ".xml")) {
+                throw std::runtime_error("Absolute project path must end with '.xml' extension.");
+            }
         }
 
         ProjectInfo projectInfo(project_path, project_description);
@@ -93,11 +96,32 @@ bool CreateProjectCommand::run()
         if (project_folder.exists()) {
             if (force_overwrite) {
 
-                tl::Path::removeDirectory(project_folder);
+                // Esto es peligroso. Mejor borrado manual como antes
+                //tl::Path::removeDirectory(project_folder);
+                tl::Path::removeFile(project_path);
+                tl::Path::removeFile(tl::Path(project_path).replaceExtension(".db"));
+
+                tl::Path dense_path = tl::Path(project_folder).append("dense");
+                if (dense_path.exists())
+                    tl::Path::removeDirectory(dense_path);
+
+                tl::Path dem_path = tl::Path(project_folder).append("dem");
+                if (dem_path.exists())
+                    tl::Path::removeDirectory(dem_path);
+
+                tl::Path ortho_path = tl::Path(project_folder).append("ortho");
+                if (ortho_path.exists())
+                    tl::Path::removeDirectory(ortho_path);
+
+                tl::Path sfm_path = tl::Path(project_folder).append("sfm");
+                if (sfm_path.exists())
+                    tl::Path::removeDirectory(sfm_path);
 
             } else {
                 throw std::runtime_error("The project already exists. Use '--overwrite' for delete previous project.");
             }
+        } else {
+            project_folder.createDirectories();
         }
 
         tl::Path log_path = project_path;

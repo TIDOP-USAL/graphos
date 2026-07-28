@@ -141,6 +141,9 @@
 
 #include "graphos/core/settings.h"
 
+#include <glog/logging.h>
+
+
 #ifdef HAVE_VLD
 #include "gflags/gflags.h"
 #include "vld.h"
@@ -205,6 +208,9 @@ void messageHandlerQt(QtMsgType type, const QMessageLogContext &context, const Q
 
 int main(int argc, char *argv[])
 {
+    FLAGS_logtostderr = 0;          // Desactivar impresión a STDERR
+    FLAGS_minloglevel = 2;          // 0: INFO, 1: WARNING, 2: ERROR, 3: FATAL
+
     Application app(argc, argv);
 
     Application::setApplicationName("GRAPHOS");

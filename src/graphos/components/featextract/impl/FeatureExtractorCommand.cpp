@@ -127,6 +127,7 @@ auto FeatureExtractorCommand::run() -> bool
 
         ExtractFeaturesTask feature_extractor_task(project.images(),
                                                    project.cameras(),
+                                                   project.info().enuCrs(),
                                                    database_path,
                                                    max_image_size,
                                                    !mDisableCuda,

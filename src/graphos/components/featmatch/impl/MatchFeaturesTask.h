@@ -48,8 +48,8 @@ class MatchFeaturesTask
 public:
 
     MatchFeaturesTask(tl::Path database,
-                        bool cuda,
-                        const std::shared_ptr<FeatureMatching> &featureMatching);
+                      bool cuda,
+                      const std::shared_ptr<FeatureMatching> &featureMatching);
     ~MatchFeaturesTask() override;
 
 public:

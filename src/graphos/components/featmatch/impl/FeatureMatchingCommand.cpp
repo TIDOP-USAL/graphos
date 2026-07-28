@@ -121,15 +121,6 @@ bool FeatureMatchingCommand::run()
         reader.read(project_path, project);
 
         project.clearMatches();
-        
-        //{
-        //    auto database = colmap::Database::Open(database_path.toUtf8());
-        //    database->ClearMatches();
-        //    database->ClearTwoViewGeometries();
-        //    database->Close();
-        //    project.removeMatchesPair();
-        //}
-
 
         auto feature_matching_properties = std::make_shared<FeatureMatching>();
         feature_matching_properties->setRatio(ratio);

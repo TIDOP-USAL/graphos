@@ -41,6 +41,7 @@ private:
 
     tl::Path mProjectPath;
     std::string mDescription;
+    std::string mEnuCrs;
     std::string mVersion = project_file_version;
 	
 public: 
@@ -61,6 +62,11 @@ public:
     auto description() const -> std::string;
 
     void setDescription(std::string description);
+
+    [[nodiscard]]
+    auto enuCrs() const -> std::string;
+
+    void setEnuCrs(std::string enuCrs);
 
     [[nodiscard]]
     auto projectFolder() const -> tl::Path;

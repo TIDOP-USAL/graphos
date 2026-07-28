@@ -174,6 +174,7 @@ void ProjectWriter::writeInfo(QXmlStreamWriter &stream, const ProjectInfo &proje
         stream.writeTextElement("Name", projectInfo.name());
         stream.writeTextElement("Path", QString::fromStdWString(projectInfo.projectFolder().toWString()));
         stream.writeTextElement("Description", projectInfo.description());
+        stream.writeTextElement("EnuCrs", projectInfo.enuCrs());
     }
     stream.writeEndElement();
 

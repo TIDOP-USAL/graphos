@@ -36,8 +36,8 @@
 #include <tidop/rastertools/io/Reader.h>
 #include <tidop/rastertools/io/Metadata.h>
 #include <tidop/math/algebra/matrix/Matrix.h>
-#include <tidop/geospatial/crstransf.h>
-#include <tidop/geospatial/util.h>
+//#include <tidop/geospatial/crstransf.h>
+//#include <tidop/geospatial/util.h>
 
 #include <QFileInfo>
 

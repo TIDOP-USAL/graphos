@@ -60,6 +60,17 @@ void ProjectInfo::setDescription(std::string description)
     mDescription = std::move(description);
 }
 
+[[nodiscard]]
+auto ProjectInfo::enuCrs() const -> std::string
+{
+    return mEnuCrs;
+}
+
+void ProjectInfo::setEnuCrs(std::string enuCrs)
+{
+    mEnuCrs = enuCrs;
+}
+
 auto ProjectInfo::projectFolder() const -> tl::Path
 {
     return mProjectPath.parentPath();

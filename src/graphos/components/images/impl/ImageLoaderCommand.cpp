@@ -36,9 +36,11 @@
 #include <tidop/core/console/ValuesValidator.h>
 #include <tidop/rastertools/io/Reader.h>
 #include <tidop/rastertools/io/Metadata.h>
-#include <tidop/geospatial/crstransf.h>
+//#include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
 #include <tidop/core/app/Logger.h>
+#include <tidop/geotools/CRSsTools.h>
+#include <tidop/geotools/GeoTools.h>
 
 #include <QFileInfo>
 #include <QSqlQuery>
@@ -167,17 +169,47 @@ auto ImageLoaderCommand::run() -> bool
 
             LoadImagesTask image_loader_task(new_images, camera_repository, camera_type);
 
+            std::vector<tl::Point3d> geographic_positions;
+            auto geo_tools = tl::GeoTools::getInstance();
+
             connect(&image_loader_task, &LoadImagesTask::imageAdded,
                     [&](int imageIndex, int cameraId) {
                         Image &image = new_images[imageIndex];
                         image.setCameraId(cameraId);
-                        image_repository.add(std::move(image));
+                        if (auto &camera_pose = image.cameraPose(); !camera_pose.isEmpty()) {
+                            auto epsg_code = camera_pose.crs().toStdString();
+                            auto coords = camera_pose.position();
 
+                            if (!epsg_code.empty() && epsg_code != "EPSG:4326") {
+                                geo_tools->ptrCRSsTools()->crsOperation(epsg_code, "EPSG:4326", coords.x(), coords.y(), coords.z());
+                            }
+
+                            geographic_positions.push_back(coords);
+                        }
+                        image_repository.add(std::move(image));
                     });
 
             auto progress = getProgressBar(progress_bar, new_images.size());
             image_loader_task.run(progress.get());
 
+            if (!geographic_positions.empty() && project.info().enuCrs().empty()) {
+
+                auto geographic_center = tl::Vector3d::zeros();
+                for (const auto &pos : geographic_positions) {
+                    geographic_center += pos.vector();
+                }
+                geographic_center /= static_cast<double>(geographic_positions.size());
+
+                std::string enu_str = geo_tools->ptrCRSsTools()->getCRSEnu(
+                    "EPSG:4326",
+                    geographic_center.x(),
+                    geographic_center.y(),
+                    geographic_center.z()
+                );
+
+                project.info().setEnuCrs(enu_str);
+                tl::Message::info("Calculated Local ENU Reference System: {}", enu_str);
+            }
         }
 
         ProjectWriter writer;

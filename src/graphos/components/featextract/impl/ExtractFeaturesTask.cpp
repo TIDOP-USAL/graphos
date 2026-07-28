@@ -33,6 +33,8 @@
 #include <tidop/core/base/Exception.h>
 #include <tidop/core/concurrency/QueueMPMC.h>
 #include <tidop/rastertools/io/Reader.h>
+#include <tidop/geotools/CRSsTools.h>
+#include <tidop/geotools/GeoTools.h>
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
@@ -72,15 +74,13 @@ class ProducerImp
 public:
 
     ProducerImp(const ImageRepository &imageRepo,
-                const CameraRepository &cameraRepo,
-                colmap::Database *database,
+                const std::unordered_map<size_t, uint32_t> &graphosToColmapId,
                 int maxImageSize,
                 bool useGPU,
                 QueueMPMC<queue_data> *buffer,
                 ExtractFeaturesTask *featureExtractorTask)
       : mImageRepo(imageRepo),
-        mCameraRepo(cameraRepo),
-        mDatabase(database),
+        mGraphosToColmapId(graphosToColmapId),
         mMaxImageSize(maxImageSize),
         bUseGPU(useGPU),
         mBuffer(buffer),
@@ -107,190 +107,8 @@ private:
     {
         try {
 
-            std::string image_path = image.path().toString();
-
-            colmap::image_t colmap_image_id;
-
-            featextract_mutex.lock();
-            bool exist_image = mDatabase->ExistsImageWithName(image_path);
-            featextract_mutex.unlock();
-            if (!exist_image) {
-                colmap::camera_t camera_id = static_cast<colmap::camera_t>(image.cameraId());
-
-                featextract_mutex.lock();
-                bool exists_camera = mDatabase->ExistsCamera(camera_id);
-                featextract_mutex.unlock();
-
-                if (!exists_camera) {
-
-                    const Camera *camera = mCameraRepo.find(image.cameraId());
-                    TL_ASSERT(camera, "Camera not found for image: {}", image_path);
-                    //if (it != mCameraRepo.end()) {
-                    //    camera = mCameras->at(image.cameraId());
-                    //} else {
-                    //    throw std::runtime_error(std::string("Camera not found for image: ").append(image_path));
-                    //}
-
-                    QString colmap_camera_type = cameraToColmapType(*camera);
-                    if (!colmap::ExistsCameraModelWithName(colmap_camera_type.toStdString())) {
-                        throw std::runtime_error("Unknown COLMAP camera model: " + colmap_camera_type.toStdString());
-                    }
-                    auto camera_model_id = colmap::CameraModelNameToId(colmap_camera_type.toStdString());
-                    if (camera_model_id == colmap::CameraModelId::kInvalid) throw std::runtime_error("Camera model unknow");
-
-                    size_t width = static_cast<size_t>(camera->width());
-                    size_t height = static_cast<size_t>(camera->height());
-
-                    double focal_length = camera->focal();
-
-                    //if (focal_length > 0.) {
-                    //    camera_colmap.SetPriorFocalLength(true);
-                    //} else {
-                    //    focal_length = 1.2 * std::max(width, height);
-                    //    camera_colmap.SetPriorFocalLength(false);
-                    //}
-                    if (focal_length <= 0.) {
-                        focal_length = 1.2 * std::max(width, height);
-                    }
-
-                    /// ¿Reemplazar por SetModelId si existe calibración?
-                    //camera_colmap.InitializeWithId(camera_model_id, focal_length, width, height);
-                    colmap::Camera camera_colmap;
-                    camera_colmap.model_id = camera_model_id;
-                    camera_colmap.width = static_cast<size_t>(camera->width());
-                    camera_colmap.height = static_cast<size_t>(camera->height());
-
-                    //if (camera->priorCalibration()) {
-                    //    auto params = camera->priorCalibration()->toVector();
-                    //    if (params.size() == camera_colmap.NumParams()) {
-                    //        camera_colmap.SetParams(params);
-                    //        camera_colmap.SetPriorFocalLength(true);
-                    //    }
-                    //} else {
-                    //    // Inicialización por defecto con la focal estimada
-                    //    camera_colmap.SetPriorFocalLength(false);
-                    //    std::vector<double> params(camera_colmap.NumParams(), 0.0);
-                    //    params[0] = focal_length; // La focal siempre es el primer parámetro en modelos COLMAP
-                    //    camera_colmap.SetParams(params);
-                    //}
-                    if (camera->priorCalibration()) {
-                        camera_colmap.params = camera->priorCalibration()->toVector();
-                        camera_colmap.has_prior_focal_length = true;
-                    } else {
-                        camera_colmap.has_prior_focal_length = false;
-                        // Creamos el vector de parámetros iniciales rellenado con focal
-                        size_t num_params = colmap::CameraModelNumParams(camera_model_id);
-                        camera_colmap.params.assign(num_params, 0.0);
-
-                        // Asignamos las focales iniciales en los índices del modelo
-                        const auto focal_length_idxs = colmap::CameraModelFocalLengthIdxs(camera_model_id);
-                        for (const auto idx : focal_length_idxs) {
-                            camera_colmap.params[idx] = focal_length;
-                        }
-
-                        // Asignamos el punto principal si existe en el modelo
-                        const auto principal_point_idxs = colmap::CameraModelPrincipalPointIdxs(camera_model_id);
-                        if (principal_point_idxs.size() == 2) {
-                            camera_colmap.params[principal_point_idxs[0]] = camera_colmap.width / 2.0;
-                            camera_colmap.params[principal_point_idxs[1]] = camera_colmap.height / 2.0;
-                        }
-                    }
-
-                    //camera_id = mDatabase->WriteCamera(camera_colmap);
-                    //camera_colmap.SetCameraId(camera_id);
-
-                    featextract_mutex.lock();
-                    camera_id = mDatabase->WriteCamera(camera_colmap);
-                    featextract_mutex.unlock();
-                }
-
-                colmap::Image image_colmap;
-                image_colmap.SetName(image_path);
-                image_colmap.SetCameraId(camera_id);
-				
-                tl::Point3d position = image.cameraPose().position();
-                //if (position != tl::Point3d()) {
-                //    image_colmap.TvecPrior(0) = image.cameraPose().position().x();
-                //    image_colmap.TvecPrior(1) = image.cameraPose().position().y();
-                //    image_colmap.TvecPrior(2) = image.cameraPose().position().z();
-                //}
-
-                //tl::Quaternion<double> q = image.cameraPose().quaternion();
-                //if (q != tl::Quaternion<double>::zero()) {
-                //    image_colmap.QvecPrior(0) = q.w();
-                //    image_colmap.QvecPrior(1) = q.x();
-                //    image_colmap.QvecPrior(2) = q.y();
-                //    image_colmap.QvecPrior(3) = q.z();
-                //} else {
-                //    image_colmap.QvecPrior().setConstant(std::numeric_limits<double>::quiet_NaN());
-                //}
-
-
-                //if (position != tl::Point3d() && q != tl::Quaternion<double>::zero()) {
-                //    Eigen::Quaterniond q_eigen(q.w(), q.x(), q.y(), q.z());
-                //    Eigen::Vector3d t_eigen(position.x(), position.y(), position.z());
-
-                //    // Asignación de pose Prior en COLMAP 4.0:
-                //    // No me queda nada claro
-                //    //image_colmap.cam_from_world_prior = colmap::Rigid3d(q_eigen, t_eigen);
-                //    //colmap::Rigid3d pose(q_eigen, t_eigen);
-
-                //}
-                //image_colmap.SetCameraId(camera_id);
-
-                featextract_mutex.lock();
-                colmap_image_id = mDatabase->WriteImage(image_colmap, false);
-                featextract_mutex.unlock();
-
-                if (position != tl::Point3d()) {
-                    colmap::PosePrior pose_prior;
-                    pose_prior.pose_prior_id = colmap_image_id;
-                    pose_prior.position = Eigen::Vector3d(position.x(), position.y(), position.z());
-
-                    // Definir si las coordenadas son Cartesianas (local) o GPS (WGS84)
-                    pose_prior.coordinate_system = colmap::PosePrior::CoordinateSystem::CARTESIAN;
-
-                    tl::Quaternion<double> q = image.cameraPose().quaternion();
-                    if (q != tl::Quaternion<double>::zero()) {
-                        Eigen::Quaterniond q_eigen(q.w(), q.x(), q.y(), q.z());
-                        // El vector gravedad [0, 0, 1] transformado al sistema local de la cámara
-                        pose_prior.gravity = q_eigen.conjugate() * Eigen::Vector3d(0.0, 0.0, 1.0);
-                    }
-
-                    auto acc = image.cameraPose().accuracy();
-                    Eigen::Vector3d accuracy(acc.x(), acc.y(), acc.z());
-                    auto rtk_flag = image.cameraPose().rtkFlag();
-                    if (rtk_flag == 50) { // RTK Fix
-                        accuracy = Eigen::Vector3d(0.01, 0.01, 0.03);
-                    } else if (rtk_flag == 34) { // RTK Float
-                        accuracy = Eigen::Vector3d(0.2, 0.2, 0.5);
-                    } else if (rtk_flag == 16) { // Single/Standalone GPS
-                        accuracy = Eigen::Vector3d(10.0, 10.0, 10.0);
-                    }
-
-                    Eigen::Matrix3d cov = Eigen::Matrix3d::Zero();
-                    cov(0, 0) = accuracy.x() * accuracy.x(); // sigma_x^2
-                    cov(1, 1) = accuracy.y() * accuracy.y(); // sigma_y^2
-                    cov(2, 2) = accuracy.z() * accuracy.z(); // sigma_z^2
-
-                    pose_prior.position_covariance = cov;
-
-                    featextract_mutex.lock();
-                    mDatabase->WritePosePrior(pose_prior);
-                    featextract_mutex.unlock();
-                }
-
-            } else {
-
-                featextract_mutex.lock();
-                auto image_colmap = mDatabase->ReadImageWithName(image_path);
-                featextract_mutex.unlock();
-
-                // Si no existe lanzar error
-                if (image_colmap)
-                    colmap_image_id = image_colmap.value().ImageId();
-
-            }
+            auto image_id = Image::id(image);
+            auto image_path = image.path().toString();
 
             /* Lectura de imagen */
 
@@ -301,8 +119,8 @@ private:
 
             queue_data data;
             data.mat = mat;
-            data.colmap_image_id = colmap_image_id;
-            data.image_id = Image::id(image);
+            data.colmap_image_id = static_cast<colmap::image_t>(mGraphosToColmapId.at(image_id));//colmap_image_id;
+            data.image_id = image_id;
             data.scale = scale;
 
             mBuffer->push(data);
@@ -369,8 +187,7 @@ private:
 protected:
 
     const ImageRepository &mImageRepo;
-    const CameraRepository &mCameraRepo;
-    colmap::Database *mDatabase;
+    std::unordered_map<size_t, uint32_t> mGraphosToColmapId;
     int mMaxImageSize;
     bool bUseGPU;
     QueueMPMC<queue_data> *mBuffer;
@@ -420,6 +237,7 @@ private:
 
     void consumer()
     {
+
         try {
 
             queue_data data;
@@ -469,43 +287,55 @@ private:
                        const std::vector<cv::KeyPoint> &keyPoints,
                        cv::Mat &descriptors) const
     {
-        std::lock_guard<std::mutex> lck(featextract_mutex);
+        try {
 
-        size_t features_size = keyPoints.size();
+            size_t features_size = keyPoints.size();
 
-        colmap::FeatureKeypoints keypoints_colmap(features_size);
-        //Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> descriptors_float(features_size, descriptors.cols);
-        colmap::FeatureDescriptorsFloatData descriptors_float(features_size, descriptors.cols);
+            colmap::FeatureKeypoints keypoints_colmap(features_size);
 
-        for (size_t i = 0; i < features_size; i++) {
+            for (size_t i = 0; i < features_size; i++) {
 
-            keypoints_colmap[i] = colmap::FeatureKeypoint(keyPoints[i].pt.x,
-                                                          keyPoints[i].pt.y,
-                                                          keyPoints[i].size,
-                                                          keyPoints[i].angle);
-
-            for (size_t j = 0; j < static_cast<size_t>(descriptors.cols); j++) {
-                descriptors_float(i, j) = descriptors.at<float>(static_cast<int>(i), static_cast<int>(j));
+                keypoints_colmap[i] = colmap::FeatureKeypoint(keyPoints[i].pt.x,
+                                                              keyPoints[i].pt.y,
+                                                              keyPoints[i].size,
+                                                              keyPoints[i].angle);
             }
 
+            colmap::FeatureDescriptorsFloatData descriptors_float(features_size, descriptors.cols);
+
+            if (descriptors.isContinuous()) {
+                std::memcpy(descriptors_float.data(), descriptors.ptr<float>(0), features_size * descriptors.cols * sizeof(float));
+            } else {
+                for (size_t i = 0; i < features_size; i++) {
+                    for (size_t j = 0; j < static_cast<size_t>(descriptors.cols); j++) {
+                        descriptors_float(i, j) = descriptors.at<float>(static_cast<int>(i), static_cast<int>(j));
+                    }
+                }
+            }
+
+            colmap::SiftExtractionOptions options;
+            if (options.normalization == colmap::SiftExtractionOptions::Normalization::L2) {
+                colmap::L2NormalizeFeatureDescriptors(&descriptors_float);
+            } else if (options.normalization == colmap::SiftExtractionOptions::Normalization::L1_ROOT) {
+                colmap::L1RootNormalizeFeatureDescriptors(&descriptors_float);
+            } else {
+                throw std::runtime_error("Description normalization type not supported");
+            }
+
+            colmap::FeatureDescriptors descriptors_colmap;
+            descriptors_colmap.data = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float);
+            descriptors_colmap.type = colmap::FeatureExtractorType::SIFT;
+
+            {
+                std::lock_guard<std::mutex> lck(featextract_mutex);
+
+                mDatabase->WriteKeypoints(image_id, keypoints_colmap);
+                mDatabase->WriteDescriptors(image_id, descriptors_colmap);
+            }
+
+        } catch (std::exception &e) {
+            tl::printException(e);
         }
-
-        colmap::SiftExtractionOptions options;
-        if (options.normalization == colmap::SiftExtractionOptions::Normalization::L2) {
-            colmap::L2NormalizeFeatureDescriptors(&descriptors_float);
-        } else if (options.normalization == colmap::SiftExtractionOptions::Normalization::L1_ROOT) {
-            colmap::L1RootNormalizeFeatureDescriptors(&descriptors_float);
-        } else {
-            throw std::runtime_error("Description normalization type not supported");
-        }
-
-        colmap::FeatureDescriptors descriptors_colmap;
-        descriptors_colmap.data = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float);
-        descriptors_colmap.type = colmap::FeatureExtractorType::SIFT;
-
-        mDatabase->WriteKeypoints(image_id, keypoints_colmap);
-        mDatabase->WriteDescriptors(image_id, descriptors_colmap);
-
     }
 
 private:
@@ -530,12 +360,14 @@ private:
 
 ExtractFeaturesTask::ExtractFeaturesTask(const ImageRepository &imageRepo,
                                          const CameraRepository &cameraRepo,
+                                         std::string enuCrs,
                                          tl::Path database,
                                          int maxImageSize,
                                          bool cuda,
                                          const std::shared_ptr<FeatureExtractor> &featureExtractor)
   : mImageRepo(imageRepo),
     mCameraRepo(cameraRepo),
+    mEnuCrs(std::move(enuCrs)),
     mDatabase(std::move(database)),
     mMaxImageSize(maxImageSize),
     bUseCuda(cuda),
@@ -554,12 +386,13 @@ void ExtractFeaturesTask::execute(tl::Progress *progressBar, std::stop_token sto
         TL_ASSERT(!mCameraRepo.empty(), "Cannot extract features: Camera repository is empty.");
         TL_ASSERT(mFeatureExtractor != nullptr, "Cannot extract features: Feature extractor is null.");
 
+        setupDatabaseAndMappings();
+
         auto database = colmap::Database::Open(mDatabase.toUtf8());
 
         QueueMPMC<internal::queue_data> buffer(50);
         internal::ProducerImp producer(mImageRepo,
-                                       mCameraRepo,
-                                       database.get(),
+                                       mGraphosToColmapId,
                                        mMaxImageSize,
                                        bUseCuda,
                                        &buffer,
@@ -622,6 +455,130 @@ void ExtractFeaturesTask::execute(tl::Progress *progressBar, std::stop_token sto
 auto ExtractFeaturesTask::report() const -> FeatureExtractorReport
 {
     return mReport;
+}
+
+void ExtractFeaturesTask::setupDatabaseAndMappings()
+{
+    auto database = colmap::Database::Open(mDatabase.toUtf8());
+    database->BeginTransaction();
+
+    GeoTools *geo_tools = nullptr;
+    if (!mEnuCrs.empty()) 
+        geo_tools = tl::GeoTools::getInstance();
+
+    for (const auto &[image_id, image] : mImageRepo) {
+
+        std::string image_path = image.path().toString();
+        colmap::image_t colmap_image_id{};
+
+        if (!database->ExistsImageWithName(image_path)) {
+
+            colmap::camera_t camera_id = static_cast<colmap::camera_t>(image.cameraId());
+
+            if (!database->ExistsCamera(camera_id)) {
+
+                const Camera *camera = mCameraRepo.find(image.cameraId());
+                TL_ASSERT(camera, "Camera not found for image: {}", image_path);
+
+                QString colmap_camera_type = cameraToColmapType(*camera);
+                TL_ASSERT(colmap::ExistsCameraModelWithName(colmap_camera_type.toStdString()), "Unknown COLMAP camera model: {}", colmap_camera_type.toStdString());
+
+                auto camera_model_id = colmap::CameraModelNameToId(colmap_camera_type.toStdString());
+                if (camera_model_id == colmap::CameraModelId::kInvalid) throw std::runtime_error("Camera model unknow");
+
+                size_t width = static_cast<size_t>(camera->width());
+                size_t height = static_cast<size_t>(camera->height());
+
+                colmap::Camera camera_colmap;
+                camera_colmap.model_id = camera_model_id;
+                camera_colmap.width = width;
+                camera_colmap.height = height;
+
+                if (camera->priorCalibration()) {
+                    camera_colmap.params = camera->priorCalibration()->toVector();
+                    camera_colmap.has_prior_focal_length = true;
+                } else {
+                    camera_colmap.has_prior_focal_length = false;
+                    size_t num_params = colmap::CameraModelNumParams(camera_model_id);
+                    camera_colmap.params.assign(num_params, 0.0);
+
+                    const auto focal_length_idxs = colmap::CameraModelFocalLengthIdxs(camera_model_id);
+                    double focal_length = camera->focal() > 0. ? camera->focal() : 1.2 * std::max(width, height);
+
+                    for (const auto idx : focal_length_idxs) {
+                        camera_colmap.params[idx] = focal_length;
+                    }
+
+                    const auto principal_point_idxs = colmap::CameraModelPrincipalPointIdxs(camera_model_id);
+                    if (principal_point_idxs.size() == 2) {
+                        camera_colmap.params[principal_point_idxs[0]] = camera_colmap.width / 2.0;
+                        camera_colmap.params[principal_point_idxs[1]] = camera_colmap.height / 2.0;
+                    }
+                }
+
+                camera_id = database->WriteCamera(camera_colmap);
+            }
+
+            colmap::Image image_colmap;
+            image_colmap.SetName(image_path);
+            image_colmap.SetCameraId(camera_id);
+            colmap_image_id = database->WriteImage(image_colmap, false);
+
+            auto position = image.cameraPose().position();
+            
+            if (position != tl::Point3d()) {
+
+                auto crs = image.cameraPose().crs().toStdString();
+                if (geo_tools) {
+                    geo_tools->ptrCRSsTools()->crsOperation(crs, mEnuCrs, position.x(), position.y(), position.z());
+                }
+
+                colmap::PosePrior pose_prior;
+                pose_prior.corr_data_id = colmap::data_t(colmap::sensor_t(colmap::SensorType::CAMERA, camera_id), colmap_image_id);
+                pose_prior.position = Eigen::Vector3d(position.x(), position.y(), position.z());
+                pose_prior.coordinate_system = colmap::PosePrior::CoordinateSystem::CARTESIAN;
+
+                tl::Quaternion<double> q = image.cameraPose().quaternion();
+                if (q != tl::Quaternion<double>::zero()) {
+                    Eigen::Quaterniond q_eigen(q.w(), q.x(), q.y(), q.z());
+                    // El vector gravedad [0, 0, 1] transformado al sistema local de la cámara
+                    pose_prior.gravity = q_eigen.conjugate() * Eigen::Vector3d(0.0, 0.0, 1.0);
+                }
+
+                auto acc = image.cameraPose().accuracy();
+                Eigen::Vector3d accuracy(acc.x(), acc.y(), acc.z());
+                auto rtk_flag = image.cameraPose().rtkFlag();
+                if (rtk_flag == 50) { // RTK Fix
+                    accuracy = Eigen::Vector3d(0.01, 0.01, 0.03);
+                } else if (rtk_flag == 34) { // RTK Float
+                    accuracy = Eigen::Vector3d(0.2, 0.2, 0.5);
+                } else if (rtk_flag == 16) { // Single/Standalone GPS
+                    accuracy = Eigen::Vector3d(10.0, 10.0, 10.0);
+                }
+
+                Eigen::Matrix3d cov = Eigen::Matrix3d::Zero();
+                cov(0, 0) = accuracy.x() * accuracy.x(); // sigma_x^2
+                cov(1, 1) = accuracy.y() * accuracy.y(); // sigma_y^2
+                cov(2, 2) = accuracy.z() * accuracy.z(); // sigma_z^2
+                pose_prior.position_covariance = cov;
+
+                database->WritePosePrior(pose_prior);
+            }
+
+        } else {
+
+            auto image_colmap = database->ReadImageWithName(image_path);
+
+            // Si no existe lanzar error
+            if (image_colmap)
+                colmap_image_id = image_colmap.value().ImageId();
+
+        }
+
+        mGraphosToColmapId[image_id] = static_cast<uint32_t>(colmap_image_id);
+    }
+
+    database->EndTransaction();
 }
 
 } // graphos
