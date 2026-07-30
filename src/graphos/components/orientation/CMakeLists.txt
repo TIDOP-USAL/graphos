@@ -40,9 +40,11 @@ if(BUILD_ORIENTATION_COMPONENT)
                          SOURCE_FILES
                              OrientationComponent.cpp
                              impl/OrientationCommand.cpp
+                             impl/EstimatePosesTask.cpp
                          HEADER_FILES
                              OrientationComponent.h
-                             impl/OrientationCommand.h)   
+                             impl/OrientationCommand.h
+                             impl/EstimatePosesTask.h)   
 
 if (BUILD_GUI)        
     add_files_to_project(${PROJECT_NAME}
@@ -67,8 +69,8 @@ endif(BUILD_GUI)
                 ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
-                          Qt5::Core
-                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
+                          Qt6::Core
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog

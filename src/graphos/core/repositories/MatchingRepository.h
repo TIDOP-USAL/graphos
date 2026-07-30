@@ -33,6 +33,17 @@
 namespace graphos
 {
 
+struct FeatureMatchPoint
+{
+    size_t id;
+    size_t featureIndex1;
+    tl::Point2f point1;
+    size_t featureIndex2;
+    tl::Point2f point2;
+};
+
+using Matches = std::vector<FeatureMatchPoint>;
+
 class MatchingRepository
 {
 private:
@@ -49,98 +60,22 @@ public:
     }
 
     void setDatabase(tl::Path database) { mDbPath = std::move(database); }
-    //[[nodiscard]]
-    //auto allPairs() const -> std::vector<ImagePair>
-    //{
-    //    std::vector<ImagePair> pairs;
-    //    sqlite3 *db = openDatabase();
-    //    if (!db) return pairs;
 
-    //    // two_view_geometries almacena pair_id y rows (número de inliers)
-    //    const char *sql = "SELECT pair_id FROM two_view_geometries WHERE rows > 0;";
-    //    sqlite3_stmt *stmt = nullptr;
+    [[nodiscard]]
+    auto hasMatches() const -> bool;
+    [[nodiscard]]
+    auto hasInlierMatches() const -> bool;
 
-    //    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) {
-    //        while (sqlite3_step(stmt) == SQLITE_ROW) {
-    //            uint64_t pair_id = static_cast<uint64_t>(sqlite3_column_int64(stmt, 0));
-    //            auto [id1, id2] = ColmapPairUtils::pairIdToImagePair(pair_id);
-    //            pairs.emplace_back(id1, id2);
-    //        }
-    //    }
+    [[nodiscard]]
+    auto numMatches() const -> size_t;
 
-    //    sqlite3_finalize(stmt);
-    //    sqlite3_close(db);
-    //    return pairs;
-    //}
+    [[nodiscard]]
+    auto numInlierMatches() const -> size_t;
 
-    // Comprueba si dos imágenes tienen coincidencias guardadas en la DB
-    //[[nodiscard]]
-    //auto hasPair(uint64_t id1, uint64_t id2) const -> bool
-    //{
-    //    sqlite3 *db = openDatabase();
-    //    if (!db) return false;
-
-    //    uint64_t pair_id = ColmapPairUtils::imagePairToPairId(id1, id2);
-    //    const char *sql = "SELECT COUNT(*) FROM two_view_geometries WHERE pair_id = ? AND rows > 0;";
-
-    //    sqlite3_stmt *stmt = nullptr;
-    //    bool exists = false;
-
-    //    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) {
-    //        sqlite3_bind_int64(stmt, 1, static_cast<sqlite3_int64>(pair_id));
-    //        if (sqlite3_step(stmt) == SQLITE_ROW) {
-    //            exists = sqlite3_column_int(stmt, 0) > 0;
-    //        }
-    //    }
-
-    //    sqlite3_finalize(stmt);
-    //    sqlite3_close(db);
-    //    return exists;
-    //}
-
-    // Devuelve los IDs de imágenes que solapan con 'image_id'
-    //[[nodiscard]]
-    //auto adjacentImages(uint64_t image_id) const -> std::vector<uint64_t>
-    //{
-    //    std::vector<uint64_t> neighbors;
-
-    //    // Obtenemos todos los pares y filtramos los que contienen 'image_id'
-    //    // (Para optimizar esto a nivel de SQL se pueden hacer desplazamientos de bits o consultar directos)
-    //    for (const auto &pair : allPairs()) {
-    //        if (pair.image_id1 == image_id) {
-    //            neighbors.push_back(pair.image_id2);
-    //        } else if (pair.image_id2 == image_id) {
-    //            neighbors.push_back(pair.image_id1);
-    //        }
-    //    }
-    //    return neighbors;
-    //}
-
-    //[[nodiscard]]
-    //auto count() const -> size_t
-    //{
-    //    return allPairs().size();
-    //}
-
-    // --- Métodos de escritura deshabilitados ---
-    // (COLMAP maneja la escritura en su proceso de matching)
-    //void addPair(uint64_t, uint64_t) override {}
-    //void addPairs(const std::vector<ImagePair> &) override {}
-    //bool removePair(uint64_t, uint64_t) override { return false; }
+    [[nodiscard]]
+    auto loadMatches(const std::string &imageNameLeft, const std::string &imageNameRight) const -> Matches;
 
     void clear();
-
-private:
-
-    //sqlite3 *openDatabase() const
-    //{
-    //    sqlite3 *db = nullptr;
-    //    if (sqlite3_open_v2(mDbPath.string().c_str(), &db, SQLITE_OPEN_READONLY, nullptr) != SQLITE_OK) {
-    //        if (db) sqlite3_close(db);
-    //        return nullptr;
-    //    }
-    //    return db;
-    //}
 
 };
 

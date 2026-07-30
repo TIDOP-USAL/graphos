@@ -270,6 +270,8 @@ private:
                            cv::Mat &descriptors) const
     {
         mFeatExtractor->run(mat, keyPoints, descriptors);
+
+        //tl::Message::info("features detected: keyPoints -> {}, descriptors -> {}", keyPoints.size(), descriptors.rows);
     }
 
     static void resizeFeatures(std::vector<cv::KeyPoint> &keyPoints,
@@ -530,13 +532,18 @@ void ExtractFeaturesTask::setupDatabaseAndMappings()
 
                 auto crs = image.cameraPose().crs().toStdString();
                 if (geo_tools) {
+                    tl::Message::info("Transformación de {} a {}: ", crs, mEnuCrs);
+                    tl::Message::info(" - Entrada: [{}, {}, {}]", position.x(), position.y(), position.z());
                     geo_tools->ptrCRSsTools()->crsOperation(crs, mEnuCrs, position.x(), position.y(), position.z());
+                    tl::Message::info(" - Salida: [{}, {}, {}]", position.x(), position.y(), position.z());
+                } else {
+                    tl::Message::warning("geotools no existe");
                 }
 
                 colmap::PosePrior pose_prior;
                 pose_prior.corr_data_id = colmap::data_t(colmap::sensor_t(colmap::SensorType::CAMERA, camera_id), colmap_image_id);
                 pose_prior.position = Eigen::Vector3d(position.x(), position.y(), position.z());
-                pose_prior.coordinate_system = colmap::PosePrior::CoordinateSystem::CARTESIAN;
+                pose_prior.coordinate_system = geo_tools ? colmap::PosePrior::CoordinateSystem::CARTESIAN : colmap::PosePrior::CoordinateSystem::WGS84;
 
                 tl::Quaternion<double> q = image.cameraPose().quaternion();
                 if (q != tl::Quaternion<double>::zero()) {
@@ -547,14 +554,14 @@ void ExtractFeaturesTask::setupDatabaseAndMappings()
 
                 auto acc = image.cameraPose().accuracy();
                 Eigen::Vector3d accuracy(acc.x(), acc.y(), acc.z());
-                auto rtk_flag = image.cameraPose().rtkFlag();
-                if (rtk_flag == 50) { // RTK Fix
-                    accuracy = Eigen::Vector3d(0.01, 0.01, 0.03);
-                } else if (rtk_flag == 34) { // RTK Float
-                    accuracy = Eigen::Vector3d(0.2, 0.2, 0.5);
-                } else if (rtk_flag == 16) { // Single/Standalone GPS
-                    accuracy = Eigen::Vector3d(10.0, 10.0, 10.0);
-                }
+                //auto rtk_flag = image.cameraPose().rtkFlag();
+                //if (rtk_flag == 50) { // RTK Fix
+                //    accuracy = Eigen::Vector3d(0.01, 0.01, 0.03);
+                //} else if (rtk_flag == 34) { // RTK Float
+                //    accuracy = Eigen::Vector3d(0.2, 0.2, 0.5);
+                //} else if (rtk_flag == 16) { // Single/Standalone GPS
+                //    accuracy = Eigen::Vector3d(10.0, 10.0, 10.0);
+                //}
 
                 Eigen::Matrix3d cov = Eigen::Matrix3d::Zero();
                 cov(0, 0) = accuracy.x() * accuracy.x(); // sigma_x^2

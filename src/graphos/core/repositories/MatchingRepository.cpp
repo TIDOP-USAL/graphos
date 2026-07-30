@@ -30,8 +30,103 @@ namespace graphos
 {
 
 
+auto MatchingRepository::hasMatches() const -> bool
+{
+    if (mDbPath.empty() || !mDbPath.exists()) return false;
+
+    if (auto database = colmap::Database::Open(mDbPath.toUtf8())) {
+        return database->NumMatches() > 0;
+    }
+
+    return false;
+}
+
+auto MatchingRepository::hasInlierMatches() const -> bool
+{
+    if (mDbPath.empty() || !mDbPath.exists()) return false;
+
+    if (auto database = colmap::Database::Open(mDbPath.toUtf8())) {
+        return database->NumInlierMatches() > 0;
+    }
+
+    return false;
+}
+
+auto MatchingRepository::numMatches() const -> size_t
+{
+    if (mDbPath.empty() || !mDbPath.exists()) return 0;
+
+    if (auto database = colmap::Database::Open(mDbPath.toUtf8())) {
+        return database->NumMatches();
+    }
+
+    return 0;
+}
+
+auto MatchingRepository::numInlierMatches() const -> size_t
+{
+    if (mDbPath.empty() || !mDbPath.exists()) return 0;
+
+    if (auto database = colmap::Database::Open(mDbPath.toUtf8())) {
+        return database->NumInlierMatches();
+    }
+
+    return 0;
+}
+
+auto MatchingRepository::loadMatches(const std::string &imageNameLeft, 
+                                     const std::string &imageNameRight) const -> Matches
+{
+    Matches matches;
+
+    TL_ASSERT(mDbPath.exists(), "Database not found: {}", mDbPath.toString());
+
+    auto database = colmap::Database::Open(mDbPath.toUtf8());
+
+    if (!database->ExistsImageWithName(imageNameLeft)) {
+        TL_THROW_EXCEPTION("Image not found in database: {}", imageNameLeft);
+    }
+    if (!database->ExistsImageWithName(imageNameRight)) {
+        TL_THROW_EXCEPTION("Image not found in database: {}", imageNameRight);
+    }
+
+    auto image_left = database->ReadImageWithName(imageNameLeft);
+    auto image_right = database->ReadImageWithName(imageNameRight);
+
+    if (image_left && image_right) {
+
+        colmap::image_t id_left = image_left->ImageId();
+        colmap::image_t id_right = image_right->ImageId();
+
+        colmap::FeatureKeypoints kp_left = database->ReadKeypoints(id_left);
+        colmap::FeatureKeypoints kp_right = database->ReadKeypoints(id_right);
+
+        colmap::TwoViewGeometry two_view = database->ReadTwoViewGeometry(id_left, id_right);
+        const auto &inliers = two_view.inlier_matches;
+
+        matches.reserve(inliers.size());
+
+        for (size_t i = 0; i < inliers.size(); ++i) {
+            const auto &m = inliers[i];
+
+            FeatureMatchPoint match_point;
+            match_point.id = i;
+            match_point.featureIndex1 = m.point2D_idx1;
+            match_point.point1 = tl::Point2f(kp_left[m.point2D_idx1].x, kp_left[m.point2D_idx1].y);
+            match_point.featureIndex2 = m.point2D_idx2;
+            match_point.point2 = tl::Point2f(kp_right[m.point2D_idx2].x, kp_right[m.point2D_idx2].y);
+
+            matches.push_back(match_point);
+        }
+    }
+
+    return matches;
+}
+
 void MatchingRepository::clear()
 {
+    if (mDbPath.empty() || !mDbPath.exists()) return;
+
     if (auto database = colmap::Database::Open(mDbPath.toUtf8())) {
         database->ClearMatches();
         database->ClearTwoViewGeometries();

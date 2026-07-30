@@ -53,6 +53,7 @@ private:
     void writeImageMetadata(QXmlStreamWriter &stream, const Image::Metadata &metadata);
     void writeFeatures(QXmlStreamWriter &stream, const Project &project);
     void writeMatches(QXmlStreamWriter &stream, const Project &project);
+    void writeOrientation(QXmlStreamWriter &stream, const Project &project);
 };
 
 } // end namespace graphos

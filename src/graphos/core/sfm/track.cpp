@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/sfm/track.h"
+#include "graphos/core/sfm/Track.h"
 
 namespace graphos
 {

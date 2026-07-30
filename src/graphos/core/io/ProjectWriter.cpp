@@ -95,7 +95,7 @@ void writeFeatureMatcherConfig(QXmlStreamWriter &stream,
 }
 
 void writeFeatureMatchingReport(QXmlStreamWriter &stream, 
-                                FeatureMatchingReport report)
+                                const FeatureMatchingReport &report)
 {
     if (!report.isEmpty()) {
 
@@ -109,6 +109,39 @@ void writeFeatureMatchingReport(QXmlStreamWriter &stream,
     }
 }
 
+void writeOrientationConfig(QXmlStreamWriter &stream, const OrientationConfig *config)
+{
+    if (config) {
+        stream.writeStartElement("Options");
+
+        stream.writeAttribute("method", config->name());
+
+        for (auto &[key, value] : *config) {
+            stream.writeTextElement(key, value->toString());
+        }
+        stream.writeEndElement();
+    }
+}
+
+void writeOrientationReport(QXmlStreamWriter &stream, const OrientationReport &report)
+{
+    if (!report.isEmpty()) {
+
+        stream.writeStartElement("Report");
+
+        stream.writeTextElement("OrientedImages", QString::number(report.orientedImages));
+        stream.writeTextElement("OrientationType", QString::fromStdString(report.type));
+        stream.writeTextElement("Iterations", QString::number(report.iterations));
+        stream.writeTextElement("InitialCost", QString::number(report.initialCost, 'f', 10));
+        stream.writeTextElement("FinalCost", QString::number(report.finalCost, 'f', 10));
+        stream.writeTextElement("Termination", QString::fromStdString(report.termination));
+        stream.writeTextElement("ErrorMean", QString::number(report.alignmentErrorMean, 'f', 10));
+        stream.writeTextElement("ErrorMedian", QString::number(report.alignmentErrorMedian, 'f', 10));
+        stream.writeTextElement("Time", QString::number(report.time, 'f', 10));
+
+        stream.writeEndElement(); // Report
+    }
+}
 
 void ProjectWriter::write(const tl::Path &file, const Project &project)
 {
@@ -142,6 +175,7 @@ void ProjectWriter::write(const tl::Path &file, const Project &project)
                 writeImages(stream, project.images());
                 writeFeatures(stream, project);
                 writeMatches(stream, project);
+                writeOrientation(stream, project);
             }
 
             stream.writeEndElement(); // Graphos
@@ -370,6 +404,19 @@ void ProjectWriter::writeMatches(QXmlStreamWriter &stream, const Project &projec
     writeFeatureMatchingReport(stream, project.featureMatchingReport());
 
     stream.writeEndElement(); // Matches
+}
+
+void ProjectWriter::writeOrientation(QXmlStreamWriter &stream, const Project &project)
+{
+    stream.writeStartElement("Orientations");
+
+    writeOrientationConfig(stream, project.orientationConfig().get());
+    stream.writeTextElement("SparseModel", project.sparseModel().toString());
+    stream.writeTextElement("GroundPoints", project.groundPoints().toString());
+    stream.writeTextElement("CameraPoses", project.poses().toString());
+    writeOrientationReport(stream, project.orientationReport());
+
+    stream.writeEndElement(); // Orientations
 }
 
 } // end namespace graphos

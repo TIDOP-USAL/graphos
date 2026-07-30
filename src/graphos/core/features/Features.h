@@ -29,7 +29,6 @@
 
 #include <opencv2/features2d.hpp>
 
-#include <tidop/core/base/flags.h>
 #include <tidop/core/base/Property.h>
 
 namespace graphos

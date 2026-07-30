@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORIENTATION_COMPONENT_H
-#define GRAPHOS_ORIENTATION_COMPONENT_H
+#pragma once
 
 #include "graphos/core/Component.h"
 
@@ -70,6 +69,3 @@ protected slots:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_ORIENTATION_COMPONENT_H

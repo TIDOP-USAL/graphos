@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORIENTATION_COMMAND_H
-#define GRAPHOS_ORIENTATION_COMMAND_H
+#pragma once
 
 #include "graphos/core/command.h"
 
@@ -46,7 +45,4 @@ private:
 
 };
 
-
 } // namespace graphos
-
-#endif // GRAPHOS_ORIENTATION_COMMAND_H

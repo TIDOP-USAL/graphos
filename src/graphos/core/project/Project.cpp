@@ -54,6 +54,7 @@ namespace graphos
 //std::mutex Project::sMutex;
 
 Project::Project()
+    : mMatchingRepository(mProjectInfo.database())
   //: mCrs(""),
     //mCameraCount(0),
     //mTransform(tl::Matrix<double, 4, 4>::identity())
@@ -122,6 +123,8 @@ auto Project::features() const -> const FeaturesRepository &
 
 void Project::clearFeatures()
 {
+    mFeatConfig.reset();
+    mFeatReport.clear();
     mFeatureRepo.clear();
     clearMatches();
 }
@@ -134,6 +137,26 @@ auto Project::featureMatcherConfig() const -> std::shared_ptr<FeatureMatching>
 void Project::setFeatureMatcherConfig(std::shared_ptr<FeatureMatching> config)
 {
     mFeatureMatchingConfig = std::move(config);
+}
+
+auto Project::orientationConfig() const -> std::shared_ptr<OrientationConfig>
+{
+    return mOrientationConfig;
+}
+
+void Project::setOrientationConfig(std::shared_ptr<OrientationConfig> config)
+{
+    mOrientationConfig = std::move(config);
+}
+
+auto Project::orientationReport() const -> OrientationReport
+{
+    return mOrientationReport;
+}
+
+void Project::setOrientationReport(OrientationReport report)
+{
+    mOrientationReport = std::move(report);
 }
 
 auto Project::featureMatchingReport() const -> FeatureMatchingReport
@@ -158,41 +181,53 @@ auto Project::matches() const -> const MatchingRepository &
 
 void Project::clearMatches()
 {
+    mFeatureMatchingConfig.reset();
+    mFeatureMatchingReport.clear();
     mMatchingRepository.clear();
-    clearReconstruction();
+    clearOrientation();
 }
 
 
-//tl::Path Project::sparseModel() const
-//{
-//    return mSparseModel;
-//}
-//
-//void Project::setSparseModel(const tl::Path &sparseModel)
-//{
-//    mSparseModel = sparseModel;
-//}
-//
-//QString Project::enuCrs() const
-//{
-//    return mEnuCrs;
-//}
-//
-//void Project::setEnuCrs(const QString &enuCrs)
-//{
-//    mEnuCrs = enuCrs;
-//}
-//
-//tl::Path Project::groundPoints() const
-//{
-//    return mGroundPoints;
-//}
-//
-//void Project::setGroundPoints(const tl::Path &groundPoints)
-//{
-//    mGroundPoints = groundPoints;
-//}
-//
+auto Project::sparseModel() const -> tl::Path
+{
+    return mSparseModel;
+}
+
+void Project::setSparseModel(tl::Path sparseModel)
+{
+    mSparseModel = std::move(sparseModel);
+}
+
+auto Project::groundPoints() const -> tl::Path
+{
+    return mGroundPoints;
+}
+
+void Project::setGroundPoints(tl::Path groundPoints)
+{
+    mGroundPoints = std::move(groundPoints);
+}
+
+auto Project::poses() const -> tl::Path
+{
+    return mPoses;
+}
+
+void Project::setPoses(tl::Path poses)
+{
+    mPoses = std::move(poses);
+}
+
+void Project::clearOrientation()
+{
+    mSparseModel.clear();
+    mGroundPoints.clear();
+    mPoses.clear();
+    mOrientationReport.clear();
+    mOrientationConfig.reset();
+//    this->clearDensification();
+}
+
 //tl::Path Project::reconstructionPath() const
 //{
 //    return mProjectInfo.projectFolder().append("sfm");
@@ -219,14 +254,14 @@ void Project::clearMatches()
 //    mPhotoOrientation[imageId] = photoOrientation;
 //}
 
-void Project::clearReconstruction()
-{
+//void Project::clearReconstruction()
+//{
 //    mPhotoOrientation.clear();
 //    mSparseModel.clear();
 //    mEnuCrs.clear();
 //    mOrientationReport = OrientationReport();
 //    this->clearDensification();
-}
+//}
 
 //OrientationReport Project::orientationReport() const
 //{
@@ -380,6 +415,11 @@ void Project::clear()
     mFeatureMatchingConfig.reset();
     mFeatureMatchingReport.clear();
     mMatchingRepository.clear();
+    mSparseModel.clear();
+    mGroundPoints.clear();
+    mPoses.clear();
+    mOrientationReport.clear();
+    mOrientationConfig.reset();
 
     //mFeatures.clear();
     //mFeatureMatching.reset();

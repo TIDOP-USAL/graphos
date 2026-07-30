@@ -417,15 +417,17 @@ void ProjectReader::read(const tl::Path &file, Project &project)
                         auto tag = stream.name();
 
                         if (tag == "General") {
-                            this->readInfo(stream, project.info());
+                            readInfo(stream, project.info());
                         } else if (tag == "Cameras") {
-                            this->readCameras(stream, project.cameras());
+                            readCameras(stream, project.cameras());
                         } else if (tag == "Images") {
-                            this->readImages(stream, project.images());
+                            readImages(stream, project.images());
                         } else if (stream.name() == "Features") {
-                            this->readFeatures(stream, project);
+                            readFeatures(stream, project);
                         } else if (stream.name() == "Matches") {
-                            this->readMatches(stream, project);
+                            readMatches(stream, project);
+                        } else if (stream.name() == "Orientations") {
+                            readOrientation(stream, project);
                         } else {
                             stream.skipCurrentElement();
                         }
@@ -447,7 +449,7 @@ void ProjectReader::readInfo(QXmlStreamReader &stream, ProjectInfo &projectInfo)
     while (stream.readNextStartElement()) {
         if (stream.name() == "Description") {
             projectInfo.setDescription(streamToStdString(stream));
-        } else if (stream.name() == "EnuCRS") {
+        } else if (stream.name() == "EnuCrs") {
             projectInfo.setEnuCrs(streamToStdString(stream));
         } else
             stream.skipCurrentElement();
@@ -522,9 +524,6 @@ void ProjectReader::readFeatures(QXmlStreamReader &stream, Project &project)
 
 void ProjectReader::readMatches(QXmlStreamReader &stream, Project &project)
 {
-    
-    auto report = project.featureMatchingReport();
-
     while (stream.readNextStartElement()) {
         if (stream.name() == "Config") {
 
@@ -561,6 +560,72 @@ void ProjectReader::readMatches(QXmlStreamReader &stream, Project &project)
             stream.skipCurrentElement();
         }
     }
+
+    project.matches() = MatchingRepository(project.info().database());
+}
+
+void ProjectReader::readOrientation(QXmlStreamReader &stream, Project &project)
+{
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "Options") {
+
+            std::string method("sequential");
+            if (stream.attributes().hasAttribute("method"))
+                method = stream.attributes().value("method").toString().toStdString();
+
+            auto config = std::make_shared<OrientationConfig>(method);
+
+            while (stream.readNextStartElement()) {
+                std::string key = stream.name().toString().toStdString();
+                std::string value = streamToStdString(stream);
+
+                config->setProperty(key, value);
+            }
+
+            project.setOrientationConfig(config);
+
+        } else if (stream.name() == "SparseModel") {
+            project.setSparseModel(streamToStdString(stream));
+        } else if (stream.name() == "GroundPoints") {
+            project.setGroundPoints(streamToStdString(stream));
+        } else if (stream.name() == "CameraPoses") {
+            project.setPoses(streamToStdString(stream));
+        } else if (stream.name() == "Report") {
+
+            OrientationReport report;
+
+            while (stream.readNextStartElement()) {
+                if (stream.name() == "OrientedImages") {
+                    report.orientedImages = streamToInt(stream);
+                } else if (stream.name() == "OrientationType") {
+                    report.type = streamToStdString(stream);
+                } else if (stream.name() == "Iterations") {
+                    report.iterations = streamToInt(stream);
+                } else if (stream.name() == "InitialCost") {
+                    report.initialCost = streamToDouble(stream);
+                } else if (stream.name() == "FinalCost") {
+                    report.finalCost = streamToDouble(stream);
+                } else if (stream.name() == "Termination") {
+                    report.termination = streamToStdString(stream);
+                } else if (stream.name() == "ErrorMean") {
+                    report.alignmentErrorMean = streamToDouble(stream);
+                } else if (stream.name() == "ErrorMedian") {
+                    report.alignmentErrorMedian = streamToDouble(stream);
+                } else if (stream.name() == "Time") {
+                    report.time = streamToDouble(stream);
+                } else {
+                    stream.skipCurrentElement();
+                }
+            }
+
+            project.setOrientationReport(report);
+
+        } else {
+            stream.skipCurrentElement();
+        }
+    }
+
+    project.matches() = MatchingRepository(project.info().database());
 }
 
 } // end namespace graphos

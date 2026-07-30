@@ -22,71 +22,41 @@
  ************************************************************************/
 
 
-#include "OrientationCommand.h"
+#include "graphos/components/orientation/impl/OrientationCommand.h"
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/io/ProjectReader.h"
+#include "graphos/core/io/ProjectWriter.h"
 #include "graphos/core/camera/Colmap.h"
-#include "graphos/core/sfm/orientation.h"
-#include "graphos/core/sfm/orientationcolmap.h"
-#include "graphos/core/sfm/posesio.h"
+#include "graphos/core/sfm/CameraPosesReader.h"
+#include "graphos/components/orientation/impl/EstimatePosesTask.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/app/Logger.h>
+#include <tidop/core/app/Message.h>
 #include <tidop/core/base/Chrono.h>
 #include <tidop/math/algebra/rotations/RotationMatrix.h>
-#include <tidop/math/algebra/rotation_convert.h>
-
-#include <colmap/base/reconstruction.h>
-#include <colmap/util/option_manager.h>
-#include <colmap/base/database_cache.h>
-#include <colmap/controllers/incremental_mapper.h>
 
 #include <QFileInfo>
 
 #include <fstream>
-#include <tidop/core/log.h>
-
-#include "graphos/core/sfm/Reconstruction.h"
-
-using namespace tl;
 
 namespace graphos
 {
-
-
-auto cameraPositions(const ProjectImp& project) -> std::map<QString, std::array<double, 3>>
-{
-    std::map<QString, std::array<double, 3>> camera_positions;
-
-    for (const auto &image : project.images()) {
-
-        QString path = image.second.path();
-        CameraPose camera_pose = image.second.cameraPose();
-
-        if (!camera_pose.isEmpty()) {
-            std::array<double, 3> positions = {
-            camera_pose.position().x,
-            camera_pose.position().y,
-            camera_pose.position().z};
-            camera_positions[path] = positions;
-        }
-
-    }
-
-    return camera_positions;
-}
 
 OrientationCommand::OrientationCommand()
   : Command("ori", "3D Reconstruction")
 {
 
     this->addArgument<tl::Path>("prj", 'p', "Project file");
+    this->addArgument<std::string>("method", 'm', "Orientation method: sequential or global", "sequential");
     this->addArgument<bool>("fix_calibration", 'c', "Fix calibration", false);
     this->addArgument<bool>("use_gcp", "Use Ground Control Points for absolute orientation", true);
     this->addArgument<bool>("use_poses", "Use camera poses for absolute orientation", true);
     this->addArgument<bool>("use_rtk_accuracy", "Use RTK positioning accuracy", false);
     this->addArgument<bool>("absolute_orientation", 'a', "Absolute Orientation", false);
 
-    this->addExample("ori -p 253/253.xml -a");
+    this->addExample("ori -p 253/253.xml -m sequential -a");
+    this->addExample("ori -p 253/253.xml -m global -a");
 
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
@@ -95,11 +65,12 @@ bool OrientationCommand::run()
 {
     bool r = false;
 
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
 
     try {
 
         auto project_path = this->value<tl::Path>("prj");
+        auto method = this->value<std::string>("method");
         bool fix_calibration = this->value<bool>("fix_calibration");
         bool use_rtk_accuracy = this->value<bool>("use_rtk_accuracy");
         bool use_poses = this->value<bool>("use_poses");
@@ -113,54 +84,67 @@ bool OrientationCommand::run()
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
-        ProjectImp project;
-        project.load(project_path);
-        project.clearReconstruction();
-        tl::Path database_path = project.database();
-        tl::Path sfm_path = project.projectFolder();
+        Project project;
+        ProjectReader reader;
+        reader.read(project_path, project);
+
+        TL_ASSERT(project.matches().hasInlierMatches(), "No valid matches found in the database. "
+            "Please run the Feature Matching process before estimating camera poses.");
+
+        project.clearOrientation();
+
+        auto &project_info = project.info();
+        tl::Path database_path = project_info.database();
+        tl::Path sfm_path = project_info.projectFolder();
         sfm_path.append("sfm");
 
-        std::vector<Image> images;
-        for (const auto &image : project.images()) {
-            images.push_back(image.second);
-        }
+        //std::vector<Image> images;
+        //for (const auto &image : project.images()) {
+        //    images.push_back(image.second);
+        //}
 
-        tl::Path gcp_file = project.projectFolder();
-        gcp_file.append("sfm").append("georef.xml");
+        tl::Path gcp_file = sfm_path;
+        gcp_file.append("georef.xml");
 
-        ReconstructionTask::Options options{};
+        EstimatePosesTask::Options options{};
+
+        if (method == "global") {
+            options |= EstimatePosesTask::Options::orientation_global;
+        } /*else {
+            options |= EstimatePosesTask::Options::orientation_sequential;
+        }*/
 
         if (absolute_orientation) {
 
-            options |= ReconstructionTask::Options::absolute_orientation;
+            options |= EstimatePosesTask::Options::absolute_orientation;
 
             if (use_gcp) {
-                options |= ReconstructionTask::Options::use_gcp;
+                options |= EstimatePosesTask::Options::use_gcp;
             }
 
             if (use_poses) {
-                options |= ReconstructionTask::Options::use_poses;
+                options |= EstimatePosesTask::Options::use_poses;
 
                 if (use_rtk_accuracy) {
-                    options |= ReconstructionTask::Options::use_rtk_positioning_accuracy;
+                    options |= EstimatePosesTask::Options::use_rtk_positioning_accuracy;
                 }
             }
         }
 
         if (fix_calibration) {
-            options |= ReconstructionTask::Options::fix_calibration;
+            options |= EstimatePosesTask::Options::fix_calibration;
         }
 
-        ReconstructionTask reconstruction(database_path,
-                                          sfm_path,
-                                          images,
-                                          project.cameras(),
-                                          options,
-                                          gcp_file);
+        EstimatePosesTask reconstruction(database_path,
+                                         sfm_path,
+                                         project.images(),
+                                         project.cameras(),
+                                         options,
+                                         gcp_file);
 
         reconstruction.run();
 
-        auto cameras = reconstruction.cameras();
+        //auto cameras = reconstruction.cameras();
         auto report = reconstruction.report();
 
         /// Se comprueba que se han generado todos los productos
@@ -181,17 +165,19 @@ bool OrientationCommand::run()
 
         project.setSparseModel(sparse_model_path);
         project.setGroundPoints(ground_points_path);
-        if (absolute_orientation) {
-            project.setEnuCrs(QString::fromStdString(reconstruction.enuCrs()));
-        }
+        project.setPoses(poses_path);
+        //if (absolute_orientation) {
+        //    project.setEnuCrs(QString::fromStdString(reconstruction.enuCrs()));
+        //}
 
+        //TODO: Tendría que poder obtenerse el tamaño sin tener que cargar todo el fichero
         auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
         poses_reader->read(poses_path);
         auto poses = poses_reader->cameraPoses();
 
-        for (const auto &camera_pose : poses) {
-            project.addPhotoOrientation(camera_pose.first, camera_pose.second);
-        }
+        //for (const auto &camera_pose : poses) {
+        //    project.addPhotoOrientation(camera_pose.first, camera_pose.second);
+        //}
 
         tl::Message::info("Oriented {} images", poses.size());
 
@@ -201,19 +187,28 @@ bool OrientationCommand::run()
             tl::Message::warning("{} percent of images oriented. Increase image size and number of points in Feature detector.", tl::roundToInteger(oriented_percent));
         }
 
-        for (const auto &camera : cameras) {
-            project.updateCamera(camera.first, camera.second);
-        }
+        //for (const auto &camera : cameras) {
+        //    project.updateCamera(camera.first, camera.second);
+        //}
 
         report.orientedImages = static_cast<int>(poses.size());
         report.type = absolute_orientation ? "Absolute" : "Relative";
         project.setOrientationReport(report);
 
-        project.save(project_path);
+        auto config = std::make_shared<OrientationConfig>(method);
+        config->enableAbsoluteOrientation(absolute_orientation);
+        config->enableFixCalibration(fix_calibration);
+        config->enableUseGcp(use_gcp);
+        config->enableUsePoses(use_poses);
+        config->enableUseRtkAccuracy(use_rtk_accuracy);
+        project.setOrientationConfig(config);
+
+        ProjectWriter writer;
+        writer.write(project_path, project);
 
     } catch (const std::exception &e) {
 
-        printException(e);
+        tl::printException(e);
 
         r = true;
     }

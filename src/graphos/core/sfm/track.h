@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_SFM_TRACK_H
-#define GRAPHOS_CORE_SFM_TRACK_H
+#pragma once
 
 #include "graphos/graphos_global.h"
 
@@ -183,5 +182,3 @@ private:
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_SFM_TRACK_H

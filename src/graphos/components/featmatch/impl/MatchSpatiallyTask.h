@@ -21,74 +21,55 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_ORIENTATION_H
-#define GRAPHOS_CORE_ORIENTATION_H
+#pragma once
 
 #include "graphos/graphos_global.h"
 
-#include <tidop/core/base/flags.h>
+#include <stop_token>
 
-#include <QString>
+#include <QObject>
+
+#include <tidop/core/task/Task.h>
+#include <tidop/core/base/Path.h>
+
+#include "graphos/core/features/FeatureMatching.h"
+#include "graphos/core/features/FeatureMatchingReport.h"
 
 namespace graphos
 {
 
-class RelativeOrientation
+class MatchSpatiallyTask
+  : public QObject,
+    public tl::Task
 {
 
-public:
-
-    enum class Method
-    {
-        colmap
-    };
+    Q_OBJECT
 
 public:
 
-    RelativeOrientation() {}
-    virtual ~RelativeOrientation() = default;
+    MatchSpatiallyTask(tl::Path database,
+                      bool cuda,
+                      const std::shared_ptr<FeatureMatching> &featureMatching,
+                      bool geodeticCoordinates = true);
+    ~MatchSpatiallyTask() override;
 
-    virtual void reset() = 0;
-    virtual auto name() const -> QString = 0;
-    auto method() const -> Method { return mOrientationMethod.flags(); }
+    auto report() const -> FeatureMatchingReport;
+
+// tl::TaskBase interface
 
 protected:
 
-    tl::EnumFlags<Method> mOrientationMethod;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
+
+private:
+
+    tl::Path mDatabase;
+    bool bUseCuda;
+    std::shared_ptr<FeatureMatching> mFeatureMatching;
+    bool mGeodeticCoordinates;
+    FeatureMatchingReport mReport;
 
 };
-ALLOW_BITWISE_FLAG_OPERATIONS(RelativeOrientation::Method)
-
-
-
-
-class AbsoluteOrientation
-{
-
-public:
-
-    enum class Method
-    {
-        colmap
-    };
-
-public:
-
-    AbsoluteOrientation() {}
-    virtual ~AbsoluteOrientation() = default;
-
-    virtual void reset() = 0;
-    virtual auto name() const -> QString = 0;
-    auto method() const -> Method { return mOrientationMethod.flags(); }
-
-protected:
-
-    tl::EnumFlags<Method> mOrientationMethod;
-};
-ALLOW_BITWISE_FLAG_OPERATIONS(AbsoluteOrientation::Method)
-
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_ORIENTATION_H

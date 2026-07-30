@@ -40,7 +40,7 @@
 //#include "graphos/core/Image.h"
 
 //#include "graphos/core/sfm/poses.h"
-//#include "graphos/core/sfm/OrientationReport.h"
+//
 //#include "graphos/core/dense/dense.h"
 //#include "graphos/core/mesh/PoissonRecon.h"
 //#include "graphos/core/reports/dem.h"
@@ -53,6 +53,8 @@
 #include "graphos/core/features/FeatureExtractorReport.h"
 #include "graphos/core/features/FeatureMatching.h"
 #include "graphos/core/features/FeatureMatchingReport.h"
+#include "graphos/core/sfm/OrientationConfig.h"
+#include "graphos/core/sfm/OrientationReport.h"
 
 // extraer de aqui a XmlSerializer.h
 //class QXmlStreamWriter;
@@ -97,15 +99,21 @@ protected:
 
     QString mCrs;
 
+    std::shared_ptr<OrientationConfig> mOrientationConfig;
+    OrientationReport mOrientationReport;
+    tl::Path mSparseModel;
+    tl::Path mGroundPoints;
+    tl::Path mPoses;
+
     //std::shared_ptr<FeatureMatching> mFeatureMatching;
     
     //std::unordered_map<size_t, std::vector<size_t>> mImagesPairs;
     //std::unordered_map<size_t, CameraPose> mPhotoOrientation;
 
-    //tl::Path mSparseModel;
+    //
     //QString mEnuCrs;
-    //tl::Path mGroundPoints;
-    //OrientationReport mOrientationReport;
+    //
+    //
     ////tl::Path mReconstructionPath;
     //std::shared_ptr<Densification> mDensification;
     //tl::Path mDenseModel;
@@ -150,7 +158,6 @@ public:
 
     // Matching
     
-    // Configuración dinámica del Matcher (hereda de Properties)
     auto featureMatcherConfig() const -> std::shared_ptr<FeatureMatching>;
     void setFeatureMatcherConfig(std::shared_ptr<FeatureMatching> config);
 
@@ -162,29 +169,32 @@ public:
 
     void clearMatches();
     
-    //std::shared_ptr<FeatureMatching> featureMatching() const;
-    //void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
-    //FeatureMatchingReport featureMatchingReport() const;
-    //void setFeatureMatchingReport(const FeatureMatchingReport &report);
+    // Orientation
 
-    //void addMatchesPair(size_t imageLeftId, size_t imageRightId);
-    //const std::vector<size_t> matchesPairs(size_t imageLeftId) const;
-    //void removeMatchesPair();
-    //void removeMatchesPair(size_t imageLeftId);
+    auto orientationConfig() const -> std::shared_ptr<OrientationConfig>;
+    void setOrientationConfig(std::shared_ptr<OrientationConfig> config);
 
-    //tl::Path sparseModel() const;
-    //void setSparseModel(const tl::Path &sparseModel);
-    //QString enuCrs() const;
-    //void setEnuCrs(const QString &enuCrs);
-    //tl::Path groundPoints() const;
-    //void setGroundPoints(const tl::Path &groundPoints);
+    auto orientationReport() const -> OrientationReport;
+    void setOrientationReport(OrientationReport report);
+
+    auto sparseModel() const -> tl::Path;
+    void setSparseModel(tl::Path sparseModel);
+
+    auto groundPoints() const -> tl::Path;
+    void setGroundPoints(tl::Path groundPoints);
+    
+    auto poses() const -> tl::Path;
+    void setPoses(tl::Path poses);
+
+    void clearOrientation();
+
     //tl::Path reconstructionPath() const;
     ////void setReconstructionPath(const tl::Path &reconstructionPath);
     //bool isPhotoOriented(size_t imageId) const;
     //CameraPose photoOrientation(size_t imageId) const;
     //const std::unordered_map<size_t, CameraPose> &poses() const;
     //void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation);
-    void clearReconstruction();
+    //void clearReconstruction();
     //OrientationReport orientationReport() const;
     //void setOrientationReport(const OrientationReport &orientationReport);
 

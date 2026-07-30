@@ -46,7 +46,7 @@ struct GCP
     std::string name;
 };
 
-// Extraido de Colmap para añadir los puntos de control
+// Extraido de Colmap para aÃ±adir los puntos de control
 
 class BundleAdjustmentConfig
   : public colmap::BundleAdjustmentConfig

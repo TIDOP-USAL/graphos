@@ -78,11 +78,15 @@ add_files_to_project(${PROJECT_NAME}
                          repositories/ImageRepository.cpp
                          repositories/MatchingRepository.cpp
                          #sfm/orientationcolmap.cpp
-                         #sfm/orientationexport.cpp
+                         sfm/CameraPosesReader.cpp
+                         sfm/CameraPosesWriter.cpp
+                         sfm/ColmapReconstructionConvert.cpp
+                         sfm/OrientationConfig.cpp
+                         sfm/OrientationExport.cpp
                          sfm/poses.cpp
-                         #sfm/posesio.cpp
-                         sfm/groundpoint.cpp
-                         sfm/track.cpp
+                         sfm/GroundPoint.cpp
+                         sfm/GroundControlPoint.cpp
+                         sfm/Track.cpp
                          #sfm/BundleAdjuster.cpp
                          #sfm/Reconstruction.cpp
                          task/TaskPresenter.cpp         
@@ -150,11 +154,15 @@ add_files_to_project(${PROJECT_NAME}
                          repositories/Repository.h
                          #sfm/orientation.h
                          #sfm/orientationcolmap.h
-                         #sfm/orientationexport.h
+                         sfm/CameraPosesReader.cpp
+                         sfm/CameraPosesWriter.cpp
+                         sfm/ColmapReconstructionConvert.h
                          sfm/poses.h
-                         #sfm/posesio.h
-                         sfm/groundpoint.h
-                         sfm/track.h
+                         sfm/GroundPoint.h
+                         sfm/GroundControlPoint.h
+                         sfm/Track.h
+                         sfm/OrientationConfig.h
+                         sfm/OrientationExport.h
                          sfm/OrientationReport.h
                          #sfm/BundleAdjuster.h
                          #sfm/Reconstruction.h

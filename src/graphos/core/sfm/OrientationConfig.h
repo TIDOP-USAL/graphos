@@ -25,30 +25,77 @@
 
 #include "graphos/graphos_global.h"
 
-#include "tidop/core/base/Path.h"
+#include <string>
 
-#include "graphos/core/project/Project.h"
-
-class QXmlStreamReader;
+#include <tidop/core/base/Property.h>
 
 namespace graphos
 {
 
-class ProjectReader
+class OrientationConfig
 {
-public:
-
-    void read(const tl::Path &file, Project &project);
 
 private:
 
-    //void readProject(QXmlStreamReader &stream, Project &project);
-    void readInfo(QXmlStreamReader &stream, ProjectInfo &projectInfo);
-    void readCameras(QXmlStreamReader &stream, CameraRepository &cameraRepository);
-    void readImages(QXmlStreamReader &stream, ImageRepository &imageRepository);
-    void readFeatures(QXmlStreamReader &stream, Project &project);
-    void readMatches(QXmlStreamReader &stream, Project &project);
-    void readOrientation(QXmlStreamReader &stream, Project &project);
+    tl::Properties mProperties;
+
+public:
+
+    OrientationConfig(std::string method);
+
+    virtual ~OrientationConfig() = default;
+
+    [[nodiscard]]
+    auto name() const -> std::string;
+
+    [[nodiscard]]
+    auto fixCalibration() const -> bool;
+
+    void enableFixCalibration(bool enable);
+
+    [[nodiscard]]
+    auto useGcp() const -> bool;
+
+    void enableUseGcp(bool enable);
+
+    [[nodiscard]]
+    auto usePoses() const -> bool;
+
+    void enableUsePoses(bool enable);
+
+    [[nodiscard]]
+    auto useRtkAccuracy() const -> bool;
+
+    void enableUseRtkAccuracy(bool enable);
+
+    [[nodiscard]]
+    auto absoluteOrientation() const -> bool;
+
+    void enableAbsoluteOrientation(bool enable);
+
+    auto begin() const
+    {
+        return mProperties.begin();
+    }
+
+    auto end() const
+    {
+        return mProperties.end();
+    }
+
+    void setProperty(const std::string &key, const std::string &value);
+
+    template<typename T>
+    void setProperty(const std::string &key, T value)
+    {
+        mProperties.setProperty(key, value);
+    }
+
+    /*!
+     * \brief Recover the default values
+     */
+    void clear();
 };
 
-} // end namespace graphos
+} // namespace graphos
+

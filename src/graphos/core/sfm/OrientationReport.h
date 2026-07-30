@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_BA_REPORT_H
-#define GRAPHOS_CORE_BA_REPORT_H
+#pragma once
 
 #include "graphos/graphos_global.h"
 
@@ -34,7 +33,7 @@ namespace graphos
 struct OrientationReport
 {
 	int orientedImages = 0;
-	std::string type;
+	std::string type = "Relative";
 
 	// Bundle Adjust
     int iterations = 0;
@@ -46,15 +45,26 @@ struct OrientationReport
 	double alignmentErrorMedian = 0.0;
 	double time = 0.0;
 
-	bool isEmpty() const
+	[[nodiscard]]
+	auto isEmpty() const -> bool
 	{
 		return iterations == 0 && initialCost == 0.0 
-			&& finalCost == 0.0 && termination == "NO_CONVERGENCE";
+			&& finalCost == 0.0;
 	}
 	
+	void clear()
+	{
+		orientedImages = 0;
+		type = "Relative";
+		iterations = 0;
+		initialCost = 0.0;
+		finalCost = 0.0;
+		termination = "NO_CONVERGENCE";
+		alignmentErrorMean = 0.0;
+		alignmentErrorMedian = 0.0;
+		time = 0.0;
+	}
 };
-
 
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_BA_REPORT_H
