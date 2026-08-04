@@ -23,12 +23,12 @@
 
 #include "graphos/components/orientation/impl/EstimatePosesTask.h"
 
-#include "graphos/core/sfm/OrientationExport.h"
 #include "graphos/core/camera/Camera.h"
-#include "graphos/core/repositories/CameraRepository.h"
-#include "graphos/core/repositories/ImageRepository.h"
-#include "graphos/core/sfm/ColmapReconstructionConvert.h"
-#include "graphos/core/sfm/CameraPosesWriter.h"
+#include "graphos/core/camera/CameraRepository.h"
+#include "graphos/core/image/ImageRepository.h"
+#include "graphos/core/orientation/ColmapReconstructionConvert.h"
+#include "graphos/core/orientation/io/CameraPosesWriter.h"
+#include "graphos/core/orientation/io/OrientationExport.h"
 
 #include <tidop/core/base/Exception.h>
 #include <tidop/core/task/Progress.h>
@@ -41,7 +41,6 @@
 #include <colmap/controllers/option_manager.h>
 #include <colmap/estimators/bundle_adjustment.h>
 #include <colmap/estimators/bundle_adjustment_ceres.h>
-//#include <colmap/scene/database_cache.h>
 
 #include <ceres/ceres.h>
 
@@ -100,7 +99,7 @@ EstimatePosesTask::EstimatePosesTask(tl::Path database,
                 }
 
             if (!found_poses) {
-                tl::Message::warning("'Options::use_poses' is active but there are no camera poses. 'Options::use_poses' is deactivated.");
+                tl::Message::warning("'Options::use_poses' is active but there are no camera cameraPosesFile. 'Options::use_poses' is deactivated.");
                 mOptions.disable(Options::use_poses);
             }
         }
@@ -458,7 +457,7 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
         auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
         poses_writer->setCameraPoses(camera_poses);
         tl::Path poses_path(mOutputPath);
-        poses_path.append("poses.bin");
+        poses_path.append("cameraPosesFile.bin");
         poses_writer->write(poses_path);
 
         // Actualización de cámaras

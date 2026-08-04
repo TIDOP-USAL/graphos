@@ -44,7 +44,7 @@ namespace graphos
 
 MatchFeaturesTask::MatchFeaturesTask(tl::Path database,
                                          bool cuda,
-                                         const std::shared_ptr<FeatureMatching> &featureMatching)
+                                         const std::shared_ptr<MatchingProperties> &featureMatching)
   : mDatabase(std::move(database)),
     bUseCuda(cuda),
     mFeatureMatching(featureMatching)
@@ -103,18 +103,18 @@ void MatchFeaturesTask::execute(tl::Progress *progressBar, std::stop_token stopT
             mReport.cuda = bUseCuda;
             mReport.time = this->time();
 
-            tl::Message::success("Feature Matching finished in {:.2} minutes", mReport.time / 60.);
+            tl::Message::success("FeatureExtractorProperties Matching finished in {:.2} minutes", mReport.time / 60.);
             tl::Message::info(" - Total matches: {}", num_matches);
 
         }
 
     } catch (...) {
 
-        TL_THROW_EXCEPTION_WITH_NESTED("Feature Matching error");
+        TL_THROW_EXCEPTION_WITH_NESTED("FeatureExtractorProperties Matching error");
     }
 }
 
-auto MatchFeaturesTask::report() const -> FeatureMatchingReport
+auto MatchFeaturesTask::report() const -> MatchingReport
 {
     return mReport;
 }

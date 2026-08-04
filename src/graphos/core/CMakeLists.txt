@@ -34,14 +34,13 @@ add_files_to_project(${PROJECT_NAME}
                          AppStatus.cpp
                          ColorTable.cpp
                          Component.cpp
-                         Image.cpp
-                         #project.cpp
                          settings.cpp
                          Pdf.cpp
                          ply.cpp
                          utils.cpp
                          camera/Calibration.cpp
                          camera/Camera.cpp
+                         camera/CameraRepository.cpp
                          camera/Colmap.cpp
                          camera/Database.cpp
                          camera/Undistort.cpp
@@ -55,65 +54,52 @@ add_files_to_project(${PROJECT_NAME}
                          camera/io/impl/OpenDroneMapCalibrationWriter.cpp
                          camera/io/impl/Pix4DCalibrationReader.cpp
                          camera/io/impl/Pix4DCalibrationWriter.cpp
-                         dense/dense.cpp
-                         dense/CmvsPmvs.cpp
-                         dense/Smvs.cpp
-                         dense/mvs.cpp
-                         dense/DenseExport.cpp
-                         #features/featextract.cpp
-                         #features/featio.cpp
-                         features/Features.cpp
-                         features/Sift.cpp
-                         features/FeatureMatching.cpp
-                         io/ProjectReader.cpp
-                         io/ProjectWriter.cpp
+                         dense/CmvsPmvsProperties.cpp
+                         dense/DensificationProperties.cpp
+                         dense/MvsProperties.cpp
+                         dense/SmvsProperties.cpp
+                         dense/io/DenseExport.cpp
+                         features/FeatureExtractorProperties.cpp
+                         features/FeaturesRepository.cpp
+                         features/SiftProperties.cpp
+                         image/Image.cpp
+                         image/ImageRepository.cpp
+                         matching/MatchingProperties.cpp
+                         matching/MatchingRepository.cpp
                          mesh/PoissonRecon.cpp
-                         #multispectral/Radiance.cpp
-                         #multispectral/Reflectance.cpp
                          multispectral/Vignetting.cpp
+                         orientation/CameraPose.cpp
+                         orientation/CameraPosesRepository.cpp
+                         orientation/ColmapReconstructionConvert.cpp
+                         orientation/GroundControlPoint.cpp
+                         orientation/GroundPoint.cpp
+                         orientation/OrientationProperties.cpp
+                         orientation/Track.cpp
+                         orientation/io/CameraPosesReader.cpp
+                         orientation/io/CameraPosesWriter.cpp
+                         orientation/io/OrientationExport.cpp
                          project/Project.cpp
                          project/ProjectInfo.cpp
-                         repositories/CameraRepository.cpp
-                         repositories/FeaturesRepository.cpp
-                         repositories/ImageRepository.cpp
-                         repositories/MatchingRepository.cpp
-                         #sfm/orientationcolmap.cpp
-                         sfm/CameraPosesReader.cpp
-                         sfm/CameraPosesWriter.cpp
-                         sfm/ColmapReconstructionConvert.cpp
-                         sfm/OrientationConfig.cpp
-                         sfm/OrientationExport.cpp
-                         sfm/poses.cpp
-                         sfm/GroundPoint.cpp
-                         sfm/GroundControlPoint.cpp
-                         sfm/Track.cpp
-                         #sfm/BundleAdjuster.cpp
-                         #sfm/Reconstruction.cpp
+                         project/io/ProjectReader.cpp
+                         project/io/ProjectWriter.cpp
+                         task/Progress.cpp
                          task/TaskPresenter.cpp         
                          task/TaskView.cpp
-                         task/Progress.cpp
-                         #[[ortho/Orthorectification.cpp
-                         ortho/ZBuffer.cpp
-                         ortho/Footprint.cpp
-                         ortho/Orthoimage.cpp
-                         preprocess/clahe.cpp
-                         preprocess/dhe.cpp
-                         preprocess/pohe.cpp]]
                      HEADER_FILES
                          Application.h
                          AppStatus.h
                          ColorTable.h
                          command.h
                          Component.h
-                         Image.h
                          mvp.h
                          Pdf.h
                          ply.h
-                         #project.h
                          settings.h
                          utils.h
+                         base/Repository.h
                          camera/Calibration.h
                          camera/Camera.h
+                         camera/CameraRepository.h
                          camera/Colmap.h
                          camera/Database.h
                          camera/Undistort.h
@@ -127,58 +113,43 @@ add_files_to_project(${PROJECT_NAME}
                          camera/io/impl/OpenDroneMapCalibrationWriter.h
                          camera/io/impl/Pix4DCalibrationReader.h
                          camera/io/impl/Pix4DCalibrationWriter.h
-                         dense/dense.h
-                         dense/CmvsPmvs.h
-                         dense/Smvs.h
-                         dense/mvs.h
-                         dense/DenseExport.h
-                         #features/featextract.h
-                         features/Features.h
-                         #features/featio.h
-                         features/Sift.h
-                         features/FeatureMatching.h
-                         io/ProjectReader.h
-                         io/ProjectWriter.h
+                         dem/DemReport.h
+                         dense/CmvsPmvsProperties.h
+                         dense/DensificationReport.h
+                         dense/DensificationProperties.h
+                         dense/MvsProperties.h
+                         dense/SmvsProperties.h
+                         dense/io/DenseExport.h
+                         features/FeatureExtractorProperties.h
+                         features/FeatureExtractorReport.h
+                         features/FeaturesRepository.h
+                         features/SiftProperties.h
+                         image/Image.h
+                         image/ImageRepository.h
+                         matching/MatchingProperties.h
+                         matching/MatchingReport.h
+                         matching/MatchingRepository.h
                          mesh/PoissonRecon.h
-                         #multispectral/Radiance.h
-                         #multispectral/Reflectance.h
                          multispectral/Vignetting.h
+                         orientation/CameraPose.h
+                         orientation/CameraPosesRepository.h
+                         orientation/ColmapReconstructionConvert.h
+                         orientation/GroundControlPoint.h
+                         orientation/GroundPoint.h
+                         orientation/OrientationProperties.h
+                         orientation/OrientationReport.h
+                         orientation/Track.h
+                         orientation/io/CameraPosesReader.h
+                         orientation/io/CameraPosesWriter.h
+                         orientation/io/OrientationExport.h
+                         ortho/OrthophotoReport.h
                          project/Project.h
                          project/ProjectInfo.h
-                         reports/dem.h
-                         reports/orthophoto.h
-                         repositories/CameraRepository.h
-                         repositories/FeaturesRepository.h
-                         repositories/ImageRepository.h
-                         repositories/MatchingRepository.h
-                         repositories/Repository.h
-                         #sfm/orientation.h
-                         #sfm/orientationcolmap.h
-                         sfm/CameraPosesReader.cpp
-                         sfm/CameraPosesWriter.cpp
-                         sfm/ColmapReconstructionConvert.h
-                         sfm/poses.h
-                         sfm/GroundPoint.h
-                         sfm/GroundControlPoint.h
-                         sfm/Track.h
-                         sfm/OrientationConfig.h
-                         sfm/OrientationExport.h
-                         sfm/OrientationReport.h
-                         #sfm/BundleAdjuster.h
-                         #sfm/Reconstruction.h
-                         task/TaskPresenter.h            
-                         task/TaskView.h
+                         project/io/ProjectReader.h
+                         project/io/ProjectWriter.h
                          task/Progress.h
-                         #[[ortho/Orthorectification.h
-                         ortho/ZBuffer.h
-                         ortho/Footprint.h
-                         ortho/Orthoimage.h
-                         reports/dem.h
-                         reports/orthophoto.h
-                         #[[preprocess/preprocess.h
-                         preprocess/clahe.h
-                         preprocess/dhe.h
-                         preprocess/pohe.h]])
+                         task/TaskPresenter.h            
+                         task/TaskView.h)
 
 	
 add_library(${PROJECT_NAME} ${LIB_TYPE}

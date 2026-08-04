@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSIFICATION_COMPONENT_H
-#define GRAPHOS_DENSIFICATION_COMPONENT_H
+#pragma once
 
 /* TidopLib */
 #include <tidop/core/base/flags.h>
@@ -79,7 +78,7 @@ public:
 
 #endif // GRAPHOS_GUI
 
-    void setAutoSegmentation(bool autoSegmentation);
+    //void setAutoSegmentation(bool autoSegmentation);
 
 private:
 
@@ -115,6 +114,3 @@ private:
 ALLOW_BITWISE_FLAG_OPERATIONS(DensificationComponent::Method)
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_DENSIFICATION_COMPONENT_H

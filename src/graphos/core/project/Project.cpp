@@ -23,7 +23,9 @@
 
 #include "graphos/core/project/Project.h"
 
-//#include "graphos/core/features/sift.h"
+#include "graphos/core/orientation/io/CameraPosesReader.h"
+
+//#include "graphos/core/features/SiftProperties.h"
 //#include "graphos/core/features/matching.h"
 //#include "graphos/core/dense/Smvs.h"
 //#include "graphos/core/dense/CmvsPmvs.h"
@@ -31,7 +33,7 @@
 //#include "graphos/core/camera/Colmap.h"
 //#include "graphos/core/mesh/PoissonRecon.h"
 //#include "graphos/core/multispectral/Vignetting.h"
-//#include "graphos/core/sfm/groundpoint.h"
+//#include "graphos/core/orientation/GroundPoint.h"
 //
 //#include <tidop/core/app/Message.h>
 //#include <tidop/core/base/Exception.h>
@@ -92,81 +94,61 @@ auto Project::images() const -> const ImageRepository &
     return mImageRepository;
 }
 
-auto Project::featureConfig() const -> std::shared_ptr<Feature> 
+auto Project::featureConfig() const -> std::shared_ptr<FeatureExtractorProperties> 
 {
-    return mFeatConfig;
+    return mFeaturesConfig;
 }
 
-void Project::setFeatureConfig(std::shared_ptr<Feature> config) { 
-    mFeatConfig = std::move(config); 
+void Project::setFeatureConfig(std::shared_ptr<FeatureExtractorProperties> config) { 
+    mFeaturesConfig = std::move(config); 
 }
 
 auto Project::featureReport() const -> const FeatureExtractorReport & 
 { 
-    return mFeatReport; 
+    return mFeaturesReport; 
 }
 
 void Project::setFeatureReport(FeatureExtractorReport report)
 {
-    mFeatReport = std::move(report);
+    mFeaturesReport = std::move(report);
 }
 
 auto Project::features() -> FeaturesRepository & 
 { 
-    return mFeatureRepo;
+    return mFeaturesRepository;
 }
 
 auto Project::features() const -> const FeaturesRepository & 
 {
-    return mFeatureRepo;
+    return mFeaturesRepository;
 }
 
 void Project::clearFeatures()
 {
-    mFeatConfig.reset();
-    mFeatReport.clear();
-    mFeatureRepo.clear();
+    mFeaturesConfig.reset();
+    mFeaturesReport.clear();
+    mFeaturesRepository.clear();
     clearMatches();
 }
 
-auto Project::featureMatcherConfig() const -> std::shared_ptr<FeatureMatching>
+auto Project::matchingConfig() const -> std::shared_ptr<MatchingProperties>
 {
-    return mFeatureMatchingConfig;
+    return mMatchingConfig;
 }
 
-void Project::setFeatureMatcherConfig(std::shared_ptr<FeatureMatching> config)
+void Project::setMatchingConfig(std::shared_ptr<MatchingProperties> config)
 {
-    mFeatureMatchingConfig = std::move(config);
+    mMatchingConfig = std::move(config);
 }
 
-auto Project::orientationConfig() const -> std::shared_ptr<OrientationConfig>
+auto Project::matchingReport() const -> MatchingReport
 {
-    return mOrientationConfig;
+    return mMatchingReport;
 }
 
-void Project::setOrientationConfig(std::shared_ptr<OrientationConfig> config)
+void Project::setMatchingReport(MatchingReport report)
 {
-    mOrientationConfig = std::move(config);
-}
-
-auto Project::orientationReport() const -> OrientationReport
-{
-    return mOrientationReport;
-}
-
-void Project::setOrientationReport(OrientationReport report)
-{
-    mOrientationReport = std::move(report);
-}
-
-auto Project::featureMatchingReport() const -> FeatureMatchingReport
-{
-    return mFeatureMatchingReport;
-}
-
-void Project::setFeatureMatchingReport(FeatureMatchingReport report)
-{
-    mFeatureMatchingReport = std::move(report);
+    mMatchingReport = std::move(report);
 }
 
 auto Project::matches() -> MatchingRepository &
@@ -181,10 +163,30 @@ auto Project::matches() const -> const MatchingRepository &
 
 void Project::clearMatches()
 {
-    mFeatureMatchingConfig.reset();
-    mFeatureMatchingReport.clear();
+    mMatchingConfig.reset();
+    mMatchingReport.clear();
     mMatchingRepository.clear();
     clearOrientation();
+}
+
+auto Project::orientationConfig() const -> std::shared_ptr<OrientationProperties>
+{
+    return mOrientationConfig;
+}
+
+void Project::setOrientationConfig(std::shared_ptr<OrientationProperties> config)
+{
+    mOrientationConfig = std::move(config);
+}
+
+auto Project::orientationReport() const -> OrientationReport
+{
+    return mOrientationReport;
+}
+
+void Project::setOrientationReport(OrientationReport report)
+{
+    mOrientationReport = std::move(report);
 }
 
 
@@ -208,114 +210,86 @@ void Project::setGroundPoints(tl::Path groundPoints)
     mGroundPoints = std::move(groundPoints);
 }
 
-auto Project::poses() const -> tl::Path
+auto Project::cameraPosesFile() const -> tl::Path
 {
-    return mPoses;
+    return mPosesFile;
 }
 
-void Project::setPoses(tl::Path poses)
+void Project::setCameraPosesFile(tl::Path poses)
 {
-    mPoses = std::move(poses);
+    mPosesFile = std::move(poses);
+}
+
+auto Project::cameraPoses() -> CameraPosesRepository &
+{
+    if (!mCameraPosesRepository) {
+        if (auto reader = CameraPosesReaderFactory::create("GRAPHOS")) {
+            reader->read(mPosesFile);
+            auto poses = reader->cameraPoses();
+            mCameraPosesRepository = std::make_unique<CameraPosesRepository>();
+            mCameraPosesRepository->populate(poses);
+        }
+    }
+
+    return *mCameraPosesRepository;
 }
 
 void Project::clearOrientation()
 {
     mSparseModel.clear();
     mGroundPoints.clear();
-    mPoses.clear();
+    mPosesFile.clear();
     mOrientationReport.clear();
     mOrientationConfig.reset();
-//    this->clearDensification();
+    clearDensification();
 }
 
-//tl::Path Project::reconstructionPath() const
-//{
-//    return mProjectInfo.projectFolder().append("sfm");
-//}
-//
-//bool Project::isPhotoOriented(size_t imageId) const
-//{
-//    return mPhotoOrientation.find(imageId) != mPhotoOrientation.end();
-//}
-//
-//CameraPose Project::photoOrientation(size_t imageId) const
-//{
-//    return mPhotoOrientation.at(imageId);
-//}
-//
-//const std::unordered_map<size_t, CameraPose> &Project::poses() const
-//{
-//    return mPhotoOrientation;
-//}
-//
-//void Project::addPhotoOrientation(size_t imageId, 
-//                                     const CameraPose &photoOrientation)
-//{
-//    mPhotoOrientation[imageId] = photoOrientation;
-//}
 
-//void Project::clearReconstruction()
-//{
-//    mPhotoOrientation.clear();
-//    mSparseModel.clear();
-//    mEnuCrs.clear();
-//    mOrientationReport = OrientationReport();
-//    this->clearDensification();
-//}
 
-//OrientationReport Project::orientationReport() const
-//{
-//    return mOrientationReport;
-//}
-//
-//void Project::setOrientationReport(const OrientationReport &orientationReport)
-//{
-//    mOrientationReport = orientationReport;
-//}
-//
-//std::shared_ptr<Densification> Project::densification() const
-//{
-//    return mDensification;
-//}
-//
-//void Project::setDensification(const std::shared_ptr<Densification> &densification)
-//{
-//    mDensification = densification;
-//}
-//
-//void Project::setDenseModel(const tl::Path &denseModel)
-//{
-//    mDenseModel = denseModel;
-//}
-//
-//DenseReport Project::denseReport() const
-//{
-//    return mDenseReport;
-//}
-//
-//void Project::setDenseReport(const DenseReport &denseReport)
-//{
-//    mDenseReport = denseReport;
-//}
-//
-//tl::Path Project::denseModel() const
-//{
-//    return mDenseModel;
-//}
-//
-//void Project::clearDensification()
-//{
-//    mDenseModel.clear();
-//    mDenseReport = DenseReport();
-//    clearMesh();
-//    clearDem();
-//}
-//
+auto Project::densificationConfig() const -> std::shared_ptr<DensificationProperties>
+{
+    return mDensificationConfig;
+}
+
+void Project::setDensificationConfig(std::shared_ptr<DensificationProperties> config)
+{
+    mDensificationConfig = std::move(config);
+}
+
+auto Project::denseModel() const -> tl::Path
+{
+    return mDenseModel;
+}
+
+void Project::setDenseModel(tl::Path denseModel)
+{
+    mDenseModel = std::move(denseModel);
+}
+
+auto Project::densificationReport() const -> DensificationReport
+{
+    return mDenseReport;
+}
+
+void Project::setDensificationReport(DensificationReport densificationReport)
+{
+    mDenseReport = std::move(densificationReport);
+}
+
+void Project::clearDensification()
+{
+    mDensificationConfig.reset();
+    mDenseModel.clear();
+    mDenseReport = DensificationReport();
+    //clearMesh();
+    //clearDem();
+}
+
 //std::shared_ptr<PoissonReconProperties> Project::meshProperties() const
 //{
 //    return mMeshProperties;
 //}
-//
+
 //void Project::setMeshProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties)
 //{
 //    mMeshProperties = meshProperties;
@@ -409,15 +383,15 @@ void Project::clear()
     mCrs = "";
     mImageRepository.clear();
     mCameraRepository.clear();
-    mFeatConfig.reset();
-    mFeatReport.clear();
-    mFeatureRepo.clear();
-    mFeatureMatchingConfig.reset();
-    mFeatureMatchingReport.clear();
+    mFeaturesConfig.reset();
+    mFeaturesReport.clear();
+    mFeaturesRepository.clear();
+    mMatchingConfig.reset();
+    mMatchingReport.clear();
     mMatchingRepository.clear();
     mSparseModel.clear();
     mGroundPoints.clear();
-    mPoses.clear();
+    mPosesFile.clear();
     mOrientationReport.clear();
     mOrientationConfig.reset();
 

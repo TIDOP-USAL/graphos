@@ -72,8 +72,8 @@ if(BUILD_EXPORT_POINT_CLOUD_COMPONENT)
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           TidopLib::GeoTools
                           TidopLib::PointCloudTools
-                          Qt5::Core
-                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
+                          Qt6::Core
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)

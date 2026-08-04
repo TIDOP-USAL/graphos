@@ -24,10 +24,10 @@
 #include "FeatureMatchingCommand.h"
 
 #include "graphos/core/utils.h"
-#include "graphos/core/features/FeatureMatching.h"
+#include "graphos/core/matching/MatchingProperties.h"
 #include "graphos/core/project/Project.h"
-#include "graphos/core/io/ProjectReader.h"
-#include "graphos/core/io/ProjectWriter.h"
+#include "graphos/core/project/io/ProjectReader.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 #include "graphos/core/task/Progress.h"
 #include "graphos/components/featmatch/impl/MatchFeaturesTask.h"
 #include "graphos/components/featmatch/impl/MatchSpatiallyTask.h"
@@ -48,10 +48,10 @@ namespace graphos
 {
 
 FeatureMatchingCommand::FeatureMatchingCommand()
-  : Command("featmatch", "Feature Matching"),
+  : Command("featmatch", "FeatureExtractorProperties Matching"),
     mDisableCuda(false)
 {
-    FeatureMatching feature_matching_properties;
+    MatchingProperties feature_matching_properties;
     auto ratio = feature_matching_properties.ratio();
 	auto distance = feature_matching_properties.distance();
 	auto max_error = feature_matching_properties.maxError();
@@ -122,7 +122,7 @@ bool FeatureMatchingCommand::run()
 
         project.clearMatches();
 
-        auto feature_matching_properties = std::make_shared<FeatureMatching>();
+        auto feature_matching_properties = std::make_shared<MatchingProperties>();
         feature_matching_properties->setRatio(ratio);
         feature_matching_properties->setDistance(distance);
         feature_matching_properties->setMaxError(max_error);
@@ -150,27 +150,24 @@ bool FeatureMatchingCommand::run()
             auto progress = getProgressBar(progress_bar, project.images().size());
             feature_matching_task.run(progress.get());
 
-            project.setFeatureMatchingReport(feature_matching_task.report());
+            project.setMatchingReport(feature_matching_task.report());
 
         } else {
             MatchFeaturesTask feature_matching_task(database_path,
-                                                     !mDisableCuda,
-                                                     feature_matching_properties);
+                                                    !mDisableCuda,
+                                                    feature_matching_properties);
 
             size_t block_size = 50;
             size_t num_blocks = static_cast<size_t>(std::ceil(static_cast<double>(project.images().size()) / block_size));
             auto progress = getProgressBar(progress_bar, num_blocks * num_blocks);
             feature_matching_task.run(progress.get());
 
-            project.setFeatureMatchingReport(feature_matching_task.report());
+            project.setMatchingReport(feature_matching_task.report());
         }
 
-        project.setFeatureMatcherConfig(feature_matching_properties);
+        project.setMatchingConfig(feature_matching_properties);
         ProjectWriter writer;
         writer.write(project_path, project);
-        //writeMatchPairs(&project);
-
-        //project.save(project_path);
 
     } catch (const std::exception &e) {
 

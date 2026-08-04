@@ -430,8 +430,8 @@ class UndistortProducerImp
 public:
 
     UndistortProducerImp(tl::QueueMPMC<UndistortQueueData> *queue,
-                         const std::unordered_map<size_t, Image> *images,
-                         const std::map<int, Camera> *cameras,
+                         const ImageRepository &imageRepo,
+                         const CameraRepository &cameraRepo,
                          tl::Path undistortPath,
                          std::string extension,
                          bool useGPU,
@@ -439,8 +439,8 @@ public:
                          bool normalize,
                          tl::Task *parentTask = nullptr)
         : tl::Producer<UndistortQueueData>(queue),
-          mImages(images),
-          mCameras(cameras),
+          mImageRepo(imageRepo),
+          mCameraRepo(cameraRepo),
           mUndistortPath(std::move(undistortPath)),
           mExtension(std::move(extension)),
           bUseGPU(useGPU),
@@ -452,9 +452,9 @@ public:
 
     void operator() (size_t ini, size_t end) override
     {
-        auto it_begin = mImages->begin();
+        auto it_begin = mImageRepo.begin();
         std::advance(it_begin, ini);
-        auto it_end = mImages->begin();
+        auto it_end = mImageRepo.begin();
         std::advance(it_end, end);
 
         while (it_begin != it_end) {
@@ -472,14 +472,14 @@ public:
 
     void operator() () override
     {
-        for (const auto &image : *mImages) {
+        for (const auto &[_,image] : mImageRepo) {
 
             if (mParentTask->status() == tl::Task::Status::stopping) {
                 data_load_done = true;
                 return;
             }
 
-            producer(image.second);
+            producer(image);
         }
     }
 
@@ -497,9 +497,9 @@ private:
 
             if (mUndistort.find(camera_id) == mUndistort.end()) {
 
-                const auto &camera = mCameras->find(camera_id);
-                if (camera != mCameras->end()) {
-                    mUndistort[camera->first] = std::make_shared<Undistort>(camera->second);
+                const auto camera = mCameraRepo.find(camera_id);
+                if (camera) {
+                    mUndistort[camera_id] = std::make_shared<Undistort>(*camera);
                 } else {
                     return;
                 }
@@ -509,7 +509,7 @@ private:
 
             cv::Mat mat = readImage(image);
 
-            const auto &camera = mCameras->at(camera_id);
+            const auto &camera = mUndistort[camera_id]->camera();
 
             if (camera.blackLevel()) {
 
@@ -635,8 +635,8 @@ private:
 
 protected:
 
-    const std::unordered_map<size_t, Image> *mImages;
-    const std::map<int, Camera> *mCameras;
+    const ImageRepository &mImageRepo;
+    const CameraRepository &mCameraRepo;
     std::map<int, std::shared_ptr<Undistort>> mUndistort;
     std::map<int, cv::Mat> mVignettingMaps;
     tl::Path mUndistortPath;
@@ -656,12 +656,12 @@ class UndistortConsumerImp
 public:
 
     UndistortConsumerImp(tl::QueueMPMC<UndistortQueueData> *buffer,
-                         std::unordered_map<size_t, Image> *images,
+                         //const ImageRepository &mImageRepo,
                          bool useGPU,
                          tl::Progress *progressBar,
                          tl::Task *parentTask = nullptr)
         : tl::Consumer<UndistortQueueData>(buffer),
-          mImages(images),
+          //mImages(images),
           bUseGPU(useGPU),
           mProgressBar(progressBar),
           mParentTask(parentTask)
@@ -784,7 +784,7 @@ private:
 
 private:
 
-    std::unordered_map<size_t, Image> *mImages;
+    //std::unordered_map<size_t, Image> *mImages;
     std::string mDatabaseFile;
     bool bUseGPU;
     tl::Progress *mProgressBar;
@@ -798,15 +798,15 @@ private:
 
 
 
-UndistortImages::UndistortImages(const std::unordered_map<size_t, Image> &images,
-                                 const std::map<int, Camera> &cameras,
+UndistortImages::UndistortImages(const ImageRepository &imageRepo,
+                                 const CameraRepository &cameraRepo,
                                  tl::Path outputPath,
                                  Format outputFormat,
                                  bool cuda,
                                  bool useIdAsName,
                                  bool normalize)
-    : mImages(images),
-      mCameras(cameras),
+    : mImageRepo(imageRepo),
+      mCameraRepo(cameraRepo),
       mOutputPath(std::move(outputPath)),
       mOutputFormat(outputFormat),
       mUseCuda(cuda),
@@ -843,8 +843,8 @@ void UndistortImages::execute(tl::Progress *progressBar, std::stop_token stopTok
 
         tl::QueueMPMC<internal::UndistortQueueData> queue(50);
         internal::UndistortProducerImp producer(&queue,
-                                                &mImages,
-                                                &mCameras,
+                                                mImageRepo,
+                                                mCameraRepo,
                                                 mOutputPath,
                                                 extension,
                                                 mUseCuda,
@@ -852,7 +852,7 @@ void UndistortImages::execute(tl::Progress *progressBar, std::stop_token stopTok
                                                 mNormalize,
                                                 this);
         internal::UndistortConsumerImp consumer(&queue,
-                                                &mImages,
+                                                //&mImageRepo,
                                                 mUseCuda,
                                                 progressBar,
                                                 this);
@@ -863,11 +863,11 @@ void UndistortImages::execute(tl::Progress *progressBar, std::stop_token stopTok
 
         internal::data_load_done = false;
 
-        size_t size = mImages.size() / num_threads;
+        size_t size = mImageRepo.size() / num_threads;
         for (size_t i = 0; i < num_threads; ++i) {
             size_t _ini = i * size;
             size_t _end = _ini + size;
-            if (i == num_threads - 1) _end = mImages.size();
+            if (i == num_threads - 1) _end = mImageRepo.size();
 
             producer_threads[i] = std::thread(producer, _ini, _end);
         }
@@ -898,7 +898,7 @@ void UndistortImages::execute(tl::Progress *progressBar, std::stop_token stopTok
         }
 
     } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("Feature Extractor error");
+        TL_THROW_EXCEPTION_WITH_NESTED("FeatureExtractorProperties Extractor error");
     }
 
 }

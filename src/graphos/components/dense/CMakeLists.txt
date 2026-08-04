@@ -39,10 +39,18 @@ if(BUILD_DENSE_COMPONENT)
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              DensificationComponent.cpp
+                             impl/CmvsPmvsTask.cpp
+                             impl/DenseTaskBase.cpp
                              impl/DensificationCommand.cpp
+                             impl/MvsTask.cpp
+                             impl/SmvsTask.cpp
                          HEADER_FILES
                              DensificationComponent.h
-                             impl/DensificationCommand.h)
+                             impl/CmvsPmvsTask.h
+                             impl/DenseTaskBase.h
+                             impl/DensificationCommand.h
+                             impl/MvsTask.h
+                             impl/SmvsTask.h)
                              
 if (BUILD_GUI)
     add_files_to_project(${PROJECT_NAME}
@@ -67,8 +75,8 @@ endif(BUILD_GUI)
                 ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
-                          Qt5::Core
-                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
+                          Qt6::Core
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)

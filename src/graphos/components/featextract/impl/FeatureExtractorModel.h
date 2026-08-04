@@ -32,7 +32,7 @@ namespace graphos
 {
 
 class Project;
-class Feature;
+class FeatureExtractorProperties;
 
 class FeatureExtractorModelImp final
   : public FeatureExtractorModel
@@ -48,8 +48,8 @@ public:
 
 public:
 
-    auto featureExtractor() const -> std::shared_ptr<Feature> override;
-    void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
+    auto featureExtractor() const -> std::shared_ptr<FeatureExtractorProperties> override;
+    void setFeatureExtractor(const std::shared_ptr<FeatureExtractorProperties> &featureExtractor) override;
     void setFeatureExtractorReport(const FeatureExtractorReport &report) override;
     auto database() const -> tl::Path override;
     void addFeatures(size_t imageId, const QString &featuresFile) override;

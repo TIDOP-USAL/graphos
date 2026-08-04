@@ -74,7 +74,7 @@ public slots:
 
     void setDensification(const std::shared_ptr<Densification> &densification) override;
     void setDenseModel(const tl::Path &denseModel) override;
-    void setDenseReport(const DenseReport &report) override;
+    void setDensificationReport(const DensificationReport &report) override;
 
 protected:
 

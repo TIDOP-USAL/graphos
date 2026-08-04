@@ -27,7 +27,7 @@
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Database.h"
 #include "graphos/core/multispectral/Vignetting.h"
-#include "graphos/core/repositories/CameraRepository.h"
+#include "graphos/core/camera/CameraRepository.h"
 
 #include <tidop/core/app/Message.h>
 #include <tidop/core/base/Chrono.h>

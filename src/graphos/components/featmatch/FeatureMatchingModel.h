@@ -32,7 +32,7 @@
 namespace graphos
 {
 
-class FeatureMatching;
+class MatchingProperties;
 
 class FeatureMatchingModel
   : public Model
@@ -45,9 +45,9 @@ public:
     FeatureMatchingModel(QObject *parent = nullptr) : Model(parent) {}
     ~FeatureMatchingModel() override = default;
 
-    virtual auto featureMatching() const -> std::shared_ptr<FeatureMatching> = 0;
-    virtual void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) = 0;
-    virtual void setFeatureMatchingReport(const FeatureMatchingReport &report) = 0;
+    virtual auto featureMatching() const -> std::shared_ptr<MatchingProperties> = 0;
+    virtual void setFeatureMatching(const std::shared_ptr<MatchingProperties> &featureMatching) = 0;
+    virtual void setMatchingReport(const MatchingReport &report) = 0;
     virtual auto database() const -> tl::Path = 0;
     virtual auto useCuda() const -> bool = 0;
     virtual auto spatialMatching() const -> bool = 0;

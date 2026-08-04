@@ -38,7 +38,7 @@
 namespace graphos
 {
 
-SiftGPUExtractor::SiftGPUExtractor(const Sift &config)
+SiftGPUExtractor::SiftGPUExtractor(const SiftProperties &config)
   : mMaxFeatures(config.featuresNumber())
 {
     updateConfig(config);
@@ -46,7 +46,7 @@ SiftGPUExtractor::SiftGPUExtractor(const Sift &config)
 
 SiftGPUExtractor::~SiftGPUExtractor() = default;
 
-void SiftGPUExtractor::updateConfig(const Sift &config)
+void SiftGPUExtractor::updateConfig(const SiftProperties &config)
 {
     colmap::FeatureExtractionOptions options;
     options.sift = std::make_shared<colmap::SiftExtractionOptions>();

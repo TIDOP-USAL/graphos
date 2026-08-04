@@ -34,7 +34,7 @@ namespace graphos
 /* SiftCPUExtractor */
 
 
-SiftCPUExtractor::SiftCPUExtractor(const Sift &config)
+SiftCPUExtractor::SiftCPUExtractor(const SiftProperties &config)
 {
     updateConfig(config);
 }
@@ -53,8 +53,8 @@ void SiftCPUExtractor::run(const cv::Mat &bitmap,
 #if (CV_VERSION_MAJOR > 4 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 4)) || (defined HAVE_OPENCV_XFEATURES2D && defined OPENCV_ENABLE_NONFREE)
         mSift->detect(bitmap, opencv_key_points/*, mask*/);
 #else
-        TL_COMPILER_WARNING("OpenCV not built with extra modules. Sift Detector/Descriptor not supported")
-        throw TL_ERROR("OpenCV not built with extra modules. Sift Detector/Descriptor not supported");
+        TL_COMPILER_WARNING("OpenCV not built with extra modules. SiftProperties Detector/Descriptor not supported")
+        throw TL_ERROR("OpenCV not built with extra modules. SiftProperties Detector/Descriptor not supported");
 #endif // HAVE_OPENCV_XFEATURES2D
 
 
@@ -62,8 +62,8 @@ void SiftCPUExtractor::run(const cv::Mat &bitmap,
 #if (CV_VERSION_MAJOR > 4 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 4)) || (defined HAVE_OPENCV_XFEATURES2D && defined OPENCV_ENABLE_NONFREE)
         mSift->compute(bitmap, opencv_key_points, opencv_descriptors);
 #else
-        TL_COMPILER_WARNING("OpenCV not built with extra modules. Sift Detector/Descriptor not supported")
-        throw TL_ERROR("OpenCV not built with extra modules. Sift Detector/Descriptor not supported");
+        TL_COMPILER_WARNING("OpenCV not built with extra modules. SiftProperties Detector/Descriptor not supported")
+        throw TL_ERROR("OpenCV not built with extra modules. SiftProperties Detector/Descriptor not supported");
 #endif // HAVE_OPENCV_XFEATURES2D
 
         keyPoints = opencv_key_points;
@@ -74,7 +74,7 @@ void SiftCPUExtractor::run(const cv::Mat &bitmap,
     }
 }
 
-void SiftCPUExtractor::updateConfig(const Sift &config)
+void SiftCPUExtractor::updateConfig(const SiftProperties &config)
 {
 #if (CV_VERSION_MAJOR > 4 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 4))
     mSift = cv::SIFT::create(config.featuresNumber(),

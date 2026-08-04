@@ -32,8 +32,8 @@
 #include <tidop/core/task/Task.h>
 #include <tidop/core/base/Path.h>
 
-#include "graphos/core/features/FeatureMatching.h"
-#include "graphos/core/features/FeatureMatchingReport.h"
+#include "graphos/core/matching/MatchingProperties.h"
+#include "graphos/core/matching/MatchingReport.h"
 
 namespace graphos
 {
@@ -49,12 +49,12 @@ public:
 
     MatchFeaturesTask(tl::Path database,
                       bool cuda,
-                      const std::shared_ptr<FeatureMatching> &featureMatching);
+                      const std::shared_ptr<MatchingProperties> &featureMatching);
     ~MatchFeaturesTask() override;
 
 public:
 
-    auto report() const -> FeatureMatchingReport;
+    auto report() const -> MatchingReport;
 
 // tl::TaskBase interface
 
@@ -66,8 +66,8 @@ private:
 
     tl::Path mDatabase;
     bool bUseCuda;
-    std::shared_ptr<FeatureMatching> mFeatureMatching;
-    FeatureMatchingReport mReport;
+    std::shared_ptr<MatchingProperties> mFeatureMatching;
+    MatchingReport mReport;
 
 };
 

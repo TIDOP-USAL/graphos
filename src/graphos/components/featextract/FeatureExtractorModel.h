@@ -35,7 +35,7 @@
 namespace graphos
 {
 
-class Feature;
+class FeatureExtractorProperties;
 class Camera;
 
 class FeatureExtractorModel
@@ -47,8 +47,8 @@ public:
     FeatureExtractorModel(QObject *parent = nullptr) : Model(parent) {}
     ~FeatureExtractorModel() override = default;
 
-    virtual auto featureExtractor() const -> std::shared_ptr<Feature> = 0;
-    virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
+    virtual auto featureExtractor() const -> std::shared_ptr<FeatureExtractorProperties> = 0;
+    virtual void setFeatureExtractor(const std::shared_ptr<FeatureExtractorProperties> &featureExtractor) = 0;
     virtual void setFeatureExtractorReport(const FeatureExtractorReport &report) = 0;
     virtual auto database() const -> tl::Path = 0;
     virtual void addFeatures(size_t imageId, const QString &featuresFile) = 0;

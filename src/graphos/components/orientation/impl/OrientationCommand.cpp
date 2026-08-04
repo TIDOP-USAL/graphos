@@ -25,10 +25,10 @@
 #include "graphos/components/orientation/impl/OrientationCommand.h"
 
 #include "graphos/core/project/Project.h"
-#include "graphos/core/io/ProjectReader.h"
-#include "graphos/core/io/ProjectWriter.h"
+#include "graphos/core/project/io/ProjectReader.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 #include "graphos/core/camera/Colmap.h"
-#include "graphos/core/sfm/CameraPosesReader.h"
+#include "graphos/core/orientation/io/CameraPosesReader.h"
 #include "graphos/components/orientation/impl/EstimatePosesTask.h"
 
 #include <tidop/core/app/Logger.h>
@@ -51,7 +51,7 @@ OrientationCommand::OrientationCommand()
     this->addArgument<std::string>("method", 'm', "Orientation method: sequential or global", "sequential");
     this->addArgument<bool>("fix_calibration", 'c', "Fix calibration", false);
     this->addArgument<bool>("use_gcp", "Use Ground Control Points for absolute orientation", true);
-    this->addArgument<bool>("use_poses", "Use camera poses for absolute orientation", true);
+    this->addArgument<bool>("use_poses", "Use camera cameraPosesFile for absolute orientation", true);
     this->addArgument<bool>("use_rtk_accuracy", "Use RTK positioning accuracy", false);
     this->addArgument<bool>("absolute_orientation", 'a', "Absolute Orientation", false);
 
@@ -89,7 +89,7 @@ bool OrientationCommand::run()
         reader.read(project_path, project);
 
         TL_ASSERT(project.matches().hasInlierMatches(), "No valid matches found in the database. "
-            "Please run the Feature Matching process before estimating camera poses.");
+            "Please run the FeatureExtractorProperties Matching process before estimating camera cameraPosesFile.");
 
         project.clearOrientation();
 
@@ -156,7 +156,7 @@ bool OrientationCommand::run()
         ground_points_path.append("ground_points.bin");
 
         tl::Path poses_path = sfm_path;
-        poses_path.append("poses.bin");
+        poses_path.append("cameraPosesFile.bin");
 
 
         TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");
@@ -165,7 +165,7 @@ bool OrientationCommand::run()
 
         project.setSparseModel(sparse_model_path);
         project.setGroundPoints(ground_points_path);
-        project.setPoses(poses_path);
+        project.setCameraPosesFile(poses_path);
         //if (absolute_orientation) {
         //    project.setEnuCrs(QString::fromStdString(reconstruction.enuCrs()));
         //}
@@ -184,7 +184,7 @@ bool OrientationCommand::run()
         double oriented_percent = (static_cast<double>(poses.size()) / static_cast<double>(project.images().size())) * 100.;
         if (oriented_percent < 90.) {
             // Menos del 90% de imagenes orientadas
-            tl::Message::warning("{} percent of images oriented. Increase image size and number of points in Feature detector.", tl::roundToInteger(oriented_percent));
+            tl::Message::warning("{} percent of images oriented. Increase image size and number of points in FeatureExtractorProperties detector.", tl::roundToInteger(oriented_percent));
         }
 
         //for (const auto &camera : cameras) {
@@ -195,7 +195,7 @@ bool OrientationCommand::run()
         report.type = absolute_orientation ? "Absolute" : "Relative";
         project.setOrientationReport(report);
 
-        auto config = std::make_shared<OrientationConfig>(method);
+        auto config = std::make_shared<OrientationProperties>(method);
         config->enableAbsoluteOrientation(absolute_orientation);
         config->enableFixCalibration(fix_calibration);
         config->enableUseGcp(use_gcp);

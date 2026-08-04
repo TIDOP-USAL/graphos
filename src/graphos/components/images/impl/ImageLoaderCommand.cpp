@@ -26,9 +26,9 @@
 
 #include "graphos/components/images/impl/LoadImagesTask.h"
 #include "graphos/core/project/Project.h"
-#include "graphos/core/io/ProjectReader.h"
-#include "graphos/core/io/ProjectWriter.h"
-#include "graphos/core/Image.h"
+#include "graphos/core/project/io/ProjectReader.h"
+#include "graphos/core/project/io/ProjectWriter.h"
+#include "graphos/core/image/Image.h"
 #include "graphos/core/task/Progress.h"
 
 #include <tidop/core/app/Message.h>

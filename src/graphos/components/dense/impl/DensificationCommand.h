@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSIFICATION_COMMAND_H
-#define GRAPHOS_DENSIFICATION_COMMAND_H
+#pragma once
 
 #include "graphos/core/command.h"
 
@@ -52,7 +51,4 @@ private:
 
 };
 
-
 } // namespace graphos
-
-#endif // GRAPHOS_DENSIFICATION_COMMAND_H

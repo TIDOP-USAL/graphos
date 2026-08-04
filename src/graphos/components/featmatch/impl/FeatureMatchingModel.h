@@ -48,9 +48,9 @@ public:
 
 public:
 
-    auto featureMatching() const -> std::shared_ptr<FeatureMatching> override;
-    void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
-    void setFeatureMatchingReport(const FeatureMatchingReport& report) override;
+    auto featureMatching() const -> std::shared_ptr<MatchingProperties> override;
+    void setFeatureMatching(const std::shared_ptr<MatchingProperties> &featureMatching) override;
+    void setMatchingReport(const MatchingReport& report) override;
     auto database() const -> tl::Path override;
     auto useCuda() const -> bool override;
     auto spatialMatching() const -> bool override;

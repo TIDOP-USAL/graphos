@@ -26,8 +26,9 @@
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/utils.h"
-#include "graphos/core/repositories/CameraRepository.h"
-#include "graphos/core/repositories/ImageRepository.h"
+#include "graphos/core/camera/CameraRepository.h"
+#include "graphos/core/image/ImageRepository.h"
+#include "graphos/components/featextract/impl/FeatureExtractor.h"
 
 #include <tidop/core/app/Message.h>
 #include <tidop/core/base/Exception.h>
@@ -382,11 +383,11 @@ void ExtractFeaturesTask::execute(tl::Progress *progressBar, std::stop_token sto
 
     try {
 
-        tl::Message::info("Feature extraction running");
+        tl::Message::info("FeatureExtractorProperties extraction running");
 
         TL_ASSERT(!mImageRepo.empty(), "Cannot extract features: Image repository is empty.");
         TL_ASSERT(!mCameraRepo.empty(), "Cannot extract features: Camera repository is empty.");
-        TL_ASSERT(mFeatureExtractor != nullptr, "Cannot extract features: Feature extractor is null.");
+        TL_ASSERT(mFeatureExtractor != nullptr, "Cannot extract features: FeatureExtractorProperties extractor is null.");
 
         setupDatabaseAndMappings();
 
@@ -443,13 +444,13 @@ void ExtractFeaturesTask::execute(tl::Progress *progressBar, std::stop_token sto
             mReport.cuda = bUseCuda;
             mReport.time = this->time();
 
-            tl::Message::success("Feature extraction finished in {:.2} minutes", mReport.time / 60.);
+            tl::Message::success("FeatureExtractorProperties extraction finished in {:.2} minutes", mReport.time / 60.);
             tl::Message::info(" - Total features extracted: {}", keypoints);
 
         }
 
     } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("Feature Extractor error");
+        TL_THROW_EXCEPTION_WITH_NESTED("FeatureExtractorProperties Extractor error");
     }
 
 }
@@ -532,10 +533,10 @@ void ExtractFeaturesTask::setupDatabaseAndMappings()
 
                 auto crs = image.cameraPose().crs().toStdString();
                 if (geo_tools) {
-                    tl::Message::info("Transformación de {} a {}: ", crs, mEnuCrs);
-                    tl::Message::info(" - Entrada: [{}, {}, {}]", position.x(), position.y(), position.z());
+                    //tl::Message::info("Transformación de {} a {}: ", crs, mEnuCrs);
+                    //tl::Message::info(" - Entrada: [{}, {}, {}]", position.x(), position.y(), position.z());
                     geo_tools->ptrCRSsTools()->crsOperation(crs, mEnuCrs, position.x(), position.y(), position.z());
-                    tl::Message::info(" - Salida: [{}, {}, {}]", position.x(), position.y(), position.z());
+                    //tl::Message::info(" - Salida: [{}, {}, {}]", position.x(), position.y(), position.z());
                 } else {
                     tl::Message::warning("geotools no existe");
                 }

@@ -32,7 +32,7 @@
 #include "graphos/widgets/SmvsWidget.h"
 #include "graphos/widgets/MvsWidget.h"
 #endif // GRAPHOS_GUI
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

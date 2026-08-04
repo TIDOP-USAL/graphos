@@ -47,6 +47,7 @@ if(BUILD_FEATEXTRACT_COMPONENT)
                          HEADER_FILES
                              FeatureExtractorComponent.h
                              impl/ExtractFeaturesTask.h
+                             impl/FeatureExtractor.h
                              impl/FeatureExtractorCommand.h
                              impl/SiftCPUExtractor.h
                              impl/SiftGPUExtractor.h)

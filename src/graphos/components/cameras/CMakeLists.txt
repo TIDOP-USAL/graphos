@@ -68,8 +68,8 @@ endif(BUILD_GUI)
                 ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
-                          Qt5::Core
-                          Qt5::Widgets
+                          Qt6::Core
+                          Qt6::Widgets
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)

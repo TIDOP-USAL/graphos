@@ -35,7 +35,10 @@
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Calibration.h"
-#include "graphos/core/Image.h"
+#include "graphos/core/camera/CameraRepository.h"
+#include "graphos/core/image/Image.h"
+#include "graphos/core/image/ImageRepository.h"
+
 
 namespace tl
 {
@@ -111,8 +114,8 @@ public:
 
 public:
 
-    UndistortImages(const std::unordered_map<size_t, Image> &images,
-                    const std::map<int, Camera> &cameras,
+    UndistortImages(const ImageRepository &imageRepo,
+                    const CameraRepository &cameraRepo,
                     tl::Path outputPath,
                     Format outputFormat,
                     bool cuda = false,
@@ -129,8 +132,8 @@ protected:
 
 private:
 
-    std::unordered_map<size_t, Image> mImages;
-    std::map<int, Camera> mCameras;
+    const ImageRepository &mImageRepo;
+    const CameraRepository &mCameraRepo;
     tl::Path mOutputPath;
     Format mOutputFormat;
     bool mUseCuda;

@@ -31,34 +31,23 @@
 #include <map>
 #include <unordered_map>
 
-#include <QString>
-#include <QSize>
+//#include <QString>
+//#include <QSize>
 
 #include "graphos/core/project/ProjectInfo.h"
-//
-//#include "graphos/core/camera/Camera.h"
-//#include "graphos/core/Image.h"
-
-//#include "graphos/core/sfm/poses.h"
-//
-//#include "graphos/core/dense/dense.h"
-//#include "graphos/core/mesh/PoissonRecon.h"
-//#include "graphos/core/reports/dem.h"
-//#include "graphos/core/reports/orthophoto.h"
-#include "graphos/core/repositories/CameraRepository.h"
-#include "graphos/core/repositories/FeaturesRepository.h"
-#include "graphos/core/repositories/ImageRepository.h"
-#include "graphos/core/repositories/MatchingRepository.h"
-#include "graphos/core/features/Features.h"
+#include "graphos/core/image/ImageRepository.h"
+#include "graphos/core/camera/CameraRepository.h"
+#include "graphos/core/features/FeatureExtractorProperties.h"
 #include "graphos/core/features/FeatureExtractorReport.h"
-#include "graphos/core/features/FeatureMatching.h"
-#include "graphos/core/features/FeatureMatchingReport.h"
-#include "graphos/core/sfm/OrientationConfig.h"
-#include "graphos/core/sfm/OrientationReport.h"
-
-// extraer de aqui a XmlSerializer.h
-//class QXmlStreamWriter;
-//class QXmlStreamReader;
+#include "graphos/core/features/FeaturesRepository.h"
+#include "graphos/core/matching/MatchingProperties.h"
+#include "graphos/core/matching/MatchingReport.h"
+#include "graphos/core/matching/MatchingRepository.h"
+#include "graphos/core/orientation/OrientationProperties.h"
+#include "graphos/core/orientation/OrientationReport.h"
+#include "graphos/core/orientation/CameraPosesRepository.h"
+#include "graphos/core/dense/DensificationProperties.h"
+#include "graphos/core/dense/DensificationReport.h"
 
 namespace graphos
 {
@@ -79,45 +68,31 @@ class Project
 
 protected:
 
-    //QString mName;
-    //QString mDescription;
-    //tl::Path mProjectFolder;
-    //tl::Path mProjectPath;
-    //QString mVersion;
-    //tl::Path mDatabase;
     ProjectInfo mProjectInfo;
     CameraRepository mCameraRepository;
     ImageRepository mImageRepository;
 
-    std::shared_ptr<Feature> mFeatConfig;
-    FeatureExtractorReport mFeatReport;
-    FeaturesRepository mFeatureRepo;
+    std::shared_ptr<FeatureExtractorProperties> mFeaturesConfig;
+    FeatureExtractorReport mFeaturesReport;
+    FeaturesRepository mFeaturesRepository;
 
-    std::shared_ptr<FeatureMatching> mFeatureMatchingConfig;
-    FeatureMatchingReport mFeatureMatchingReport;
+    std::shared_ptr<MatchingProperties> mMatchingConfig;
+    MatchingReport mMatchingReport;
     MatchingRepository mMatchingRepository;
 
     QString mCrs;
 
-    std::shared_ptr<OrientationConfig> mOrientationConfig;
+    std::shared_ptr<OrientationProperties> mOrientationConfig;
     OrientationReport mOrientationReport;
     tl::Path mSparseModel;
     tl::Path mGroundPoints;
-    tl::Path mPoses;
+    tl::Path mPosesFile;
+    mutable std::unique_ptr<CameraPosesRepository> mCameraPosesRepository;
 
-    //std::shared_ptr<FeatureMatching> mFeatureMatching;
-    
-    //std::unordered_map<size_t, std::vector<size_t>> mImagesPairs;
-    //std::unordered_map<size_t, CameraPose> mPhotoOrientation;
+    std::shared_ptr<DensificationProperties> mDensificationConfig;
+    tl::Path mDenseModel;
+    DensificationReport mDenseReport;
 
-    //
-    //QString mEnuCrs;
-    //
-    //
-    ////tl::Path mReconstructionPath;
-    //std::shared_ptr<Densification> mDensification;
-    //tl::Path mDenseModel;
-    //DenseReport mDenseReport;
     //std::shared_ptr<PoissonReconProperties> mMeshProperties;
     //tl::Path mMeshModel;
     //MeshReport mMeshReport;
@@ -145,8 +120,8 @@ public:
 
     // Features
 
-    auto featureConfig() const -> std::shared_ptr<Feature>;
-    void setFeatureConfig(std::shared_ptr<Feature> config);
+    auto featureConfig() const -> std::shared_ptr<FeatureExtractorProperties>;
+    void setFeatureConfig(std::shared_ptr<FeatureExtractorProperties> config);
 
     auto featureReport() const -> const FeatureExtractorReport &;
     void setFeatureReport(FeatureExtractorReport report);
@@ -158,11 +133,11 @@ public:
 
     // Matching
     
-    auto featureMatcherConfig() const -> std::shared_ptr<FeatureMatching>;
-    void setFeatureMatcherConfig(std::shared_ptr<FeatureMatching> config);
+    auto matchingConfig() const -> std::shared_ptr<MatchingProperties>;
+    void setMatchingConfig(std::shared_ptr<MatchingProperties> config);
 
-    auto featureMatchingReport() const -> FeatureMatchingReport;
-    void setFeatureMatchingReport(FeatureMatchingReport report);
+    auto matchingReport() const -> MatchingReport;
+    void setMatchingReport(MatchingReport report);
 
     auto matches() -> MatchingRepository &;
     auto matches() const -> const MatchingRepository &;
@@ -171,8 +146,8 @@ public:
     
     // Orientation
 
-    auto orientationConfig() const -> std::shared_ptr<OrientationConfig>;
-    void setOrientationConfig(std::shared_ptr<OrientationConfig> config);
+    auto orientationConfig() const -> std::shared_ptr<OrientationProperties>;
+    void setOrientationConfig(std::shared_ptr<OrientationProperties> config);
 
     auto orientationReport() const -> OrientationReport;
     void setOrientationReport(OrientationReport report);
@@ -183,28 +158,26 @@ public:
     auto groundPoints() const -> tl::Path;
     void setGroundPoints(tl::Path groundPoints);
     
-    auto poses() const -> tl::Path;
-    void setPoses(tl::Path poses);
+    auto cameraPosesFile() const -> tl::Path;
+    void setCameraPosesFile(tl::Path poses);
+
+    auto cameraPoses() -> CameraPosesRepository &;
 
     void clearOrientation();
 
-    //tl::Path reconstructionPath() const;
-    ////void setReconstructionPath(const tl::Path &reconstructionPath);
-    //bool isPhotoOriented(size_t imageId) const;
-    //CameraPose photoOrientation(size_t imageId) const;
-    //const std::unordered_map<size_t, CameraPose> &poses() const;
-    //void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation);
-    //void clearReconstruction();
-    //OrientationReport orientationReport() const;
-    //void setOrientationReport(const OrientationReport &orientationReport);
+    // Densification
 
-    //std::shared_ptr<Densification> densification() const;
-    //void setDensification(const std::shared_ptr<Densification> &densification);
-    //tl::Path denseModel() const;
-    //void setDenseModel(const tl::Path &denseModel);
-    //DenseReport denseReport() const;
-    //void setDenseReport(const DenseReport &denseReport);
-    //void clearDensification();
+    auto densificationConfig() const -> std::shared_ptr<DensificationProperties>;
+    void setDensificationConfig(std::shared_ptr<DensificationProperties> confif);
+     
+    auto denseModel() const -> tl::Path;
+    void setDenseModel(tl::Path denseModel);
+
+    auto densificationReport() const -> DensificationReport;
+    void setDensificationReport(DensificationReport densificationReport);
+    
+    void clearDensification();
+
 
     //std::shared_ptr<PoissonReconProperties> meshProperties() const;
     //void setMeshProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties);

@@ -57,34 +57,13 @@ Camera::Camera(std::string make,
     mBitsPerPixel(8),
     mSensorSize(1.),
     mBandName(bandName),
-    mBlackLevel(0),
-    mCalibratedHMatrix(tl::Matrix3x3f::identity()),
+    //mBlackLevel(0),
+    //mCalibratedHMatrix(tl::Matrix3x3f::identity()),
+    mVignetting(nullptr),
     mCalibration(nullptr),
-    mPriorCalibration(nullptr),
-    mVignetting(nullptr)
+    mPriorCalibration(nullptr)
 {
 }
-
-//Camera::Camera(const Camera &camera)
-//  : mMake(camera.mMake),
-//    mModel(camera.mModel),
-//    mSerialNumber(camera.mSerialNumber),
-//    mType(camera.mType),
-//    mFocal(camera.mFocal),
-//    mWidth(camera.mWidth),
-//    mHeight(camera.mHeight),
-//    mBitsPerPixel(camera.mBitsPerPixel),
-//    mSensorSize(camera.mSensorSize),
-//    mBandName(camera.mBandName),
-//    mBlackLevel(camera.mBlackLevel),
-//    mVignetteCenter(camera.mVignetteCenter),
-//    mVignettePolynomial(camera.mVignettePolynomial),
-//    mCalibratedHMatrix(camera.mCalibratedHMatrix),
-//    mCalibration(camera.mCalibration),
-//    mPriorCalibration(camera.mPriorCalibration),
-//    mVignetting(camera.mVignetting)
-//{
-//}
 
 auto Camera::make() const -> const std::string &
 {

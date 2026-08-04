@@ -63,8 +63,8 @@ if(BUILD_ABOUT_COMPONENT AND BUILD_GUI)
 
 
     target_link_libraries(${PROJECT_NAME} PRIVATE 
-                          Qt5::Core
-                          Qt5::Widgets
+                          Qt6::Core
+                          Qt6::Widgets
                           Graphos::Core)
     
     install(TARGETS ${PROJECT_NAME}

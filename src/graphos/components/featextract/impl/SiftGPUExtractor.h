@@ -25,20 +25,19 @@
 
 #include "graphos/graphos_global.h"
 
-#include "graphos/core/features/Features.h"
-#include "graphos/core/features/Sift.h"
-
 #include <opencv2/features2d.hpp>
 #if defined OPENCV_ENABLE_NONFREE && defined HAVE_OPENCV_XFEATURES2D
 #include <opencv2/xfeatures2d.hpp>
 #endif // HAVE_OPENCV_XFEATURES2D
 
+#include "graphos/core/features/FeatureExtractorProperties.h"
+#include "graphos/core/features/SiftProperties.h"
+#include "graphos/components/featextract/impl/FeatureExtractor.h"
 
 class SiftGPU;
 
 namespace graphos
 {
-
 
 /*!
  * \brief Class for CUDA-accelerated SIFT feature extraction.
@@ -57,7 +56,7 @@ public:
      * \brief Default constructor for CUDA-accelerated SIFT detector/descriptor.
      * Constructs an SiftCudaDetectorDescriptor object with default values.
      */
-    SiftGPUExtractor(const Sift &config);
+    SiftGPUExtractor(const SiftProperties &config);
 
     /*!
      * \brief Destructor for CUDA-accelerated SIFT detector/descriptor.
@@ -67,7 +66,7 @@ public:
     TL_DISABLE_COPY(SiftGPUExtractor)
     TL_DISABLE_MOVE(SiftGPUExtractor)
 
-    void updateConfig(const Sift &config);
+    void updateConfig(const SiftProperties &config);
 
 // FeatureExtractor interface
 

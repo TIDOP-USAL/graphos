@@ -143,7 +143,7 @@ public slots:
      * \brief Sets the dense report.
      * \param[in] report The dense report to set.
      */
-    virtual void setDenseReport(const DenseReport &report) = 0;
+    virtual void setDensificationReport(const DensificationReport &report) = 0;
 
 };
 

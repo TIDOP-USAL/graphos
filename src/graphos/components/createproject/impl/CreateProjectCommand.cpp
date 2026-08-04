@@ -25,7 +25,7 @@
 #include "CreateProjectCommand.h"
 
 #include "graphos/core/project/Project.h"
-#include "graphos/core/io/ProjectWriter.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 
 #include <tidop/core/app/Logger.h>
 

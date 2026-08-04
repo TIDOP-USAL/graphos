@@ -25,10 +25,9 @@
 #include "FeatureExtractorCommand.h"
 
 #include "graphos/core/utils.h"
-#include "graphos/core/features/featio.h"
 #include "graphos/core/project/Project.h"
-#include "graphos/core/io/ProjectReader.h"
-#include "graphos/core/io/ProjectWriter.h"
+#include "graphos/core/project/io/ProjectReader.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 #include "graphos/core/task/Progress.h"
 #include "graphos/components/featextract/impl/ExtractFeaturesTask.h"
 #include "graphos/components/featextract/impl/SiftCPUExtractor.h"
@@ -42,10 +41,10 @@ namespace graphos
 {
 
 FeatureExtractorCommand::FeatureExtractorCommand()
-  : Command("featextract", "Feature extraction (SIFT)"),
+  : Command("featextract", "FeatureExtractorProperties extraction (SIFT)"),
     mDisableCuda(false)
 {
-    Sift sift_properties;
+    SiftProperties sift_properties;
     this->addArgument<tl::Path>("prj", 'p', "Path to the project file");
     this->addArgument<int>("max_image_size", 's', "Maximum image size (default: 3200)", 3200);
     this->addArgument<int>("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(sift_properties.featuresNumber())).append(")"), sift_properties.featuresNumber());
@@ -110,7 +109,7 @@ auto FeatureExtractorCommand::run() -> bool
         project.clearFeatures();
 
 
-        auto sift_config = std::make_shared<Sift>();
+        auto sift_config = std::make_shared<SiftProperties>();
         sift_config->setFeaturesNumber(max_features_number);
         sift_config->setOctaveLayers(octave_resolution);
         sift_config->setContrastThreshold(contrast_threshold);

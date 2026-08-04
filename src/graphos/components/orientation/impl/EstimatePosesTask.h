@@ -31,7 +31,7 @@
 #include <tidop/core/task/Task.h>
 #include <tidop/geometry/primitives/Point.h>
 
-#include "graphos/core/sfm/OrientationReport.h"
+#include "graphos/core/orientation/OrientationReport.h"
 
 namespace tl
 {
@@ -41,7 +41,6 @@ class GeoTools;
 namespace colmap
 {
 class Reconstruction;
-//class ReconstructionManager;
 class BaseController;
 }
 

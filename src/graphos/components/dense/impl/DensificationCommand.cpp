@@ -25,15 +25,22 @@
 #include "DensificationCommand.h"
 
 #include "graphos/core/utils.h"
-#include "graphos/core/project.h"
-#include "graphos/core/dense/CmvsPmvs.h"
-#include "graphos/core/dense/Smvs.h"
-#include "graphos/core/dense/mvs.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/project/io/ProjectReader.h"
+#include "graphos/core/project/io/ProjectWriter.h"
+#include "graphos/core/orientation/GroundPoint.h"
+#include "graphos/core/dense/CmvsPmvsProperties.h"
+#include "graphos/core/dense/SmvsProperties.h"
+#include "graphos/core/dense/MvsProperties.h"
+#include "graphos/components/dense/impl/CmvsPmvsTask.h"
+#include "graphos/components/dense/impl/MvsTask.h"
+#include "graphos/components/dense/impl/SmvsTask.h"
 
 #include <tidop/core/app/Message.h>
+#include <tidop/core/console/ValuesValidator.h>
 
 #include <QFileInfo>
-#include <tidop/core/log.h>
+#include <tidop/core/app/Logger.h>
 
 using namespace tl;
 
@@ -50,7 +57,7 @@ DensificationCommand::DensificationCommand()
     std::vector<std::string> methods{"mvs", "pmvs", "smvs"};
     arg_method->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(methods));
     this->addArgument(arg_method);
-    Mvs mvs_properties;
+    MvsProperties mvs_properties;
     this->addArgument<int>("mvs:resolution_level", "Resolution Level", mvs_properties.resolutionLevel());
     this->addArgument<int>("mvs:min_resolution", "Min Resolution", mvs_properties.minResolution());
     this->addArgument<int>("mvs:max_resolution", "Max Resolution", mvs_properties.maxResolution());
@@ -95,7 +102,7 @@ bool DensificationCommand::run()
 {
     bool r = false;
 
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
 
     try {
 
@@ -119,8 +126,8 @@ bool DensificationCommand::run()
 	    auto mvs_max_resolution = this->value<int>("mvs:max_resolution");
 	    auto mvs_number_views = this->value<int>("mvs:number_views");
 	    auto mvs_number_views_fuse = this->value<int>("mvs:number_views_fuse");
-        auto mvs_estimate_colors = this->value<int>("mvs:estimate_colors");
-        auto mvs_estimate_normals = this->value<int>("mvs:estimate_normals");
+        auto mvs_estimate_colors = this->value<bool>("mvs:estimate_colors");
+        auto mvs_estimate_normals = this->value<bool>("mvs:estimate_normals");
         auto auto_segment = this->value<bool>("segment");
 
 
@@ -135,14 +142,17 @@ bool DensificationCommand::run()
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
-        ProjectImp project;
-        project.load(project_path);
+        Project project;
+        {
+            ProjectReader reader;
+            reader.read(project_path, project);
+        }
 
-        tl::Path dense_path(project.projectFolder());
+        auto &project_info = project.info();
+        tl::Path dense_path(project_info.projectFolder());
         dense_path.append("dense");
 
-        tl::Path ground_points_path(project.reconstructionPath());
-        ground_points_path.append("ground_points.bin");
+        tl::Path ground_points_path = project.groundPoints();
 
         auto reader = GroundPointsReaderFactory::create("GRAPHOS");
         reader->read(ground_points_path);
@@ -151,6 +161,8 @@ bool DensificationCommand::run()
 
         std::shared_ptr<tl::Task> dense_task;
 
+        auto densification_properties = DensificationPropertiesFactory::create(densification_method);
+        
         if (densification_method == "pmvs") {
 
             tl::Message::info("PMVS Properties:");
@@ -165,24 +177,24 @@ bool DensificationCommand::run()
 
             dense_path.append("pmvs");
 
-            auto pmvs = std::make_shared<CmvsPmvsDensifier>(project.images(),
-                                                            project.cameras(),
-                                                            project.poses(),
-                                                            ground_points,
-                                                            dense_path,
-                                                            project.database(),
-                                                            !mDisableCuda,
-                                                            auto_segment);
+            densification_properties->setProperty("Level", pmvs_level);
+            densification_properties->setProperty("CellSize", pmvs_cell_size);
+            densification_properties->setProperty("Threshold", pmvs_threshold);
+            densification_properties->setProperty("WindowSize", pmvs_window_size);
+            densification_properties->setProperty("ImagesPerCluster", pmvs_images_per_cluster);
+            densification_properties->setProperty("MinimunImageNumber", pmvs_minimun_image_number);
+            densification_properties->setProperty("UseVisibilityInformation", pmvs_use_visibility_information);
 
-            pmvs->setUseVisibilityInformation(pmvs_use_visibility_information);
-            pmvs->setImagesPerCluster(pmvs_images_per_cluster);
-            pmvs->setLevel(pmvs_level);
-            pmvs->setCellSize(pmvs_cell_size);
-            pmvs->setThreshold(pmvs_threshold);
-            pmvs->setWindowSize(pmvs_window_size);
-            pmvs->setMinimunImageNumber(pmvs_minimun_image_number);
-
-            project.setDensification(pmvs);
+            //TODO: Hay que pasar las propiedades de PMVS al task, para que las use en la ejecución. Ahora mismo no se usan.
+            auto pmvs = std::make_shared<CmvsPmvsTask>(std::dynamic_pointer_cast<CmvsPmvsProperties>(densification_properties),
+                                                       project.images(),
+                                                       project.cameras(),
+                                                       project.cameraPoses(),
+                                                       ground_points,
+                                                       dense_path,
+                                                       project_info.database(),
+                                                       !mDisableCuda,
+                                                       auto_segment);
 
             dense_task = std::move(pmvs);
 
@@ -197,21 +209,20 @@ bool DensificationCommand::run()
 
             dense_path.append("smvs");
 
-            auto smvs = std::make_shared<SmvsDensifier>(project.images(),
-                                                        project.cameras(),
-                                                        project.poses(),
-                                                        ground_points,
-                                                        dense_path,
-                                                        !mDisableCuda,
-                                                        auto_segment);
+            densification_properties->setProperty("InputImageScale", smvs_input_image_scale);
+            densification_properties->setProperty("OutputDepthScale", smvs_output_depth_scale);
+            densification_properties->setProperty("ShadingBasedOptimization", smvs_shading_based_optimization);
+            densification_properties->setProperty("SemiGlobalMatching", smvs_semi_global_matching);
+            densification_properties->setProperty("SurfaceSmoothingFactor", smvs_surface_smoothing_factor);
 
-            smvs->setInputImageScale(smvs_input_image_scale);
-            smvs->setOutputDepthScale(smvs_output_depth_scale);
-            smvs->setShadingBasedOptimization(smvs_shading_based_optimization);
-            smvs->setSemiGlobalMatching(smvs_semi_global_matching);
-            smvs->setSurfaceSmoothingFactor(smvs_surface_smoothing_factor);
-
-            project.setDensification(smvs);
+            auto smvs = std::make_shared<SmvsTask>(std::dynamic_pointer_cast<SmvsProperties>(densification_properties),
+                                                   project.images(), 
+                                                   project.cameras(),
+                                                   project.cameraPoses(),
+                                                   ground_points,
+                                                   dense_path,
+                                                   !mDisableCuda,
+                                                   auto_segment);
 
             dense_task = smvs;
 
@@ -223,29 +234,28 @@ bool DensificationCommand::run()
             tl::Message::info("- Max Resolution: {}", mvs_max_resolution);
             tl::Message::info("- Number Views: {}", mvs_number_views);
             tl::Message::info("- Number Views Fuse: {}", mvs_number_views_fuse);
-            tl::Message::info("- Estimate normals: {}", mvs_estimate_colors);
-            tl::Message::info("- Estimate colors: {}", mvs_estimate_normals);
+            tl::Message::info("- Estimate normals: {}", mvs_estimate_normals);
+            tl::Message::info("- Estimate colors: {}", mvs_estimate_colors);
             
             dense_path.append("mvs");
 
-            auto mvs = std::make_shared<MvsDensifier>(project.images(),
-                                                      project.cameras(),
-                                                      project.poses(),
-                                                      ground_points,
-                                                      dense_path,
-                                                      project.database(),
-                                                      !mDisableCuda,
-                                                      auto_segment);
+            densification_properties->setProperty("ResolutionLevel", mvs_resolution_level);
+            densification_properties->setProperty("MinResolution", mvs_min_resolution);
+            densification_properties->setProperty("MaxResolution", mvs_max_resolution);
+            densification_properties->setProperty("NumberViews", mvs_number_views);
+            densification_properties->setProperty("NumberViewsFuse", mvs_number_views_fuse);
+            densification_properties->setProperty("EstimateNormals", mvs_estimate_normals);
+            densification_properties->setProperty("EstimateColors", mvs_estimate_colors);
 
-            mvs->setMaxResolution(mvs_max_resolution);
-            mvs->setMinResolution(mvs_min_resolution);
-            mvs->setNumberViews(mvs_number_views);
-            mvs->setNumberViewsFuse(mvs_number_views_fuse);
-            mvs->setResolutionLevel(mvs_resolution_level);
-            mvs->setEstimateColors(mvs_estimate_colors);
-            mvs->setEstimateNormals(mvs_estimate_normals);
-
-            project.setDensification(mvs);
+            auto mvs = std::make_shared<MvsTask>(std::dynamic_pointer_cast<MvsProperties>(densification_properties),
+                                                 project.images(),
+                                                 project.cameras(),
+                                                 project.cameraPoses(),
+                                                 ground_points,
+                                                 dense_path,
+                                                 project_info.database(),
+                                                 !mDisableCuda,
+                                                 auto_segment);
 
             dense_task = mvs;
 
@@ -255,10 +265,13 @@ bool DensificationCommand::run()
 
         dense_task->run();
         
-        dense_path = dynamic_cast<DensifierBase const *>(dense_task.get())->denseModel();
+        dense_path = dynamic_cast<DenseTaskBase const *>(dense_task.get())->denseModel();
         project.setDenseModel(dense_path);
-        project.setDenseReport(dynamic_cast<DensifierBase const *>(dense_task.get())->report());
-        project.save(project_path);
+        project.setDensificationReport(dynamic_cast<DenseTaskBase const *>(dense_task.get())->report());
+        project.setDensificationConfig(densification_properties);
+
+        ProjectWriter writer;
+        writer.write(project_path, project);
 
     } catch (const std::exception &e) {
 

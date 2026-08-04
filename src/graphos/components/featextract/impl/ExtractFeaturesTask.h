@@ -31,10 +31,10 @@
 #include <tidop/core/task/Progress.h>
 #include <tidop/core/base/Path.h>
 
-#include "graphos/core/features/Features.h"
+#include "graphos/core/features/FeatureExtractorProperties.h"
 #include "graphos/core/features/FeatureExtractorReport.h"
-#include "graphos/core/image.h"
-#include "graphos/core/camera/Camera.h"
+//#include "graphos/core/image/Image.h"
+//#include "graphos/core/camera/Camera.h"
 
 
 namespace graphos
@@ -42,6 +42,7 @@ namespace graphos
 
 class ImageRepository;
 class CameraRepository;
+class FeatureExtractor;
 
 class ExtractFeaturesTask
   : public QObject,

@@ -29,7 +29,7 @@
 
 #include <tidop/core/task/Task.h>
 
-#include "graphos/core/Image.h"
+#include "graphos/core/image/Image.h"
 
 namespace tl
 {
