@@ -32,6 +32,7 @@ namespace graphos
 
 class MatchingProperties
 {
+
 protected:
 
     tl::Properties mProperties;
@@ -85,13 +86,13 @@ public:
         mProperties.setProperty(key, value);
     }
 
-private:
-
-    bool mCrossCheck;
-    double mRatio;
-    double mDistance;
-    double mMaxError;
-    double mConfidence;
+//private:
+//
+//    bool mCrossCheck;
+//    double mRatio;
+//    double mDistance;
+//    double mMaxError;
+//    double mConfidence;
 
 };
 

@@ -173,6 +173,27 @@ void writeDensificationReport(QXmlStreamWriter &stream, const DensificationRepor
     }
 }
 
+void writeMeshingConfig(QXmlStreamWriter &stream, const PoissonReconProperties *config)
+{
+    if (config) {
+        stream.writeStartElement("Config");
+        stream.writeAttribute("method", config->name());
+        for (auto &[key, value] : *config) {
+            stream.writeTextElement(key, value->toString());
+        }
+        stream.writeEndElement();
+    }
+}
+
+void writeMeshingReport(QXmlStreamWriter &stream, const MeshReport &report)
+{
+    if (!report.isEmpty()) {
+        stream.writeStartElement("Report");
+        stream.writeTextElement("Time", QString::number(report.time, 'f', 10));
+        stream.writeEndElement(); // Report
+    }
+}
+
 void ProjectWriter::write(const tl::Path &file, const Project &project)
 {
     const auto &project_info = project.info();
@@ -207,6 +228,7 @@ void ProjectWriter::write(const tl::Path &file, const Project &project)
                 writeMatches(stream, project);
                 writeOrientation(stream, project);
                 writeDensification(stream, project);
+                writeMeshing(stream, project);
             }
 
             stream.writeEndElement(); // Graphos
@@ -459,6 +481,17 @@ void ProjectWriter::writeDensification(QXmlStreamWriter &stream, const Project &
     stream.writeTextElement("DenseModel", project.denseModel().toString());
 
     stream.writeEndElement(); // Densification
+}
+
+void ProjectWriter::writeMeshing(QXmlStreamWriter &stream, const Project &project)
+{
+    stream.writeStartElement("Mesh");
+
+    writeMeshingConfig(stream, project.meshConfig().get());
+    writeMeshingReport(stream, project.meshReport());
+    stream.writeTextElement("MeshModel", project.meshModel().toString());
+
+    stream.writeEndElement(); // Mesh
 }
 
 } // end namespace graphos

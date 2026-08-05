@@ -280,47 +280,49 @@ void Project::clearDensification()
 {
     mDensificationConfig.reset();
     mDenseModel.clear();
-    mDenseReport = DensificationReport();
-    //clearMesh();
+    mDenseReport.clear();
+    clearMesh();
     //clearDem();
 }
 
-//std::shared_ptr<PoissonReconProperties> Project::meshProperties() const
-//{
-//    return mMeshProperties;
-//}
+auto Project::meshConfig() const -> std::shared_ptr<PoissonReconProperties>
+{
+    return mMeshProperties;
+}
 
-//void Project::setMeshProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties)
-//{
-//    mMeshProperties = meshProperties;
-//}
-//
-//tl::Path Project::meshPath() const
-//{
-//    return mMeshModel;
-//}
-//
-//void Project::setMeshPath(const tl::Path &meshPath)
-//{
-//    mMeshModel = meshPath;
-//}
-//
-//MeshReport Project::meshReport() const
-//{
-//    return mMeshReport;
-//}
-//
-//void Project::setMeshReport(const MeshReport &report)
-//{
-//    mMeshReport = report;
-//}
-//
-//void Project::clearMesh()
-//{
-//    mMeshModel.clear();
-//    mMeshReport = MeshReport();
-//}
-//
+void Project::setMeshConfig(std::shared_ptr<PoissonReconProperties> config)
+{
+    mMeshProperties = std::move(config);
+}
+
+auto Project::meshModel() const -> tl::Path
+{
+    return mMeshModel;
+}
+
+void Project::setMeshModel(tl::Path meshModel)
+{
+    mMeshModel = std::move(meshModel);
+}
+
+auto Project::meshReport() const -> MeshReport
+{
+    return mMeshReport;
+}
+
+void Project::setMeshReport(MeshReport meshReport)
+{
+    mMeshReport = std::move(meshReport);
+}
+
+
+void Project::clearMesh()
+{
+    mMeshProperties.reset();
+    mMeshModel.clear();
+    mMeshReport.clear();
+}
+
 //const DemData &Project::dem() const
 //{
 //    return mDem;
@@ -394,19 +396,13 @@ void Project::clear()
     mPosesFile.clear();
     mOrientationReport.clear();
     mOrientationConfig.reset();
+    mDensificationConfig.reset();
+    mDenseModel.clear();
+    mDenseReport.clear();
+    mMeshProperties.reset();
+    mMeshModel.clear();
+    mMeshReport.clear();
 
-    //mFeatures.clear();
-    //mFeatureMatching.reset();
-    //mImagesPairs.clear();
-    //clearReconstruction();
-    //mGroundPoints.clear();
-    //mOrientationReport = OrientationReport();
-    //mDensification.reset();
-    //clearDensification();
-    //clearMesh();
-    //clearDem();
-    //clearOrthophoto();
-    ////mCameraCount = 0;
     //mTransform = tl::Matrix<double, 4, 4>::identity();
 }
 

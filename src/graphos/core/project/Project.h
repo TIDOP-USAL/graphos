@@ -48,6 +48,8 @@
 #include "graphos/core/orientation/CameraPosesRepository.h"
 #include "graphos/core/dense/DensificationProperties.h"
 #include "graphos/core/dense/DensificationReport.h"
+#include "graphos/core/mesh/MeshReport.h"
+#include "graphos/core/mesh/PoissonReconProperties.h"
 
 namespace graphos
 {
@@ -93,9 +95,10 @@ protected:
     tl::Path mDenseModel;
     DensificationReport mDenseReport;
 
-    //std::shared_ptr<PoissonReconProperties> mMeshProperties;
-    //tl::Path mMeshModel;
-    //MeshReport mMeshReport;
+    std::shared_ptr<PoissonReconProperties> mMeshProperties;
+    tl::Path mMeshModel;
+    MeshReport mMeshReport;
+
     //DemData mDem;
     //DemReport mDemReport;
     //std::map<size_t, OrthophotoData> mOrthophotos;
@@ -168,7 +171,7 @@ public:
     // Densification
 
     auto densificationConfig() const -> std::shared_ptr<DensificationProperties>;
-    void setDensificationConfig(std::shared_ptr<DensificationProperties> confif);
+    void setDensificationConfig(std::shared_ptr<DensificationProperties> config);
      
     auto denseModel() const -> tl::Path;
     void setDenseModel(tl::Path denseModel);
@@ -178,14 +181,18 @@ public:
     
     void clearDensification();
 
+    // Mesh
 
-    //std::shared_ptr<PoissonReconProperties> meshProperties() const;
-    //void setMeshProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties);
-    //tl::Path meshPath() const;
-    //void setMeshPath(const tl::Path &meshPath);
-    //MeshReport meshReport() const;
-    //void setMeshReport(const MeshReport &report);
-    //void clearMesh();
+    auto meshConfig() const -> std::shared_ptr<PoissonReconProperties>;
+    void setMeshConfig(std::shared_ptr<PoissonReconProperties> config);
+    
+    auto meshModel() const -> tl::Path;
+    void setMeshModel(tl::Path meshModel);
+
+    auto meshReport() const -> MeshReport;
+    void setMeshReport(MeshReport meshReport);
+
+    void clearMesh();
 
     //const DemData &dem() const;
     //DemData &dem();

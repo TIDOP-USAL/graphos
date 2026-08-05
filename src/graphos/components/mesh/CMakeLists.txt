@@ -40,9 +40,11 @@ if(BUILD_MESH_COMPONENT)
                          SOURCE_FILES
                              MeshComponent.cpp
                              impl/MeshCommand.cpp
+                             impl/PoissonReconTask.cpp
                          HEADER_FILES
                              MeshComponent.h
-                             impl/MeshCommand.h)   
+                             impl/MeshCommand.h
+                             impl/PoissonReconTask.h)   
 
 if (BUILD_GUI)    
     add_files_to_project(${PROJECT_NAME}

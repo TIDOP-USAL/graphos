@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "PoissonRecon.h"
+#include "graphos/components/mesh/impl/PoissonReconTask.h"
 
 #include "graphos/core/AppStatus.h"
 
@@ -44,90 +44,12 @@ namespace graphos
 {
 
 
-/// valores por defecto
-
-constexpr auto default_poisson_recon_depth = 14;
-//constexpr auto default_poisson_recon_solve_depth = 13;
-constexpr auto default_poisson_recon_boundary_type = PoissonReconProperties::BoundaryType::neumann;
-
-
-/* PoissonReconProperties */
-
-PoissonReconProperties::PoissonReconProperties()
-  : mDepth(default_poisson_recon_depth),
-    //mSolveDepth(default_poisson_recon_solve_depth),
-    mBoundaryType(default_poisson_recon_boundary_type)
-{
-}
-
-PoissonReconProperties::~PoissonReconProperties() = default;
-
-auto PoissonReconProperties::depth() const -> int
-{
-    return mDepth;
-}
-
-//auto PoissonReconProperties::solveDepth() const -> int
-//{
-//    return mSolveDepth;
-//}
-
-auto PoissonReconProperties::boundaryType() const -> BoundaryType
-{
-    return mBoundaryType;
-}
-
-auto PoissonReconProperties::boundaryTypeAsText() const -> QString
-{
-    QString boundary_type;
-
-    switch (mBoundaryType) {
-    case BoundaryType::free:
-        boundary_type = "Free";
-        break;
-    case BoundaryType::dirichlet:
-        boundary_type = "Dirichlet";
-        break;
-    case BoundaryType::neumann:
-        boundary_type = "Neumann";
-        break;
-    }
-
-    return boundary_type;
-}
-
-void PoissonReconProperties::setDepth(int depth)
-{
-    mDepth = depth;
-}
-
-//void PoissonReconProperties::setSolveDepth(int solveDepth)
-//{
-//    mSolveDepth = solveDepth;
-//}
-
-void PoissonReconProperties::setBoundaryType(BoundaryType boundaryType)
-{
-    mBoundaryType = boundaryType;
-}
-
-
-void PoissonReconProperties::clear()
-{
-    mDepth = default_poisson_recon_depth;
-    //mSolveDepth = default_poisson_recon_solve_depth;
-    mBoundaryType = default_poisson_recon_boundary_type;
-}
-
-
-
-/* PoissonReconTask */
-
-
 PoissonReconTask::PoissonReconTask(tl::Path input,
-                                   tl::Path output)
+                                   tl::Path output,
+                                   const std::shared_ptr<PoissonReconProperties> &properties)
   : mInput(std::move(input)),
-    mOutput(std::move(output))
+    mOutput(std::move(output)),
+    mProperties(properties)
 {
 
 }
@@ -166,14 +88,14 @@ void PoissonReconTask::poissonRecon(const tl::Path &app_path) const
 
         std::string boundary_type;
 
-        switch (boundaryType()) {
-        case BoundaryType::free:
+        switch (mProperties->boundaryType()) {
+        case PoissonReconProperties::BoundaryType::free:
             boundary_type = "1";
             break;
-        case BoundaryType::dirichlet:
+        case PoissonReconProperties::BoundaryType::dirichlet:
             boundary_type = "2";
             break;
-        case BoundaryType::neumann:
+        case PoissonReconProperties::BoundaryType::neumann:
             boundary_type = "3";
             break;
         }
@@ -186,7 +108,7 @@ void PoissonReconTask::poissonRecon(const tl::Path &app_path) const
         cmd.append("\" ");
         cmd.append("--in \"").append(input.toUtf8());
         cmd.append("\" --out \"").append(mOutput.toUtf8());
-        cmd.append("\" --depth ").append(std::to_string(depth()));
+        cmd.append("\" --depth ").append(std::to_string(mProperties->depth()));
         //cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));
         cmd.append(" --bType ").append(boundary_type);
         cmd.append(" --density ");

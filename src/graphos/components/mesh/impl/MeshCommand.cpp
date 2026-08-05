@@ -23,10 +23,14 @@
 
 #include "MeshCommand.h"
 
-#include <tidop/core/log.h>
+#include <tidop/core/app/Logger.h>
+#include <tidop/core/console/ValuesValidator.h>
 
-#include "graphos/core/mesh/PoissonRecon.h"
-#include "graphos/core/project.h"
+#include "graphos/core/mesh/PoissonReconProperties.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/project/io/ProjectReader.h"
+#include "graphos/core/project/io/ProjectWriter.h"
+#include "graphos/components/mesh/impl/PoissonReconTask.h"
 
 using namespace tl;
 
@@ -41,7 +45,7 @@ MeshCommand::MeshCommand()
     this->addArgument<tl::Path>("prj", 'p', "Project file");
     this->addArgument<int>("depth", "Maximum reconstruction depth", properties.depth());
     //this->addArgument<int>("solve_depth", "Maximum solution depth", properties.solveDepth());
-    auto arg_boundary_type = tl::Argument::make<std::string>("boundary_type", "Boundary type", properties.boundaryTypeAsText().toStdString());
+    auto arg_boundary_type = tl::Argument::make<std::string>("boundary_type", "Boundary type", properties.boundaryTypeAsText());
     std::vector<std::string> boundary_types{"Free", "Dirichlet", "Neumann"};
     arg_boundary_type->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(boundary_types));
     this->addArgument(arg_boundary_type);
@@ -58,7 +62,7 @@ bool MeshCommand::run()
 
     bool r = false;
 
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
 
     try {
 
@@ -74,14 +78,14 @@ bool MeshCommand::run()
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
-        ProjectImp project;
-        project.load(project_path);
+        Project project;
+        ProjectReader reader;
+        reader.read(project_path, project);
 
         tl::Path point_cloud_path = project.denseModel();
-        tl::Path mesh_path = project.projectFolder();
+        tl::Path mesh_path = project.info().projectFolder();
         mesh_path.append("dense").append("mesh.pr.ply");
 
-        auto task = std::make_shared<PoissonReconTask>(point_cloud_path, mesh_path);
 
         PoissonReconProperties::BoundaryType bt;
         if (boundary_type == "Free") {
@@ -92,17 +96,19 @@ bool MeshCommand::run()
             bt = PoissonReconProperties::BoundaryType::neumann;
         }
 
-        task->setBoundaryType(bt);
-        task->setDepth(depth);
-        //task->setSolveDepth(solve_depth);
+        auto properties = std::make_shared<PoissonReconProperties>();
+        properties->setBoundaryType(bt);
+        properties->setDepth(depth);
 
+        auto task = std::make_shared<PoissonReconTask>(point_cloud_path, mesh_path, properties);
         task->run();
 
-        project.setMeshProperties(task);
-        project.setMeshPath(mesh_path);
+        project.setMeshConfig(properties);
+        project.setMeshModel(mesh_path);
         project.setMeshReport(task->report());
-        project.save(project_path);
 
+        ProjectWriter writer;
+        writer.write(project_path, project);
 
     } catch (const std::exception &e) {
 

@@ -30,7 +30,7 @@
 #include "graphos/components/mesh/impl/MeshPresenter.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/mesh/impl/MeshCommand.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

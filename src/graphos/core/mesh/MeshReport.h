@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -25,37 +25,23 @@
 
 #include "graphos/graphos_global.h"
 
-#include "tidop/core/base/Path.h"
-
-#include "graphos/core/project/Project.h"
-
-class QXmlStreamWriter;
-
 namespace graphos
 {
 
-class ProjectWriter
+struct MeshReport
 {
+    double time = 0.0;
 
-public:
+    bool isEmpty() const
+    {
+        return time == 0.;
+    }
 
-    void write(const tl::Path &file, const Project &project);
-
-private:
-
-    void writeInfo(QXmlStreamWriter &stream, const ProjectInfo &projectInfo);
-    void writeCameras(QXmlStreamWriter &stream, const CameraRepository &cameraRepository);
-    void writePriorCalibration(QXmlStreamWriter &stream, const Calibration *calibration);
-    void writeCalibration(QXmlStreamWriter &stream, const Calibration *calibration);
-    void writeVignetting(QXmlStreamWriter &stream, const Vignetting *vignetting);
-    void writeImages(QXmlStreamWriter &stream, const ImageRepository &imageRepository);
-    void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition);
-    void writeImageMetadata(QXmlStreamWriter &stream, const Image::Metadata &metadata);
-    void writeFeatures(QXmlStreamWriter &stream, const Project &project);
-    void writeMatches(QXmlStreamWriter &stream, const Project &project);
-    void writeOrientation(QXmlStreamWriter &stream, const Project &project);
-    void writeDensification(QXmlStreamWriter &stream, const Project &project);
-    void writeMeshing(QXmlStreamWriter &stream, const Project &project);
+    void clear()
+    {
+        time = 0;
+    }
 };
 
-} // end namespace graphos
+
+} // namespace graphos

@@ -66,7 +66,7 @@ add_files_to_project(${PROJECT_NAME}
                          image/ImageRepository.cpp
                          matching/MatchingProperties.cpp
                          matching/MatchingRepository.cpp
-                         mesh/PoissonRecon.cpp
+                         mesh/PoissonReconProperties.cpp
                          multispectral/Vignetting.cpp
                          orientation/CameraPose.cpp
                          orientation/CameraPosesRepository.cpp
@@ -129,7 +129,8 @@ add_files_to_project(${PROJECT_NAME}
                          matching/MatchingProperties.h
                          matching/MatchingReport.h
                          matching/MatchingRepository.h
-                         mesh/PoissonRecon.h
+                         mesh/MeshReport.h
+                         mesh/PoissonReconProperties.h
                          multispectral/Vignetting.h
                          orientation/CameraPose.h
                          orientation/CameraPosesRepository.h

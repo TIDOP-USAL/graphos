@@ -44,11 +44,11 @@ void DensificationProperties::setProperty(const std::string &key, const std::str
 
 auto DensificationPropertiesFactory::create(const std::string &type) -> std::shared_ptr<DensificationProperties>
 {
-    if (type == "mvs") {
+    if (tl::compareInsensitiveCase(type, "MVS")) {
         return std::make_shared<MvsProperties>();
-    } else if (type == "pmvs") {
+    } else if (tl::compareInsensitiveCase(type, "PMVS")) {
         return std::make_shared<CmvsPmvsProperties>();
-    } else if (type == "smvs") {
+    } else if (tl::compareInsensitiveCase(type, "SMVS")) {
         return std::make_shared<SmvsProperties>();
     }
 

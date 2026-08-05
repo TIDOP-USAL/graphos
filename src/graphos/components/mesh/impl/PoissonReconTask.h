@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_POISSONRECON_ALGORITHM_H
-#define GRAPHOS_POISSONRECON_ALGORITHM_H
+#pragma once
 
 #include "graphos/graphos_global.h"
 
@@ -31,117 +30,11 @@
 #include <tidop/core/task/Task.h>
 #include <tidop/core/base/Path.h>
 
-#include "graphos/core/utils.h"
-
-
-namespace tl
-{
-  class Process;
-}
+#include "graphos/core/mesh/PoissonReconProperties.h"
+#include "graphos/core/mesh/MeshReport.h"
 
 namespace graphos
 {
-
-    
-struct MeshReport
-{
-    double time = 0.0;
-
-    bool isEmpty() const
-    {
-        return time == 0.;
-    }
-};
-
-
-/*!
- * \brief Properties for Poisson Surface Reconstruction.
- *
- * This class provides properties and settings for Poisson Surface Reconstruction algorithm.
- *
- * For more information on Poisson Surface Reconstruction, refer to:
- * - Paper: https://hhoppe.com/poissonrecon.pdf
- * - GitHub Repository: https://github.com/mkazhdan/PoissonRecon
- */
-class PoissonReconProperties
-{
-public:
-
-    enum class BoundaryType
-    {
-        free,
-        dirichlet,
-        neumann
-    };
-
-public:
-
-    /*!
-     * \brief Default constructor for PoissonReconProperties.
-     * Constructs a PoissonReconProperties object with default values.
-     */
-    PoissonReconProperties();
-    virtual ~PoissonReconProperties();
-
-    /*!
-     * \brief Gets the depth parameter.
-     * This is the maximum depth of the tree that will be used for surface
-     * reconstruction. The default value for this parameter is 8.
-     * \return The depth parameter.
-     */
-    virtual auto depth() const -> int;
-
-    /*!
-     * \brief Gets the solve depth parameter.
-     * \return The solve depth parameter.
-     */
-    //virtual auto solveDepth() const -> int;
-
-    /*!
-     * \brief Gets the boundary type parameter.
-     * This parameter specifies the boundary type for the finite elements. Valid values are:
-     * - free: Free boundary constraints
-     * - dirichlet: Dirichlet boundary constraints
-     * - neumann: Neumann boundary constraints
-     * The default value for this parameter is neumann.
-     * \return The boundary type parameter.
-     * \see BoundaryType
-     */
-    virtual auto boundaryType() const -> BoundaryType;
-
-    virtual auto boundaryTypeAsText() const -> QString;
-
-    /*!
-     * \brief Sets the depth parameter.
-     * \param[in] depth Depth parameter value.
-     */
-    virtual void setDepth(int depth);
-
-    /*!
-     * \brief Sets the solve depth parameter.
-     * \param[in] solveDepth The solve depth parameter to set.
-     */
-    //virtual void setSolveDepth(int solveDepth);
-
-    /*!
-     * \brief Sets the boundary type parameter.
-     * \param[in] boundaryType The boundary type parameter to set.
-     * \see BoundaryType
-     */
-    virtual void setBoundaryType(BoundaryType boundaryType);
-
-    void clear();
-
-private:
-
-    int mDepth;
-    //int mSolveDepth;
-    BoundaryType mBoundaryType;
-
-};
-
-
-
 
 /*!
  * \brief Poisson Surface Reconstruction Task.
@@ -151,8 +44,7 @@ private:
  * The task takes an input path where the input data is stored and an output path where the reconstructed mesh will be saved.
  */
 class PoissonReconTask final
-  : public tl::Task,
-    public PoissonReconProperties
+  : public tl::Task
 {
 
 public:
@@ -164,7 +56,8 @@ public:
      * \param[in] output The path where the reconstructed mesh will be saved.
      */
     PoissonReconTask(tl::Path input,
-                     tl::Path output);
+                     tl::Path output,
+                     const std::shared_ptr<PoissonReconProperties> &properties);
 
     /*!
      * \brief Destructor for PoissonReconTask.
@@ -192,12 +85,8 @@ private:
 
     tl::Path mInput;
     tl::Path mOutput;
+    std::shared_ptr<PoissonReconProperties> mProperties;
     MeshReport mReport;
 };
 
-
-
 } // namespace graphos
-
-
-#endif // GRAPHOS_POISSONRECON_ALGORITHM_H

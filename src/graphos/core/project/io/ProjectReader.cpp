@@ -430,6 +430,8 @@ void ProjectReader::read(const tl::Path &file, Project &project)
                             readOrientation(stream, project);
                         } else if (stream.name() == "Densification") {
                             readDensification(stream, project);
+                        } else if (stream.name() == "Mesh") {
+                            readMesh(stream, project);
                         } else {
                             stream.skipCurrentElement();
                         }
@@ -626,8 +628,6 @@ void ProjectReader::readOrientation(QXmlStreamReader &stream, Project &project)
             stream.skipCurrentElement();
         }
     }
-
-    project.matches() = MatchingRepository(project.info().database());
 }
 
 void ProjectReader::readDensification(QXmlStreamReader &stream, Project &project)
@@ -675,8 +675,43 @@ void ProjectReader::readDensification(QXmlStreamReader &stream, Project &project
             stream.skipCurrentElement();
         }
     }
+}
 
-    project.matches() = MatchingRepository(project.info().database());
+void ProjectReader::readMesh(QXmlStreamReader &stream, Project &project)
+{
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "Config") {
+
+            auto config = std::make_shared<PoissonReconProperties>();
+
+            while (stream.readNextStartElement()) {
+                std::string key = stream.name().toString().toStdString();
+                std::string value = streamToStdString(stream);
+
+                config->setProperty(key, value);
+            }
+
+            project.setMeshConfig(config);
+
+        } else if (stream.name() == "MeshModel") {
+            project.setMeshModel(streamToStdString(stream));
+        } else if (stream.name() == "Report") {
+
+            MeshReport report;
+
+            while (stream.readNextStartElement()) {
+                if (stream.name() == "Time") {
+                    report.time = streamToDouble(stream);
+                } else
+                    stream.skipCurrentElement();
+            }
+
+            project.setMeshReport(report);
+
+        } else {
+            stream.skipCurrentElement();
+        }
+    }
 }
 
 } // end namespace graphos

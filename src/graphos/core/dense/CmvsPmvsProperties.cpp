@@ -29,7 +29,7 @@ namespace graphos
 {
 
 CmvsPmvsProperties::CmvsPmvsProperties()
-  : DensificationProperties("CMVS/PMVS")
+  : DensificationProperties("PMVS")
 {
     clear();
 }
