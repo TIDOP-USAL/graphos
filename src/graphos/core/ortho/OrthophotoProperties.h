@@ -23,56 +23,60 @@
 
 #pragma once
 
-#include <QObject>
+#include "graphos/graphos_global.h"
 
-#include <tidop/core/task/Task.h>
-#include <tidop/core/task/Progress.h>
+#include <string>
 
-#include "graphos/core/dem/DemReport.h"
-#include "graphos/core/dem/DemProperties.h"
+#include <tidop/core/base/Property.h>
 
 namespace graphos
 {
 
-class DemTask
-  : public QObject,
-    public tl::Task
+class OrthophotoProperties
 {
-
-    Q_OBJECT
-
-public:
-
-    DemTask(tl::Path pointCloud,
-            tl::Path demPath,
-            std::string enuCrs,
-            const std::shared_ptr<DemProperties> &properties);
-
-    ~DemTask() override = default;
-
-    TL_DISABLE_COPY(DemTask)
-    TL_DISABLE_MOVE(DemTask)
-
-    /*!
-     * \brief Get the DEM report after task execution.
-     *
-     * \return A 'DemReport' containing information about the DEM task.
-     */
-    auto report() const -> DemReport;
-
-// tl::TaskBase interface
 
 protected:
 
-    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
+    tl::Properties mProperties;
 
-private:
+public:
 
-    tl::Path mPointCloud;
-    tl::Path mDemPath;
-    std::string mEnuCrs;
-    std::shared_ptr<DemProperties> mProperties;
-    DemReport mDemReport;
+    OrthophotoProperties();
+    OrthophotoProperties(const OrthophotoProperties &properties) noexcept = default;
+    OrthophotoProperties(OrthophotoProperties &&properties) noexcept = default;
+    virtual ~OrthophotoProperties() = default;
+
+    auto operator=(const OrthophotoProperties &properties) -> OrthophotoProperties & = default;
+    auto operator=(OrthophotoProperties &&properties) noexcept -> OrthophotoProperties & = default;
+
+    [[nodiscard]]
+    auto crs() const -> std::string;
+    [[nodiscard]]
+    auto gsd() const -> double;
+    [[nodiscard]]
+    auto interpolation() const -> std::string;
+
+    void setCrs(std::string crs);
+    void setGsd(double gsd);
+    void setInterpolation(std::string interpolation);
+
+    void clear();
+
+    [[nodiscard]]
+    auto name() const -> std::string;
+
+    auto begin() const { return mProperties.begin(); }
+
+    auto end() const { return mProperties.end(); }
+
+    void setProperty(const std::string &key, const std::string &value);
+
+    template<typename T>
+    void setProperty(const std::string &key, T value)
+    {
+        mProperties.setProperty(key, value);
+    }
 };
+
 
 } // namespace graphos

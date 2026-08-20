@@ -54,6 +54,7 @@ add_files_to_project(${PROJECT_NAME}
                          camera/io/impl/OpenDroneMapCalibrationWriter.cpp
                          camera/io/impl/Pix4DCalibrationReader.cpp
                          camera/io/impl/Pix4DCalibrationWriter.cpp
+                         dem/DemProperties.cpp
                          dense/CmvsPmvsProperties.cpp
                          dense/DensificationProperties.cpp
                          dense/MvsProperties.cpp
@@ -78,6 +79,7 @@ add_files_to_project(${PROJECT_NAME}
                          orientation/io/CameraPosesReader.cpp
                          orientation/io/CameraPosesWriter.cpp
                          orientation/io/OrientationExport.cpp
+                         ortho/OrthophotoProperties.cpp
                          project/Project.cpp
                          project/ProjectInfo.cpp
                          project/io/ProjectReader.cpp
@@ -113,6 +115,7 @@ add_files_to_project(${PROJECT_NAME}
                          camera/io/impl/OpenDroneMapCalibrationWriter.h
                          camera/io/impl/Pix4DCalibrationReader.h
                          camera/io/impl/Pix4DCalibrationWriter.h
+                         dem/DemProperties.h
                          dem/DemReport.h
                          dense/CmvsPmvsProperties.h
                          dense/DensificationReport.h
@@ -143,6 +146,7 @@ add_files_to_project(${PROJECT_NAME}
                          orientation/io/CameraPosesReader.h
                          orientation/io/CameraPosesWriter.h
                          orientation/io/OrientationExport.h
+                         ortho/OrthophotoProperties.h
                          ortho/OrthophotoReport.h
                          project/Project.h
                          project/ProjectInfo.h

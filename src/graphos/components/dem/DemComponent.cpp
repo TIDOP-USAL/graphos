@@ -29,7 +29,7 @@
 #include "graphos/components/dem/impl/DemPresenter.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/dem/impl/DemCommand.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

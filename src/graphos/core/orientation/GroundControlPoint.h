@@ -220,7 +220,7 @@ public:
      * \param[in] format The format of the GCPs file.
      * \return A unique pointer to the created GCPsReader object.
      */
-    static auto create(const std::string& format) -> std::unique_ptr<GCPsReader>;
+    static auto create(const std::string &format) -> std::unique_ptr<GCPsReader>;
 
 };
 

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_ORTHO_ORTHORECTIFICATION_H
-#define GRAPHOS_CORE_ORTHO_ORTHORECTIFICATION_H
+#pragma once
 
 #include <memory>
 
@@ -30,14 +29,15 @@
 
 #include <tidop/core/base/Path.h>
 #include <tidop/rastertools/io/Reader.h>
-#include <tidop/math/geometry/affine.h>
-#include <tidop/geometry/rect.h>
+#include <tidop/geometry/spatial/BoundingBox.h>
+#include <tidop/geometry/transform/Affine.h>
+#include <tidop/graphic/base/Rect.h>
+#include <tidop/graphic/entities/GPolygon.h>
 #include <tidop/geospatial/diffrect.h>
 #include <tidop/geospatial/crstransf.h>
-#include <tidop/graphic/entities/polygon.h>
 
 #include "graphos/core/camera/Camera.h"
-#include "graphos/core/sfm/poses.h"
+#include "graphos/core/orientation/CameraPose.h"
 
 
 
@@ -86,7 +86,7 @@ public:
      * \param[in] terrainPoint Terrain point in ENU coordinates.
      * \return Pixel coordinates in the image.
      */
-    auto terrainToImage(const tl::Point3d &terrainPoint) const -> tl::Point<int>;
+    auto terrainToImage(const tl::Point3d &terrainPoint) const -> tl::Point2i;
     
 
     /*!
@@ -94,56 +94,56 @@ public:
      * \param[in] terrainPoint Terrain point in ENU coordinates.
      * \return Point in photo (camera) coordinate system.
      */
-    auto terrainToPhotoCoordinates(const tl::Point3d &terrainPoint) const -> tl::Point<double>;
+    auto terrainToPhotoCoordinates(const tl::Point3d &terrainPoint) const -> tl::Point2d;
 
     /*!
      * \brief Back-projects a pixel from the image into terrain space using the DSM.
      * \param[in] imageCoordinates Pixel coordinates in the image.
      * \return Corresponding terrain point in ENU coordinates.
      */
-    auto imageToTerrain(const tl::Point<int> &imageCoordinates) const -> tl::Point3d;
+    auto imageToTerrain(const tl::Point2i &imageCoordinates) const -> tl::Point3d;
 
     /*!
      * \brief Back-projects photo (camera) coordinates into terrain coordinates using the DSM.
      * \param[in] photocoordinates Point in photo (camera) coordinates.
      * \return Corresponding terrain point in ENU coordinates.
      */
-    auto photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const -> tl::Point3d;
+    auto photocoordinatesToTerrain(const tl::Point2d &photocoordinates) const -> tl::Point3d;
 
     /*!
      * \brief Converts image pixel coordinates to photo (camera) coordinates.
      * \param[in] imagePoint Pixel coordinates in the image.
      * \return Corresponding photo (camera) coordinates.
      */
-    auto imageToPhotocoordinates(const tl::Point<int> &imagePoint) const -> tl::Point<double>;
+    auto imageToPhotocoordinates(const tl::Point2i &imagePoint) const -> tl::Point2d;
 
     /*!
      * \brief Converts photo (camera) coordinates to image pixel coordinates.
      * \param[in] photocoordinates Point in photo (camera) coordinates.
      * \return Pixel coordinates in the image.
      */
-    auto photoCoordinatesToImageCoordinates(const tl::Point<double> &photocoordinates) const -> tl::Point<double>;
+    auto photoCoordinatesToImageCoordinates(const tl::Point2d &photocoordinates) const -> tl::Point2d;
 
     /*!
      * \brief Converts DSM image coordinates to terrain (ENU) coordinates.
      * \param[in] imagePoint Pixel coordinates in the DSM image.
      * \return Corresponding terrain point in ENU coordinates.
      */
-    auto dsmImageCoordinatesToTerrain(const tl::Point<int> &imagePoint) const -> tl::Point3d;
+    auto dsmImageCoordinatesToTerrain(const tl::Point2i &imagePoint) const -> tl::Point3d;
 
     /*!
      * \brief Converts terrain (ENU) coordinates to DSM image coordinates.
      * \param[in] terrainPoint Terrain point in ENU coordinates.
      * \return Pixel coordinates in the DSM image.
      */
-    auto terrainToDsmImageCoordinates(const tl::Point3d &terrainPoint) const -> tl::Point<int> ;
+    auto terrainToDsmImageCoordinates(const tl::Point2d &terrainPoint) const -> tl::Point2i ;
 
     /*!
      * \brief Returns the DSM elevation (Z) at the given terrain coordinates.
      * \param[in] terrainPoint Terrain point in ENU coordinates.
      * \return Elevation value (Z) from the DSM.
      */
-    auto z(const tl::Point<double> &terrainPoint) const -> double;
+    auto z(const tl::Point2d &terrainPoint) const -> double;
 
     /*!
      * \brief Returns the image-space rectangle (in pixels) of the input image.
@@ -161,7 +161,7 @@ public:
      * \brief Returns the terrain window (ENU) covered by the DSM used for the current camera.
      * \return Terrain window in ENU coordinates.
      */
-    auto windowDsm() const -> tl::Window<tl::Point<double>>;
+    auto windowDsm() const -> tl::BoundingBox2d;
 
     /*!
      * \brief Returns the ground footprint polygon of the projected image.
@@ -218,7 +218,7 @@ private:
     CameraPose mCameraPose;
     Camera mUndistortedCamera;
     cv::Mat mDsm;
-    tl::Window<tl::Point<double>> mWindowDsmTerrainExtension;
+    tl::BoundingBox2d mWindowDsmTerrainExtension;
     tl::Affine<double, 2> mAffineImageToPhotocoordinates;
     tl::Affine<double, 2> mAffinePhotocoordinatesToImage;
     tl::Affine<double, 2> mAffineDsmImageToTerrain;
@@ -234,5 +234,3 @@ private:
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_ORTHO_ORTHORECTIFICATION_H

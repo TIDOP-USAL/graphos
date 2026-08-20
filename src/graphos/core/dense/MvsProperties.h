@@ -98,43 +98,43 @@ public:
      * \brief Get the resolution level.
      * \return The resolution level.
      */
-    virtual auto resolutionLevel() const -> int;
+    auto resolutionLevel() const -> int;
 
     /*!
      * \brief Get the minimum resolution.
      * \return The minimum resolution.
      */
-    virtual auto minResolution() const -> int;
+    auto minResolution() const -> int;
 
     /*!
      * \brief Get the maximum resolution.
      * \return The maximum resolution.
      */
-    virtual auto maxResolution() const -> int;
+    auto maxResolution() const -> int;
 
     /*!
      * \brief Get the number of views.
      * \return The number of views.
      */
-    virtual auto numberViews() const -> int;
+    auto numberViews() const -> int;
 
     /*!
      * \brief Get the number of views to fuse.
      * \return The number of views to fuse.
      */
-    virtual auto numberViewsFuse() const -> int;
+    auto numberViewsFuse() const -> int;
 
     /*!
      * \brief Check if color estimation is enabled.
      * \return True if color estimation is enabled, false otherwise.
      */
-    virtual auto estimateColors() const -> bool;
+    auto estimateColors() const -> bool;
 
     /*!
      * \brief Check if normals estimation is enabled.
      * \return True if normals estimation is enabled, false otherwise.
      */
-    virtual auto estimateNormals() const -> bool;
+    auto estimateNormals() const -> bool;
 
 // Setter methods
 
@@ -142,43 +142,43 @@ public:
      * \brief Set the resolution level.
      * \param[in] resolutionLevel The resolution level to set.
      */
-    virtual void setResolutionLevel(int resolutionLevel);
+    void setResolutionLevel(int resolutionLevel);
 
     /*!
      * \brief Set the minimum resolution.
      * \param[in] minResolution The minimum resolution to set.
      */
-    virtual void setMinResolution(int minResolution);
+    void setMinResolution(int minResolution);
 
     /*!
      * \brief Set the maximum resolution.
      * \param[in] maxResolution The maximum resolution to set.
      */
-    virtual void setMaxResolution(int maxResolution);
+    void setMaxResolution(int maxResolution);
 
     /*!
      * \brief Set the number of views.
      * \param[in] numberViews The number of views to set.
      */
-    virtual void setNumberViews(int numberViews);
+    void setNumberViews(int numberViews);
 
     /*!
      * \brief Set the number of views to fuse.
      * \param[in] numberViewsFuse The number of views to fuse.
      */
-    virtual void setNumberViewsFuse(int numberViewsFuse);
+    void setNumberViewsFuse(int numberViewsFuse);
 
     /*!
      * \brief Set whether color estimation is enabled.
      * \param[in] estimateColors True to enable color estimation, false otherwise.
      */
-    virtual void setEstimateColors(bool estimateColors);
+    void setEstimateColors(bool estimateColors);
 
     /*!
      * \brief Set whether normals estimation is enabled.
      * \param[in] estimateNormals True to enable normals estimation, false otherwise.
      */
-    virtual void setEstimateNormals(bool estimateNormals);
+    void setEstimateNormals(bool estimateNormals);
 
 // DensificationProperties
 

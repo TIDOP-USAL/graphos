@@ -194,6 +194,57 @@ void writeMeshingReport(QXmlStreamWriter &stream, const MeshReport &report)
     }
 }
 
+void writeDemConfig(QXmlStreamWriter &stream, const DemProperties *config)
+{
+    if (config) {
+        stream.writeStartElement("Config");
+        stream.writeAttribute("method", config->name());
+        for (auto &[key, value] : *config) {
+            stream.writeTextElement(key, value->toString());
+        }
+        stream.writeEndElement();
+    }
+}
+
+void writeDemReport(QXmlStreamWriter &stream, const DemReport &report)
+{
+    if (!report.isEmpty()) {
+        stream.writeStartElement("Report");
+        stream.writeTextElement("Time", QString::number(report.time, 'f', 10));
+        stream.writeTextElement("Gsd", QString::number(report.gsd, 'f', 10));
+        stream.writeTextElement("Crs", QString::fromStdString(report.epsg));
+        stream.writeTextElement("Cols", QString::number(report.cols));
+        stream.writeTextElement("Rows", QString::number(report.rows));
+        stream.writeEndElement(); // Report
+    }
+}
+
+void writeOrthoConfig(QXmlStreamWriter &stream, const OrthophotoProperties *config)
+{
+    if (config) {
+        stream.writeStartElement("Config");
+        //stream.writeAttribute("method", config->name());
+        for (auto &[key, value] : *config) {
+            stream.writeTextElement(key, value->toString());
+        }
+        stream.writeEndElement();
+    }
+}
+
+void writeOrthoReport(QXmlStreamWriter &stream, const OrthophotoReport &report)
+{
+    if (!report.isEmpty()) {
+        stream.writeStartElement("Report");
+        stream.writeTextElement("Time", QString::number(report.time, 'f', 10));
+        stream.writeTextElement("Gsd", QString::number(report.gsd, 'f', 10));
+        stream.writeTextElement("Crs", QString::fromStdString(report.epsg));
+        stream.writeTextElement("Cols", QString::number(report.cols));
+        stream.writeTextElement("Rows", QString::number(report.rows));
+        stream.writeTextElement("Channels", QString::number(report.channels));
+        stream.writeEndElement(); // Report
+    }
+}
+
 void ProjectWriter::write(const tl::Path &file, const Project &project)
 {
     const auto &project_info = project.info();
@@ -229,6 +280,8 @@ void ProjectWriter::write(const tl::Path &file, const Project &project)
                 writeOrientation(stream, project);
                 writeDensification(stream, project);
                 writeMeshing(stream, project);
+                writeDem(stream, project);
+                writeOrtho(stream, project);
             }
 
             stream.writeEndElement(); // Graphos
@@ -492,6 +545,29 @@ void ProjectWriter::writeMeshing(QXmlStreamWriter &stream, const Project &projec
     stream.writeTextElement("MeshModel", project.meshModel().toString());
 
     stream.writeEndElement(); // Mesh
+}
+
+void ProjectWriter::writeDem(QXmlStreamWriter &stream, const Project &project)
+{
+    stream.writeStartElement("Dem");
+
+    writeDemConfig(stream, project.demConfig().get());
+    writeDemReport(stream, project.demReport());
+    stream.writeTextElement("Dsm", project.dsm().toString());
+    stream.writeTextElement("Dtm", project.dtm().toString());
+
+    stream.writeEndElement(); // Dem
+}
+
+void ProjectWriter::writeOrtho(QXmlStreamWriter &stream, const Project &project)
+{
+    stream.writeStartElement("Orthophoto");
+
+    writeOrthoConfig(stream, project.orthoConfig().get());
+    writeOrthoReport(stream, project.orthoReport());
+    stream.writeTextElement("Path", project.orthophoto().toString());
+
+    stream.writeEndElement(); // Orthophoto
 }
 
 } // end namespace graphos

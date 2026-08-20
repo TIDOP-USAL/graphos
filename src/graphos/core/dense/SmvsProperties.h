@@ -91,61 +91,61 @@ public:
      * \brief Get the scale factor for input images.
      * \return The scale factor for input images.
      */
-    virtual auto inputImageScale() const -> int;
+    auto inputImageScale() const -> int;
 
     /*!
      * \brief Get the scale factor for output depth maps.
      * \return The scale factor for output depth maps.
      */
-    virtual auto outputDepthScale() const -> int;
+    auto outputDepthScale() const -> int;
 
     /*!
      * \brief Check if shading-based optimization is enabled.
      * \return True if shading-based optimization is enabled, false otherwise.
      */
-    virtual auto shadingBasedOptimization() const -> bool;
+    auto shadingBasedOptimization() const -> bool;
 
     /*!
      * \brief Check if semi-global matching (SGM) is enabled.
      * \return True if semi-global matching (SGM) is enabled, false otherwise.
      */
-    virtual auto semiGlobalMatching() const -> bool;
+    auto semiGlobalMatching() const -> bool;
 
     /*!
      * \brief Get the surface smoothing factor.
      * \return The surface smoothing factor.
      */
-    virtual auto surfaceSmoothingFactor() const -> double;
+    auto surfaceSmoothingFactor() const -> double;
 
     /*!
      * \brief Set the scale factor for input images.
      * \param inputImageScale The scale factor for input images.
      */
-    virtual void setInputImageScale(int inputImageScale);
+    void setInputImageScale(int inputImageScale);
 
     /*!
      * \brief Set the scale factor for output depth maps.
      * \param outputDepthScale The scale factor for output depth maps.
      */
-    virtual void setOutputDepthScale(int outputDepthScale);
+    void setOutputDepthScale(int outputDepthScale);
 
     /*!
      * \brief Enable or disable shading-based optimization.
      * \param shadingBasedOptimization True to enable shading-based optimization, false to disable it.
      */
-    virtual void setShadingBasedOptimization(bool shadingBasedOptimization);
+    void setShadingBasedOptimization(bool shadingBasedOptimization);
 
     /*!
      * \brief Enable or disable semi-global matching (SGM).
      * \param semiGlobalMatching True to enable semi-global matching (SGM), false to disable it.
      */
-    virtual void setSemiGlobalMatching(bool semiGlobalMatching);
+    void setSemiGlobalMatching(bool semiGlobalMatching);
 
     /*!
      * \brief Set the surface smoothing factor.
      * \param surfaceSmoothingFactor The surface smoothing factor.
      */
-    virtual void setSurfaceSmoothingFactor(double surfaceSmoothingFactor);
+    void setSurfaceSmoothingFactor(double surfaceSmoothingFactor);
 
 // DensificationProperties interface
 

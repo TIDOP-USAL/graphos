@@ -33,9 +33,6 @@
 
 #include "graphos/core/features/FeatureExtractorProperties.h"
 #include "graphos/core/features/FeatureExtractorReport.h"
-//#include "graphos/core/image/Image.h"
-//#include "graphos/core/camera/Camera.h"
-
 
 namespace graphos
 {

@@ -56,6 +56,8 @@ private:
     void writeOrientation(QXmlStreamWriter &stream, const Project &project);
     void writeDensification(QXmlStreamWriter &stream, const Project &project);
     void writeMeshing(QXmlStreamWriter &stream, const Project &project);
+    void writeDem(QXmlStreamWriter &stream, const Project &project);
+    void writeOrtho(QXmlStreamWriter &stream, const Project &project);
 };
 
 } // end namespace graphos

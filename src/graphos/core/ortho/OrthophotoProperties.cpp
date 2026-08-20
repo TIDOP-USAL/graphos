@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,58 +21,62 @@
  *                                                                      *
  ************************************************************************/
 
-#pragma once
-
-#include <QObject>
-
-#include <tidop/core/task/Task.h>
-#include <tidop/core/task/Progress.h>
-
-#include "graphos/core/dem/DemReport.h"
-#include "graphos/core/dem/DemProperties.h"
+#include "graphos/core/ortho/OrthophotoProperties.h"
 
 namespace graphos
 {
 
-class DemTask
-  : public QObject,
-    public tl::Task
+OrthophotoProperties::OrthophotoProperties()
+  : mProperties("Orthophoto")
 {
+    clear();
+}
 
-    Q_OBJECT
+auto OrthophotoProperties::crs() const -> std::string
+{
+    return mProperties.getProperty<std::string>("Crs");
+}
 
-public:
+auto OrthophotoProperties::gsd() const -> double
+{
+    return mProperties.getProperty<double>("Gsd");
+}
 
-    DemTask(tl::Path pointCloud,
-            tl::Path demPath,
-            std::string enuCrs,
-            const std::shared_ptr<DemProperties> &properties);
+auto OrthophotoProperties::interpolation() const -> std::string
+{
+    return mProperties.getProperty<std::string>("Interpolation");
+}
 
-    ~DemTask() override = default;
+void OrthophotoProperties::setCrs(std::string crs)
+{
+    mProperties.setProperty("Crs", std::move(crs));
+}
 
-    TL_DISABLE_COPY(DemTask)
-    TL_DISABLE_MOVE(DemTask)
+void OrthophotoProperties::setGsd(double gsd)
+{
+    mProperties.setProperty("Gsd", gsd);
+}
 
-    /*!
-     * \brief Get the DEM report after task execution.
-     *
-     * \return A 'DemReport' containing information about the DEM task.
-     */
-    auto report() const -> DemReport;
+void OrthophotoProperties::setInterpolation(std::string interpolation)
+{
+    mProperties.setProperty("Interpolation", std::move(interpolation));
+}
 
-// tl::TaskBase interface
+void OrthophotoProperties::clear()
+{
+    mProperties.setProperty("Crs", std::string());
+    mProperties.setProperty("Gsd", 0.0);
+    mProperties.setProperty("Interpolation", std::string("BILINEAR"));
+}
 
-protected:
+auto OrthophotoProperties::name() const -> std::string
+{
+    return mProperties.name();
+}
 
-    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
-
-private:
-
-    tl::Path mPointCloud;
-    tl::Path mDemPath;
-    std::string mEnuCrs;
-    std::shared_ptr<DemProperties> mProperties;
-    DemReport mDemReport;
-};
+void OrthophotoProperties::setProperty(const std::string &key, const std::string &value)
+{
+    mProperties.setProperty(key, value);
+}
 
 } // namespace graphos

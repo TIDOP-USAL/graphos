@@ -21,17 +21,16 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_ORTHO_ORTHOIMAGE_H
-#define GRAPHOS_CORE_ORTHO_ORTHOIMAGE_H
+#pragma once
 
 #include <tidop/core/base/Path.h>
 #include <tidop/core/task/Task.h>
 #include <tidop/rastertools/io/Reader.h>
 #include <tidop/rastertools/io/Writer.h>
-#include <tidop/math/geometry/affine.h>
-#include <tidop/geometry/rect.h>
+#include <tidop/geometry/transform/Affine.h>
+#include <tidop/graphic/base/Rect.h>
 
-#include "graphos/core/image.h"
+#include "graphos/core/image/Image.h"
 #include "graphos/core/camera/Camera.h"
 
 
@@ -123,7 +122,4 @@ private:
 
 
 
-} // End namespace graphos
-
-
-#endif // GRAPHOS_CORE_ORTHO_ORTHOIMAGE_H
+} // namespace graphos

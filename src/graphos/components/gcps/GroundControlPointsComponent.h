@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GCPS_COMPONENT_H
-#define GRAPHOS_GCPS_COMPONENT_H
+#pragma once
 
 #include "graphos/core/Component.h"
 
@@ -66,6 +65,3 @@ protected:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_GCPS_COMPONENT_H

@@ -21,8 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_DEM_REPORT_H
-#define GRAPHOS_CORE_DEM_REPORT_H
+#pragma once
+
+#include <string>
 
 namespace graphos
 {
@@ -31,7 +32,7 @@ struct DemReport
 {
     double time = 0.0;
 	double gsd = 0.0;
-	QString epsg = "";
+	std::string epsg = "";
     double rows = 0;
     double cols = 0;
 
@@ -39,9 +40,16 @@ struct DemReport
     {
         return time == 0. && gsd == 0. && epsg == "";
     }
+
+    void clear()
+    {
+        time = 0.0;
+        gsd = 0.0;
+        epsg.clear();
+        rows = 0;
+        cols = 0;
+    }
 };
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_ORTHOPHOTO_REPORT_H

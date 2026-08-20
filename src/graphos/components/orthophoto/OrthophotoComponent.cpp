@@ -30,7 +30,7 @@
 #include "graphos/components/orthophoto/impl/OrthophotoPresenter.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/orthophoto/impl//OrthophotoCommand.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

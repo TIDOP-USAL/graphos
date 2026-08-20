@@ -25,27 +25,37 @@
 
 /* GRAPHOS */
 #include "graphos/components/orthophoto/impl/Orthoimage.h"
-#include "graphos/core/image.h"
+#include "graphos/core/image/Image.h"
 #include "graphos/core/utils.h"
 //#include "graphos/core/multispectral/Vignetting.h"
 #include "graphos/components/orthophoto/impl/OrthoimageTask.h"
 
 /* TidopLib */
-#include <tidop/core/messages.h>
+//#include <tidop/core/messages.h>
 #include <tidop/core/base/Exception.h>
 #include <tidop/core/task/Progress.h>
 #include <tidop/core/base/Chrono.h>
+#include <tidop/core/app/Message.h>
 #include <tidop/geospatial/crs.h>
-#include <tidop/vect/vectreader.h>
-#include <tidop/graphic/layer.h>
-#include <tidop/graphic/datamodel.h>
-#include <tidop/graphic/entities/polygon.h>
-#include <tidop/img/formats.h>
-#include <tidop/img/metadata.h>
-#include <tidop/img/img.h>
-#include <tidop/geospatial/crstransf.h>
-#include <tidop/math/statistic/median.h>
-#include <tidop/math/statistic/tukeyfences.h>
+#include <tidop/vectortools/io/Reader.h>
+#include <tidop/vectortools/io/Writer.h>
+#include <tidop/graphic/model/GLayer.h>
+//#include <tidop/geometry/algorithms/spatial/Envelope.h>
+#include <tidop/geometry/algorithms/analysis/Intersects.h>
+#include <tidop/geometry/algorithms/analysis/Contains.h>
+#include <tidop/geometry/algorithms/measurement/Distance.h>
+#include <tidop/rastertools/io/Reader.h>
+#include <tidop/rastertools/io/Writer.h>
+#include <tidop/rastertools/io/Formats.h>
+#include <tidop/math/statistic/algorithms/descriptive/Median.h>
+//#include <tidop/graphic/datamodel.h>
+//#include <tidop/graphic/entities/polygon.h>
+//#include <tidop/img/formats.h>
+//#include <tidop/img/metadata.h>
+//#include <tidop/img/img.h>
+//#include <tidop/geospatial/crstransf.h>
+//#include <tidop/math/statistic/median.h>
+//#include <tidop/math/statistic/tukeyfences.h>
 
 /* OpenCV */
 #include <opencv2/stitching.hpp>
@@ -72,12 +82,12 @@ constexpr double exposure_compensator_factor = 0.1;
 
 
 static void orthoMosaic(tl::Path &optimal_footprint_path,
-    tl::Path &ortho_path,
-    double res_ortho,
-    const std::string &epsg,
-    std::vector<std::vector<tl::WindowD>> &grid)
+                        tl::Path &ortho_path,
+                        double res_ortho,
+                        const std::string &epsg,
+                        std::vector<std::vector<tl::BoundingBox2d>> &grid)
 {
-    tl::WindowD window_all;
+    tl::BoundingBox2d window_all;
     std::vector<std::string> compensated_orthos;
     std::vector<std::string> ortho_seams;
 
@@ -87,38 +97,37 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
     int type = cv::detail::ExposureCompensator::GAIN_BLOCKS;
     cv::Ptr<cv::detail::ExposureCompensator> compensator = cv::detail::ExposureCompensator::createDefault(type);
 
-    auto vector_reader = tl::VectorReaderFactory::create(optimal_footprint_path.toString());
-    vector_reader->open();
+    tl::VectorReader vector_reader(optimal_footprint_path);
 
-    if (!vector_reader->isOpen()) {
+    if (!vector_reader.isOpen()) {
         tl::Message::error("Cannot open vector reader");
         return;
     }
 
-    if (vector_reader->layersCount() < 1) {
+    if (vector_reader.layersCount() < 1) {
         tl::Message::error("No layers found in footprint");
-        vector_reader->close();
+        vector_reader.close();
         return;
     }
 
-    std::shared_ptr<tl::GLayer> layer = vector_reader->read(0);
+    std::shared_ptr<tl::GLayer> layer = vector_reader.read(0);
 
     // Primera pasada: calcular ventana global completa
     for (const auto &entity : *layer) {
         if (entity->type() != tl::GraphicEntity::Type::polygon_2d) {
             continue;
         }
-        std::shared_ptr<tl::GPolygon> polygon = std::dynamic_pointer_cast<tl::GPolygon>(entity);
-        window_all = joinWindow(window_all, polygon->window());
+        auto polygon = dynamic_cast<tl::GPolygon *>(entity.get());
+        window_all = tl::merge(window_all, polygon->window());
     }
 
     tl::Message::info("Global window: [{}, {}] - [{}, {}]",
-        window_all.pt1.x, window_all.pt1.y,
-        window_all.pt2.x, window_all.pt2.y);
+        window_all.min().x(), window_all.min().y(),
+        window_all.max().x(), window_all.max().y());
 
     // Segunda pasada: procesar todas las imágenes
     std::vector<std::string> all_orthos;
-    std::vector<tl::WindowD> all_windows;
+    std::vector<tl::BoundingBox2d> all_windows;
     std::vector<cv::Point> all_corners;
     std::vector<cv::UMat> all_images_comp;
     std::vector<cv::UMat> all_masks_comp;
@@ -126,23 +135,22 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
     for (const auto &entity : *layer) {
         if (entity->type() != tl::GraphicEntity::Type::polygon_2d) continue;
 
-        std::shared_ptr<tl::GPolygon> polygon = std::dynamic_pointer_cast<tl::GPolygon>(entity);
-        std::shared_ptr<tl::TableRegister> data = polygon->data();
-        std::string ortho_path_str = data->value(0);
+        auto polygon = dynamic_cast<tl::GPolygon *>(entity.get());
+        tl::TableRegister data = polygon->attributes();
+        std::string ortho_path_str = data.value(0);
 
         try {
-            auto image_reader = tl::ImageReaderFactory::create(ortho_path_str);
-            image_reader->open();
-            if (!image_reader->isOpen()) {
+            tl::RasterReader image_reader(ortho_path_str);
+            if (!image_reader.isOpen()) {
                 tl::Message::warning("Cannot open ortho image: {}", ortho_path_str);
                 continue;
             }
 
             // Leer imagen a escala reducida para compensación
-            cv::Mat image = image_reader->read(exposure_compensator_factor, exposure_compensator_factor);
+            cv::Mat image = image_reader.read(exposure_compensator_factor, exposure_compensator_factor);
             if (image.empty()) {
                 tl::Message::warning("Empty image: {}", ortho_path_str);
-                image_reader->close();
+                image_reader.close();
                 continue;
             }
 
@@ -150,13 +158,13 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
             cv::Mat blackPixelMask = createBlackPixelMask(image, 32);
             cv::inpaint(image, blackPixelMask, image, 3, cv::INPAINT_TELEA);
 
-            double scale = image_reader->georeference().scale().x();
-            tl::WindowD window = polygon->window();
+            double scale = image_reader.georeference().scale().x();
+            tl::BoundingBox2d window = polygon->window();
 
             // Calcular esquina en coordenadas de la ventana global (CORREGIDO)
             cv::Point corner;
-            corner.x = tl::roundToInteger((window.pt1.x - window_all.pt1.x) * exposure_compensator_factor / scale);
-            corner.y = tl::roundToInteger((window_all.pt2.y - window.pt2.y) * exposure_compensator_factor / scale);
+            corner.x = tl::roundToInteger((window.min().x() - window_all.min().x()) * exposure_compensator_factor / scale);
+            corner.y = tl::roundToInteger((window_all.max().y() - window.max().y()) * exposure_compensator_factor / scale);
             tl::Message::info("Image {} corner: ({}, {})", ortho_path_str, corner.x, corner.y);
 
             // Crear máscara
@@ -183,7 +191,7 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
             all_images_comp.push_back(umat_img);
             all_masks_comp.push_back(umat_mask);
 
-            image_reader->close();
+            image_reader.close();
 
         } catch (std::exception &e) {
             tl::Message::warning("Error processing {}: {}", ortho_path_str, e.what());
@@ -193,7 +201,7 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
 
     if (all_orthos.empty()) {
         tl::Message::error("No valid orthos found");
-        vector_reader->close();
+        vector_reader.close();
         return;
     }
 
@@ -227,18 +235,17 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
     // Aplicar compensación y guardar imágenes procesadas
     for (size_t i = 0; i < all_orthos.size(); ++i) {
         try {
-            auto image_reader_full = tl::ImageReaderFactory::create(all_orthos[i]);
-            image_reader_full->open();
-            if (!image_reader_full->isOpen()) continue;
+            tl::RasterReader image_reader_full(all_orthos[i]);
+            if (!image_reader_full.isOpen()) continue;
 
-            cv::Mat full_img = image_reader_full->read();
+            cv::Mat full_img = image_reader_full.read();
             if (full_img.empty()) {
-                image_reader_full->close();
+                image_reader_full.close();
                 continue;
             }
 
             // Calcular corner para resolución completa (CORREGIDO)
-            double scale_full = image_reader_full->georeference().scale().x();
+            double scale_full = image_reader_full.georeference().scale().x();
             //cv::Point corner_full;
             //corner_full.x = tl::roundToInteger((all_windows[i].pt1.x - window_all.pt1.x) / scale_full);
             //corner_full.y = tl::roundToInteger((window_all.pt2.y - all_windows[i].pt2.y) / scale_full);
@@ -307,15 +314,14 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
             std::string comp_name = ortho_comp.baseName().toString() + "_compensated.tif";
             ortho_comp.replaceFileName(comp_name);
 
-            auto writer_comp = tl::ImageWriterFactory::create(ortho_comp.toString());
-            writer_comp->open();
-            if (writer_comp->isOpen()) {
-                writer_comp->create(image_reader_full->rows(), image_reader_full->cols(),
-                    image_reader_full->channels(), image_reader_full->dataType());
-                writer_comp->setCRS(image_reader_full->crsWkt());
-                writer_comp->setGeoreference(image_reader_full->georeference());
-                writer_comp->write(full_img);
-                writer_comp->close();
+            tl::RasterWriter writer_comp(ortho_comp);
+            if (writer_comp.isOpen()) {
+                writer_comp.create(image_reader_full.rows(), image_reader_full.cols(),
+                                   image_reader_full.channels(), image_reader_full.dataType());
+                writer_comp.setCRS(image_reader_full.crsWkt());
+                writer_comp.setGeoreference(image_reader_full.georeference());
+                writer_comp.write(full_img);
+                writer_comp.close();
                 compensated_orthos.push_back(ortho_comp.toString());
                 tl::Message::info("Saved compensated: {}", ortho_comp.toString());
             }
@@ -325,26 +331,25 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
             std::string seam_name = seam_path.baseName().toString() + "_seam.tif";
             seam_path.replaceFileName(seam_name);
 
-            auto writer_seam = tl::ImageWriterFactory::create(seam_path.toString());
-            writer_seam->open();
-            if (writer_seam->isOpen()) {
-                writer_seam->create(image_reader_full->rows(), image_reader_full->cols(), 1, tl::DataType::TL_8U);
-                writer_seam->setCRS(image_reader_full->crsWkt());
-                writer_seam->setGeoreference(image_reader_full->georeference());
-                writer_seam->write(final_mask);
-                writer_seam->close();
+            tl::RasterWriter writer_seam(seam_path.toString());
+            if (writer_seam.isOpen()) {
+                writer_seam.create(image_reader_full.rows(), image_reader_full.cols(), 1, tl::DataType::TL_8U);
+                writer_seam.setCRS(image_reader_full.crsWkt());
+                writer_seam.setGeoreference(image_reader_full.georeference());
+                writer_seam.write(final_mask);
+                writer_seam.close();
                 ortho_seams.push_back(seam_path.toString());
                 tl::Message::info("Saved seam mask: {}", seam_path.toString());
             }
 
-            image_reader_full->close();
+            image_reader_full.close();
 
         } catch (std::exception &e) {
             tl::Message::warning("Error processing full resolution {}: {}", all_orthos[i], e.what());
         }
     }
 
-    vector_reader->close();
+    vector_reader.close();
 
     // --- BLENDING MEJORADO ---
     tl::Message::info("Starting blending with {} images", compensated_orthos.size());
@@ -353,18 +358,17 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
     int blender_type = cv::detail::Blender::FEATHER;
     float blend_strength = 2.0f; // Aumentado para mejor transición
 
-    std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(ortho_path);
-    image_writer->open();
+    tl::RasterWriter image_writer(ortho_path);
 
     int cols = static_cast<int>(std::round(window_all.width() / res_ortho));
     int rows = static_cast<int>(std::round(window_all.height() / res_ortho));
 
-    if (image_writer->isOpen()) {
-        image_writer->create(rows, cols, 3, tl::DataType::TL_8U);
+    if (image_writer.isOpen()) {
+        image_writer.create(rows, cols, 3, tl::DataType::TL_8U);
         tl::Crs crs(epsg);
-        image_writer->setCRS(crs.toWktFormat());
-        tl::Affine<double, 2> affine_ortho(res_ortho, -res_ortho, window_all.pt1.x, window_all.pt2.y, 0.0);
-        image_writer->setGeoreference(affine_ortho);
+        image_writer.setCRS(crs.toWktFormat());
+        tl::Affine<double, 2> affine_ortho(res_ortho, -res_ortho, window_all.min().x(), window_all.max().y(), 0.0);
+        image_writer.setGeoreference(affine_ortho);
 
         for (size_t r = 0; r < grid.size(); ++r) {
             for (size_t c = 0; c < grid[r].size(); ++c) {
@@ -401,35 +405,33 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
                 // Procesar todas las imágenes que intersectan con esta celda
                 for (size_t j = 0; j < compensated_orthos.size(); j++) {
                     try {
-                        auto image_reader = tl::ImageReaderFactory::create(compensated_orthos[j]);
-                        auto image_reader_seam = tl::ImageReaderFactory::create(ortho_seams[j]);
-                        image_reader->open();
-                        image_reader_seam->open();
+                        tl::RasterReader image_reader(compensated_orthos[j]);
+                        tl::RasterReader image_reader_seam(ortho_seams[j]);
 
-                        if (!image_reader->isOpen() || !image_reader_seam->isOpen()) {
-                            image_reader->close();
-                            image_reader_seam->close();
+                        if (!image_reader.isOpen() || !image_reader_seam.isOpen()) {
+                            image_reader.close();
+                            image_reader_seam.close();
                             continue;
                         }
 
-                        if (!intersectWindows(image_reader->window(), grid[r][c])) {
-                            image_reader->close();
-                            image_reader_seam->close();
+                        if (!tl::intersects(image_reader.window(), grid[r][c])) {
+                            image_reader.close();
+                            image_reader_seam.close();
                             continue;
                         }
 
-                        auto georef = image_reader->georeference();
+                        auto georef = image_reader.georeference();
                         double read_scale_x = georef.scale().x() / res_ortho;
                         double read_scale_y = georef.scale().y() / res_ortho;
 
                         // Leer imagen compensada
-                        tl::Affine<int, 2> affine;
-                        cv::Mat compensate_image = image_reader->read(grid[r][c], read_scale_x, read_scale_y, &affine);
-                        cv::Mat seam_image = image_reader_seam->read(grid[r][c], read_scale_x, read_scale_y);
+                        tl::Affine<double, 2> affine;
+                        cv::Mat compensate_image = image_reader.read(grid[r][c], read_scale_x, read_scale_y, &affine);
+                        cv::Mat seam_image = image_reader_seam.read(grid[r][c], read_scale_x, read_scale_y);
 
                         if (compensate_image.empty() || seam_image.empty()) {
-                            image_reader->close();
-                            image_reader_seam->close();
+                            image_reader.close();
+                            image_reader_seam.close();
                             continue;
                         }
 
@@ -443,9 +445,9 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
                         compensate_image.release();
 
                         cv::Rect rct = cv::Rect(tl::roundToInteger(affine.translation().x()),
-                            tl::roundToInteger(affine.translation().y()),
-                            compensate_image_16s.cols,
-                            compensate_image_16s.rows);
+                                                tl::roundToInteger(affine.translation().y()),
+                                                compensate_image_16s.cols,
+                                                compensate_image_16s.rows);
 
                         blender->feed(compensate_image_16s, seam_image, rct.tl());
 
@@ -464,8 +466,8 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
                         //    blender->feed(compensate_image_16s, seam_mask_binary, rct.tl());
                         //}
 
-                        image_reader->close();
-                        image_reader_seam->close();
+                        image_reader.close();
+                        image_reader_seam.close();
 
                     } catch (std::exception &e) {
                         tl::Message::warning("Error in blending for image {}: {}", compensated_orthos[j], e.what());
@@ -482,9 +484,9 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
 
                     // Escribir en el mosaico final
                     auto affine_ortho_inverse = affine_ortho.inverse();
-                    tl::Point<double> pp1 = affine_ortho_inverse.transform(grid[r][c].pt1);
-                    tl::Point<double> pp2 = affine_ortho_inverse.transform(grid[r][c].pt2);
-                    tl::WindowI window_to_write(static_cast<tl::Point<int>>(pp1), static_cast<tl::Point<int>>(pp2));
+                    tl::Point2d pp1 = affine_ortho_inverse.transform(grid[r][c].min());
+                    tl::Point2d pp2 = affine_ortho_inverse.transform(grid[r][c].max());
+                    tl::BoundingBox2i window_to_write(static_cast<tl::Point<int>>(pp1), static_cast<tl::Point<int>>(pp2));
                     window_to_write.normalized();
 
                     if (window_to_write.isValid()) {
@@ -492,30 +494,31 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
                         cv::Mat blackPixelMask = createBlackPixelMask(ortho_blend, 1024);
                         cv::inpaint(ortho_blend, blackPixelMask, ortho_blend, 3, cv::INPAINT_TELEA);
 
-                        image_writer->write(ortho_blend, window_to_write);
+                        image_writer.write(ortho_blend, window_to_write);
                     }
                 }
 
             }
         }
 
-        image_writer->close();
+        image_writer.close();
         tl::Message::info("Mosaic completed: {}", ortho_path.toString());
     }
 }
 
-static std::shared_ptr<tl::GPolygon> bestImage(const tl::Point<double> &pt, std::shared_ptr<tl::GLayer> layer)
+static const tl::GPolygon* bestImage(const tl::Point<double> &pt, std::shared_ptr<tl::GLayer> layer)
 {
-    std::shared_ptr<tl::GPolygon> footprint_image;
+    const tl::GPolygon* footprint_image;
 
-    std::map<double, std::shared_ptr<tl::GPolygon>> entities;
+    std::map<double, const tl::GPolygon *> entities;
 
     for (const auto &entity : *layer) {
         tl::GraphicEntity::Type type = entity->type();
         if (type == tl::GraphicEntity::Type::polygon_2d) {
 
-            std::shared_ptr<tl::GPolygon> polygon = std::dynamic_pointer_cast<tl::GPolygon>(entity);
-            if (polygon->isInner(pt)) {
+            auto polygon = dynamic_cast<tl::GPolygon *>(entity.get());
+            //if (polygon->isInner(pt)) {
+            if (tl::contains(polygon->geometry(), pt)) {
                 tl::Point<double> center = polygon->window().center();
                 double distance = tl::distance(center, pt);
                 entities[distance] = polygon;
@@ -536,44 +539,43 @@ static std::shared_ptr<tl::GPolygon> bestImage(const tl::Point<double> &pt, std:
 }
 
 static void findOptimalFootprint(const tl::Path &footprint_file,
-                          std::vector<tl::WindowD> &grid,
-                          const tl::Path &optimal_footprint_path,
-                          const tl::Crs &crs)
+                                 std::vector<tl::BoundingBox2d> &grid,
+                                 const tl::Path &optimal_footprint_path,
+                                 const tl::Crs &crs)
 {
-    std::map<std::string, std::shared_ptr<tl::GPolygon>> clean_footprint;
+    std::map<std::string, const tl::GPolygon *> clean_footprint;
     ///....
     std::vector<std::pair<std::string, std::shared_ptr<tl::GPolygon>>> grid_images;
     ///....
 
-    std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::create(footprint_file);
-    vectorReader->open();
-    if (vectorReader->isOpen()) {
+    tl::VectorReader vectorReader(footprint_file);
+    if (vectorReader.isOpen()) {
 
-        if (vectorReader->layersCount() >= 1) {
+        if (vectorReader.layersCount() >= 1) {
 
             std::map<double, std::shared_ptr<tl::GPolygon>> entities;
-            std::shared_ptr<tl::GLayer> layer = vectorReader->read(0);
+            std::shared_ptr<tl::GLayer> layer = vectorReader.read(0);
 
             for (size_t i = 0; i < grid.size(); i++) {
 
                 /// Busqueda de imagen mas centrada
-                std::shared_ptr<tl::GPolygon> polygon = bestImage(grid[i].center(), layer);
+                const tl::GPolygon *polygon = bestImage(grid[i].center(), layer);
                 if (polygon) {
-                    std::shared_ptr<tl::TableRegister> data = polygon->data();
-                    std::string ortho_to_compensate = data->value(0);
+                    auto data = polygon->attributes();
+                    std::string ortho_to_compensate = data.value(0);
                     clean_footprint[ortho_to_compensate] = polygon;
 
                     ///....
                     std::shared_ptr<tl::GPolygon> polygon = std::make_shared<tl::GPolygon>();
-                    auto x_min = grid[i].pt1.x;
-                    auto y_min = grid[i].pt1.y;
-                    auto x_max = grid[i].pt2.x;
-                    auto y_max = grid[i].pt2.y;
+                    auto x_min = grid[i].min().x();
+                    auto y_min = grid[i].min().y();
+                    auto x_max = grid[i].max().x();
+                    auto y_max = grid[i].max().y();
 
-                    polygon->push_back(tl::Point<double>(x_min, y_min));
-                    polygon->push_back(tl::Point<double>(x_max, y_min));
-                    polygon->push_back(tl::Point<double>(x_max, y_max));
-                    polygon->push_back(tl::Point<double>(x_min, y_max));
+                    polygon->geometry().outer().push_back(tl::Point<double>(x_min, y_min));
+                    polygon->geometry().outer().push_back(tl::Point<double>(x_max, y_min));
+                    polygon->geometry().outer().push_back(tl::Point<double>(x_max, y_max));
+                    polygon->geometry().outer().push_back(tl::Point<double>(x_min, y_max));
 
                     grid_images.push_back({ortho_to_compensate, polygon});
                     ///....
@@ -581,37 +583,35 @@ static void findOptimalFootprint(const tl::Path &footprint_file,
 
             }
 
-            vectorReader->close();
+            vectorReader.close();
 
         }
 
         tl::Message::info("Optimal footprint. {} retained images", clean_footprint.size());
         {
-            std::unique_ptr<tl::VectorWriter> vector_writer = tl::VectorWriterFactory::create(optimal_footprint_path);
-            vector_writer->open();
-            if (!vector_writer->isOpen()) throw std::runtime_error("Vector open error");
-            vector_writer->create();
-            vector_writer->setCRS(crs.toWktFormat());
+            tl::VectorWriter vector_writer(optimal_footprint_path);
+            TL_ASSERT(vector_writer.isOpen(), "Vector open error: {}", optimal_footprint_path.toString());
+            vector_writer.setCRS(crs.toWktFormat());
 
-            std::shared_ptr<tl::TableField> field(new tl::TableField("image",
-                                                  tl::TableField::Type::STRING,
-                                                  254));
-            std::vector<std::shared_ptr<tl::TableField>> fields;
+            tl::TableField field("image", tl::TableField::Type::STRING, 254);
+            std::vector<tl::TableField> fields;
             fields.push_back(field);
 
             tl::GLayer layer;
             layer.setName("footprint");
             layer.addDataField(field);
 
-            for (const auto &footprint : clean_footprint) {
+            for (const auto &[value, polygon] : clean_footprint) {
                 std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(fields));
-                data->setValue(0, footprint.first);
-                layer.push_back(footprint.second);
+                data->setValue(0, value);
+                auto polygon_ptr = std::make_unique<tl::GPolygon>(*polygon);
+                polygon_ptr->setAttributes(*data);
+                layer.push_back(std::move(polygon_ptr));
             }
 
-            vector_writer->write(layer);
+            vector_writer.write(layer);
 
-            vector_writer->close();
+            vector_writer.close();
         }
 
         /// Write grid
@@ -619,34 +619,29 @@ static void findOptimalFootprint(const tl::Path &footprint_file,
 
             auto grid_path = optimal_footprint_path;
             grid_path.replaceBaseName("grid");
-            std::unique_ptr<tl::VectorWriter> grid_writer = tl::VectorWriterFactory::create(grid_path);
-            grid_writer->open();
-            if (!grid_writer->isOpen()) throw std::runtime_error("Vector open error");
-            grid_writer->create();
-            grid_writer->setCRS(crs.toWktFormat());
+            tl::VectorWriter grid_writer(grid_path);
+            TL_ASSERT(grid_writer.isOpen(), "Vector open error: {}", grid_path.toString());
+            grid_writer.setCRS(crs.toWktFormat());
 
-            std::shared_ptr<tl::TableField> field_image(new tl::TableField("image",
-                                                        tl::TableField::Type::STRING,
-                                                        254));
-            std::vector<std::shared_ptr<tl::TableField>> fields;
+            tl::TableField field_image("image", tl::TableField::Type::STRING, 254);
+            std::vector<tl::TableField> fields;
             fields.push_back(field_image);
 
             tl::GLayer layer;
             layer.setName("grid");
             layer.addDataField(field_image);
             int i = 0;
-            for (const auto &grid_image : grid_images) {
-                std::string image_name = grid_image.first;
-                auto polygon = grid_image.second;
-                std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(fields));
-                data->setValue(0, image_name);
-                polygon->setData(data);
-                layer.push_back(polygon);
+            for (const auto &[image_name, polygon] : grid_images) {
+                tl::TableRegister data(fields);
+                data.setValue(0, image_name);
+                auto polygon_ptr = std::make_unique<tl::GPolygon>(*polygon);
+                polygon_ptr->setAttributes(data);
+                layer.push_back(std::move(polygon_ptr));
             }
 
-            grid_writer->write(layer);
+            grid_writer.write(layer);
 
-            grid_writer->close();
+            grid_writer.close();
         }
         ////
     }
@@ -874,13 +869,13 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
             if (valid_idxs.empty()) continue;
 
             // mediana inicial por canal
-            float medL = tl::median(L.begin(), L.end());
-            float medA = tl::median(A.begin(), A.end());
-            float medB = tl::median(B.begin(), B.end());
+            float medL = tl::median(L);
+            float medA = tl::median(A);
+            float medB = tl::median(B);
              
             // distancias de color a la mediana (CIE 1976 - ΔE*)
             color_distances.assign(images_size, std::numeric_limits<float>::infinity());
-            for (int idx : valid_idxs) {
+            for (size_t idx : valid_idxs) {
                 cv::Vec3f lab = lab_images[idx].at<cv::Vec3f>(static_cast<int>(r), c);
 
                 // CIE 1976 - ΔE*
@@ -896,7 +891,7 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
             // normalizar color distances solo entre válidos
             float minC = std::numeric_limits<float>::infinity();
             float maxC = std::numeric_limits<float>::lowest();
-            for (int idx : valid_idxs) {
+            for (size_t idx : valid_idxs) {
                 float d = color_distances[idx];
                 if (d < minC) minC = d;
                 if (d > maxC) maxC = d;
@@ -910,7 +905,7 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
             // Copiamos las distancias de color para buscar su mediana (MAD)
             std::vector<float> dists_copy;
             dists_copy.reserve(valid_idxs.size());
-            for (int idx : valid_idxs) {
+            for (size_t idx : valid_idxs) {
                 dists_copy.push_back(color_distances[idx]);
                 //data.push_back(color_distances[idx]);
             }
@@ -934,7 +929,7 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
             std::vector<std::pair<float, int>> scored;
             scored.reserve(valid_idxs.size());
 
-            for (int idx : valid_idxs) {
+            for (size_t idx : valid_idxs) {
 
                 if (color_distances[idx] > outlier_threshold) continue;
                 //if (!inliers[idx]) continue;
@@ -954,7 +949,7 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
 
                 // Score final
                 float score = weight_color * colorNorm + weight_distance * distNorm;
-                scored.emplace_back(score, idx);
+                scored.emplace_back(score, static_cast<int>(idx));
             }
 
             if (scored.empty()) continue;
@@ -965,7 +960,7 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
 
             // número de mejores píxeles a usar
             const int TOP_N = 5;
-            int n = std::min<int>(TOP_N, scored.size());
+            int n = std::min<int>(TOP_N, static_cast<int>(scored.size()));
 
             if (n == 1) {
                 result_lab.at<cv::Vec3f>(static_cast<int>(r), c) = lab_images[scored[0].second].at<cv::Vec3f>(static_cast<int>(r), c);
@@ -1182,14 +1177,14 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images_,
 
             // Calcular distancias de intensidad a la mediana
             intensity_diffs.assign(images_size, std::numeric_limits<float>::infinity());
-            for (int idx : valid_idxs) {
+            for (size_t idx : valid_idxs) {
                 float val = images[idx].at<float>(static_cast<int>(r), c);
                 intensity_diffs[idx] = std::fabs(val - median);
             }
 
             float min = std::numeric_limits<float>::infinity();
             float max = std::numeric_limits<float>::lowest();
-            for (int idx : valid_idxs) {
+            for (size_t idx : valid_idxs) {
                 float d = intensity_diffs[idx];
                 if (d < min) min = d;
                 if (d > max) max = d;
@@ -1216,7 +1211,7 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images_,
 
             std::vector<float> intensity_diffs_copy;
             intensity_diffs_copy.reserve(valid_idxs.size());
-            for (int idx : valid_idxs) {
+            for (size_t idx : valid_idxs) {
                 intensity_diffs_copy.push_back(intensity_diffs[idx]);
             }
             // Calculamos la mediana de las desviaciones (MAD)
@@ -1238,7 +1233,7 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images_,
             //    scored.emplace_back(score, static_cast<int>(i));
             //}
 
-            for (int idx : valid_idxs) {
+            for (size_t idx : valid_idxs) {
 
                 if (intensity_diffs[idx] > outlier_threshold) continue;
 
@@ -1252,7 +1247,7 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images_,
 
                 // Score final
                 float score = weight_intensity * intensityNorm + weight_distance * distNorm;
-                scored.emplace_back(score, idx);
+                scored.emplace_back(score, static_cast<int>(idx));
 
             }
 
@@ -1264,7 +1259,7 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images_,
 
             // Número de mejores píxeles a usar
             const int TOP_N = 5;
-            int n = std::min<int>(TOP_N, scored.size());
+            int n = std::min<int>(TOP_N, static_cast<int>(scored.size()));
 
             // Calcular media ponderada de los N mejores
             //float total_w = 0.f;
@@ -1341,8 +1336,8 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images_,
     return result;
 }
 
-OrthophotoTask::OrthophotoTask(const std::unordered_map<size_t, Image> &images, 
-                               const std::map<int, Camera> &cameras, 
+OrthophotoTask::OrthophotoTask(const std::unordered_map<size_t, Image> &images,
+                               const std::map<int, Camera> &cameras,
                                const tl::Path &orthoPath, 
                                const tl::Path &mdt, 
                                const std::string &enuCrs, 
@@ -1350,8 +1345,8 @@ OrthophotoTask::OrthophotoTask(const std::unordered_map<size_t, Image> &images,
                                const std::string &interpolation, 
                                double resolution, 
                                bool cuda)
-  : tl::TaskBase(),
-    mPhotos(images),
+  : tl::Task(),
+    mImages(images),
     mCameras(cameras),
     mOrthoPath(orthoPath),
     mMdt(mdt),
@@ -1376,29 +1371,28 @@ auto OrthophotoTask::report() const -> OrthophotoReport
     return mOrthophotoReport;
 }
 
-std::vector<std::vector<tl::WindowD>> OrthophotoTask::findGrid(int gridSize) const
+std::vector<std::vector<tl::BoundingBox2d>> OrthophotoTask::findGrid(int gridSize) const
 {
-    std::vector<std::vector<tl::WindowD>> grid;
+    std::vector<std::vector<tl::BoundingBox2d>> grid;
 
     try {
 
         int grid_size = mGSD * gridSize;
 
-        auto reader = tl::ImageReaderFactory::create(mMdt);
-        reader->open();
-        TL_ASSERT(reader->isOpen(), "Can not open the MDT");
-        auto window = reader->window();
+        tl::RasterReader reader(mMdt);
+        TL_ASSERT(reader.isOpen(), "Can not open the MDT");
+        auto window = reader.window();
         int step_x = std::ceil(window.width() / grid_size);
         int step_y = std::ceil(window.height() / grid_size);
 
         auto center = window.center();
 
-        double x_ini = center.x - ((step_x - 1) * grid_size) / 2.;
-        double y_ini = center.y + ((step_y - 1) * grid_size) / 2.;
+        double x_ini = center.x() - ((step_x - 1) * grid_size) / 2.;
+        double y_ini = center.y() + ((step_y - 1) * grid_size) / 2.;
 
         for (size_t i = 0; i < step_x; i++) {
 
-            std::vector<tl::WindowD> row_grid;
+            std::vector<tl::BoundingBox2d> row_grid;
 
             double x = x_ini + grid_size * i;
 
@@ -1419,7 +1413,7 @@ std::vector<std::vector<tl::WindowD>> OrthophotoTask::findGrid(int gridSize) con
     return grid;
 }
 
-void OrthophotoTask::execute(tl::Progress *progressBar)
+void OrthophotoTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
 {
 
     try {
@@ -1431,17 +1425,16 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
         temp_path.createDirectories();
 
         // Se tiene que comprobar que todas las imagenes tenga los mismos canales y profundidad de bits
-        for (const auto &photo : mPhotos) {
+        for (const auto &[_, image] : mImages) {
 
-            const auto &image = photo.second;
+            //const auto &image = photo.second;
             int camera_id = image.cameraId();
 
-            auto image_reader = tl::ImageReaderFactory::create(image.path().toStdString());
-            image_reader->open();
-            if (!image_reader->isOpen()) continue;
+            tl::RasterReader image_reader(image.path());
+            if (!image_reader.isOpen()) continue;
 
-            mDataType = image_reader->dataType();
-            mChannels = image_reader->channels();
+            mDataType = image_reader.dataType();
+            mChannels = image_reader.channels();
             if (mChannels == 3) break;
         }
 
@@ -1453,19 +1446,19 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
         dsm_path.replaceBaseName("dsm_enu");
 
         // Crear la malla de teselas
-        std::vector<std::vector<tl::WindowD>> grid = findGrid(500);
+        std::vector<std::vector<tl::BoundingBox2d>> grid = findGrid(500);
 
         // Ventana ortomosaico
-        mWindowAll.pt1.x = grid[0][0].pt1.x;
-        mWindowAll.pt1.y = grid.back().back().pt1.y;
-        mWindowAll.pt2.x = grid.back().back().pt2.x;
-        mWindowAll.pt2.y = grid[0][0].pt2.y;
+        mWindowAll.min().x() = grid[0][0].min().x();
+        mWindowAll.min().y() = grid.back().back().min().y();
+        mWindowAll.max().x() = grid.back().back().max().x();
+        mWindowAll.max().y() = grid[0][0].max().y();
 
         // Transformación afín ortomosaico, 
         // Usar cuando se escriba la orto
-        tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, mWindowAll.pt1.x, mWindowAll.pt2.y, 0.0);
+        tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, mWindowAll.min().x(), mWindowAll.max().y(), 0.0);
 
-        OrthoimageTask orthoimage_task(mPhotos,
+        OrthoimageTask orthoimage_task(mImages,
                                        mCameras,
                                        dsm_path,
                                        temp_path,
@@ -1479,7 +1472,7 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
                                        1.0,
                                        bCuda);
 
-        this->subscribe([&](const tl::TaskStoppingEvent *event) {
+        this->subscribe([&](const tl::TaskStoppingEvent &event) {
             orthoimage_task.stop();
         });
 
@@ -1511,7 +1504,7 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 
         mOrthophotoReport.time = this->time();
         mOrthophotoReport.gsd = mGSD;
-        mOrthophotoReport.epsg = QString::fromStdString(mEpsg);
+        mOrthophotoReport.epsg = mEpsg;
         mOrthophotoReport.cols = static_cast<int>(std::round(mWindowAll.width() / mGSD));
         mOrthophotoReport.rows = static_cast<int>(std::round(mWindowAll.height() / mGSD));
         mOrthophotoReport.channels = mChannels;
@@ -1525,22 +1518,20 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 }
 
 auto OrthophotoTask::searchTiles(const tl::Path &graph_orthos,
-                                 const std::vector<std::vector<tl::WindowD>> &grid,
+                                 const std::vector<std::vector<tl::BoundingBox2d>> &grid,
                                  int maxImages) -> std::vector<std::vector<std::map<double, std::string>>>
 {
     std::vector<std::vector<std::map<double, std::string>>> orthos(grid.size());
 
-    std::unique_ptr<tl::VectorReader> vectorReader;
-    vectorReader = tl::VectorReaderFactory::create(graph_orthos);
-    vectorReader->open();
+    tl::VectorReader vectorReader(graph_orthos);
 
-    TL_ASSERT(vectorReader->isOpen(), "");
+    TL_ASSERT(vectorReader.isOpen(), "Graph orthos not found: {}", graph_orthos.toString());
 
     // Se buscan las imagenes correspondientes al grid y se ordenan
 
-    if (vectorReader->layersCount() >= 1) {
+    if (vectorReader.layersCount() >= 1) {
 
-        std::shared_ptr<tl::GLayer> layer = vectorReader->read(0);
+        std::shared_ptr<tl::GLayer> layer = vectorReader.read(0);
 
         for (size_t r = 0; r < grid.size(); r++) {
 
@@ -1557,11 +1548,11 @@ auto OrthophotoTask::searchTiles(const tl::Path &graph_orthos,
 
                     tl::GraphicEntity::Type type = entity->type();
                     if (type == tl::GraphicEntity::Type::polygon_2d) {
-                        auto polygon = std::dynamic_pointer_cast<tl::GPolygon>(entity);
+                        auto polygon = dynamic_cast<tl::GPolygon *>(entity.get());
                         auto window_orto = polygon->window();
                         auto orto_center = window_orto.center();
                         auto dist = tl::distance(orto_center, window_center);
-                        tl::Path orto_compensate(polygon->data()->value(0));
+                        tl::Path orto_compensate(polygon->attributes().value(0));
 //#ifndef FAST_ORTHO
 //                        if (mDataType == tl::DataType::TL_8U) {
 //                            std::string name = orto_compensate.baseName().toUtf8() + "_compensate.tif";
@@ -1585,7 +1576,7 @@ auto OrthophotoTask::searchTiles(const tl::Path &graph_orthos,
     return orthos;
 }
 
-void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &grid, 
+void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::BoundingBox2d>> &grid, 
                                    std::vector<std::vector<std::map<double, std::string>>> &orthos, 
                                    tl::Progress *progressBar)
 {
@@ -1631,36 +1622,35 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
 
                     try {
 
-                        auto image_reader = tl::ImageReaderFactory::create(ortho.second);
-                        image_reader->open();
-                        if (!image_reader->isOpen()) {
+                        tl::RasterReader image_reader(ortho.second);
+                        if (!image_reader.isOpen()) {
                             tl::Message::error("Image open error :{}", ortho.second);
                             continue;
                         }
 
-                        double src_w = image_reader->cols();
-                        double src_h = image_reader->rows();
-                        auto georef = image_reader->georeference().inverse();
+                        double src_w = image_reader.cols();
+                        double src_h = image_reader.rows();
+                        auto georef = image_reader.georeference().inverse();
 
-                        auto ortoimage_center = image_reader->window().center();
+                        auto ortoimage_center = image_reader.window().center();
                         auto tile_center = window.center();
 
-                        double center_x_tile = (ortoimage_center.x - tile_center.x) / mGSD;
-                        double center_y_tile = (tile_center.y - ortoimage_center.y) / mGSD;
+                        double center_x_tile = (ortoimage_center.x() - tile_center.x()) / mGSD;
+                        double center_y_tile = (tile_center.y() - ortoimage_center.y()) / mGSD;
 
 
-                        tl::Window<tl::Point<int>> window_image;
-                        window_image.pt1 = georef.transform(window.pt1);
-                        window_image.pt2 = georef.transform(window.pt2);
+                        tl::BoundingBox2i window_image;
+                        window_image.min() = static_cast<tl::Point2i>(georef.transform(window.min()));
+                        window_image.max() = static_cast<tl::Point2i>(georef.transform(window.max()));
                         window_image.normalized();
-                        tl::Rect<int> rect_image(window_image.pt1.x, window_image.pt1.y, window_image.width(), window_image.height());
-                        tl::Rect<int> rect_full_image(0, 0, image_reader->cols(), image_reader->rows());
+                        tl::Rect<int> rect_image(window_image.min().x(), window_image.min().y(), window_image.width(), window_image.height());
+                        tl::Rect<int> rect_full_image(0, 0, image_reader.cols(), image_reader.rows());
                         tl::Rect<int> rect_to_read = tl::intersect(rect_full_image, rect_image);
                         if (!rect_to_read.isValid()) continue;
 
-                        auto image = image_reader->read(1., 1., rect_to_read);
-                        auto data_type = image_reader->dataType();
-                        image_reader->close();
+                        auto image = image_reader.read(1., 1., rect_to_read);
+                        auto data_type = image_reader.dataType();
+                        image_reader.close();
 
 
                         if (image.rows != image_size || image.cols != image_size) {
@@ -1674,7 +1664,7 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
                             cv::Mat aux = cv::Mat(image_size, image_size, image.type(), no_data);
 
                             auto offset = rect_to_read.topLeft() - rect_image.topLeft();
-                            cv::Rect roi(offset.x, offset.y, image.cols, image.rows);
+                            cv::Rect roi(offset.x(), offset.y(), image.cols, image.rows);
                             cv::Mat image_roi = aux(roi);
                             image.copyTo(image_roi);
                             image = aux;
@@ -1686,7 +1676,7 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
                         //distances.push_back(ortho.first);
                     
                     } catch (std::exception &e) {
-                        tl::Message::error("Window = [{}, {}, {}, {}]", window.pt1.x, window.pt1.y, window.pt2.x, window.pt2.y);
+                        tl::Message::error("Window = [{}, {}, {}, {}]", window.min().x(), window.min().y(), window.max().x(), window.max().y());
 
                         tl::printException(e);
                     }
@@ -1724,19 +1714,17 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
                     tile.createDirectories();
                     tile.append("t.tif");
 
-                    auto image_writer = tl::ImageWriterFactory::create(tile);
-                    image_writer->open();
+                    tl::RasterWriter image_writer(tile);
 
-                    image_writer->create(read_image.rows, read_image.cols, read_image.channels(), mDataType);
+                    image_writer.create(read_image.rows, read_image.cols, read_image.channels(), mDataType);
                     tl::Crs crs(mEpsg);
-                    image_writer->setCRS(crs.toWktFormat());
-                    tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, window.pt1.x, window.pt2.y, 0.0);
-                    image_writer->setGeoreference(affine_ortho);
+                    image_writer.setCRS(crs.toWktFormat());
+                    tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, window.min().x(), window.max().y(), 0.0);
+                    image_writer.setGeoreference(affine_ortho);
                     if (mDataType == tl::DataType::TL_32F || mDataType == tl::DataType::TL_64F)
-                        image_writer->setNoDataValue(tl::NoData<float>);
-                    image_writer->write(read_image);
-                    image_writer->close();
-
+                        image_writer.setNoDataValue(tl::NoData<float>);
+                    image_writer.write(read_image);
+                    image_writer.close();
                 } catch (std::exception &e) {
                     tl::printException(e);
                 }
@@ -1751,7 +1739,7 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::WindowD>> &
 
 //#ifdef FAST_ORTHO
 
-void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::WindowD>> &grid)
+void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::BoundingBox2d>> &grid)
 {
 
     try {
@@ -1760,34 +1748,32 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::WindowD>
 
         //tl::Path ortho_final(mOrthoPath);
         //ortho_final.append("ortho.tif");
-        std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(mOrthoPath);
-        image_writer->open();
+        tl::RasterWriter image_writer(mOrthoPath);
         int cols = static_cast<int>(std::round(mWindowAll.width() / mGSD));
         int rows = static_cast<int>(std::round(mWindowAll.height() / mGSD));
 
-        auto options = std::make_shared<tl::TiffOptions>();
-        options->enableTiled(true);
-        options->setBigTiff(tl::TiffOptions::BigTiff::if_needed);
-        options->setCompress(tl::TiffOptions::Compress::lzw);
+        tl::ImageOptions options;
+        options.set(tl::tiff::Tiled, "YES");
+        options.set(tl::tiff::BigTiff, "IF_NEEDED");
+        options.set(tl::tiff::Compress, "LZW");
 
-        if (image_writer->isOpen()) {
-            image_writer->create(rows, cols, mChannels, mDataType, options);
+        if (image_writer.isOpen()) {
+            image_writer.create(rows, cols, mChannels, mDataType, options);
 
-            auto metadata = std::make_shared<tl::ImageMetadata>();
-            metadata->setMetadata("TIFFTAG_DOCUMENTNAME", "Orthomosaic");
-            metadata->setMetadata("TIFFTAG_IMAGEDESCRIPTION", "Orthomosaic generated by GRAPHOS");
-            metadata->setMetadata("TIFFTAG_SOFTWARE", "GRAPHOS");
+            tl::ImageMetadata metadata;
+            metadata.set("TIFFTAG_DOCUMENTNAME", "Orthomosaic");
+            metadata.set("TIFFTAG_IMAGEDESCRIPTION", "Orthomosaic generated by GRAPHOS");
+            metadata.set("TIFFTAG_SOFTWARE", "GRAPHOS");
             QString tiffDateTime = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
-            metadata->setMetadata("TIFFTAG_DATETIME", tiffDateTime.toStdString());
-            image_writer->setMetadata(metadata);
+            metadata.set("TIFFTAG_DATETIME", tiffDateTime.toStdString());
+            image_writer.setMetadata(metadata);
             tl::Crs crs(mEpsg);
-            image_writer->setCRS(crs.toWktFormat());
-            tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, mWindowAll.pt1.x, mWindowAll.pt2.y, 0.0);
-            image_writer->setGeoreference(affine_ortho);
+            image_writer.setCRS(crs.toWktFormat());
+            tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, mWindowAll.min().x(), mWindowAll.max().y(), 0.0);
+            image_writer.setGeoreference(affine_ortho);
 
             if (mDataType == tl::DataType::TL_32F || mDataType == tl::DataType::TL_64F)
-                image_writer->setNoDataValue(tl::NoData<float>);
-
+                image_writer.setNoDataValue(tl::NoData<float>);
             for (size_t r = 0; r < grid.size(); r++) {
                 for (size_t c = 0; c < grid[r].size(); c++) {
 
@@ -1799,18 +1785,17 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::WindowD>
                         tile.append(std::to_string(c));
                         tile.append("t.tif");
                         if (!tile.exists()) continue;
-                        auto image_reader = tl::ImageReaderFactory::create(tile);
-                        image_reader->open();
-                        if (!image_reader->isOpen()) {
+                        tl::RasterReader image_reader(tile);
+                        if (!image_reader.isOpen()) {
                             continue;
                         }
 
-                        auto tile_window = image_reader->window();
+                        auto tile_window = image_reader.window();
 
                         const auto &window = grid[r][c];
-                        if (!intersectWindows(tile_window, window)) continue;
+                        if (!tl::intersects(tile_window, window)) continue;
 
-                        cv::Mat compensate_image = image_reader->read();
+                        cv::Mat compensate_image = image_reader.read();
                         // Relleno de pixeles negros
                         cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 1024);
                         //cv::Mat black_pixel_mask = createBlackPixelMask(compensate_image, 512);
@@ -1818,12 +1803,12 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::WindowD>
                         //cv::inpaint(compensate_image, black_pixel_mask, compensate_image, 5, cv::INPAINT_NS);
 
                         auto affine_ortho_inverse = affine_ortho.inverse();
-                        tl::Point<double> p1_ortho = affine_ortho_inverse.transform(tile_window.pt1);
-                        tl::Point<double> p2_ortho = affine_ortho_inverse.transform(tile_window.pt2);
-                        tl::WindowI window_to_write(static_cast<tl::Point<int>>(p1_ortho), static_cast<tl::Point<int>>(p2_ortho));
+                        tl::Point<double> p1_ortho = affine_ortho_inverse.transform(tile_window.min());
+                        tl::Point<double> p2_ortho = affine_ortho_inverse.transform(tile_window.max());
+                        tl::BoundingBox2i window_to_write(static_cast<tl::Point<int>>(p1_ortho), static_cast<tl::Point<int>>(p2_ortho));
                         window_to_write.normalized();
                         if (window_to_write.isValid())
-                            image_writer->write(compensate_image, window_to_write);
+                            image_writer.write(compensate_image, window_to_write);
                     } catch (std::exception &e) {
                         tl::printException(e);
                     }

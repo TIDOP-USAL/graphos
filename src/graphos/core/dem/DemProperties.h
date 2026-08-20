@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -23,56 +23,71 @@
 
 #pragma once
 
-#include <QObject>
+#include "graphos/graphos_global.h"
 
-#include <tidop/core/task/Task.h>
-#include <tidop/core/task/Progress.h>
+#include <string>
 
-#include "graphos/core/dem/DemReport.h"
-#include "graphos/core/dem/DemProperties.h"
+#include <tidop/core/base/Property.h>
 
 namespace graphos
 {
 
-class DemTask
-  : public QObject,
-    public tl::Task
+
+class DemProperties
 {
-
-    Q_OBJECT
-
-public:
-
-    DemTask(tl::Path pointCloud,
-            tl::Path demPath,
-            std::string enuCrs,
-            const std::shared_ptr<DemProperties> &properties);
-
-    ~DemTask() override = default;
-
-    TL_DISABLE_COPY(DemTask)
-    TL_DISABLE_MOVE(DemTask)
-
-    /*!
-     * \brief Get the DEM report after task execution.
-     *
-     * \return A 'DemReport' containing information about the DEM task.
-     */
-    auto report() const -> DemReport;
-
-// tl::TaskBase interface
 
 protected:
 
-    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
+    tl::Properties mProperties;
 
-private:
+public:
 
-    tl::Path mPointCloud;
-    tl::Path mDemPath;
-    std::string mEnuCrs;
-    std::shared_ptr<DemProperties> mProperties;
-    DemReport mDemReport;
+    DemProperties();
+    DemProperties(const DemProperties &properties) noexcept = default;
+    DemProperties(DemProperties &&properties) noexcept = default;
+    virtual ~DemProperties() = default;
+    
+    auto operator=(const DemProperties &properties) -> DemProperties & = default;
+    auto operator=(DemProperties &&properties) noexcept -> DemProperties & = default;
+
+    [[nodiscard]]
+    auto crs() const -> std::string;
+    [[nodiscard]] 
+    auto gsd() const -> double;
+    [[nodiscard]] 
+    auto dsm() const -> bool;
+    [[nodiscard]] 
+    auto dtm() const -> bool;
+
+    void setCrs(std::string crs);
+    void setGsd(double gsd);
+    void setDsm(bool dsm);
+    void setDtm(bool dtm);
+
+    /*!
+     * \brief Recover the default values
+     */
+    void clear();
+
+    [[nodiscard]]
+    auto name() const -> std::string
+    {
+        return mProperties.name();
+    }
+
+    auto begin() const { return mProperties.begin(); }
+
+    auto end() const { return mProperties.end(); }
+
+    void setProperty(const std::string &key, const std::string &value);
+
+    template<typename T>
+    void setProperty(const std::string &key, T value)
+    {
+        mProperties.setProperty(key, value);
+    }
+
 };
+
 
 } // namespace graphos

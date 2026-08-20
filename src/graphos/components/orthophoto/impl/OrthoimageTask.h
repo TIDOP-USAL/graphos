@@ -21,20 +21,21 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORTHOIMAGE_TASK_H
-#define GRAPHOS_ORTHOIMAGE_TASK_H
+#pragma once
 
 #include <unordered_map>
+#include <stop_token>
 
 #include <tidop/core/task/Task.h>
 #include <tidop/core/base/Path.h>
-#include <tidop/vect/vectwriter.h>
-#include <tidop/graphic/entities/polygon.h>
-#include <tidop/math/geometry/affine.h>
-
-#include "graphos/core/image.h"
+#include <tidop/geometry/transform/Affine.h>
+#include <tidop/graphic/entities/GPolygon.h>
+//#include <tidop/vect/vectwriter.h>
+//#include <tidop/graphic/entities/polygon.h>
+//#include <tidop/math/geometry/affine.h>
+//
+#include "graphos/core/image/Image.h"
 #include "graphos/core/camera/Camera.h"
-
 
 namespace tl 
 {
@@ -44,11 +45,11 @@ class Progress;
 namespace graphos
 {
 
-class Orthorectification;
-class ZBuffer;
+//class Orthorectification;
+//class ZBuffer;
 
 class OrthoimageTask
-	: public tl::TaskBase
+	: public tl::Task
 {
 
 public:
@@ -57,7 +58,7 @@ public:
 	 * \brief
 	 */
 	OrthoimageTask(const std::unordered_map<size_t, Image> &images,
-				   const std::map<int, Camera> &cameras,
+	               const std::map<int, Camera> &cameras,
 				   const tl::Path &dtm,
 				   const tl::Path &orthoPath,
 				   const tl::Path &graphOrthos,
@@ -71,26 +72,28 @@ public:
 				   bool bCuda = false);
 	~OrthoimageTask();
 
-// Heredado vía TaskBase
+// Heredado vía Task
 
 private:
 
-	void execute(tl::Progress *progressBar = nullptr) override;
+	void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 	//auto orthoimageGraphProjected(const tl::Window<tl::Point<double>> &windowOrthoTerrain) const -> std::shared_ptr<tl::GPolygon>;
-	auto footprintProjected(const tl::GPolygon &footprint) const -> std::shared_ptr<tl::GPolygon>;
+	auto footprintProjected(const tl::GPolygon &footprint) const -> std::unique_ptr<tl::GPolygon>;
 
 private:
 
-	std::unordered_map<size_t, Image> mImages;
-	std::map<int, Camera> mCameras;
+	const std::unordered_map<size_t, Image> &mImages;
+	const std::map<int, Camera> &mCameras;
 	tl::Path mDtm;
 	tl::Path mOrthoPath;
+	tl::Path mGraphOrthosPath;
     std::string mEnuCrs;
 	std::string mCrs;
 	tl::Affine<double, 2> mGeoreferenceOrthomosaic;
-	std::unique_ptr<tl::VectorWriter> mFootprintWriter;
-	std::unique_ptr<tl::VectorWriter> mGraphOrthosWriter;
+	tl::Path mFootprint;
+	//std::unique_ptr<tl::VectorWriter> mFootprintWriter;
+	//std::unique_ptr<tl::VectorWriter> mGraphOrthosWriter;
 	double mGsd;
 	std::string mInterpolation;
 	double mCrop;
@@ -99,5 +102,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ORTHOIMAGE_TASK_H

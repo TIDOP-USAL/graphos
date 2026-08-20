@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DEM_COMMAND_H
-#define GRAPHOS_DEM_COMMAND_H
+#pragma once
 
 #include "graphos/core/command.h"
 
@@ -47,7 +46,7 @@ public:
 
 private:
 
-    auto crs() const -> std::string;
+    auto crs(std::string_view enuCrs) const -> std::string;
 
 // Command
 
@@ -57,11 +56,8 @@ public:
 
 private:
 
-    Project *mProject;
     tl::GeoTools *mGeoTools;
 };
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_DEM_COMMAND_H

@@ -21,8 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_ORTHOPHOTO_REPORT_H
-#define GRAPHOS_CORE_ORTHOPHOTO_REPORT_H
+#pragma once
+
+#include <string>
 
 namespace graphos
 {
@@ -31,7 +32,7 @@ struct OrthophotoReport
 {
     double time = 0.0;
     double gsd = 0.0;
-    QString epsg = "";
+    std::string epsg = "";
     int rows = 0;
     int cols = 0;
     int channels = 0;
@@ -40,18 +41,16 @@ struct OrthophotoReport
     {
         return time == 0. && gsd == 0. && epsg == "";
     }
-};
 
-struct OrthophotoData
-{
-    QString epsgCode;
-    tl::Path path;
-    double gsd = 0.05;
-    QString interpolation = "Linear";
-    OrthophotoReport report;
+    void clear()
+    {
+        time = 0.;
+        gsd = 0.;
+        epsg = "";
+        rows = 0;
+        cols = 0;
+        channels = 0;
+    }
 };
-
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_ORTHOPHOTO_REPORT_H

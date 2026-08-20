@@ -25,7 +25,7 @@
 #define GRAPHOS_CAMERAS_MODEL_H
 
 #include "graphos/components/cameras/CamerasModel.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 
 namespace graphos
 {

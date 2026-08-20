@@ -51,6 +51,8 @@ private:
     void readOrientation(QXmlStreamReader &stream, Project &project);
     void readDensification(QXmlStreamReader &stream, Project &project);
     void readMesh(QXmlStreamReader &stream, Project &project);
+    void readDem(QXmlStreamReader &stream, Project &project);
+    void readOrtho(QXmlStreamReader &stream, Project &project);
 };
 
 } // end namespace graphos

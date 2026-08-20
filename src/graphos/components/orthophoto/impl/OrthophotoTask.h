@@ -21,21 +21,21 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORTHOPHOTO_PROCESS_H
-#define GRAPHOS_ORTHOPHOTO_PROCESS_H
+#pragma once
 
 #include <vector>
 #include <map>
 #include <unordered_map>
+#include <stop_token>
 
 #include <QObject>
 
 #include <tidop/core/task/Task.h>
 #include <tidop/core/base/Path.h>
-#include <tidop/geometry/entities/window.h>
-#include <tidop/img/img.h>
+#include <tidop/geometry/spatial/BoundingBox.h>
+#include <tidop/rastertools/DataType.h>
 
-#include "graphos/core/reports/orthophoto.h"
+#include "graphos/core/ortho/OrthophotoReport.h"
 
 namespace tl 
 {
@@ -50,7 +50,7 @@ class Camera;
 
 class OrthophotoTask
   : public QObject,
-    public tl::TaskBase
+    public tl::Task
 {
 
 public:
@@ -72,31 +72,31 @@ public:
 private:
 
     //std::vector<tl::WindowD> findGrid(const tl::Path &mdt, double gsd);
-    std::vector<std::vector<tl::WindowD>> findGrid(int gridSize) const;
+    auto findGrid(int gridSize) const -> std::vector<std::vector<tl::BoundingBox2d>>;
 
 
 
     //void orthoimageExposureCompensator(const tl::Path &graph_orthos, tl::Progress *progressBar);
     auto searchTiles(const tl::Path &graph_orthos,
-                     const std::vector<std::vector<tl::WindowD>> &grid,
+                     const std::vector<std::vector<tl::BoundingBox2d>> &grid,
                      int maxImages = 0) -> std::vector<std::vector<std::map<double, std::string>>>;
-    void generateTiles(const std::vector<std::vector<tl::WindowD>> &grid, 
+    void generateTiles(const std::vector<std::vector<tl::BoundingBox2d>> &grid,
                        std::vector<std::vector<std::map<double, std::string>>> &orthos,
                        tl::Progress *progressBar);
     //void tilesExposureCompensator(const std::vector<std::vector<tl::WindowD>> &grid);
-    void writeOrthomosaic(const std::vector<std::vector<tl::WindowD>> &grid);
+    void writeOrthomosaic(const std::vector<std::vector<tl::BoundingBox2d>> &grid);
     //void blendTileBlock(int r, int c, const std::vector<std::vector<tl::WindowD>> &grid);
 
 // tl::TaskBase interface
 
 protected:
 
-    void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 private:
 
-    std::unordered_map<size_t, Image> mPhotos;
-    std::map<int, Camera> mCameras;
+    const std::unordered_map<size_t, Image> &mImages;
+    const std::map<int, Camera> &mCameras;
     tl::Path mOrthoPath;
     tl::Path mMdt;
     std::string mEnuCrs;
@@ -105,13 +105,11 @@ private:
     OrthophotoReport mOrthophotoReport;
     double mGSD;
     bool bCuda;
-    // Por ahora se calcula internamente pero se podría establecer la región de la ortofoto externamente
-    tl::WindowD mWindowAll;
+    // Por ahora se calcula internamente pero se podrÃ­a establecer la regiÃ³n de la ortofoto externamente
+    tl::BoundingBox2d mWindowAll;
     tl::DataType mDataType;
     int mChannels;
     std::string mMethod;
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ORTHOPHOTO_PROCESS_H

@@ -432,6 +432,10 @@ void ProjectReader::read(const tl::Path &file, Project &project)
                             readDensification(stream, project);
                         } else if (stream.name() == "Mesh") {
                             readMesh(stream, project);
+                        } else if (stream.name() == "Dem") {
+                            readDem(stream, project);
+                        } else if (stream.name() == "Orthophoto") {
+                            readOrtho(stream, project);
                         } else {
                             stream.skipCurrentElement();
                         }
@@ -707,6 +711,100 @@ void ProjectReader::readMesh(QXmlStreamReader &stream, Project &project)
             }
 
             project.setMeshReport(report);
+
+        } else {
+            stream.skipCurrentElement();
+        }
+    }
+}
+
+void ProjectReader::readDem(QXmlStreamReader &stream, Project &project)
+{
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "Config") {
+
+            auto config = std::make_shared<DemProperties>();
+
+            while (stream.readNextStartElement()) {
+                std::string key = stream.name().toString().toStdString();
+                std::string value = streamToStdString(stream);
+
+                config->setProperty(key, value);
+            }
+
+            project.setDemConfig(config);
+
+        } else if (stream.name() == "Dtm") {
+            project.setDtm(streamToStdString(stream));
+        } else if (stream.name() == "Dsm") {
+            project.setDsm(streamToStdString(stream));
+        } else if (stream.name() == "Report") {
+
+            DemReport report;
+
+            while (stream.readNextStartElement()) {
+                if (stream.name() == "Time") {
+                    report.time = streamToDouble(stream);
+                } else if (stream.name() == "Gsd") {
+                    report.gsd = stream.readElementText().toDouble();
+                } else if (stream.name() == "Crs") {
+                    report.epsg = streamToStdString(stream);
+                } else if (stream.name() == "Cols") {
+                    report.cols = stream.readElementText().toDouble();
+                } else if (stream.name() == "Rows") {
+                    report.rows = stream.readElementText().toDouble();
+                } else
+                    stream.skipCurrentElement();
+            }
+
+            project.setDemReport(report);
+
+        } else {
+            stream.skipCurrentElement();
+        }
+    }
+}
+
+void ProjectReader::readOrtho(QXmlStreamReader &stream, Project &project)
+{
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "Config") {
+
+            auto config = std::make_shared<OrthophotoProperties>();
+
+            while (stream.readNextStartElement()) {
+                std::string key = stream.name().toString().toStdString();
+                std::string value = streamToStdString(stream);
+
+                config->setProperty(key, value);
+            }
+
+            project.setOrthoConfig(config);
+
+        } else if (stream.name() == "Path") {
+            project.setOrthophoto(streamToStdString(stream));
+        } else if (stream.name() == "Report") {
+
+            OrthophotoReport report;
+
+            while (stream.readNextStartElement()) {
+                if (stream.name() == "Time") {
+                    report.time = streamToDouble(stream);
+                } else if (stream.name() == "Gsd") {
+                    report.gsd = stream.readElementText().toDouble();
+                } else if (stream.name() == "Crs") {
+                    report.epsg = streamToStdString(stream);
+                } else if (stream.name() == "Cols") {
+                    report.cols = stream.readElementText().toDouble();
+                } else if (stream.name() == "Rows") {
+                    report.rows = stream.readElementText().toDouble();
+                } else if (stream.name() == "Channels") {
+                                report.channels = stream.readElementText().toInt();
+                } else
+                    stream.skipCurrentElement();
+            }
+
+            project.setOrthoReport(report);
 
         } else {
             stream.skipCurrentElement();

@@ -21,15 +21,15 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GCPS_COMMAND_H
-#define GRAPHOS_GCPS_COMMAND_H
+#pragma once
 
 #include "graphos/core/command.h"
-#include "graphos/core/project.h"
 
 
 namespace graphos
 {
+
+class GroundPoint;
 
 class GroundControlPointsCommand
   : public Command
@@ -54,5 +54,3 @@ private:
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_GCPS_COMMAND_H

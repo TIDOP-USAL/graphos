@@ -25,13 +25,16 @@
 #include "DemCommand.h"
 
 #include "graphos/core/utils.h"
-#include "graphos/core/project.h"
-#include "graphos/core/sfm/posesio.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/project/io/ProjectReader.h"
+#include "graphos/core/project/io/ProjectWriter.h"
+//#include "graphos/core/orientation/posesio.h"
 #include "graphos/components/dem/impl/DemTask.h"
 #include "graphos/core/task/Progress.h"
 
 #include <tidop/core/app/Message.h>
-#include <tidop/core/log.h>
+#include <tidop/core/app/Logger.h>
+#include <tidop/core/base/Split.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
 #include <tidop/geotools/GeoTools.h>
@@ -47,7 +50,6 @@ namespace graphos
 
 DemCommand::DemCommand()
   : Command("dem", "Create DSM and/or DTM"),
-    mProject(nullptr),
     mGeoTools(tl::GeoTools::getInstance())
 {
     this->addArgument<Path>("prj", 'p', "Project file");
@@ -67,27 +69,18 @@ DemCommand::DemCommand()
 
 DemCommand::~DemCommand()
 {
-    if (mProject) {
-        delete mProject;
-        mProject = nullptr;
-    }
 }
 
-auto DemCommand::crs() const -> std::string
+auto DemCommand::crs(std::string_view enuCrs) const -> std::string
 {
     std::string epsg_code;
 
     try {
 
-        epsg_code = mProject->dem().epsgCode.toStdString();
-
-        if (epsg_code.empty()) {
-            auto enu_crs = mProject->enuCrs().toStdString();
-            auto v = tl::split<std::string>(enu_crs, ';');
-            auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
-            epsg_code = "EPSG:326";
-            epsg_code.append(std::to_string(zone.first));
-        }
+        auto v = tl::split<std::string>(enuCrs, ';');
+        auto zone = tl::utmZoneFromLonLat(tl::convertStringTo<double>(v.at(1)), tl::convertStringTo<double>(v.at(2)));
+        epsg_code = "EPSG:326";
+        epsg_code.append(std::to_string(zone.first));
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
@@ -100,7 +93,7 @@ bool DemCommand::run()
 {
     bool r = false;
 
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
 
     try {
 
@@ -118,40 +111,42 @@ bool DemCommand::run()
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
-        mProject = new ProjectImp;
-        mProject->load(project_path);
+        Project project;
+        ProjectReader reader;
+        reader.read(project_path, project);
 
-        tl::Path dem_path(mProject->projectFolder());
+        tl::Path dem_path(project.info().projectFolder());
         dem_path.append("dem");
-		
-        tl::Path ground_points_path(mProject->reconstructionPath());
-        ground_points_path.append("ground_points.bin");
 
-        //tl::Point3d offset = offsetRead(mProject->offset());
 
-        if (crs.empty()) crs = this->crs();
+        if (crs.empty()) crs = this->crs(project.info().enuCrs());
 
-        //auto progress = getProgressBar(progress_bar, 100);
-        DemTask dem_task(mProject->denseModel(), mProject->enuCrs().toStdString(), crs, dem_path, gsd, dsm, dtm);
+        auto dem_properties = std::make_shared<DemProperties>();
+        dem_properties->setCrs(crs);
+        dem_properties->setGsd(gsd);
+        dem_properties->setDsm(dsm);
+        dem_properties->setDtm(dtm);
+           
+        DemTask dem_task(project.denseModel(), dem_path, project.info().enuCrs(), dem_properties);
         dem_task.run(/*progress.get()*/);
 
         tl::Path dsm_file = dem_path;
         dsm_file.append("dsm.tif");
         if (dsm && dsm_file.exists()) {
-            mProject->dem().dsmPath = dsm_file;
+            project.setDsm(dsm_file);
         }
         
         tl::Path dtm_file = dsm_file;
         dtm_file.replaceBaseName("dem");
         if (dtm && dtm_file.exists()) {
-            mProject->dem().dtmPath = dtm_file;
+            project.setDtm(dtm_file);
         }
 
-        mProject->dem().gsd = gsd;
-        mProject->dem().epsgCode = QString::fromStdString(crs);
-        mProject->setDemReport(dem_task.report());
+        project.setDemConfig(dem_properties);
+        project.setDemReport(dem_task.report());
 
-        mProject->save(project_path);
+        ProjectWriter writer;
+        writer.write(project_path, project);
 
     } catch (const std::exception &e) {
 

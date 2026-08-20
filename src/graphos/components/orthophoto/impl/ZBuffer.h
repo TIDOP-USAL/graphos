@@ -21,12 +21,13 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_ORTHO_ZBUFFER
-#define GRAPHOS_CORE_ORTHO_ZBUFFER
+#pragma once
 
 #include "graphos/graphos_global.h"
 
 #include <opencv2/core/mat.hpp>
+
+#include <tidop/geometry/spatial/BoundingBox.h>
 
 #include "graphos/components/orthophoto/impl/Orthorectification.h"
 
@@ -97,7 +98,7 @@ private:
     Orthorectification *mOrthorectification;
     tl::Rect<int> mRectOrtho;
     tl::Affine<double, 2> mEnuGeoreference;
-    tl::Window<tl::Point<double>> mWindowOrthoTerrain;
+    tl::BoundingBox2d mWindowOrthoTerrain;
     cv::Mat mDistances;
     cv::Mat mY;
     cv::Mat mX;
@@ -105,6 +106,4 @@ private:
 };
 
 
-} // End namespace graphos
-
-#endif // GRAPHOS_CORE_ORTHO_ZBUFFER
+} // namespace graphos

@@ -40,11 +40,6 @@ auto PoissonReconProperties::depth() const -> int
     return mProperties.getProperty<int>("Depth");
 }
 
-//auto PoissonReconProperties::solveDepth() const -> int
-//{
-//    return mSolveDepth;
-//}
-
 auto PoissonReconProperties::boundaryType() const -> BoundaryType
 {
     return static_cast<BoundaryType>(mProperties.getProperty<uint8_t>("BoundaryType"));
@@ -74,11 +69,6 @@ void PoissonReconProperties::setDepth(int depth)
     mProperties.setProperty("Depth", depth);
 }
 
-//void PoissonReconProperties::setSolveDepth(int solveDepth)
-//{
-//    mSolveDepth = solveDepth;
-//}
-
 void PoissonReconProperties::setBoundaryType(BoundaryType boundaryType)
 {
     mProperties.setProperty("BoundaryType", static_cast<uint8_t>(boundaryType));
@@ -88,7 +78,6 @@ void PoissonReconProperties::setBoundaryType(BoundaryType boundaryType)
 void PoissonReconProperties::clear()
 {
     setDepth(14);
-    //mSolveDepth = default_poisson_recon_solve_depth;
     setBoundaryType(PoissonReconProperties::BoundaryType::neumann);
 }
 

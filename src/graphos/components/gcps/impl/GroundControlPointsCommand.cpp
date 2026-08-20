@@ -24,15 +24,17 @@
 
 #include "GroundControlPointsCommand.h"
 
-#include "graphos/core/sfm/groundpoint.h"
-#include "graphos/core/sfm/posesio.h"
-#include "graphos/core/project.h"
+#include "graphos/core/orientation/GroundPoint.h"
+#include "graphos/core/orientation/GroundControlPoint.h"
+#include "graphos/core/orientation/io/CameraPosesReader.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/project/io/ProjectReader.h"
 
 #include <tidop/core/app/Message.h>
-#include <tidop/math/geometry/affine.h>
+#include <tidop/core/app/Logger.h>
+#include <tidop/geometry/transform/Affine.h>
 
-#include <QFileInfo>
-#include <tidop/core/log.h>
+//#include <QFileInfo>
 
 
 namespace graphos
@@ -63,7 +65,7 @@ bool GroundControlPointsCommand::run()
 {
     bool r = false;
 
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
 
     try {
 
@@ -79,8 +81,9 @@ bool GroundControlPointsCommand::run()
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
         TL_ASSERT(gcp.isFile(), "GCP file doesn't exist");
 
-        ProjectImp project;
-        project.load(project_path);
+        Project project;
+        ProjectReader project_reader;
+        project_reader.read(project_path, project);
 
         std::string format;
         if (tl::compareInsensitiveCase(gcp.extension().toString(), ".xml")) {
@@ -92,7 +95,7 @@ bool GroundControlPointsCommand::run()
         }
 
         auto reader = GCPsReaderFactory::create(format);
-        reader->setImages(project.images());
+        reader->setImages(project.images().all());
         reader->read(gcp);
         std::vector<GroundControlPoint> ground_control_points = reader->gcps();
 
@@ -100,7 +103,7 @@ bool GroundControlPointsCommand::run()
             crs = reader->epsgCode();
         }
 
-        tl::Path gcp_file = project.projectFolder();
+        tl::Path gcp_file = project.info().projectFolder();
         gcp_file.append("sfm");
         gcp_file.createDirectories();
         gcp_file.append("georef.xml");
@@ -108,11 +111,11 @@ bool GroundControlPointsCommand::run()
         auto writer = GCPsWriterFactory::create("GRAPHOS");
         writer->setEPSGCode(crs);
         writer->setGCPs(reader->gcps());
-        writer->setImages(project.images());
+        writer->setImages(project.images().all());
         writer->write(gcp_file);
 
         //project.setCrs(QString::fromStdString(crs));
-        project.save(project_path);
+        //project.save(project_path);
 
         tl::Message::success("Ground control points imported from: {}", gcp.toUtf8());
 

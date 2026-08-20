@@ -21,20 +21,19 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORTHOPHOTO_COMMAND_H
-#define GRAPHOS_ORTHOPHOTO_COMMAND_H
+#pragma once
 
 #include "graphos/core/command.h"
 
 #include <map>
 #include <unordered_map>
 
+#include "graphos/core/image/ImageRepository.h"
+#include "graphos/core/camera/CameraRepository.h"
+#include "graphos/core/orientation/CameraPosesRepository.h"
+
 namespace graphos
 {
-
-class Project;
-class Camera;
-class Image;
 
 class OrthophotoCommand
   : public Command
@@ -43,13 +42,14 @@ class OrthophotoCommand
 public:
 
     OrthophotoCommand();
-    ~OrthophotoCommand() override;
+    ~OrthophotoCommand() override = default;
 
 private:
 
-    auto undistortedCameras() const -> std::map<int, Camera>;
-    auto undistortedImages(const std::unordered_map<size_t, Image> &images,
-                           tl::Path &undistort_path) const->std::unordered_map<size_t, Image>;
+    auto undistortedCameras(const CameraRepository &cameraRepo) const -> std::map<int, Camera>;
+    auto undistortedImages(const ImageRepository &imageRepo,
+                           const CameraPosesRepository &cameraPosesRepo,
+                           const tl::Path &undistort_path) const -> std::unordered_map<size_t, Image>;
 
 // Command
 
@@ -57,11 +57,8 @@ private:
 
 private:
 
-    Project *mProject;
     bool mDisableCuda;
 };
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_ORTHOPHOTO_COMMAND_H

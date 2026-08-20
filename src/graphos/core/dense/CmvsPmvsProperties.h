@@ -85,21 +85,21 @@ public:
      */
     auto operator =(CmvsPmvsProperties&& cmvsPmvs) noexcept -> CmvsPmvsProperties& = default;
 
-    virtual auto useVisibilityInformation() const -> bool;
-    virtual auto imagesPerCluster() const -> int;
-    virtual auto level() const -> int;
-    virtual auto cellSize() const -> int;
-    virtual auto threshold() const -> double;
-    virtual auto windowSize() const -> int;
-    virtual auto minimunImageNumber() const -> int;
+    auto useVisibilityInformation() const -> bool;
+    auto imagesPerCluster() const -> int;
+    auto level() const -> int;
+    auto cellSize() const -> int;
+    auto threshold() const -> double;
+    auto windowSize() const -> int;
+    auto minimunImageNumber() const -> int;
 
-    virtual void setUseVisibilityInformation(bool useVisibilityInformation);
-    virtual void setImagesPerCluster(int imagesPerCluster);
-    virtual void setLevel(int level);
-    virtual void setCellSize(int cellSize);
-    virtual void setThreshold(double threshold);
-    virtual void setWindowSize(int windowSize);
-    virtual void setMinimunImageNumber(int minimunImageNumber);
+    void setUseVisibilityInformation(bool useVisibilityInformation);
+    void setImagesPerCluster(int imagesPerCluster);
+    void setLevel(int level);
+    void setCellSize(int cellSize);
+    void setThreshold(double threshold);
+    void setWindowSize(int windowSize);
+    void setMinimunImageNumber(int minimunImageNumber);
 
 // DensificationProperties interface
 

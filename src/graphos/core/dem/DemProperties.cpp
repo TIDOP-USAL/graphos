@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,58 +21,68 @@
  *                                                                      *
  ************************************************************************/
 
-#pragma once
-
-#include <QObject>
-
-#include <tidop/core/task/Task.h>
-#include <tidop/core/task/Progress.h>
-
-#include "graphos/core/dem/DemReport.h"
 #include "graphos/core/dem/DemProperties.h"
 
 namespace graphos
 {
 
-class DemTask
-  : public QObject,
-    public tl::Task
+DemProperties::DemProperties()
+  : mProperties("PoissonRecon")
 {
+    clear();
+}
 
-    Q_OBJECT
+auto DemProperties::crs() const -> std::string
+{
+    return mProperties.getProperty<std::string>("Crs");
+}
 
-public:
+auto DemProperties::gsd() const -> double
+{
+    return mProperties.getProperty<double>("Gsd");
+}
 
-    DemTask(tl::Path pointCloud,
-            tl::Path demPath,
-            std::string enuCrs,
-            const std::shared_ptr<DemProperties> &properties);
+auto DemProperties::dsm() const -> bool
+{
+    return mProperties.getProperty<bool>("Dsm");
+}
 
-    ~DemTask() override = default;
+auto DemProperties::dtm() const -> bool
+{
+    return mProperties.getProperty<bool>("Dtm");
+}
 
-    TL_DISABLE_COPY(DemTask)
-    TL_DISABLE_MOVE(DemTask)
+void DemProperties::setCrs(std::string crs)
+{
+    mProperties.setProperty("Crs", std::move(crs));
+}
 
-    /*!
-     * \brief Get the DEM report after task execution.
-     *
-     * \return A 'DemReport' containing information about the DEM task.
-     */
-    auto report() const -> DemReport;
+void DemProperties::setGsd(double gsd)
+{
+    mProperties.setProperty("Gsd", gsd);
+}
 
-// tl::TaskBase interface
+void DemProperties::setDsm(bool dsm)
+{
+    mProperties.setProperty("Dsm", dsm);
+}
 
-protected:
+void DemProperties::setDtm(bool dtm)
+{
+    mProperties.setProperty("Dtm", dtm);
+}
 
-    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
+void DemProperties::clear()
+{
+    setCrs("");
+    setGsd(0.1);
+    setDsm(true);
+    setDtm(false);
+}
 
-private:
-
-    tl::Path mPointCloud;
-    tl::Path mDemPath;
-    std::string mEnuCrs;
-    std::shared_ptr<DemProperties> mProperties;
-    DemReport mDemReport;
-};
+void DemProperties::setProperty(const std::string &key, const std::string &value)
+{
+    mProperties.setProperty(key, value);
+}
 
 } // namespace graphos

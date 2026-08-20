@@ -77,12 +77,6 @@ public:
     virtual auto depth() const -> int;
 
     /*!
-     * \brief Gets the solve depth parameter.
-     * \return The solve depth parameter.
-     */
-    //virtual auto solveDepth() const -> int;
-
-    /*!
      * \brief Gets the boundary type parameter.
      * This parameter specifies the boundary type for the finite elements. Valid values are:
      * - free: Free boundary constraints
@@ -92,28 +86,22 @@ public:
      * \return The boundary type parameter.
      * \see BoundaryType
      */
-    virtual auto boundaryType() const -> BoundaryType;
+    auto boundaryType() const -> BoundaryType;
 
-    virtual auto boundaryTypeAsText() const -> std::string;
+    auto boundaryTypeAsText() const -> std::string;
 
     /*!
      * \brief Sets the depth parameter.
      * \param[in] depth Depth parameter value.
      */
-    virtual void setDepth(int depth);
-
-    /*!
-     * \brief Sets the solve depth parameter.
-     * \param[in] solveDepth The solve depth parameter to set.
-     */
-    //virtual void setSolveDepth(int solveDepth);
+    void setDepth(int depth);
 
     /*!
      * \brief Sets the boundary type parameter.
      * \param[in] boundaryType The boundary type parameter to set.
      * \see BoundaryType
      */
-    virtual void setBoundaryType(BoundaryType boundaryType);
+    void setBoundaryType(BoundaryType boundaryType);
 
     /*!
      * \brief Recover the default values
@@ -137,11 +125,6 @@ public:
     {
         mProperties.setProperty(key, value);
     }
-//private:
-//
-//    int mDepth;
-//    //int mSolveDepth;
-//    BoundaryType mBoundaryType;
 
 };
 

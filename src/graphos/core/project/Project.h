@@ -27,12 +27,9 @@
 
 #include <memory>
 #include <vector>
-#include <mutex>
+//#include <mutex>
 #include <map>
 #include <unordered_map>
-
-//#include <QString>
-//#include <QSize>
 
 #include "graphos/core/project/ProjectInfo.h"
 #include "graphos/core/image/ImageRepository.h"
@@ -50,6 +47,10 @@
 #include "graphos/core/dense/DensificationReport.h"
 #include "graphos/core/mesh/MeshReport.h"
 #include "graphos/core/mesh/PoissonReconProperties.h"
+#include "graphos/core/dem/DemProperties.h"
+#include "graphos/core/dem/DemReport.h"
+#include "graphos/core/ortho/OrthophotoProperties.h"
+#include "graphos/core/ortho/OrthophotoReport.h"
 
 namespace graphos
 {
@@ -99,8 +100,14 @@ protected:
     tl::Path mMeshModel;
     MeshReport mMeshReport;
 
-    //DemData mDem;
-    //DemReport mDemReport;
+    std::shared_ptr<DemProperties> mDemProperties;
+    tl::Path mDtm;
+    tl::Path mDsm;
+    DemReport mDemReport;
+
+    std::shared_ptr<OrthophotoProperties> mOrthoProperties;
+    OrthophotoReport mOrthoReport;
+    tl::Path mOrthoMosaic;
     //std::map<size_t, OrthophotoData> mOrthophotos;
     //static std::mutex sMutex;
     ////int mCameraCount;
@@ -194,17 +201,34 @@ public:
 
     void clearMesh();
 
-    //const DemData &dem() const;
-    //DemData &dem();
-    //void setDem(const DemData &dem);
-    //DemReport demReport() const;
-    //void setDemReport(const DemReport &report);
-    //void clearDem();
+    // DEM
 
-    //auto orthophotos() const -> const std::map<size_t, OrthophotoData>& ;
-    //auto orthophotos() -> std::map<size_t, OrthophotoData>&;
-    //void setOrthophoto(const OrthophotoData &orthophoto);
-    //void clearOrthophoto();
+    auto demConfig() const -> std::shared_ptr<DemProperties>;
+    void setDemConfig(std::shared_ptr<DemProperties> config);
+
+    auto dsm() const -> tl::Path;
+    void setDsm(tl::Path dsm);
+
+    auto dtm() const -> tl::Path;
+    void setDtm(tl::Path dtm);
+
+    auto demReport() const -> DemReport;
+    void setDemReport(DemReport demReport);
+
+    void clearDem();
+
+    // Orthophoto
+
+    auto orthoConfig() const -> std::shared_ptr<OrthophotoProperties>;
+    void setOrthoConfig(std::shared_ptr<OrthophotoProperties> config);
+
+    auto orthoReport() const -> OrthophotoReport;
+    void setOrthoReport(OrthophotoReport orthoReport);
+
+    auto orthophoto() const -> tl::Path;
+    void setOrthophoto(tl::Path orthophoto);
+
+    void clearOrthophoto();
 
     void clear();
 
@@ -217,63 +241,6 @@ public:
     //tl::Matrix<double, 4, 4> &transform();
     //const tl::Matrix<double, 4, 4> &transform() const;
     //void setTransform(const tl::Matrix<double, 4, 4> &transform);
-
-protected:
-
-    //void readMatches(QXmlStreamReader &stream);
-    //void readMatchingMethod(QXmlStreamReader &stream);
-    //void readFeatureMatchingReport(QXmlStreamReader &stream);
-    //void readPairs(QXmlStreamReader &stream);
-    //void readOrientations(QXmlStreamReader &stream);
-    ////void readReconstructionPath(QXmlStreamReader &stream);
-    //void readOrientationSparseModel(QXmlStreamReader &stream);
-    //void readEnuCrs(QXmlStreamReader &stream);
-    //void readGroundPoints(QXmlStreamReader &stream);
-    //void readPhotoOrientations(QXmlStreamReader &stream);
-    //void readOrientationReport(QXmlStreamReader& stream);
-    //void readDensification(QXmlStreamReader &stream);
-    //void readDenseModel(QXmlStreamReader &stream);
-    //void readDenseReport(QXmlStreamReader &stream);
-    //void readDensificationMethod(QXmlStreamReader &stream);
-    //void readSmvs(QXmlStreamReader &stream);
-    //void readCmvsPmvs(QXmlStreamReader &stream);
-    //void readMVS(QXmlStreamReader &stream);
-    //void readMesh(QXmlStreamReader &stream);
-    //void readMeshModel(QXmlStreamReader &stream);
-    //void readMeshReport(QXmlStreamReader &stream);
-    //void readMeshParameters(QXmlStreamReader &stream);
-    //void readDem(QXmlStreamReader &stream);
-    //void readDemReport(QXmlStreamReader &stream);
-    //auto readOrthophoto(QXmlStreamReader &stream) -> OrthophotoData;
-    //auto readOrthophotoReport(QXmlStreamReader &stream) -> OrthophotoReport;
-
-    //void writeMatches(QXmlStreamWriter &stream) const;
-    //void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;
-    //void writeFeatureMatchingReport(QXmlStreamWriter &stream) const;
-    //void writePairs(QXmlStreamWriter &stream) const;
-    //void writeOrientations(QXmlStreamWriter &stream) const;
-    ////void writeReconstructionPath(QXmlStreamWriter &stream) const;
-    //void writeOrientationSparseModel(QXmlStreamWriter &stream) const;
-    //void writeOffset(QXmlStreamWriter &stream) const;
-    //void writeGroundPoints(QXmlStreamWriter &stream) const;
-    //void writePhotoOrientations(QXmlStreamWriter &stream) const;
-    //void writeOrientationReport(QXmlStreamWriter &stream) const;
-    //void writeDensification(QXmlStreamWriter &stream) const;
-    //void writeDenseModel(QXmlStreamWriter &stream) const;
-    //void writeDenseReport(QXmlStreamWriter &stream) const;
-    //void writeDensificationMethod(QXmlStreamWriter &stream) const;
-    //void writeMesh(QXmlStreamWriter &stream) const;
-    //void writeMeshModel(QXmlStreamWriter &stream) const;
-    //void writeMeshReport(QXmlStreamWriter &stream) const;
-    //void writeMeshParameters(QXmlStreamWriter &stream) const;
-    //void writeDem(QXmlStreamWriter &stream) const;
-    //void writeDemReport(QXmlStreamWriter &stream) const;
-    //void writeOrthophoto(QXmlStreamWriter &stream) const;
-
-    //QSize readSize(QXmlStreamReader &stream) const;
-    //int readInt(QXmlStreamReader &stream) const;
-    //double readDouble(QXmlStreamReader &stream) const;
-    //bool readBoolean(QXmlStreamReader &stream) const;
 
 };
 
