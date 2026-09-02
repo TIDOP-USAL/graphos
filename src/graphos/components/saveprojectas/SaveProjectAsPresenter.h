@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_OPEN_PROJECT_AS_PRESENTER_INTERFACE_H
-#define GRAPHOS_OPEN_PROJECT_AS_PRESENTER_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -50,5 +49,3 @@ public slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_OPEN_PROJECT_AS_PRESENTER_INTERFACE_H

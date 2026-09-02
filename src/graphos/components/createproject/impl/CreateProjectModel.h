@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_MODEL_H
-#define GRAPHOS_CREATE_PROJECT_MODEL_H
+#pragma once
 
 #include "graphos/components/createproject/CreateProjectModel.h"
 
@@ -52,9 +51,9 @@ public:
 
 public slots:
 
-    void setProjectName(const QString &name) override;
+    //void setProjectName(const QString &name) override;
     void setProjectDescription(const QString &projectDescription) override;
-    void setProjectFolder(const tl::Path &folder) override;
+    void setProjectPath(const tl::Path &path) override;
     void save() override;
 
 // Model interface
@@ -74,6 +73,4 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CREATE_PROJECT_MODEL_H
 

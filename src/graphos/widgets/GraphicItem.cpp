@@ -23,7 +23,8 @@
 
 #include "graphos/widgets/GraphicItem.h"
 
-#include <tidop/math/math.h>
+//#include <tidop/math/math.h>
+#include <tidop/math/base/Constants.h>
 
 TL_DISABLE_WARNINGS
 #include <QPainter>

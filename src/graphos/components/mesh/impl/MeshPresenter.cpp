@@ -24,10 +24,10 @@
 
 #include "MeshPresenter.h"
 
-#include "graphos/core/mesh/PoissonRecon.h"
 #include "graphos/core/task/Progress.h"
 #include "graphos/components/mesh/impl/MeshModel.h"
 #include "graphos/components/mesh/impl/MeshView.h"
+#include "graphos/components/mesh/impl/PoissonReconTask.h"
 #include "graphos/core/utils.h"
 
 #include <QMessageBox>
@@ -59,7 +59,7 @@ void MeshPresenterImp::open()
         properties = std::make_shared<PoissonReconProperties>();
     }
 
-    mView->setBoundaryType(properties->boundaryTypeAsText());
+    mView->setBoundaryType(QString::fromStdString(properties->boundaryTypeAsText()));
     mView->setDepth(properties->depth());
     //mView->setSolveDepth(properties->solveDepth());
 
@@ -79,7 +79,7 @@ void MeshPresenterImp::initSignalAndSlots()
     });
 }
 
-void MeshPresenterImp::onError(tl::TaskErrorEvent *event)
+void MeshPresenterImp::onError(tl::TaskErrorEvent &event)
 {
     TaskPresenter::onError(event);
 
@@ -87,19 +87,31 @@ void MeshPresenterImp::onError(tl::TaskErrorEvent *event)
         progressHandler()->setDescription(QApplication::translate("MeshComponent", "Task error"));
     }
 }
+//mesh_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
-void MeshPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+//    auto report = dynamic_cast<PoissonReconTask const*>(event->task())->report();
+
+//    mModel->setMeshReport(report);
+
+//});
+void MeshPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
+    if (auto *task = dynamic_cast<const PoissonReconTask *>(event.task())) {
+        try {
+
+            mModel->setMeshReport(task->report());
+            mModel->setMeshModel(task->meshModel());
+
+        } catch (const std::exception &e) {
+            tl::printException(e);
+        }
+    }
+
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
         progressHandler()->setDescription(QApplication::translate("MeshComponent", "Task finished"));
     }
-
-    tl::Path mesh = mModel->projectDir();
-    mesh.append("dense").append("mesh.pr.ply");
-
-    mModel->setMesh(mesh);
 }
 
 std::unique_ptr<tl::Task> MeshPresenterImp::createTask()
@@ -123,13 +135,13 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createTask()
     emit mesh_deleted();
 
     
-    tl::Path mesh = mModel->projectDir();
-    mesh.append("dense").append("mesh.pr.ply");
+    tl::Path mesh_path = mModel->projectDir();
+    mesh_path.append("dense").append("mesh.pr.ply");
 
-    auto properties = mModel->properties();
-    if (properties == nullptr) {
-        properties = std::make_shared<PoissonReconProperties>();
-    }
+    //auto properties = mModel->properties();
+    //if (properties == nullptr) {
+    //    properties = std::make_shared<PoissonReconProperties>();
+    //}
 
     QString bt = mView->boundaryType();
     PoissonReconProperties::BoundaryType boundary_type;
@@ -140,26 +152,16 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createTask()
     } else {
         boundary_type = PoissonReconProperties::BoundaryType::neumann;
     }
+
+    auto properties = std::make_shared<PoissonReconProperties>();
     properties->setBoundaryType(boundary_type);
     properties->setDepth(mView->depth());
     //properties->setSolveDepth(mView->solveDepth());
     mModel->setProperties(properties);
 
     mesh_task = std::make_unique<PoissonReconTask>(mModel->denseModel(),
-                                                   mesh);
-
-    auto task_parameters = dynamic_cast<PoissonReconProperties *>(mesh_task.get());
-    task_parameters->setBoundaryType(properties->boundaryType());
-    task_parameters->setDepth(properties->depth());
-    //task_parameters->setSolveDepth(properties->solveDepth());
-
-    mesh_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
-
-        auto report = dynamic_cast<PoissonReconTask const*>(event->task())->report();
-
-        mModel->setMeshReport(report);
-
-    });
+                                                   mesh_path,
+                                                   properties);
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);

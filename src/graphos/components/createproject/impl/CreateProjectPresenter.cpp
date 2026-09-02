@@ -102,8 +102,8 @@ void CreateProjectPresenterImp::saveProject()
 
     tl::Path project_folder = this->projectFolder();
     project_folder.createDirectories();
-    mModel->setProjectName(mView->projectName());
-    mModel->setProjectFolder(project_folder);
+    tl::Path project_path = this->projectPath(project_folder);
+    mModel->setProjectPath(project_path);
     mModel->setProjectDescription(mView->projectDescription());
     mModel->save();
 
@@ -122,7 +122,7 @@ auto CreateProjectPresenterImp::projectFolder() const -> tl::Path
     return project_folder;
 }
 
-auto CreateProjectPresenterImp::projectPath(const tl::Path& projectFolder) const -> tl::Path
+auto CreateProjectPresenterImp::projectPath(const tl::Path &projectFolder) const -> tl::Path
 {
     tl::Path project_path = projectFolder;
     project_path.append(mView->projectName().append(".xml").toStdWString());

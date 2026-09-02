@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_CAMERA_CALIBRATION_READER_H
-#define GRAPHOS_CORE_CAMERA_CALIBRATION_READER_H
+#pragma once
 
 #include <tidop/core/base/Path.h>
 
@@ -65,5 +64,3 @@ public:
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_CAMERA_CALIBRATION_READER_H

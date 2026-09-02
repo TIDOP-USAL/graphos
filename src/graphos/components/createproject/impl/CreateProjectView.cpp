@@ -97,8 +97,8 @@ void CreateProjectViewImp::initSignalAndSlots()
     connect(mLineEditProjectName, &QLineEdit::textChanged, this, &CreateProjectViewImp::update);
     connect(mLineEditProjectName, &QLineEdit::textChanged, this, &CreateProjectView::project_name_changed);
     connect(mLineEditProjectPath, &QLineEdit::textChanged, this, &CreateProjectViewImp::update);
-    connect(mCheckBoxProjectFolder, &QCheckBox::stateChanged, this, &CreateProjectViewImp::update);
-    connect(mCheckBoxProjectFolder, &QCheckBox::stateChanged, this, &CreateProjectView::project_name_changed);
+    connect(mCheckBoxProjectFolder, &QCheckBox::checkStateChanged, this, &CreateProjectViewImp::update);
+    connect(mCheckBoxProjectFolder, &QCheckBox::checkStateChanged, this, &CreateProjectView::project_name_changed);
     connect(mPushButtonProjectPath, &QAbstractButton::clicked, this, &CreateProjectViewImp::onClickButtonSelectPath);
 
     connect(mButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);

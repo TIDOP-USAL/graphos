@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DEM_VIEW_H
-#define GRAPHOS_DEM_VIEW_H
+#pragma once
 
 #include "graphos/components/dem/DemView.h"
 
@@ -93,5 +92,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_DEM_VIEW_H

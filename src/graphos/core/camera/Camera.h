@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_CAMERA_H
-#define GRAPHOS_CORE_CAMERA_H
+#pragma once
 
 #include "graphos/core/camera/Calibration.h"
 #include "graphos/core/multispectral/Vignetting.h"
@@ -245,5 +244,3 @@ public:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_CAMERA_H

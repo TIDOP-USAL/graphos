@@ -37,11 +37,6 @@
 #include <tidop/core/task/Progress.h>
 #include <tidop/core/console/ValuesValidator.h>
 
-//#include <colmap/feature/matching.h>
-//#include <colmap/scene/database.h>
-
-//#include <QFileInfo>
-
 using namespace tl;
 
 namespace graphos
@@ -180,60 +175,5 @@ bool FeatureMatchingCommand::run()
 
     return r;
 }
-
-//void FeatureMatchingCommand::writeMatchPairs(Project &project)
-//{
-//    tl::Path database_file = project.info().database();
-//    auto database = colmap::Database::Open(database_file.toString());
-//    std::vector<colmap::Image> db_images = database->ReadAllImages();
-//    colmap::image_t colmap_image_id_l = 0;
-//    colmap::image_t colmap_image_id_r = 0;
-//
-//    for (size_t i = 0; i < db_images.size(); i++) {
-//
-//        colmap_image_id_l = db_images[i].ImageId();
-//
-//        for (size_t j = 0; j < i; j++) {
-//            colmap_image_id_r = db_images[j].ImageId();
-//
-//            colmap::FeatureMatches matches = database->ReadMatches(colmap_image_id_l, colmap_image_id_r);
-//
-//            if (!matches.empty()) {
-//
-//                tl::Path colmap_image1(db_images[i].Name());
-//                tl::Path colmap_image2(db_images[j].Name());
-//
-//                bool find_id_1 = false;
-//                bool find_id_2 = false;
-//                size_t image_id_1 = 0;
-//                size_t image_id_2 = 0;
-//
-//                for (const auto &image_pair : project.images()) {
-//
-//                    tl::Path image(image_pair.second.path());
-//
-//                    if (!find_id_1 && image.equivalent(colmap_image1)) {
-//                        find_id_1 = true;
-//                        image_id_1 = image_pair.first;
-//                    }
-//
-//                    if (!find_id_2 && image.equivalent(colmap_image2)) {
-//                        find_id_2 = true;
-//                        image_id_2 = image_pair.first;
-//                    }
-//
-//                    if (find_id_1 && find_id_2) {
-//                        project.addMatchesPair(image_id_1, image_id_2);
-//                    }
-//                }
-//
-//            }
-//
-//        }
-//
-//    }
-//
-//    database->Close();
-//}
 
 } // namespace graphos

@@ -26,7 +26,7 @@
 #include "graphos/components/openproject/impl/OpenProjectModel.h"
 #include "graphos/components/openproject/impl/OpenProjectView.h"
 #include "graphos/components/openproject/impl/OpenProjectPresenter.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

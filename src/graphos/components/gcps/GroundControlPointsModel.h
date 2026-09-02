@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GCPS_MODEL_INTERFACE_H
-#define GRAPHOS_GCPS_MODEL_INTERFACE_H
+#pragma once
 
 #include <unordered_map>
 
@@ -30,7 +29,7 @@
 #include <tidop/math/algebra/matrix/Matrix.h>
 
 #include "graphos/core/mvp.h"
-#include "graphos/core/sfm/poses.h"
+#include "graphos/core/orientation/CameraPose.h"
 
 class QStandardItemModel;
 
@@ -38,7 +37,9 @@ namespace graphos
 {
 
 class GroundControlPoint;
-class Image;
+class ImageRepository;
+class CameraPosesRepository;
+class CameraRepository;
 class Camera;
 class CameraPose;
 class GroundPoint;
@@ -51,11 +52,11 @@ class GroundControlPointsModel
 
 public:
 
-    using Images = std::unordered_map<size_t, Image>;
-    using CameraPoses = std::unordered_map<size_t, CameraPose>;
-    using Cameras = std::map<int, Camera>;
+    //using Images = std::unordered_map<size_t, Image>;
+    //using CameraPoses = std::unordered_map<size_t, CameraPose>;
+    //using Cameras = std::map<int, Camera>;
     using GroundControlPoints = std::vector<GroundControlPoint>;
-    using GroundPoints = std::vector<GroundPoint>;
+    //using GroundPoints = std::vector<GroundPoint>;
 
 public:
 
@@ -67,8 +68,8 @@ public:
     virtual auto crs() const -> QString = 0;
     virtual auto itemModelGroundControlPoints() -> QStandardItemModel* = 0;
     virtual auto itemModelImagePoints() -> QStandardItemModel* = 0;
-    virtual auto images() const -> const Images & = 0;
-    virtual auto image(size_t imageId) const -> Image = 0;
+    virtual auto images() const -> const ImageRepository & = 0;
+    //virtual auto image(size_t imageId) const -> Image = 0;
     virtual void addGroundControlPoint() = 0;
     virtual void removeGroundControlPoint(int index) = 0;
     virtual void addImagePoint(const QString &gcp, size_t imageId, const QPointF &point) = 0;
@@ -76,12 +77,12 @@ public:
     virtual auto points(size_t imageId) const -> std::list<std::pair<QString, QPointF>> = 0;
     virtual auto groundControlPoints() const -> GroundControlPoints = 0;
     virtual auto projectPath() const -> tl::Path = 0;
-    virtual auto reconstructionPath() const -> tl::Path = 0;
+    //virtual auto reconstructionPath() const -> tl::Path = 0;
     //virtual void setSparseModel(const tl::Path &sparseModel) = 0;
     virtual void setEnuCrs(const QString &enuCrs) = 0;
     virtual void addPhotoOrientation(size_t imageId, const CameraPose &orientation) = 0;
-    virtual auto poses() const -> const CameraPoses & = 0;
-    virtual auto cameras() const -> const Cameras & = 0;
+    virtual auto poses() const -> const CameraPosesRepository & = 0;
+    virtual auto cameras() const -> const CameraRepository & = 0;
     //virtual auto groundPoints() const -> GroundPoints = 0;
     virtual auto database() const -> tl::Path = 0;
     virtual void setTransform(const tl::Matrix<double, 4, 4> &trasnform) = 0;
@@ -97,5 +98,3 @@ public slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_GCPS_MODEL_INTERFACE_H

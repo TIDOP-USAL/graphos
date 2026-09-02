@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_MATCHING_PRESENTER_H
-#define GRAPHOS_FEATURE_MATCHING_PRESENTER_H
+#pragma once
 
 #include <QObject>
 
@@ -61,8 +60,8 @@ public slots:
 
 protected:
 
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
+    void onError(tl::TaskErrorEvent &event) override;
+    void onFinished(tl::TaskFinalizedEvent &event) override;
     auto createTask() -> std::unique_ptr<tl::Task> override;
 
 public slots:
@@ -89,5 +88,3 @@ private:
 };
 
 } // End namespace graphos
-
-#endif // GRAPHOS_FEATURE_MATCHING_PRESENTER_H

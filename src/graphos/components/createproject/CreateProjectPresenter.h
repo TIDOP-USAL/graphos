@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_PRESENTER_INTERFACE_H
-#define GRAPHOS_CREATE_PROJECT_PRESENTER_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -70,6 +69,3 @@ protected slots:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_CREATE_PROJECT_PRESENTER_INTERFACE_H

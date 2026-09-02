@@ -35,7 +35,7 @@ auto FeatureExtractorProperties::name() const -> std::string
 
 void FeatureExtractorProperties::setProperty(const std::string &key, const std::string &value)
 {
-    mProperties.setProperty(key, value);
+    mProperties.property(key).fromString(value);
 }
 
 

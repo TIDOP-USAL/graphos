@@ -23,10 +23,11 @@
 
 #include "MeshModel.h"
 
-#include "graphos/core/mesh/PoissonRecon.h"
+#include "graphos/core/project/Project.h"
 
 #include <QFile>
 #include <QSettings>
+#include <QCoreApplication>
 
 namespace graphos
 {
@@ -57,7 +58,7 @@ void MeshModelImp::saveSettings()
 
 auto MeshModelImp::properties() const -> std::shared_ptr<PoissonReconProperties>
 {
-    return mProject->meshProperties();
+    return mProject->meshConfig();
 }
 
 auto MeshModelImp::denseModel() const -> tl::Path
@@ -67,33 +68,32 @@ auto MeshModelImp::denseModel() const -> tl::Path
 
 auto MeshModelImp::projectDir() const -> tl::Path
 {
-    return mProject->projectFolder();
+    return mProject->info().projectFolder();
 }
 
 auto MeshModelImp::mesh() const -> tl::Path
 {
-    return mProject->meshPath();
+    return mProject->meshModel();
 }
 
-void MeshModelImp::setMesh(const tl::Path &mesh)
+void MeshModelImp::setMeshModel(tl::Path mesh)
 {
-    mProject->setMeshPath(mesh);
+    mProject->setMeshModel(std::move(mesh));
 }
 
 void MeshModelImp::cleanProject()
 {
-    mProject->setMeshPath(tl::Path());
-    mProject->setMeshReport(MeshReport());
+    mProject->clearMesh();
 }
 
-void MeshModelImp::setProperties(const std::shared_ptr<PoissonReconProperties> &properties)
+void MeshModelImp::setProperties(std::shared_ptr<PoissonReconProperties> properties)
 {
-    mProject->setMeshProperties(properties);
+    mProject->setMeshConfig(std::move(properties));
 }
 
-void MeshModelImp::setMeshReport(const MeshReport &report)
+void MeshModelImp::setMeshReport(MeshReport report)
 {
-    mProject->setMeshReport(report);
+    mProject->setMeshReport(std::move(report));
 }
 
 void MeshModelImp::init()

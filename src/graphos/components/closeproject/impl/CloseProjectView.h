@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CLOSE_PROJECT_VIEW_H
-#define GRAPHOS_CLOSE_PROJECT_VIEW_H
+#pragma once
 
 #include "graphos/components/closeproject/CloseProjectView.h"
 
@@ -47,5 +46,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CLOSE_PROJECT_VIEW_H

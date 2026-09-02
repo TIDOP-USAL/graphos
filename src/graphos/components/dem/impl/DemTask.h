@@ -60,6 +60,10 @@ public:
      */
     auto report() const -> DemReport;
 
+    auto dsmPath() const -> tl::Path;
+    auto dtmPath() const -> tl::Path;
+    auto dsmEnuPath() const -> tl::Path;
+
 // tl::TaskBase interface
 
 protected:
@@ -70,6 +74,9 @@ private:
 
     tl::Path mPointCloud;
     tl::Path mDemPath;
+    tl::Path mDsmPath;
+    tl::Path mDtmPath;
+    tl::Path mDsmEnuPath;
     std::string mEnuCrs;
     std::shared_ptr<DemProperties> mProperties;
     DemReport mDemReport;

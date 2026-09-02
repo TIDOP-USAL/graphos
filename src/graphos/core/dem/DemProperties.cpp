@@ -82,7 +82,7 @@ void DemProperties::clear()
 
 void DemProperties::setProperty(const std::string &key, const std::string &value)
 {
-    mProperties.setProperty(key, value);
+    mProperties.property(key).fromString(value);
 }
 
 } // namespace graphos

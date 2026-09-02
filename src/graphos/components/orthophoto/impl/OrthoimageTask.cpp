@@ -225,14 +225,14 @@ void OrthoimageTask::execute(tl::Progress *progressBar, std::stop_token stopToke
                 double gsd = mGsd;
                 //if (mGsd == -1) {
                 //    /// Calculo de transformación afin entre coordenadas terreno e imagen para la orto para determinar un GSD optimo
-                //    std::vector<tl::Point<double>> t_coor;
+                //    std::vector<tl::Point2d> t_coor;
                 //    t_coor.push_back(footprint_enu.at(0));
                 //    t_coor.push_back(footprint_enu.at(1));
                 //    t_coor.push_back(footprint_enu.at(2));
                 //    t_coor.push_back(footprint_enu.at(3));
 
                 //    tl::Rect<int> rect_image = orthorectification.rectImage();
-                //    std::vector<tl::Point<double>> i_coor;
+                //    std::vector<tl::Point2d> i_coor;
                 //    i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.topLeft()));
                 //    i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.topRight()));
                 //    i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomRight()));
@@ -358,7 +358,7 @@ void OrthoimageTask::execute(tl::Progress *progressBar, std::stop_token stopToke
     }
 }
 
-//auto OrthoimageTask::orthoimageGraphProjected(const tl::Window<tl::Point<double>> &windowOrthoTerrain) const -> std::shared_ptr<tl::GPolygon>
+//auto OrthoimageTask::orthoimageGraphProjected(const tl::Window<tl::Point2d> &windowOrthoTerrain) const -> std::shared_ptr<tl::GPolygon>
 //{
 //    tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
 //

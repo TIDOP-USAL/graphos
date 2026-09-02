@@ -112,6 +112,7 @@ public:
      */
     auto report() const -> OrientationReport;
 
+    //TODO: Esto es si se utilizan los puntos de control para la orientación absoluta, habría que pasarlo al proyecto y guardarlo en el fichero de configuración
     //auto enuCrs() const -> std::string;
 
     void setMinCommonImages(int minCommonImages);

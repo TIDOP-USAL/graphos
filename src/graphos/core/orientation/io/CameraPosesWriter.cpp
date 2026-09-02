@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/sfm/CameraPosesWriter.h"
+#include "graphos/core/orientation/io/CameraPosesWriter.h"
 
 #include <tidop/core/base/Endian.h>
 #include <tidop/core/base/Path.h>

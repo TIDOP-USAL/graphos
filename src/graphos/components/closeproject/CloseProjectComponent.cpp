@@ -26,7 +26,7 @@
 #include "graphos/components/closeproject/impl/CloseProjectModel.h"
 #include "graphos/components/closeproject/impl/CloseProjectView.h"
 #include "graphos/components/closeproject/impl/CloseProjectPresenter.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

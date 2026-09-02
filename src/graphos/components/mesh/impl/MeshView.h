@@ -21,9 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-
-#ifndef GRAPHOS_MESH_VIEW_H
-#define GRAPHOS_MESH_VIEW_H
+#pragma once
 
 #include "graphos/components/mesh/MeshView.h"
 
@@ -105,5 +103,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_MESH_VIEW_H

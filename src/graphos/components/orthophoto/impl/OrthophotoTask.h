@@ -55,19 +55,20 @@ class OrthophotoTask
 
 public:
 
-    OrthophotoTask(const std::unordered_map<size_t, Image> &images,
-                   const std::map<int, Camera> &cameras,
-                   const tl::Path &orthoPath,
-                   const tl::Path &mdt,
-                   const std::string &enuCrs,
-                   const std::string &epsg,
-                   const std::string &interpolation = "BILINEAR",
+    OrthophotoTask(std::unordered_map<size_t, Image> images,
+                   std::map<int, Camera> cameras,
+                   tl::Path orthoPath,
+                   tl::Path mdt,
+                   std::string enuCrs,
+                   std::string epsg,
+                   std::string interpolation = "BILINEAR",
                    double resolution = -1.,
                    bool cuda = false);
 
     ~OrthophotoTask() override;
 
     auto report() const -> OrthophotoReport;
+    auto orthoPath() const -> tl::Path;
 
 private:
 
@@ -95,8 +96,8 @@ protected:
 
 private:
 
-    const std::unordered_map<size_t, Image> &mImages;
-    const std::map<int, Camera> &mCameras;
+    std::unordered_map<size_t, Image> mImages;
+    std::map<int, Camera> mCameras;
     tl::Path mOrthoPath;
     tl::Path mMdt;
     std::string mEnuCrs;

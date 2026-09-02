@@ -176,12 +176,10 @@ void GroundControlPointsViewImp::setCurrentImage(const QString &imagePath)
     mComboBoxImages->setCurrentText(file_info.baseName());
     mGraphicViewerWidget->scene()->clearSelection();
 
-    auto image_reader = tl::ImageReaderFactory::create(imagePath.toStdString());
-    image_reader->open();
-    if (image_reader->isOpen()) {
-        cv::Mat bmp = image_reader->read();
+    tl::RasterReader image_reader(imagePath.toStdString());
+    if (image_reader.isOpen()) {
+        cv::Mat bmp = image_reader.read();
         mGraphicViewerWidget->setImage(cvMatToQImage(bmp));
-        image_reader->close();
     }
     mGraphicViewerWidget->zoomExtend();
 }

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_EXTRACTOR_VIEW_INTERFACE_H
-#define GRAPHOS_FEATURE_EXTRACTOR_VIEW_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -59,5 +58,3 @@ public slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_FEATURE_EXTRACTOR_VIEW_INTERFACE_H

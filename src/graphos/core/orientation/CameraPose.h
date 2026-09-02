@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_ORIENTATION_POSES_H
-#define GRAPHOS_CORE_ORIENTATION_POSES_H
+#pragma once
 
 #include <QString>
 
@@ -217,5 +216,3 @@ private:
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_PHOTO_ORIENTATION_H

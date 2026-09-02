@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSE_VIEW_H
-#define GRAPHOS_DENSE_VIEW_H
+#pragma once
 
 #include "graphos/components/dense/DensificationView.h"
 
@@ -86,6 +85,3 @@ private:
 };
 
 } // End namespace graphos
-
-
-#endif // GRAPHOS_DENSE_VIEW_H

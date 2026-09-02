@@ -29,7 +29,7 @@
 #include "graphos/widgets/TabWidget.h"
 #include "graphos/widgets/GraphicViewer.h"
 #include "graphos/widgets/mapviewer/MapViewer.h"
-#include "graphos/widgets/Viewer3d.h"
+//#include "graphos/widgets/Viewer3d.h"
 #include "graphos/widgets/ProgressBarWidget.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
@@ -265,7 +265,7 @@ void MainWindowView::addImage(const Image &image, const Camera &camera)
             itemImages = new QTreeWidgetItem();
             itemImages->setText(0, QApplication::translate("MainWindowView", "Images"));
             itemImages->setIcon(0, QIcon::fromTheme("pictures-folder"));
-            itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
+            itemImages->setFlags(itemImages->flags() | Qt::ItemIsAutoTristate);
             itemImages->setData(0, Qt::UserRole, graphos::images);
             itemProject->addChild(itemImages);
             itemImages->setExpanded(true);
@@ -275,7 +275,7 @@ void MainWindowView::addImage(const Image &image, const Camera &camera)
         QTreeWidgetItem *itemPhotogram = new QTreeWidgetItem();
         itemPhotogram->setText(0, image.name());
         itemPhotogram->setIcon(0, QIcon::fromTheme("image-file"));
-        itemPhotogram->setToolTip(0, image.path());
+        itemPhotogram->setToolTip(0, QString::fromStdString(image.path().toUtf8()));
         itemPhotogram->setData(0, Qt::UserRole, graphos::image);
         itemPhotogram->setData(0, Qt::UserRole + 1, static_cast<qulonglong>(Image::id(image)));
         itemImages->addChild(itemPhotogram);
@@ -306,7 +306,7 @@ void MainWindowView::addImages(const std::unordered_map<size_t, Image> &images,
             itemImages = new QTreeWidgetItem();
             itemImages->setText(0, QApplication::translate("MainWindowView", "Images"));
             itemImages->setIcon(0, QIcon::fromTheme("pictures-folder"));
-            itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
+            itemImages->setFlags(itemImages->flags() | Qt::ItemIsAutoTristate);
             itemImages->setData(0, Qt::UserRole, graphos::images);
             itemProject->addChild(itemImages);
             itemImages->setExpanded(true);
@@ -315,13 +315,12 @@ void MainWindowView::addImages(const std::unordered_map<size_t, Image> &images,
         for (const auto &image : images) {
 
             size_t image_id = image.first;
-            image.second.name();
 
             /* Se añade el fotograma al árbol del proyecto */
             QTreeWidgetItem *itemPhotogram = new QTreeWidgetItem();
             itemPhotogram->setText(0, image.second.name());
             itemPhotogram->setIcon(0, QIcon::fromTheme("image-file"));
-            itemPhotogram->setToolTip(0, image.second.path());
+            itemPhotogram->setToolTip(0, QString::fromStdString(image.second.path().toUtf8()));
             itemPhotogram->setData(0, Qt::UserRole, graphos::image);
             itemPhotogram->setData(0, Qt::UserRole + 1, static_cast<qulonglong>(image_id));
             itemImages->addChild(itemPhotogram);
@@ -1464,93 +1463,93 @@ void MainWindowView::initSignalAndSlots()
         }
     });
 
-    connect(mActionGlobalZoom, &QAction::triggered, [&]() {
-        if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-            model3D->setGlobalZoom();
-        }
-    });
+    //connect(mActionGlobalZoom, &QAction::triggered, [&]() {
+    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+    //        model3D->setGlobalZoom();
+    //    }
+    //});
 
-    connect(mActionViewFront, &QAction::triggered, [&]() {
-        if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-            model3D->setFrontView();
-        }
-    });
+    //connect(mActionViewFront, &QAction::triggered, [&]() {
+    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+    //        model3D->setFrontView();
+    //    }
+    //});
 
-    connect(mActionViewBack, &QAction::triggered, [&]() {
-        if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-            model3D->setBackView();
-        }
-    });
+    //connect(mActionViewBack, &QAction::triggered, [&]() {
+    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+    //        model3D->setBackView();
+    //    }
+    //});
 
-    connect(mActionViewTop, &QAction::triggered, [&]() {
-        if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-            model3D->setTopView();
-        }
-    });
+    //connect(mActionViewTop, &QAction::triggered, [&]() {
+    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+    //        model3D->setTopView();
+    //    }
+    //});
 
-    connect(mActionViewBottom, &QAction::triggered, [&]() {
-        if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-            model3D->setBottomView();
-        }
-    });
+    //connect(mActionViewBottom, &QAction::triggered, [&]() {
+    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+    //        model3D->setBottomView();
+    //    }
+    //});
 
-    connect(mActionViewLeft, &QAction::triggered, [&]() {
-        if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-            model3D->setLeftView();
-        }
-    });
+    //connect(mActionViewLeft, &QAction::triggered, [&]() {
+    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+    //        model3D->setLeftView();
+    //    }
+    //});
 
-    connect(mActionViewRight, &QAction::triggered, [&]() {
-        if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-            model3D->setRightView();
-        }
-    });
+    //connect(mActionViewRight, &QAction::triggered, [&]() {
+    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+    //        model3D->setRightView();
+    //    }
+    //});
 
-    connect(mActionPointMeasuse, &QAction::toggled, [&](bool checked) {
+    //connect(mActionPointMeasuse, &QAction::toggled, [&](bool checked) {
 
-        if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-            const QSignalBlocker block_distance_measuse(mActionDistanceMeasuse);
-            const QSignalBlocker block_angle_measuse(mActionAngleMeasure);
-            mActionDistanceMeasuse->setChecked(false);
-            mActionAngleMeasure->setChecked(false);
+    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+    //        const QSignalBlocker block_distance_measuse(mActionDistanceMeasuse);
+    //        const QSignalBlocker block_angle_measuse(mActionAngleMeasure);
+    //        mActionDistanceMeasuse->setChecked(false);
+    //        mActionAngleMeasure->setChecked(false);
 
-            if (checked)
-                model3D->activatePicker(CCViewer3D::PickingMode::point_info);
-            else
-                model3D->deactivatePicker();
-        }
+    //        if (checked)
+    //            model3D->activatePicker(CCViewer3D::PickingMode::point_info);
+    //        else
+    //            model3D->deactivatePicker();
+    //    }
 
-    });
+    //});
 
-    connect(mActionDistanceMeasuse, &QAction::toggled, [&](bool checked) {
+    //connect(mActionDistanceMeasuse, &QAction::toggled, [&](bool checked) {
 
-        if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-            const QSignalBlocker block_point_measuse(mActionPointMeasuse);
-            const QSignalBlocker block_angle_measuse(mActionAngleMeasure);
-            mActionPointMeasuse->setChecked(false);
-            mActionAngleMeasure->setChecked(false);
+    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+    //        const QSignalBlocker block_point_measuse(mActionPointMeasuse);
+    //        const QSignalBlocker block_angle_measuse(mActionAngleMeasure);
+    //        mActionPointMeasuse->setChecked(false);
+    //        mActionAngleMeasure->setChecked(false);
 
-            if (checked)
-                model3D->activatePicker(CCViewer3D::PickingMode::distance);
-            else
-                model3D->deactivatePicker();
-        }
-    });
+    //        if (checked)
+    //            model3D->activatePicker(CCViewer3D::PickingMode::distance);
+    //        else
+    //            model3D->deactivatePicker();
+    //    }
+    //});
 
-    connect(mActionAngleMeasure, &QAction::toggled, [&](bool checked) {
+    //connect(mActionAngleMeasure, &QAction::toggled, [&](bool checked) {
 
-        if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-            const QSignalBlocker block_point_measuse(mActionPointMeasuse);
-            const QSignalBlocker block_distance_measuse(mActionDistanceMeasuse);
-            mActionPointMeasuse->setChecked(false);
-            mActionDistanceMeasuse->setChecked(false);
+    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+    //        const QSignalBlocker block_point_measuse(mActionPointMeasuse);
+    //        const QSignalBlocker block_distance_measuse(mActionDistanceMeasuse);
+    //        mActionPointMeasuse->setChecked(false);
+    //        mActionDistanceMeasuse->setChecked(false);
 
-            if (checked)
-                model3D->activatePicker(CCViewer3D::PickingMode::angle);
-            else
-                model3D->deactivatePicker();
-        }
-    });
+    //        if (checked)
+    //            model3D->activatePicker(CCViewer3D::PickingMode::angle);
+    //        else
+    //            model3D->deactivatePicker();
+    //    }
+    //});
 
     /* TabWidget */
 

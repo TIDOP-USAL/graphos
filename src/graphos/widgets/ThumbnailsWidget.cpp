@@ -27,7 +27,7 @@
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
-#include <tidop/core/utils.h>
+#include <tidop/core/task/TaskQueue.h>
 #include <tidop/core/task/Progress.h>
 #include <tidop/rastertools/io/Reader.h>
 
@@ -62,7 +62,7 @@ LoadThumbnailTask::~LoadThumbnailTask()
 }
 
 
-void LoadThumbnailTask::execute(tl::Progress *progressBar)
+void LoadThumbnailTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
 {
     if (mItem == nullptr) return;
 
@@ -71,11 +71,10 @@ void LoadThumbnailTask::execute(tl::Progress *progressBar)
         const QString thumb = mItem->toolTip();
         std::string image_file = thumb.toStdString();
 
-        auto image_reader = tl::ImageReaderFactory::create(image_file);
-        image_reader->open();
-        if (image_reader->isOpen()) {
-            int w = image_reader->cols();
-            int h = image_reader->rows();
+        tl::RasterReader image_reader(image_file);
+        if (image_reader.isOpen()) {
+            int w = image_reader.cols();
+            int h = image_reader.rows();
             double scale = 1.;
             if (w > h) {
                 scale = 400. / static_cast<double>(w);
@@ -83,12 +82,12 @@ void LoadThumbnailTask::execute(tl::Progress *progressBar)
                 scale = 400. / static_cast<double>(h);
             }
 
-            cv::Mat bmp = image_reader->read(scale, scale);
+            cv::Mat bmp = image_reader.read(scale, scale);
             cv::Mat resized = bmp;
             cv::resize(bmp, resized, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR);
             QImage image = graphos::cvMatToQImage(resized);
 
-            image_reader->close();
+            image_reader.close();
 
             QPixmap pixmap = QPixmap::fromImage(image);
             QIcon icon(pixmap);
@@ -188,7 +187,7 @@ void ThumbnailsWidget::addThumbnail(const Image &image, const QSize &imageSize)
         pixmap.fill(QColor(Qt::GlobalColor::lightGray));
         QIcon icon(pixmap);
         QListWidgetItem *item = new QListWidgetItem(icon, image.name());
-        item->setToolTip(image.path());
+        item->setToolTip(QString::fromStdString(image.path().toString()));
         item->setData(Qt::UserRole, static_cast<qulonglong>(Image::id(image)));
         mListWidget->addItem(item);
         // TODO: Utilizar setGridSize para ajustar el tamaño
@@ -427,7 +426,7 @@ void ThumbnailsWidget::initUI()
     mListWidget->setSelectionMode(QListWidget::ExtendedSelection);
     mListWidget->setDragDropMode(QAbstractItemView::NoDragDrop);
 
-    mGridLayout->setMargin(0);
+    mGridLayout->setContentsMargins(0, 0, 0, 0);
     mGridLayout->addWidget(toolBar);
     mGridLayout->addWidget(mListWidget);
 

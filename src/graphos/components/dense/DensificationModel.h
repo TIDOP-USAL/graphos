@@ -21,23 +21,23 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSE_MODEL_INTERFACE_H
-#define GRAPHOS_DENSE_MODEL_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
-#include "graphos/core/dense/dense.h"
+
+#include <unordered_map>
 
 #include <tidop/core/base/Path.h>
 
-#include <unordered_map>
+#include "graphos/core/dense/DensificationReport.h"
 
 namespace graphos
 {
 
-class Image;
-class Camera;
-class Densification;
-class CameraPose;
+class ImageRepository;
+class CameraRepository;
+class CameraPosesRepository;
+class DensificationProperties;
 class GroundPoint;
 
 
@@ -67,7 +67,7 @@ public:
      * \brief Retrieves the densification object.
      * \return A shared pointer to the densification object.
      */
-    virtual auto densification() const -> std::shared_ptr<Densification> = 0;
+    virtual auto densificationConfig() const -> std::shared_ptr<DensificationProperties> = 0;
 
     /*!
      * \brief Retrieves the project folder path.
@@ -79,7 +79,7 @@ public:
      * \brief Retrieves the path to the reconstruction.
      * \return The reconstruction path.
      */
-    virtual auto reconstructionPath() const -> tl::Path = 0;
+    //virtual auto reconstructionPath() const -> tl::Path = 0;
 
     /*!
      * \brief Retrieves the path to the database.
@@ -103,19 +103,19 @@ public:
      * \brief Retrieves a map of images.
      * \return A constant reference to a map of images.
      */
-    virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
+    virtual auto images() const -> const ImageRepository & = 0;
 
     /*!
      * \brief Retrieves a map of cameras.
      * \return A constant reference to a map of cameras.
      */
-    virtual auto cameras() const -> const std::map<int, Camera>& = 0;
+    virtual auto cameras() const -> const CameraRepository & = 0;
 
     /*!
      * \brief Retrieves a map of camera poses.
      * \return A constant reference to a map of camera poses.
      */
-    virtual auto poses() const -> const std::unordered_map<size_t, CameraPose>& = 0;
+    virtual auto cameraPoses() const -> const CameraPosesRepository & = 0;
 
     /*!
      * \brief Retrieves a vector of ground points.
@@ -131,22 +131,20 @@ public slots:
      * \brief Sets the densification object.
      * \param[in] densification The densification object to set.
      */
-    virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
+    virtual void setDensificationConfig(std::shared_ptr<DensificationProperties> config) = 0;
 
     /*!
      * \brief Sets the path to the dense model.
      * \param[in] denseModel The path to the dense model.
      */
-    virtual void setDenseModel(const tl::Path &denseModel) = 0;
+    virtual void setDenseModel(tl::Path denseModel) = 0;
 
     /*!
      * \brief Sets the dense report.
      * \param[in] report The dense report to set.
      */
-    virtual void setDensificationReport(const DensificationReport &report) = 0;
+    virtual void setDensificationReport(DensificationReport report) = 0;
 
 };
 
 } // End namespace graphos
-
-#endif // GRAPHOS_DENSE_MODEL_INTERFACE_H

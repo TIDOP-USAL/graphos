@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_OPEN_PROJECT_VIEW_H
-#define GRAPHOS_OPEN_PROJECT_VIEW_H
+#pragma once
 
 #include "graphos/components/openproject/OpenProjectView.h"
 
@@ -55,5 +54,3 @@ public:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_OPEN_PROJECT_VIEW_H

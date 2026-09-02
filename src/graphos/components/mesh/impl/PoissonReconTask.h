@@ -69,6 +69,7 @@ public:
      * \return The report on the reconstructed mesh.
      */
     auto report() const -> MeshReport;
+    auto meshModel() const -> tl::Path;
 
 private:
 

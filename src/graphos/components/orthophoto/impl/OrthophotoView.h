@@ -21,9 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-
-#ifndef GRAPHOS_ORTHOPHOTO_VIEW_H
-#define GRAPHOS_ORTHOPHOTO_VIEW_H
+#pragma once
 
 #include "graphos/components/orthophoto/OrthophotoView.h"
 
@@ -91,5 +89,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ORTHOPHOTO_VIEW_H

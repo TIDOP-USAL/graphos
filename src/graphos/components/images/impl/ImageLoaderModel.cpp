@@ -23,7 +23,7 @@
 
 #include "ImageLoaderModel.h"
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 
 #include <tidop/core/app/Message.h>
 #include <tidop/core/base/Path.h>
@@ -39,29 +39,19 @@ ImageLoaderModelImp::ImageLoaderModelImp(Project *project,
     ImageLoaderModelImp::init();
 }
 
-//QString ImageLoaderModelImp::projectCRS() const
-//{
-//    return mProject->crs();
-//}
-
-//void ImageLoaderModelImp::setProjectCRS(const QString &crs)
-//{
-//    mProject->setCrs(crs);
-//}
-
 void ImageLoaderModelImp::addImage(const Image &image)
 {
-    mProject->addImage(image);
+    mProject->images().add(image);
 }
 
 bool ImageLoaderModelImp::existImage(size_t imageId) const
 {
-    return mProject->existImage(imageId);
+    return mProject->images().contains(imageId);
 }
 
 tl::Path ImageLoaderModelImp::imagesDirectory() const
 {
-    tl::Path image_directory = mProject->projectFolder();
+    tl::Path image_directory = mProject->info().projectFolder();
 
     tl::Path path(image_directory);
     path.append("images");
@@ -72,22 +62,24 @@ tl::Path ImageLoaderModelImp::imagesDirectory() const
     return image_directory;
 }
 
-auto ImageLoaderModelImp::cameras() const -> const std::map<int, Camera>&
+auto ImageLoaderModelImp::cameraRepository() -> CameraRepository &
 {
     return mProject->cameras();
 }
 
-auto ImageLoaderModelImp::addCamera(const Camera &camera) -> int
+auto ImageLoaderModelImp::imagesRepository() -> ImageRepository &
 {
-    return mProject->addCamera(camera);
+    return mProject->images();
 }
 
-auto ImageLoaderModelImp::cameraID(const Camera &camera) const -> int
+auto ImageLoaderModelImp::enuCrs() const -> std::string
 {
-    return mProject->cameraId(QString::fromStdString(camera.make()),
-                              QString::fromStdString(camera.model()),
-                              QString::fromStdString(camera.serialNumber()),
-                              QString::fromStdString(camera.bandName()));
+    return mProject->info().enuCrs();
+}
+
+void ImageLoaderModelImp::setEnuCrs(const std::string &crs)
+{
+    mProject->info().setEnuCrs(crs);
 }
 
 void ImageLoaderModelImp::init()

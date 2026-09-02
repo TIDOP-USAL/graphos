@@ -49,7 +49,7 @@ add_files_to_project(${PROJECT_NAME}
                          OriTxtFormatWidget.cpp
                          GraphicItem.cpp
                          GraphicViewer.cpp
-                         Viewer3d.cpp
+                         #Viewer3d.cpp
                          ImageMenu.cpp
                          TabWidget.cpp
                          ProgressBarDialog.cpp
@@ -57,7 +57,7 @@ add_files_to_project(${PROJECT_NAME}
                          settings/FeatViewerSettingsWidget.cpp
                          settings/MatchViewerSettingsWidget.cpp
                          formats/raster/TiffFormatWidget.cpp
-                         ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.cpp
+                         #${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.cpp
 						 #MapViewer.cpp
 						 #MapItem.cpp
                          mapviewer/MapPolygon.cpp
@@ -83,7 +83,7 @@ add_files_to_project(${PROJECT_NAME}
                          OriTxtFormatWidget.h
                          GraphicItem.h
                          GraphicViewer.h
-                         Viewer3d.h
+                         #Viewer3d.h
                          ImageMenu.h
                          TabWidget.h
                          ProgressBarDialog.h
@@ -97,17 +97,18 @@ add_files_to_project(${PROJECT_NAME}
                          mapviewer/MapViewer.h
                          mapviewer/RasterTiledLayer.h
                          mapviewer/MapContextMenu.h
-                         ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.h)
+                         #${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.h
+)
 
 
 # EDL Shaders
-set(SHADER_EDL ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/shaders/EDL)
+#set(SHADER_EDL ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/shaders/EDL)
 
-file(GLOB shaderFiles ${SHADER_EDL}/*.frag ${SHADER_EDL}/*.vert)
-foreach(filename ${shaderFiles} )
-    file(COPY ${filename} DESTINATION ${CMAKE_BINARY_DIR}/bin/Release/shaders/EDL)
-    file(COPY ${filename} DESTINATION ${CMAKE_BINARY_DIR}/bin/Debug/shaders/EDL)
-endforeach()
+#file(GLOB shaderFiles ${SHADER_EDL}/*.frag ${SHADER_EDL}/*.vert)
+#foreach(filename ${shaderFiles} )
+#    file(COPY ${filename} DESTINATION ${CMAKE_BINARY_DIR}/bin/Release/shaders/EDL)
+#    file(COPY ${filename} DESTINATION ${CMAKE_BINARY_DIR}/bin/Debug/shaders/EDL)
+#endforeach()
 
 add_library(${PROJECT_NAME} ${LIB_TYPE}
             ${PROJECT_SOURCE_FILES}
@@ -116,13 +117,15 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
 add_library(Graphos::${PROJECT_NAME} 
             ALIAS ${PROJECT_NAME})
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-                           ${CloudCompare_INCLUDE_DIR})
+#target_include_directories(${PROJECT_NAME} PUBLIC
+#                           ${CloudCompare_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
                       TidopLib::Core
                       TidopLib::RasterTools
-                      $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Network>
+                      $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Widgets>
+                      $<$<BOOL:${GRAPHOS_GUI}>:Qt6::OpenGLWidgets>
+                      $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Network>
                       ${CloudCompare_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES 

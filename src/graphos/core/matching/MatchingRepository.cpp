@@ -21,10 +21,10 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/repositories/MatchingRepository.h"
+#include "graphos/core/matching/MatchingRepository.h"
 
 #include <colmap/scene/database.h>
-
+#include <colmap/util/types.h>
 
 namespace graphos
 {
@@ -123,7 +123,55 @@ auto MatchingRepository::loadMatches(const std::string &imageNameLeft,
     return matches;
 }
 
+auto MatchingRepository::imagePairs(const std::string &imageName) const -> std::vector<std::string>
+{
+    std::vector<std::string> pairedImageNames;
+
+    if (!mDbPath.exists()) return pairedImageNames;
+
+    auto database = colmap::Database::Open(mDbPath.toUtf8());
+
+    if (!database->ExistsImageWithName(imageName)) {
+        return pairedImageNames;
+    }
+
+    // 1. Obtener la imagen objetivo y su ID interno en COLMAP
+    const auto targetImage = database->ReadImageWithName(imageName);
+    const colmap::image_t targetId = targetImage->ImageId();
+
+    // 2. Crear un mapa local ID -> Name para resolver la ruta rápida al iterar las coincidencias
+    const auto allImages = database->ReadAllImages();
+    std::unordered_map<colmap::image_t, std::string> idToNameMap;
+    idToNameMap.reserve(allImages.size());
+    for (const auto &img : allImages) {
+        idToNameMap[img.ImageId()] = img.Name();
+    }
+
+    // 3. Buscar todas las geometrías de dos vistas y filtrar las que conectan con targetId
+    const auto twoViewGeometries = database->ReadTwoViewGeometries();
+
+    for (const auto &geometry : twoViewGeometries) {
+        auto [id1, id2] = colmap::PairIdToImagePair(geometry.first);
+
+        // Solo se cuentan pares que tengan inliers válidos
+        if (!geometry.second.inlier_matches.empty()) {
+            if (id1 == targetId && idToNameMap.count(id2)) {
+                pairedImageNames.push_back(idToNameMap[id2]);
+            } else if (id2 == targetId && idToNameMap.count(id1)) {
+                pairedImageNames.push_back(idToNameMap[id1]);
+            }
+        }
+    }
+
+    return pairedImageNames;
+}
+
 void MatchingRepository::clear()
+{
+    mDbPath.clear();
+}
+
+void MatchingRepository::removeMatches()
 {
     if (mDbPath.empty() || !mDbPath.exists()) return;
 

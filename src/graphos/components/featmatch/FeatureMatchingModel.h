@@ -21,11 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_MATCHING_MODEL_INTERFACE_H
-#define GRAPHOS_FEATURE_MATCHING_MODEL_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
-#include "graphos/core/features/features.h"
 
 #include <tidop/core/base/Path.h>
 
@@ -33,6 +31,7 @@ namespace graphos
 {
 
 class MatchingProperties;
+struct MatchingReport;
 
 class FeatureMatchingModel
   : public Model
@@ -45,18 +44,15 @@ public:
     FeatureMatchingModel(QObject *parent = nullptr) : Model(parent) {}
     ~FeatureMatchingModel() override = default;
 
-    virtual auto featureMatching() const -> std::shared_ptr<MatchingProperties> = 0;
-    virtual void setFeatureMatching(const std::shared_ptr<MatchingProperties> &featureMatching) = 0;
+    virtual auto featureMatchingConfig() const -> std::shared_ptr<MatchingProperties> = 0;
+    virtual void setFeatureMatchingConfig(const std::shared_ptr<MatchingProperties> &featureMatching) = 0;
     virtual void setMatchingReport(const MatchingReport &report) = 0;
     virtual auto database() const -> tl::Path = 0;
     virtual auto useCuda() const -> bool = 0;
     virtual auto spatialMatching() const -> bool = 0;
     virtual auto geodeticCoordinates() const -> bool = 0;
-    virtual void writeMatchPairs() = 0;
     virtual auto imagesSize() const -> size_t = 0;
     virtual void cleanProject() = 0;
 };
 
 } // End namespace graphos
-
-#endif // GRAPHOS_FEATURE_MATCHING_MODEL_INTERFACE_H

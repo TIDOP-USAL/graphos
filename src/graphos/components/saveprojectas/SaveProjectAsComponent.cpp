@@ -26,7 +26,7 @@
 #include "graphos/components/saveprojectas/impl/SaveProjectAsModel.h"
 #include "graphos/components/saveprojectas/impl/SaveProjectAsView.h"
 #include "graphos/components/saveprojectas/impl/SaveProjectAsPresenter.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

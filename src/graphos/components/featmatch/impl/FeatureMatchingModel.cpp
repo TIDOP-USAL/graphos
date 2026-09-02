@@ -25,10 +25,9 @@
 
 #include <tidop/core/app/Message.h>
 
-#include <colmap/base/database.h>
-
 #include <QFileInfo>
 #include <QSettings>
+#include <QCoreApplication>
 #include <tidop/geospatial/crs.h>
 
 namespace graphos
@@ -40,8 +39,8 @@ FeatureMatchingModelImp::FeatureMatchingModelImp(Project *project,
     mProject(project),
     mSettings(new QSettings(QSettings::IniFormat,
                             QSettings::UserScope,
-                            qApp->organizationName(),
-                            qApp->applicationName()))
+                            QCoreApplication::organizationName(),
+                            QCoreApplication::applicationName()))
 {
     FeatureMatchingModelImp::init();
 }
@@ -63,24 +62,24 @@ void FeatureMatchingModelImp::clear()
 
 }
 
-auto FeatureMatchingModelImp::featureMatching() const -> std::shared_ptr<FeatureMatching>
+auto FeatureMatchingModelImp::featureMatchingConfig() const -> std::shared_ptr<MatchingProperties>
 {
-    return mProject->featureMatching();
+    return mProject->matchingConfig();
 }
 
-void FeatureMatchingModelImp::setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching)
+void FeatureMatchingModelImp::setFeatureMatchingConfig(const std::shared_ptr<MatchingProperties> &featureMatching)
 {
-    mProject->setFeatureMatching(featureMatching);
+    mProject->setMatchingConfig(featureMatching);
 }
 
-void FeatureMatchingModelImp::setFeatureMatchingReport(const FeatureMatchingReport &report)
+void FeatureMatchingModelImp::setMatchingReport(const MatchingReport &report)
 {
-    mProject->setFeatureMatchingReport(report);
+    mProject->setMatchingReport(report);
 }
 
 auto FeatureMatchingModelImp::database() const -> tl::Path
 {
-    return mProject->database();
+    return mProject->info().database();
 }
 
 auto FeatureMatchingModelImp::useCuda() const -> bool
@@ -112,74 +111,14 @@ auto FeatureMatchingModelImp::geodeticCoordinates() const -> bool
     return false;
 }
 
-void FeatureMatchingModelImp::writeMatchPairs()
-{
-
-    colmap::Database database(mProject->database().toUtf8());
-    std::vector<colmap::Image> db_images = database.ReadAllImages();
-    colmap::image_t colmap_image_id_l = 0;
-    colmap::image_t colmap_image_id_r = 0;
-
-    for (size_t i = 0; i < db_images.size(); i++) {
-
-        colmap_image_id_l = db_images[i].ImageId();
-        tl::Path colmap_image1(db_images[i].Name());
-
-        for (size_t j = 0; j < i; j++) {
-            colmap_image_id_r = db_images[j].ImageId();
-
-            colmap::FeatureMatches matches = database.ReadMatches(colmap_image_id_l, colmap_image_id_r);
-
-            if (!matches.empty()) {
-                
-                tl::Path colmap_image2(db_images[j].Name());
-
-                bool find_id_1 = false;
-                bool find_id_2 = false;
-                size_t image_id_1 = 0;
-                size_t image_id_2 = 0;
-
-                for (const auto &image_pair : mProject->images()) {
-
-                    tl::Path image(image_pair.second.path().toStdString());
-
-                    if (!find_id_1 && image.equivalent(colmap_image1)) {
-                        find_id_1 = true;
-                        image_id_1 = image_pair.first;
-                    }
-
-                    if (!find_id_2 && image.equivalent(colmap_image2)) {
-                        find_id_2 = true;
-                        image_id_2 = image_pair.first;
-                    }
-
-                    if (find_id_1 && find_id_2) {
-                        mProject->addMatchesPair(image_id_1, image_id_2);
-                    }
-                }
-
-            }
-
-        }
-
-    }
-
-    database.Close();
-
-}
-
 void FeatureMatchingModelImp::cleanProject()
 {
-    colmap::Database database(mProject->database().toUtf8());
-    database.ClearMatches();
-    database.ClearTwoViewGeometries();
-    database.Close();
-    mProject->removeMatchesPair();
+    mProject->clearMatches();
 }
 
 size_t FeatureMatchingModelImp::imagesSize() const
 {
-    return mProject->imagesCount();
+    return mProject->images().size();
 }
 
 } // End namespace graphos

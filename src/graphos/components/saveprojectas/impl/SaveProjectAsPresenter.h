@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_SAVE_PROJECT_AS_PRESENTER_H
-#define GRAPHOS_SAVE_PROJECT_AS_PRESENTER_H
+#pragma once
 
 #include "graphos/components/saveprojectas/SaveProjectAsPresenter.h"
 
@@ -71,5 +70,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_SAVE_PROJECT_AS_PRESENTER_H

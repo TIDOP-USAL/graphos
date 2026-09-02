@@ -23,10 +23,11 @@
 
 #include "FeatureExtractorModel.h"
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 
 #include <QFileInfo>
 #include <QSettings>
+#include <QCoreApplication>
 
 namespace graphos
 {
@@ -37,8 +38,8 @@ FeatureExtractorModelImp::FeatureExtractorModelImp(Project *project,
     mProject(project),
     mSettings(new QSettings(QSettings::IniFormat,
                             QSettings::UserScope,
-                            qApp->organizationName(),
-                            qApp->applicationName()))
+                            QCoreApplication::organizationName(),
+                            QCoreApplication::applicationName()))
 {
     init();
 }
@@ -61,29 +62,29 @@ void FeatureExtractorModelImp::clear()
 
 }
 
-auto FeatureExtractorModelImp::featureExtractor() const -> std::shared_ptr<Feature>
+auto FeatureExtractorModelImp::featureConfig() const -> std::shared_ptr<FeatureExtractorProperties>
 {
-    return mProject->featureExtractor();
+    return mProject->featureConfig();
 }
 
-void FeatureExtractorModelImp::setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor)
+void FeatureExtractorModelImp::setFeatureConfig(const std::shared_ptr<FeatureExtractorProperties> &featureExtractor)
 {
-    mProject->setFeatureExtractor(featureExtractor);
+    mProject->setFeatureConfig(featureExtractor);
 }
 
 void FeatureExtractorModelImp::setFeatureExtractorReport(const FeatureExtractorReport &report)
 {
-    mProject->setFeatureExtractorReport(report);
+    mProject->setFeatureReport(report);
 }
 
 auto FeatureExtractorModelImp::database() const -> tl::Path
 {
-    return mProject->database();
+    return mProject->info().database();
 }
 
 void FeatureExtractorModelImp::addFeatures(size_t imageId, const QString &featuresFile)
 {
-    mProject->addFeatures(imageId, featuresFile);
+    mProject->features().add(imageId, featuresFile.toStdString());
 }
 
 bool FeatureExtractorModelImp::useCuda() const
@@ -91,20 +92,25 @@ bool FeatureExtractorModelImp::useCuda() const
     return mSettings->value("UseCuda", true).toBool();
 }
 
-auto FeatureExtractorModelImp::images() const -> const std::unordered_map<size_t, Image>&
+auto FeatureExtractorModelImp::images() const -> const ImageRepository &
 {
     return mProject->images();
 }
 
-auto FeatureExtractorModelImp::cameras() const -> const std::map<int, Camera>&
+auto FeatureExtractorModelImp::cameras() const -> const CameraRepository &
 {
     return mProject->cameras();
+}
+
+auto FeatureExtractorModelImp::enuCrs() const -> std::string
+{
+    return mProject->info().enuCrs();
 }
 
 void FeatureExtractorModelImp::clearProject()
 {
     tl::Path::removeFile(database());
-    mProject->removeFeatures();
+    mProject->clearFeatures();
 }
 
 } // namespace graphos

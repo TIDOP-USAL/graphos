@@ -50,7 +50,7 @@ FeatureExtractorComponent::~FeatureExtractorComponent()
 
 void FeatureExtractorComponent::init()
 {
-    setName(QApplication::translate("FeatureExtractorComponent", "FeatureExtractorProperties Extractor"));
+    setName(QApplication::translate("FeatureExtractorComponent", "Feature Extractor"));
     setMenu("workflow");
     setToolbar("workflow");
     setIcon(QIcon::fromTheme("features"));

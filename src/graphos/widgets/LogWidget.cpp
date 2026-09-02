@@ -72,7 +72,7 @@ void LogWidget::setLogLevel(MessageLevel level)
     sLevel = level;
 }
 
-void LogWidget::print(String msg, tl::MessageLevel level) const
+void LogWidget::print(std::string_view msg, tl::MessageLevel level) const
 {
     std::lock_guard<std::mutex> lck(LogWidget::mtx);
 
@@ -197,7 +197,7 @@ void LogWidget::initUI()
     mClearAction->setStatusTip(QApplication::translate("LogWidget", "Clean log"));
     toolBar->addAction(mClearAction);
 
-    mGridLayout->setMargin(0);
+    mGridLayout->setContentsMargins(0, 0, 0, 0);
     mGridLayout->addWidget(toolBar);
     mListWidget = new QListWidget(this);
     mGridLayout->addWidget(mListWidget);
@@ -215,35 +215,40 @@ void LogWidget::initSignalAndSlots()
     connect(mListWidget->model(), SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SLOT(onRowsRemoved(const QModelIndex &, int, int)));
 }
 
-void LogWidget::debug(String message)
+auto LogWidget::isEnabled(tl::MessageLevel level) const -> bool
+{
+    return sLevel.isEnabled(level);
+}
+
+void LogWidget::debug(std::string_view message)
 {
     if (sLevel.isEnabled(MessageLevel::debug)) {
         print(message, MessageLevel::debug);
     }
 }
 
-void LogWidget::info(String message)
+void LogWidget::info(std::string_view message)
 {
     if (sLevel.isEnabled(MessageLevel::info)) {
         print(message, MessageLevel::info);
     }
 }
 
-void LogWidget::success(String message)
+void LogWidget::success(std::string_view message)
 {
     if (sLevel.isEnabled(MessageLevel::success)) {
         print(message, MessageLevel::success);
     }
 }
 
-void LogWidget::warning(String message)
+void LogWidget::warning(std::string_view message)
 {
     if (sLevel.isEnabled(MessageLevel::warning)) {
         print(message, MessageLevel::warning);
     }
 }
 
-void LogWidget::error(String message)
+void LogWidget::error(std::string_view message)
 {
     if (sLevel.isEnabled(MessageLevel::error)) {
         print(message, MessageLevel::error);

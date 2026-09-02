@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSE_MODEL_H
-#define GRAPHOS_DENSE_MODEL_H
+#pragma once
 
 #include <QObject>
 
@@ -58,23 +57,23 @@ public slots:
 
 public:
 
-    auto densification() const -> std::shared_ptr<Densification> override;
+    auto densificationConfig() const -> std::shared_ptr<DensificationProperties> override;
     auto projectFolder() const -> tl::Path override;
-    auto reconstructionPath() const -> tl::Path override;
+    //auto reconstructionPath() const -> tl::Path override;
     auto database() const -> tl::Path override;
     auto useCuda() const -> bool override;
     auto existDenseModel() const -> bool override;
-    auto images() const -> const std::unordered_map<size_t, Image>& override;
-    auto cameras() const -> const std::map<int, Camera>& override;
-    auto poses() const -> const std::unordered_map<size_t, CameraPose>& override;
+    auto images() const -> const ImageRepository & override;
+    auto cameras() const -> const CameraRepository & override;
+    auto cameraPoses() const -> const CameraPosesRepository & override;
     auto groundPoints() const -> std::vector<GroundPoint> override;
     void cleanProject() override;
 
 public slots:
 
-    void setDensification(const std::shared_ptr<Densification> &densification) override;
-    void setDenseModel(const tl::Path &denseModel) override;
-    void setDensificationReport(const DensificationReport &report) override;
+    void setDensificationConfig(std::shared_ptr<DensificationProperties> config) override;
+    void setDenseModel(tl::Path denseModel) override;
+    void setDensificationReport(DensificationReport report) override;
 
 protected:
 
@@ -83,5 +82,3 @@ protected:
 };
 
 } // End namespace graphos
-
-#endif // GRAPHOS_DENSE_MODEL_H

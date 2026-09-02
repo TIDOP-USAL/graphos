@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_LOADER_MODEL_H
-#define GRAPHOS_LOADER_MODEL_H
+#pragma once
 
 #include "graphos/components/images/ImageLoaderModel.h"
 
@@ -47,14 +46,13 @@ public:
 
 public:
 
-    //auto projectCRS() const -> QString override;
-    //void setProjectCRS(const QString &crs) override;
     void addImage(const Image &image) override;
     auto existImage(size_t imageId) const -> bool override;
     auto imagesDirectory() const -> tl::Path override;
-    auto cameras() const -> const Cameras & override;
-    auto addCamera(const Camera &camera) -> int override;
-    auto cameraID(const Camera &camera) const -> int override;
+    auto cameraRepository() -> CameraRepository & override;
+    auto imagesRepository() -> ImageRepository & override;
+    auto enuCrs() const -> std::string override;
+    void setEnuCrs(const std::string &crs) override;
 
 // Model interface
 
@@ -72,5 +70,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOSS_MODEL_H

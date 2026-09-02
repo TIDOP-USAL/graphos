@@ -21,13 +21,12 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MESH_MODEL_INTERFACE_H
-#define GRAPHOS_MESH_MODEL_INTERFACE_H
+#pragma once
 
 #include <tidop/core/base/Path.h>
 
 #include "graphos/core/mvp.h"
-#include "graphos/core/mesh/PoissonRecon.h"
+#include "graphos/core/mesh/MeshReport.h"
 
 namespace graphos
 {
@@ -50,19 +49,17 @@ public:
     virtual auto denseModel() const -> tl::Path = 0;
     virtual auto projectDir() const -> tl::Path = 0;
     virtual auto mesh() const -> tl::Path = 0;
-    virtual void setMesh(const tl::Path &mesh) = 0;
+    
     virtual void cleanProject() = 0;
 
 public slots:
 
-    virtual void setProperties(const std::shared_ptr<PoissonReconProperties> &properties) = 0;
-    virtual void setMeshReport(const MeshReport &report) = 0;
+    virtual void setProperties(std::shared_ptr<PoissonReconProperties> properties) = 0;
+    virtual void setMeshReport(MeshReport report) = 0;
+    virtual void setMeshModel(tl::Path mesh) = 0;
 
     virtual void loadSettings() = 0;
     virtual void saveSettings() = 0;
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_MESH_MODEL_INTERFACE_H

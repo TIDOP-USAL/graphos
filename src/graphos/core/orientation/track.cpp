@@ -76,22 +76,22 @@ auto GCPTrack::size() const -> size_t
     return mImageIdPoint.size();
 }
 
-auto GCPTrack::point(size_t idx) const -> tl::Point<double>
+auto GCPTrack::point(size_t idx) const -> tl::Point2d
 {
     return mImageIdPoint.at(idx);
 }
 
-auto GCPTrack::point(size_t idx) -> tl::Point<double>&
+auto GCPTrack::point(size_t idx) -> tl::Point2d&
 {
     return mImageIdPoint.at(idx);
 }
 
-auto GCPTrack::points() const -> const std::unordered_map<size_t, tl::Point<double>>&
+auto GCPTrack::points() const -> const std::unordered_map<size_t, tl::Point2d>&
 {
     return mImageIdPoint;
 }
 
-void GCPTrack::addPoint(size_t imageId, const tl::Point<double> &point)
+void GCPTrack::addPoint(size_t imageId, const tl::Point2d &point)
 {
     mImageIdPoint[imageId] = point;
 }

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_VIEW_H
-#define GRAPHOS_CREATE_PROJECT_VIEW_H
+#pragma once
 
 #include "graphos/components/createproject/CreateProjectView.h"
 
@@ -94,6 +93,3 @@ protected:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_CREATE_PROJECT_VIEW_H

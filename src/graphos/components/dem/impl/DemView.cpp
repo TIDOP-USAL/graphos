@@ -96,8 +96,8 @@ void DemViewImp::initSignalAndSlots()
     connect(mLineEditCRS, &QLineEdit::textChanged, this, &DemViewImp::crs_change);
     connect(mLineEditCRS, &QLineEdit::textChanged, this, &DemViewImp::update);
     connect(mPushButtonCRS, &QAbstractButton::clicked, this, &DemViewImp::select_crs);
-    connect(mCheckBoxDsm, &QCheckBox::stateChanged, this, &DemViewImp::update);
-    connect(mCheckBoxDtm, &QCheckBox::stateChanged, this, &DemViewImp::update);
+    connect(mCheckBoxDsm, &QCheckBox::checkStateChanged, this, &DemViewImp::update);
+    connect(mCheckBoxDtm, &QCheckBox::checkStateChanged, this, &DemViewImp::update);
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, &DemView::run);
     connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);

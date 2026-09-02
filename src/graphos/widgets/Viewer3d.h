@@ -34,14 +34,14 @@
 #include <QVector3D>
 #include <QImage>
 
-#include <tidop/core/defs.h>
+//#include <tidop/core/defs.h>
 #include <tidop/graphic/color.h>
 
 /* CloudCompare */
-TL_DISABLE_WARNINGS
-#include "ccGLWindow.h"
-#include <ccCameraSensor.h>
-TL_DEFAULT_WARNINGS
+//TL_DISABLE_WARNINGS
+//#include "ccGLWindow.h"
+//#include <ccCameraSensor.h>
+//TL_DEFAULT_WARNINGS
 
 #include "graphos/core/ColorTable.h"
 #include "graphos/core/Application.h"

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_OPEN_PROJECT_PRESENTER_INTERFACE_H
-#define GRAPHOS_OPEN_PROJECT_PRESENTER_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -61,5 +60,3 @@ signals:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_OPEN_PROJECT_PRESENTER_INTERFACE_H

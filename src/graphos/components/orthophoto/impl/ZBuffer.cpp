@@ -55,8 +55,8 @@ ZBuffer::~ZBuffer()
 struct Tile
 {
     tl::Rect<int> rect;      // area covered by the tile
-    tl::Point<int> origin;   // starting pixel (depends on relative position)
-    tl::Point<int> step;     // traversal direction: (1,1)=down-right, (-1,1)=down-left, etc.
+    tl::Point2i origin;   // starting pixel (depends on relative position)
+    tl::Point2i step;     // traversal direction: (1,1)=down-right, (-1,1)=down-left, etc.
 };
 
 /*!
@@ -144,10 +144,10 @@ void ZBuffer::run()
 
                     std::vector<tl::Point3d> dem_enu_coordinates(4);
 
-                    dem_enu_coordinates[0] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c, r));
-                    dem_enu_coordinates[1] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c + 1, r));
-                    dem_enu_coordinates[2] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c + 1, r + 1));
-                    dem_enu_coordinates[3] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point<int>(c, r + 1));
+                    dem_enu_coordinates[0] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point2i(c, r));
+                    dem_enu_coordinates[1] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point2i(c + 1, r));
+                    dem_enu_coordinates[2] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point2i(c + 1, r + 1));
+                    dem_enu_coordinates[3] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point2i(c, r + 1));
 
                     if (mOrthorectification->hasNodataValue()) {
                         double nodata_value = mOrthorectification->nodataValue();
@@ -212,7 +212,7 @@ void ZBuffer::run()
                                               static_cast<float>(window_ortho_in.center().y() - window_ortho_in.min().y()));
                     cv::perspectiveTransform(points_ortho, points_image, hInv);
 
-                    tl::Point<int> pt_image = window_image_in.center();
+                    tl::Point2i pt_image = window_image_in.center();
 
                     if (rect_image.contains(pt_image)) {
 

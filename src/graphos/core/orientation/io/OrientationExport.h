@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_ORIENTATION_EXPORT_H
-#define GRAPHOS_CORE_ORIENTATION_EXPORT_H
+#pragma once
 
 #include "graphos/graphos_global.h"
 
@@ -71,5 +70,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_ORIENTATION_EXPORT_H

@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/sfm/orientationexport.h"
+#include "graphos/core/orientation/io/OrientationExport.h"
 
 #include <colmap/scene/reconstruction.h>
 //#include <colmap/util/bitmap.h>

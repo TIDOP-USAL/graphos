@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DEM_PRESENTER_INTERFACE_H
-#define GRAPHOS_DEM_PRESENTER_INTERFACE_H
+#pragma once
 
 #include "graphos/core/task/TaskPresenter.h"
 
@@ -44,5 +43,3 @@ public:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_DEM_PRESENTER_INTERFACE_H

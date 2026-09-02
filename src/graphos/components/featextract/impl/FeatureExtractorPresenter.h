@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_EXTRACTOR_PRESENTER_H
-#define GRAPHOS_FEATURE_EXTRACTOR_PRESENTER_H
+#pragma once
 
 #include "graphos/components/featextract/FeatureExtractorPresenter.h"
 
@@ -65,8 +64,8 @@ public slots:
 
 protected:
 
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
+    void onError(tl::TaskErrorEvent &event) override;
+    void onFinished(tl::TaskFinalizedEvent &event) override;
 
     auto createTask() -> std::unique_ptr<tl::Task> override;
 
@@ -94,5 +93,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_FEATURE_EXTRACTOR_PRESENTER_H

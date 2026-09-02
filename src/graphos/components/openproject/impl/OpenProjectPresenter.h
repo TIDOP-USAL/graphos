@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_OPEN_PROJECT_PRESENTER_H
-#define GRAPHOS_OPEN_PROJECT_PRESENTER_H
+#pragma once
 
 #include "graphos/components/openproject/OpenProjectPresenter.h"
 
@@ -69,5 +68,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_OPEN_PROJECT_PRESENTER_H

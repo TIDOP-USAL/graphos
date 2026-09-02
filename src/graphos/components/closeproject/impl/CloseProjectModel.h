@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CLOSE_PROJECT_MODEL_H
-#define GRAPHOS_CLOSE_PROJECT_MODEL_H
+#pragma once
 
 #include "graphos/components/closeproject/CloseProjectModel.h"
 
@@ -66,5 +65,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CLOSE_PROJECT_MODEL_H

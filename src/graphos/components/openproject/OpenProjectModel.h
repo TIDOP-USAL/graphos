@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_OPEN_PROJECT_MODEL_INTERFACE_H
-#define GRAPHOS_OPEN_PROJECT_MODEL_INTERFACE_H
+#pragma once
 
 #include <tidop/core/base/Path.h>
 
@@ -65,5 +64,3 @@ public slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_OPEN_PROJECT_MODEL_INTERFACE_H

@@ -452,8 +452,8 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
                         blender->feed(compensate_image_16s, seam_image, rct.tl());
 
                         // Calcular posición en el mosaico
-                        //tl::Point<double> cell_origin = grid[r][c].pt1;
-                        //tl::Point<double> image_origin = image_reader->window().pt1;
+                        //tl::Point2d cell_origin = grid[r][c].pt1;
+                        //tl::Point2d image_origin = image_reader->window().pt1;
 
                         //int offset_x = static_cast<int>((image_origin.x - cell_origin.x) / res_ortho);
                         //int offset_y = static_cast<int>((cell_origin.y - image_origin.y) / res_ortho);
@@ -486,7 +486,7 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
                     auto affine_ortho_inverse = affine_ortho.inverse();
                     tl::Point2d pp1 = affine_ortho_inverse.transform(grid[r][c].min());
                     tl::Point2d pp2 = affine_ortho_inverse.transform(grid[r][c].max());
-                    tl::BoundingBox2i window_to_write(static_cast<tl::Point<int>>(pp1), static_cast<tl::Point<int>>(pp2));
+                    tl::BoundingBox2i window_to_write(static_cast<tl::Point2i>(pp1), static_cast<tl::Point2i>(pp2));
                     window_to_write.normalized();
 
                     if (window_to_write.isValid()) {
@@ -506,7 +506,7 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
     }
 }
 
-static const tl::GPolygon* bestImage(const tl::Point<double> &pt, std::shared_ptr<tl::GLayer> layer)
+static const tl::GPolygon* bestImage(const tl::Point2d &pt, std::shared_ptr<tl::GLayer> layer)
 {
     const tl::GPolygon* footprint_image;
 
@@ -519,7 +519,7 @@ static const tl::GPolygon* bestImage(const tl::Point<double> &pt, std::shared_pt
             auto polygon = dynamic_cast<tl::GPolygon *>(entity.get());
             //if (polygon->isInner(pt)) {
             if (tl::contains(polygon->geometry(), pt)) {
-                tl::Point<double> center = polygon->window().center();
+                tl::Point2d center = polygon->window().center();
                 double distance = tl::distance(center, pt);
                 entities[distance] = polygon;
             }
@@ -572,10 +572,10 @@ static void findOptimalFootprint(const tl::Path &footprint_file,
                     auto x_max = grid[i].max().x();
                     auto y_max = grid[i].max().y();
 
-                    polygon->geometry().outer().push_back(tl::Point<double>(x_min, y_min));
-                    polygon->geometry().outer().push_back(tl::Point<double>(x_max, y_min));
-                    polygon->geometry().outer().push_back(tl::Point<double>(x_max, y_max));
-                    polygon->geometry().outer().push_back(tl::Point<double>(x_min, y_max));
+                    polygon->geometry().outer().push_back(tl::Point2d(x_min, y_min));
+                    polygon->geometry().outer().push_back(tl::Point2d(x_max, y_min));
+                    polygon->geometry().outer().push_back(tl::Point2d(x_max, y_max));
+                    polygon->geometry().outer().push_back(tl::Point2d(x_min, y_max));
 
                     grid_images.push_back({ortho_to_compensate, polygon});
                     ///....
@@ -1336,23 +1336,23 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images_,
     return result;
 }
 
-OrthophotoTask::OrthophotoTask(const std::unordered_map<size_t, Image> &images,
-                               const std::map<int, Camera> &cameras,
-                               const tl::Path &orthoPath, 
-                               const tl::Path &mdt, 
-                               const std::string &enuCrs, 
-                               const std::string &epsg, 
-                               const std::string &interpolation, 
+OrthophotoTask::OrthophotoTask(std::unordered_map<size_t, Image> images,
+                               std::map<int, Camera> cameras,
+                               tl::Path orthoPath, 
+                               tl::Path mdt, 
+                               std::string enuCrs, 
+                               std::string epsg, 
+                               std::string interpolation, 
                                double resolution, 
                                bool cuda)
   : tl::Task(),
-    mImages(images),
-    mCameras(cameras),
-    mOrthoPath(orthoPath),
-    mMdt(mdt),
-    mEnuCrs(enuCrs),
-    mEpsg(epsg),
-    mInterpolation(interpolation),
+    mImages(std::move(images)),
+    mCameras(std::move(cameras)),
+    mOrthoPath(std::move(orthoPath)),
+    mMdt(std::move(mdt)),
+    mEnuCrs(std::move(enuCrs)),
+    mEpsg(std::move(epsg)),
+    mInterpolation(std::move(interpolation)),
     mGSD(resolution),
     bCuda(cuda),
     mDataType(tl::DataType::TL_8U),
@@ -1369,6 +1369,11 @@ OrthophotoTask::~OrthophotoTask()
 auto OrthophotoTask::report() const -> OrthophotoReport
 {
     return mOrthophotoReport;
+}
+
+auto OrthophotoTask::orthoPath() const -> tl::Path
+{
+    return mOrthoPath;
 }
 
 std::vector<std::vector<tl::BoundingBox2d>> OrthophotoTask::findGrid(int gridSize) const
@@ -1399,7 +1404,7 @@ std::vector<std::vector<tl::BoundingBox2d>> OrthophotoTask::findGrid(int gridSiz
             for (size_t j = 0; j < step_y; j++) {
 
                 double y = y_ini - grid_size * j;
-                row_grid.emplace_back(tl::Point<double>(x, y), grid_size);
+                row_grid.emplace_back(tl::Point2d(x, y), grid_size);
 
             }
 
@@ -1803,9 +1808,9 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::Bounding
                         //cv::inpaint(compensate_image, black_pixel_mask, compensate_image, 5, cv::INPAINT_NS);
 
                         auto affine_ortho_inverse = affine_ortho.inverse();
-                        tl::Point<double> p1_ortho = affine_ortho_inverse.transform(tile_window.min());
-                        tl::Point<double> p2_ortho = affine_ortho_inverse.transform(tile_window.max());
-                        tl::BoundingBox2i window_to_write(static_cast<tl::Point<int>>(p1_ortho), static_cast<tl::Point<int>>(p2_ortho));
+                        tl::Point2d p1_ortho = affine_ortho_inverse.transform(tile_window.min());
+                        tl::Point2d p2_ortho = affine_ortho_inverse.transform(tile_window.max());
+                        tl::BoundingBox2i window_to_write(static_cast<tl::Point2i>(p1_ortho), static_cast<tl::Point2i>(p2_ortho));
                         window_to_write.normalized();
                         if (window_to_write.isValid())
                             image_writer.write(compensate_image, window_to_write);
@@ -1958,7 +1963,7 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::Bounding
 //
 //                        auto p1_ortho = affine_ortho_inverse.transform(tile_window.pt1);
 //                        auto p2_ortho = affine_ortho_inverse.transform(tile_window.pt2);
-//                        tl::WindowI window_to_write(static_cast<tl::Point<int>>(p1_ortho), static_cast<tl::Point<int>>(p2_ortho));
+//                        tl::WindowI window_to_write(static_cast<tl::Point2i>(p1_ortho), static_cast<tl::Point2i>(p2_ortho));
 //                        window_to_write.normalized();
 //                        if (!window_to_write.isValid()) continue;
 //
@@ -2030,7 +2035,7 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::Bounding
 //                    break;
 //            }
 //
-//            tl::WindowI write_window(tl::Point<int>(0, block_y), tl::Point<int>(cols, block_y + current_block_h));
+//            tl::WindowI write_window(tl::Point2i(0, block_y), tl::Point2i(cols, block_y + current_block_h));
 //
 //            image_writer->write(target_out, write_window);
 //        }
@@ -2083,7 +2088,7 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::Bounding
 //                        std::shared_ptr<tl::TableRegister> data = polygon->data();
 //                        std::string ortho_to_compensate = data->value(0);
 //                        tl::WindowD window = polygon->window();
-//                        tl::Point<double> center = window.center();
+//                        tl::Point2d center = window.center();
 //
 //                        /// Busqueda de imagenes que intersectan
 //

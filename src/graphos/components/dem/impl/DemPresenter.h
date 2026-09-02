@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DEM_PRESENTER_H
-#define GRAPHOS_DEM_PRESENTER_H
+#pragma once
 
 #include "graphos/components/dem/DemPresenter.h"
 
@@ -60,8 +59,8 @@ private:
 
 protected:
 
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
+    void onError(tl::TaskErrorEvent &event) override;
+    void onFinished(tl::TaskFinalizedEvent &event) override;
     auto createTask() -> std::unique_ptr<tl::Task> override;
 
 public slots:
@@ -75,5 +74,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_DEM_PRESENTER_H

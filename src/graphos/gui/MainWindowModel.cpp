@@ -24,8 +24,9 @@
 #include "MainWindowModel.h"
 
 #include "graphos/core/utils.h"
-#include "graphos/core/sfm/orientationcolmap.h"
+//#include "graphos/core/sfm/orientationcolmap.h"
 #include "graphos/core/ply.h"
+#include "graphos/core/project/io/ProjectReader.h"
 
 #include <tidop/rastertools/io/Reader.h>
 
@@ -56,56 +57,61 @@ MainWindowModel::~MainWindowModel()
 
 auto MainWindowModel::projectName() const -> QString
 {
-    return mProject->name();
+    return QString::fromStdString(mProject->info().name());
 }
 
 auto MainWindowModel::projectPath() const -> tl::Path
 {
-    return mProject->projectPath();
+    return mProject->info().projectPath();
 }
 
-auto MainWindowModel::images() const -> const std::unordered_map<size_t, Image> &
+auto MainWindowModel::images() const -> const ImageRepository &
 {
     return mProject->images();
 }
 
-auto MainWindowModel::image(size_t imageId) const -> Image
-{
-    try {
-        return mProject->findImageById(imageId);
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
-    }
-}
+//auto MainWindowModel::image(size_t imageId) const -> Image
+//{
+//    try {
+//        return mProject->findImageById(imageId);
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
+//    }
+//}
 
-auto MainWindowModel::cameras() const -> const std::map<int, Camera> &
+auto MainWindowModel::cameras() const -> const CameraRepository &
 {
     return mProject->cameras();
 }
 
-auto MainWindowModel::camera(int id) const -> Camera
-{
-    try {
-        return mProject->findCamera(id);
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
-    }
-}
+//auto MainWindowModel::camera(int id) const -> Camera
+//{
+//    try {
+//        return mProject->findCamera(id);
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
+//    }
+//}
 
 void MainWindowModel::deleteImages(const std::vector<size_t> &imageIds)
 {
     try {
 
-        std::vector<std::string> images;
+        //std::vector<std::string> images;
+        auto &image_repo = mProject->images();
 
-        for (auto imageId : imageIds) {
-            images.push_back(mProject->findImageById(imageId).path().toStdString());
-            mProject->removeImage(imageId);
+        for (auto image_id : imageIds) {
+            if (auto image = image_repo.find(image_id)) {
+                //images.push_back(image->path().toString());
+                image_repo.erase(image_id);
+            }
+            //images.push_back(mProject->findImageById(image_id).path().toStdString());
+            //mProject->removeImage(image_id);
         }
 
-        std::string reconstruction_path = mProject->reconstructionPath().toString();
-        if (!reconstruction_path.empty())
-            colmapRemoveOrientations(images, reconstruction_path);
+        //std::string reconstruction_path = mProject->;
+        //if (!reconstruction_path.empty())
+        //    colmapRemoveOrientations(images, reconstruction_path);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
@@ -118,29 +124,28 @@ auto MainWindowModel::readImage(const tl::Path &imagePath) -> QImage
 
     try {
         
-        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(imagePath);
-        imageReader->open();
-        if (imageReader->isOpen()) {
+        tl::RasterReader imageReader(imagePath);
+        if (imageReader.isOpen()) {
 
             /// Imagen georeferenciada.
             /// TODO: mostrar coordenadas en la barra de estado
-            bool geo = imageReader->isGeoreferenced();
-            auto affine = imageReader->georeference();
+            bool geo = imageReader.isGeoreferenced();
+            auto affine = imageReader.georeference();
 
             cv::Mat bmp;
 
-            tl::DataType data_type = imageReader->dataType();
+            tl::DataType data_type = imageReader.dataType();
             //if (data_type == tl::DataType::TL_32F ||
             //    data_type == tl::DataType::TL_64F) {
             //    /// TODO: Aplicar paleta, mapa de sombras, etc, al DTM
             //    bmp = imageReader->read();
             //} else {
-                bmp = imageReader->read();
+                bmp = imageReader.read();
             //}
 
             image = cvMatToQImage(bmp);
 
-            imageReader->close();
+            //imageReader->close();
         }
 
     } catch (...) {
@@ -150,15 +155,30 @@ auto MainWindowModel::readImage(const tl::Path &imagePath) -> QImage
     return image;
 }
 
-auto MainWindowModel::features() const -> const std::unordered_map<size_t, QString> &
+auto MainWindowModel::features() const -> const FeaturesRepository &
 {
     return mProject->features();
 }
 
+auto MainWindowModel::matches() const -> const MatchingRepository & 
+{
+    return mProject->matches();
+}
+
 auto MainWindowModel::imagePairs(size_t imageId) const -> std::vector<size_t>
 {
-    std::vector<size_t> image_pairs = mProject->matchesPairs(imageId);
-    return image_pairs;
+    std::vector<size_t> pairs;
+
+    if (auto image = mProject->images().find(imageId)) {
+        auto image_pairs = mProject->matches().imagePairs(image->path().toString());
+        pairs.reserve(image_pairs.size());
+        for (auto &pair : image_pairs) {
+            pairs.push_back(tl::Path::hash(pair));
+        }
+
+    }
+
+    return pairs;
 }
 
 auto MainWindowModel::sparseModel() const -> tl::Path
@@ -168,12 +188,12 @@ auto MainWindowModel::sparseModel() const -> tl::Path
 
 auto MainWindowModel::isAbsoluteOrientation() const -> bool
 {
-    return !mProject->enuCrs().isEmpty();
+    return !mProject->info().enuCrs().empty();
 }
 
-auto MainWindowModel::poses() const -> const std::unordered_map<size_t, CameraPose> &
+auto MainWindowModel::poses() const -> const CameraPosesRepository &
 {
-    return mProject->poses();
+    return mProject->cameraPoses();
 }
 
 auto MainWindowModel::transform() const -> tl::Matrix<double, 4, 4>
@@ -188,22 +208,26 @@ auto MainWindowModel::denseModel() const -> tl::Path
 
 auto MainWindowModel::mesh() const -> tl::Path
 {
-    return mProject->meshPath();
+    return mProject->meshModel();
 }
 
 auto MainWindowModel::dtm() const -> tl::Path
 {
-    return mProject->dem().dtmPath;
+    return mProject->dtm();
 }
 
 auto MainWindowModel::dsm() const -> tl::Path
 {
-    return mProject->dem().dsmPath;
+    return mProject->dsm();
 }
 
-auto MainWindowModel::orthophotos() const -> const std::map<size_t, OrthophotoData>&
+auto MainWindowModel::orthophotos() const -> std::map<size_t, tl::Path>
 {
-    return mProject->orthophotos();
+    // TODO: Por ahora solo se genera una ortofoto
+    std::map<size_t, tl::Path> orthos;
+    auto ortho = mProject->orthophoto();
+    if (!ortho.empty()) orthos[0] = mProject->orthophoto();
+    return orthos;
 }
 
 auto MainWindowModel::graphicViewerBackgroundColor() const -> QString
@@ -218,18 +242,21 @@ auto MainWindowModel::graphicViewerBackgroundColor() const -> QString
 
 auto MainWindowModel::checkOldVersion(const tl::Path &file) const -> bool
 {
-    return mProject->checkOldVersion(file);
+    //return mProject->checkOldVersion(file);
+    return false;
 }
 
 void MainWindowModel::oldVersionBackup(const tl::Path &file) const
 {
-    mProject->oldVersionBak(file);
+    //mProject->oldVersionBak(file);
 }
 
 void MainWindowModel::load(const tl::Path &file) const
 {
     try {
-        mProject->load(file);
+        ProjectReader reader;
+        reader.read(file, *mProject);
+        //mProject->load(file);
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Exception caught when loading the project");
     }

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_LOADER_PRESENTER_INTERFACE_H
-#define GRAPHOS_LOADER_PRESENTER_INTERFACE_H
+#pragma once
 
 #include "graphos/core/task/TaskPresenter.h"
 
@@ -46,7 +45,7 @@ public slots:
 
 protected slots:
 
-    virtual void addImage(int imagePosition, int cameraPosition) = 0;
+    virtual void addImage(int imageIndex, int cameraId) = 0;
 
 signals:
 
@@ -55,5 +54,3 @@ signals:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_LOADER_PRESENTER_INTERFACE_H

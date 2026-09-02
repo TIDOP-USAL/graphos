@@ -29,11 +29,16 @@
 #include <tidop/core/task/Task.h>
 
 #include "graphos/widgets/GraphosWidget.h"
-#include "graphos/core/image.h"
+#include "graphos/core/image/Image.h"
 
 class QListWidget;
 class QListWidgetItem;
 class QGridLayout;
+
+namespace tl
+{
+class TaskQueue;
+}
 
 namespace graphos
 {
@@ -41,7 +46,7 @@ namespace graphos
 
 class LoadThumbnailTask
   : public QObject,
-    public tl::TaskBase
+    public tl::Task
 {
 
     Q_OBJECT
@@ -56,7 +61,7 @@ public:
 
 protected:
 
-    void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 protected:
 

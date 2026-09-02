@@ -29,9 +29,13 @@
 #include <tidop/core/base/Exception.h>
 
 #include <QHelpEngine>
+#include <QHelpSearchEngine>
+#include <QHelpLink>
+#include <QHelpSearchResult>
+#include <QHelpIndexModel>
+#include <QHelpContentModel>
 #include <QHelpContentWidget>
 #include <QHelpIndexWidget>
-#include <QHelpSearchEngine>
 #include <QHelpSearchQueryWidget>
 #include <QHelpSearchResultWidget>
 #include <QMessageBox>
@@ -112,25 +116,46 @@ void HelpDialog::setContentSource(const QModelIndex &index)
 void HelpDialog::setIndexSource(const QModelIndex &index)
 {
     QVariant v = mHelpEngine->indexModel()->data(index, Qt::DisplayRole);
-    QMap<QString, QUrl> item = mHelpEngine->indexModel()->linksForKeyword(v.toString());
-    mHelpBrowser->setSource(item.constBegin().value());
+    QString keyword = v.toString();
+
+    const QList<QHelpLink> links = mHelpEngine->documentsForKeyword(keyword);
+    if (!links.isEmpty()) {
+        mHelpBrowser->setSource(links.first().url);
+    }
 }
 
 void HelpDialog::searchInvoked()
 {
-    mHelpEngine->searchEngine()->search(mHelpEngine->searchEngine()->queryWidget()->query());
+    //mHelpEngine->searchEngine()->search(mHelpEngine->searchEngine()->queryWidget()->query());
+    const QString query = mHelpEngine->searchEngine()->queryWidget()->searchInput();
+    mHelpEngine->searchEngine()->search(query);
 }
 
 void HelpDialog::searchFinished(int hits)
 {
-    QList<QPair<QString, QString> > hitList = mHelpEngine->searchEngine()->hits(0, hits - 1);
+    //QList<QPair<QString, QString> > hitList = mHelpEngine->searchEngine()->hits(0, hits - 1);
+    //QString html = "<html><body>";
+    //for (int i = 0; i < hitList.size(); i++) {
+    //    QString url = hitList[i].first;
+    //    QString title = hitList[i].second;
+    //    html += "<a href=\"" + url + "\">" + title + "</a><br>";
+    //}
+    //html += "</body></html>";
+    //mSearchResultsWidget->setHtml(html);
+    Q_UNUSED(hits);
+
+    // Qt6: searchResults(offset, count) devuelve QList<QHelpSearchResult>
+    const int count = mHelpEngine->searchEngine()->searchResultCount();
+    const QList<QHelpSearchResult> results = mHelpEngine->searchEngine()->searchResults(0, count);
+
     QString html = "<html><body>";
-    for (int i = 0; i < hitList.size(); i++) {
-        QString url = hitList[i].first;
-        QString title = hitList[i].second;
+    for (const auto &result : results) {
+        QString url = result.url().toString();
+        QString title = result.title();
         html += "<a href=\"" + url + "\">" + title + "</a><br>";
     }
     html += "</body></html>";
+
     mSearchResultsWidget->setHtml(html);
 }
 

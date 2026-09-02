@@ -36,6 +36,8 @@
 #include <tidop/rastertools/io/Reader.h>
 #include <tidop/rastertools/io/Metadata.h>
 #include <tidop/math/algebra/matrix/Matrix.h>
+#include <tidop/geotools/GeoTools.h>
+#include <tidop/geotools/CRSsTools.h>
 //#include <tidop/geospatial/crstransf.h>
 //#include <tidop/geospatial/util.h>
 
@@ -164,6 +166,20 @@ void LoadImagesTask::loadImage(size_t imageIndex)
 
             if (accuracy[0] > 0.0 || accuracy[1] > 0.0 || accuracy[2] > 0.0) {
                 camera_pose.setAccuracy(accuracy);
+            }
+
+            if (!camera_pose.isEmpty()) {
+                auto epsg_code = camera_pose.crs().toStdString();
+                auto coords = camera_pose.position();
+
+                if (!epsg_code.empty() && epsg_code != "EPSG:4326") {
+                    auto geo_tools = tl::GeoTools::getInstance();
+                    geo_tools->ptrCRSsTools()->crsOperation(epsg_code, "EPSG:4326", coords.x(), coords.y(), coords.z());
+                    camera_pose.setPosition(coords);
+                    camera_pose.setCrs("EPSG:4326");
+                }
+
+                mGeographicPositions.push_back(coords);
             }
 
             //mImages.at(imagePosition).cameraPose() = camera_pose;
@@ -534,7 +550,22 @@ void LoadImagesTask::execute(tl::Progress *progressBar, std::stop_token stopToke
         if (status() == Status::stopping) {
             //chrono.reset();
         } else {
-            
+            if (!mGeographicPositions.empty()) {
+                auto geographic_center = tl::Vector3d::zeros();
+                for (const auto &pos : mGeographicPositions) {
+                    geographic_center += pos.vector();
+                }
+                geographic_center /= static_cast<double>(mGeographicPositions.size());
+
+                auto geo_tools = tl::GeoTools::getInstance();
+                mEnuCrs = geo_tools->ptrCRSsTools()->getCRSEnu(
+                    "EPSG:4326",
+                    geographic_center.x(),
+                    geographic_center.y(),
+                    geographic_center.z()
+                );
+            }
+
             tl::Message::success("{} images loaded in {:.2} minutes", mImages.size(), this->time() /60.);
         }
 

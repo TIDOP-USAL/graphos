@@ -23,8 +23,8 @@
 
 #include "GroundControlPointsModel.h"
 
-#include "graphos/core/project.h"
-#include "graphos/core/sfm/groundpoint.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/orientation/GroundControlPoint.h"
 
 #include <QStandardItemModel>
 #include <QFile>
@@ -71,9 +71,9 @@ auto GroundControlPointsModelImp::groundControlPoints() const -> GroundControlPo
 
         GroundControlPoint ground_control_point;
         ground_control_point.setName(id.toStdString());
-        ground_control_point.x = x;
-        ground_control_point.y = y;
-        ground_control_point.z = z;
+        ground_control_point.x() = x;
+        ground_control_point.y() = y;
+        ground_control_point.z() = z;
 
         QList<QStandardItem *> items = mItemModelImagePoints->findItems(id, Qt::MatchExactly, 0);
         for (auto item : items) {
@@ -81,7 +81,7 @@ auto GroundControlPointsModelImp::groundControlPoints() const -> GroundControlPo
             size_t image_id = mItemModelImagePoints->index(row, 1).data(Qt::UserRole + 1).toULongLong();
             double x = mItemModelImagePoints->index(row, 2).data().toDouble();
             double y = mItemModelImagePoints->index(row, 3).data().toDouble();
-            ground_control_point.addPointToTrack(image_id, tl::Point<double>(x, y));
+            ground_control_point.addPointToTrack(image_id, tl::Point2d(x, y));
         }
 
         ground_control_points.push_back(ground_control_point);
@@ -147,7 +147,7 @@ void GroundControlPointsModelImp::loadGroundControlPoints()
     QStringList headerImagePoints{"CP", "Image", "X", "Y", "Error X", "Error Y"};
     mItemModelImagePoints->setHorizontalHeaderLabels(headerImagePoints);
 
-    tl::Path gcp_file = mProject->projectFolder();
+    tl::Path gcp_file = mProject->info().projectFolder();
     gcp_file.append("sfm").append("georef.xml");
 
     auto reader = GCPsReaderFactory::create("GRAPHOS");
@@ -155,27 +155,28 @@ void GroundControlPointsModelImp::loadGroundControlPoints()
     mCrs = QString::fromStdString(reader->epsgCode());
     auto gcps = reader->gcps();
 
+    auto &images = mProject->images();
+
     for (auto &gcp : gcps) {
 
         QString name = QString::fromStdString(gcp.name());
         QList<QStandardItem *> standardItem;
         standardItem.append(new QStandardItem(name));
-        standardItem.append(new QStandardItem(QString::number(gcp.x, 'f', 6)));
-        standardItem.append(new QStandardItem(QString::number(gcp.y, 'f', 6)));
-        standardItem.append(new QStandardItem(QString::number(gcp.z, 'f', 6)));
+        standardItem.append(new QStandardItem(QString::number(gcp.x(), 'f', 6)));
+        standardItem.append(new QStandardItem(QString::number(gcp.y(), 'f', 6)));
+        standardItem.append(new QStandardItem(QString::number(gcp.z(), 'f', 6)));
         standardItem.append(new QStandardItem(QString::number(gcp.error(), 'f', 6)));
 
         for (auto &pair : gcp.track().points()) {
 
             size_t image_id = pair.first;
-            tl::Point<double> point = pair.second;
+            tl::Point2d point = pair.second;
 
-            bool exist_image = mProject->existImage(image_id);
-            if (!exist_image) continue;
+            if (!images.contains(image_id)) continue;
 
-            QString image = mProject->findImageById(image_id).name();            
-            QString x = QString::number(point.x);
-            QString y = QString::number(point.y);
+            QString image = images.find(image_id)->name();
+            QString x = QString::number(point.x());
+            QString y = QString::number(point.y());
             QString ex = QString::number(gcp.track().error(image_id).x());
             QString ey = QString::number(gcp.track().error(image_id).y());
 
@@ -214,7 +215,7 @@ void GroundControlPointsModelImp::loadGroundControlPoints(const GroundControlPoi
     QStringList headerImagePoints{"CP", "Image", "X", "Y", "Error X", "Error Y"};
     mItemModelImagePoints->setHorizontalHeaderLabels(headerImagePoints);
 
-    tl::Path gcp_file = mProject->projectFolder();
+    tl::Path gcp_file = mProject->info().projectFolder();
     gcp_file.append("sfm").append("georef.xml");
 
     TL_TODO("Extraer la lectura escritura de puntos de control")
@@ -223,27 +224,28 @@ void GroundControlPointsModelImp::loadGroundControlPoints(const GroundControlPoi
     ////reader->epsgCode();
     //auto gcps = reader->gcps();
 
+    auto &images = mProject->images();
+
     for (auto &gcp : gcps) {
 
         QString name = QString::fromStdString(gcp.name());
         QList<QStandardItem *> standardItem;
         standardItem.append(new QStandardItem(name));
-        standardItem.append(new QStandardItem(QString::number(gcp.x, 'f', 6)));
-        standardItem.append(new QStandardItem(QString::number(gcp.y, 'f', 6)));
-        standardItem.append(new QStandardItem(QString::number(gcp.z, 'f', 6)));
+        standardItem.append(new QStandardItem(QString::number(gcp.x(), 'f', 6)));
+        standardItem.append(new QStandardItem(QString::number(gcp.y(), 'f', 6)));
+        standardItem.append(new QStandardItem(QString::number(gcp.z(), 'f', 6)));
         standardItem.append(new QStandardItem(QString::number(gcp.error(), 'f', 6)));
 
         for (auto &pair : gcp.track().points()) {
 
             size_t image_id = pair.first;
-            tl::Point<double> point = pair.second;
+            tl::Point2d point = pair.second;
 
-            bool exist_image = mProject->existImage(image_id);
-            if (!exist_image) continue;
+            if (!images.contains(image_id)) continue;
 
-            QString image = mProject->findImageById(image_id).name();            
-            QString x = QString::number(point.x);
-            QString y = QString::number(point.y);
+            QString image = images.find(image_id)->name();
+            QString x = QString::number(point.x());
+            QString y = QString::number(point.y());
 
             QString ex = QString::number(gcp.track().error(image_id).x());
             QString ey = QString::number(gcp.track().error(image_id).y());
@@ -285,15 +287,15 @@ auto GroundControlPointsModelImp::itemModelImagePoints() -> QStandardItemModel*
     return mItemModelImagePoints;
 }
 
-auto GroundControlPointsModelImp::images() const -> const Images&
+auto GroundControlPointsModelImp::images() const -> const ImageRepository &
 {
     return mProject->images();
 }
 
-auto GroundControlPointsModelImp::image(size_t imageId) const -> Image
-{
-    return mProject->findImageById(imageId);
-}
+//auto GroundControlPointsModelImp::image(size_t imageId) const -> Image
+//{
+//    return mProject->findImageById(imageId);
+//}
 
 void GroundControlPointsModelImp::addGroundControlPoint()
 {
@@ -321,39 +323,41 @@ void GroundControlPointsModelImp::addImagePoint(const QString &gcp,
 {
     this->removeImagePoint(gcp, imageId);
 
-    Image image = mProject->findImageById(imageId);
+    if (auto image = images().find(imageId)) {
 
-    QList<QStandardItem *> standardItem;
-    standardItem.append(new QStandardItem(gcp));
-    standardItem.append(new QStandardItem(image.name()));
-    standardItem.append(new QStandardItem(QString::number(point.x())));
-    standardItem.append(new QStandardItem(QString::number(point.y())));
-    standardItem[1]->setData(static_cast<qulonglong>(imageId));
-    QStandardItem *item = standardItem.at(0);
-    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-    item = standardItem.at(1);
-    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-    item = standardItem.at(2);
-    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-    item = standardItem.at(3);
-    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+        QList<QStandardItem *> standardItem;
+        standardItem.append(new QStandardItem(gcp));
+        standardItem.append(new QStandardItem(image->name()));
+        standardItem.append(new QStandardItem(QString::number(point.x())));
+        standardItem.append(new QStandardItem(QString::number(point.y())));
+        standardItem[1]->setData(static_cast<qulonglong>(imageId));
+        QStandardItem *item = standardItem.at(0);
+        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+        item = standardItem.at(1);
+        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+        item = standardItem.at(2);
+        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+        item = standardItem.at(3);
+        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
 
-    mItemModelImagePoints->insertRow(mItemModelImagePoints->rowCount(),
-                                     standardItem);
+        mItemModelImagePoints->insertRow(mItemModelImagePoints->rowCount(),
+            standardItem);
+    }
 }
 
 void GroundControlPointsModelImp::removeImagePoint(const QString &gcp,
                                             size_t imageId)
 {
-    Image image = mProject->findImageById(imageId);
+    if (auto image = images().find(imageId)) {
 
-    QList<QStandardItem *> items = mItemModelImagePoints->findItems(image.name(), Qt::MatchExactly, 1);
-    for (auto item : items) {
-        int row = item->row();
-        QString ground_control_point = mItemModelImagePoints->index(row, 0).data().toString();
-        if (ground_control_point.compare(gcp) == 0) {
-            mItemModelImagePoints->removeRow(row);
-            break;
+        QList<QStandardItem *> items = mItemModelImagePoints->findItems(image->name(), Qt::MatchExactly, 1);
+        for (auto item : items) {
+            int row = item->row();
+            QString ground_control_point = mItemModelImagePoints->index(row, 0).data().toString();
+            if (ground_control_point.compare(gcp) == 0) {
+                mItemModelImagePoints->removeRow(row);
+                break;
+            }
         }
     }
 }
@@ -362,16 +366,17 @@ auto GroundControlPointsModelImp::points(size_t imageId) const -> std::list<std:
 {
     std::list<std::pair<QString, QPointF>> image_points;
 
-    Image image = mProject->findImageById(imageId);
+    if (auto image = images().find(imageId)) {
 
-    QList<QStandardItem *> items = mItemModelImagePoints->findItems(image.name(), Qt::MatchExactly, 1);
+        QList<QStandardItem *> items = mItemModelImagePoints->findItems(image->name(), Qt::MatchExactly, 1);
 
-    for (auto item : items) {
-        int row = item->row();
-        QString gcp = mItemModelImagePoints->index(row, 0).data().toString();
-        QPointF point(mItemModelImagePoints->index(row, 2).data().toDouble(),
-                      mItemModelImagePoints->index(row, 3).data().toDouble());
-        image_points.emplace_back(gcp, point);
+        for (auto item : items) {
+            int row = item->row();
+            QString gcp = mItemModelImagePoints->index(row, 0).data().toString();
+            QPointF point(mItemModelImagePoints->index(row, 2).data().toDouble(),
+                mItemModelImagePoints->index(row, 3).data().toDouble());
+            image_points.emplace_back(gcp, point);
+        }
     }
 
     return image_points;
@@ -379,48 +384,51 @@ auto GroundControlPointsModelImp::points(size_t imageId) const -> std::list<std:
 
 auto GroundControlPointsModelImp::projectPath() const -> tl::Path
 {
-    return mProject->projectFolder();
+    return mProject->info().projectFolder();
 }
 
-auto GroundControlPointsModelImp::reconstructionPath() const -> tl::Path
-{
-    return mProject->reconstructionPath();
-}
+//auto GroundControlPointsModelImp::reconstructionPath() const -> tl::Path
+//{
+//    return mProject->reconstructionPath();
+//}
 
 void GroundControlPointsModelImp::setEnuCrs(const QString &enuCrs)
 {
-    mProject->setEnuCrs(enuCrs);
+    mProject->info().setEnuCrs(enuCrs.toStdString());
 }
 
 void GroundControlPointsModelImp::addPhotoOrientation(size_t imageId,
-                                               const CameraPose &orientation)
+                                                      const CameraPose &orientation)
 {
-    mProject->addPhotoOrientation(imageId, orientation);
+    //mProject->addPhotoOrientation(imageId, orientation);
+    mProject->cameraPoses().add(imageId, orientation);
 }
 
-auto GroundControlPointsModelImp::poses() const -> const CameraPoses&
+auto GroundControlPointsModelImp::poses() const -> const CameraPosesRepository &
 {
-    return mProject->poses();
+    return mProject->cameraPoses();
 }
 
-auto GroundControlPointsModelImp::cameras() const -> const Cameras&
+auto GroundControlPointsModelImp::cameras() const -> const CameraRepository &
 {
     return mProject->cameras();
 }
 
 auto GroundControlPointsModelImp::database() const -> tl::Path
 {
-    return mProject->database();
+    return mProject->info().database();
 }
 
 void GroundControlPointsModelImp::setTransform(const tl::Matrix<double, 4, 4> &transform)
 {
-    mProject->setTransform(transform);
+    //TODO: Pendiente
+    //mProject->setTransform(transform);
 }
 
 bool GroundControlPointsModelImp::updateCamera(int id, const Camera &camera)
 {
-    return mProject->updateCamera(id, camera);
+    return mProject->cameras().update(id, camera);
+    //return mProject->updateCamera(id, camera);
 }
 
 void GroundControlPointsModelImp::importGroundControlPoints(const QString &file, const QString &format)
@@ -428,7 +436,7 @@ void GroundControlPointsModelImp::importGroundControlPoints(const QString &file,
     try{
 
         auto reader = GCPsReaderFactory::create(format.toStdString());
-        reader->setImages(images());
+        reader->setImages(images().all());
         reader->read(file.toStdString());
         mCrs = QString::fromStdString(reader->epsgCode());
         auto gcps = reader->gcps();
@@ -445,7 +453,7 @@ void GroundControlPointsModelImp::exportGroundControlPoints(const QString &file,
     auto writer = GCPsWriterFactory::create(format.toStdString());
     writer->setEPSGCode(mCrs.toStdString());
     writer->setGCPs(groundControlPoints());
-    writer->setImages(images());
+    writer->setImages(images().all());
     writer->write(file.toStdString());
 }
 
@@ -456,7 +464,7 @@ void GroundControlPointsModelImp::setCrs(const QString &crs)
 
 void GroundControlPointsModelImp::save()
 {
-    tl::Path gcp_file = mProject->projectFolder();
+    tl::Path gcp_file = mProject->info().projectFolder();
     gcp_file.append("sfm");
     gcp_file.createDirectories();
     gcp_file.append("georef.xml");

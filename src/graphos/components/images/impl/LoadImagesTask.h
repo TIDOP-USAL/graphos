@@ -61,6 +61,9 @@ public:
     TL_DISABLE_COPY(LoadImagesTask)
     TL_DISABLE_MOVE(LoadImagesTask)
 
+    [[nodiscard]]
+    auto enuCrs() const -> std::string { return mEnuCrs; }
+
 signals:
 
     void imageAdded(int, int);
@@ -85,6 +88,8 @@ protected:
     CameraRepository &mCameraRepo;
     QString mDatabaseCamerasPath;
     std::string mCameraType;
+    std::vector<tl::Point3d> mGeographicPositions;
+    std::string mEnuCrs;
 };
 
 } // namespace graphos

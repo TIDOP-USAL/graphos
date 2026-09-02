@@ -30,15 +30,15 @@
 #include "graphos/widgets/TabWidget.h"
 #include "graphos/widgets/GraphicViewer.h"
 #include "graphos/widgets/mapviewer/MapViewer.h"
-#include "graphos/widgets/Viewer3d.h"
+//#include "graphos/widgets/Viewer3d.h"
 #include "graphos/gui/MainWindowView.h"
 #include "graphos/gui/MainWindowModel.h"
 
 /* TidopLib */
 #include <tidop/core/app/Message.h>
 #include <tidop/core/base/Exception.h>
-#include <tidop/core/log.h>
-#include <tidop/math/geometry/affine.h>
+#include <tidop/core/app/Logger.h>
+#include <tidop/geometry/transform/Affine.h>
 
 /* Qt */
 #include <QFileDialog>
@@ -50,10 +50,10 @@
 #include <QApplication>
 #include <QSettings>
 
-#include <CCGeom.h>
-#include <ccHObjectCaster.h>
-#include <ccPointCloud.h>
-#include <ccGenericMesh.h>
+//#include <CCGeom.h>
+//#include <ccHObjectCaster.h>
+//#include <ccPointCloud.h>
+//#include <ccGenericMesh.h>
 
 namespace graphos
 {
@@ -213,7 +213,7 @@ void MainWindowPresenter::openStartPage()
 
 void MainWindowPresenter::loadProject()
 {
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
     tl::Path log_path = mModel->projectPath();
     log_path.replaceExtension(".log");
     log.open(log_path);
@@ -239,7 +239,7 @@ void MainWindowPresenter::loadProject()
         const auto &images = mModel->images();
 
         if (!images.empty()) {
-            mView->addImages(images, mModel->cameras());
+            mView->addImages(images.all(), mModel->cameras().all());
             app.status()->activeFlag(AppStatus::Flag::images_added, true);
         }
 
@@ -284,14 +284,14 @@ void MainWindowPresenter::updateMatches()
 {
     Application &app = Application::instance();
 
-    app.status()->activeFlag(AppStatus::Flag::feature_matching, false);
+    app.status()->activeFlag(AppStatus::Flag::feature_matching, mModel->matches().hasMatches());
 
     for (const auto &image : mModel->images()) {
+
         size_t image_left_id = image.first;
         std::vector<size_t> pairs = mModel->imagePairs(image_left_id);
         if (!pairs.empty()) {
             mView->addMatches(image_left_id);
-            app.status()->activeFlag(AppStatus::Flag::feature_matching, true);
         } else {
             mView->deleteMatches(image_left_id);
         }
@@ -384,8 +384,8 @@ void MainWindowPresenter::loadOrtho()
         const auto &orthos = mModel->orthophotos();
 
         if (!orthos.empty()) {
-            for (const auto &ortho : orthos)
-                mView->addOrtho(ortho.first, QString::fromStdString(ortho.second.path.toString()));
+            for (const auto &[ortho_id, ortho_path] : orthos)
+                mView->addOrtho(ortho_id, QString::fromStdString(ortho_path.toString()));
             app.status()->activeFlag(AppStatus::Flag::ortho, true);
         } else {
             mView->deleteOrthos();
@@ -401,27 +401,30 @@ void MainWindowPresenter::openImage(size_t imageId)
     try {
 
         auto tab_widget = mView->tabWidget();
-        QString image = mModel->image(imageId).path();
 
-        int tab_id = tab_widget->fileTab(image);
+        if (auto graphos_image = mModel->images().find(imageId)) {
+            auto &image_path = graphos_image->path();
+            QString image = QString::fromStdString(image_path.toString());
+            int tab_id = tab_widget->fileTab(image);
 
-        if (tab_id != -1) {
-            tab_widget->setCurrentIndex(tab_id);
-        } else {
-            GraphicViewer *graphic_viewer = new GraphicViewer(mView);
-            graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
-            graphic_viewer->setImage(mModel->readImage(mModel->image(imageId).path().toStdString()));
-            tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(image).fileName());
-            tab_widget->setCurrentIndex(tab_id);
-            tab_widget->setTabToolTip(tab_id, image);
-            tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+            if (tab_id != -1) {
+                tab_widget->setCurrentIndex(tab_id);
+            } else {
+                GraphicViewer *graphic_viewer = new GraphicViewer(mView);
+                graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
+                graphic_viewer->setImage(mModel->readImage(image_path));
+                tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(image).fileName());
+                tab_widget->setCurrentIndex(tab_id);
+                tab_widget->setTabToolTip(tab_id, image);
+                tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
 
-            graphic_viewer->zoomExtend();
+                graphic_viewer->zoomExtend();
+            }
+
+            AppStatus *status = Application::instance().status();
+            status->activeFlag(AppStatus::Flag::tab_image_active, true);
+            status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, false);
         }
-
-        AppStatus *status = Application::instance().status();
-        status->activeFlag(AppStatus::Flag::tab_image_active, true);
-        status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, false);
 
     } catch (std::exception &e) {
         tl::printException(e);
@@ -471,121 +474,121 @@ void MainWindowPresenter::openImageMatches(const QString &sessionName, const QSt
 void MainWindowPresenter::open3DModel(const QString &model3D,
                                       bool loadCameras)
 {
-    try {
+    //try {
 
-        QFileInfo fileInfo(model3D);
-        TL_ASSERT(fileInfo.exists(), "File not found");
+    //    QFileInfo fileInfo(model3D);
+    //    TL_ASSERT(fileInfo.exists(), "File not found");
 
-        auto tab_widget = mView->tabWidget();
-        int tab_id = tab_widget->fileTab(model3D);
+    //    auto tab_widget = mView->tabWidget();
+    //    int tab_id = tab_widget->fileTab(model3D);
 
-        if (tab_id != -1) {
-            tab_widget->setCurrentIndex(tab_id);
-        } else {
-            CCViewer3D *viewer3D = new CCViewer3D();
-            viewer3D->loadFromFile(model3D);
-            tab_id = tab_widget->addTab(dynamic_cast<QWidget *>(viewer3D), fileInfo.fileName());
-            tab_widget->setCurrentIndex(tab_id);
-            tab_widget->setTabToolTip(tab_id, model3D);
+    //    if (tab_id != -1) {
+    //        tab_widget->setCurrentIndex(tab_id);
+    //    } else {
+    //        CCViewer3D *viewer3D = new CCViewer3D();
+    //        viewer3D->loadFromFile(model3D);
+    //        tab_id = tab_widget->addTab(dynamic_cast<QWidget *>(viewer3D), fileInfo.fileName());
+    //        tab_widget->setCurrentIndex(tab_id);
+    //        tab_widget->setTabToolTip(tab_id, model3D);
 
-            auto transform = mModel->transform();
-            if (transform != tl::Matrix<double, 4, 4>::identity()) {
+    //        auto transform = mModel->transform();
+    //        if (transform != tl::Matrix<double, 4, 4>::identity()) {
 
-                ccHObject *root = viewer3D->object();
-                ccHObject::Container clouds;
-                root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
-                ccHObject *model = nullptr;
-                if (clouds.size() == 1) {
-                    model = clouds.at(0);
+    //            ccHObject *root = viewer3D->object();
+    //            ccHObject::Container clouds;
+    //            root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+    //            ccHObject *model = nullptr;
+    //            if (clouds.size() == 1) {
+    //                model = clouds.at(0);
 
-                    bool lockedVertices;
-                    ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(model, &lockedVertices);
-                    
-                    ccGLMatrix cc_rot;
-                    float *mat = cc_rot.data();
+    //                bool lockedVertices;
+    //                ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(model, &lockedVertices);
+    //                
+    //                ccGLMatrix cc_rot;
+    //                float *mat = cc_rot.data();
 
-                    mat[0] = transform[0][0];
-                    mat[1] = transform[1][0];
-                    mat[2] = transform[2][0];
+    //                mat[0] = transform[0][0];
+    //                mat[1] = transform[1][0];
+    //                mat[2] = transform[2][0];
 
-                    mat[4] = transform[0][1];
-                    mat[5] = transform[1][1];
-                    mat[6] = transform[2][1];
+    //                mat[4] = transform[0][1];
+    //                mat[5] = transform[1][1];
+    //                mat[6] = transform[2][1];
 
-                    mat[8] = transform[0][2];
-                    mat[9] = transform[1][2];
-                    mat[10] = transform[2][2];
-       
-                    CCVector3 t(static_cast<PointCoordinateType>(transform[0][3]),
-                                static_cast<PointCoordinateType>(transform[1][3]),
-                                static_cast<PointCoordinateType>(transform[2][3]));
+    //                mat[8] = transform[0][2];
+    //                mat[9] = transform[1][2];
+    //                mat[10] = transform[2][2];
+    //   
+    //                CCVector3 t(static_cast<PointCoordinateType>(transform[0][3]),
+    //                            static_cast<PointCoordinateType>(transform[1][3]),
+    //                            static_cast<PointCoordinateType>(transform[2][3]));
 
-                    cc_rot.setTranslation(t);
+    //                cc_rot.setTranslation(t);
 
-                    cloud->applyRigidTransformation(cc_rot);
-                    model->prepareDisplayForRefresh_recursive();
-                }
+    //                cloud->applyRigidTransformation(cc_rot);
+    //                model->prepareDisplayForRefresh_recursive();
+    //            }
 
 
-            }
+    //        }
 
-            viewer3D->setGlobalZoom();
+    //        viewer3D->setGlobalZoom();
 
-            if (loadCameras) {
+    //        if (loadCameras) {
 
-                //tl::Matrix4x4d transform = mModel->transform();
-                tl::Affine<double, 3> affine(transform.block(0, 2, 0, 3));
-                auto rotation = affine.rotation();
+    //            //tl::Matrix4x4d transform = mModel->transform();
+    //            tl::Affine<double, 3> affine(transform.block(0, 2, 0, 3));
+    //            auto rotation = affine.rotation();
 
-                for (const auto &pose : mModel->poses()) {
-                    size_t image_id = pose.first;
-                    CameraPose camera_pose = pose.second;
+    //            for (const auto &pose : mModel->poses()) {
+    //                size_t image_id = pose.first;
+    //                CameraPose camera_pose = pose.second;
 
-                    std::array<double, 3> position;
-                    tl::RotationMatrix<double> rot;
+    //                std::array<double, 3> position;
+    //                tl::RotationMatrix<double> rot;
 
-                    
-                    if (transform != tl::Matrix<double, 4, 4>::identity()) {
+    //                
+    //                if (transform != tl::Matrix<double, 4, 4>::identity()) {
 
-                        auto point = affine.transform(camera_pose.position());
-                        position[0] = point.x;
-                        position[1] = point.y;
-                        position[2] = point.z;
-                        rot = camera_pose.rotationMatrix() * rotation.inverse().toMatrix();
+    //                    auto point = affine.transform(camera_pose.position());
+    //                    position[0] = point.x;
+    //                    position[1] = point.y;
+    //                    position[2] = point.z;
+    //                    rot = camera_pose.rotationMatrix() * rotation.inverse().toMatrix();
 
-                    } else {
+    //                } else {
 
-                        position[0] = camera_pose.position().x;
-                        position[1] = camera_pose.position().y;
-                        position[2] = camera_pose.position().z;
-                        rot = camera_pose.rotationMatrix();
+    //                    position[0] = camera_pose.position().x;
+    //                    position[1] = camera_pose.position().y;
+    //                    position[2] = camera_pose.position().z;
+    //                    rot = camera_pose.rotationMatrix();
 
-                    }
+    //                }
 
-                    std::array<std::array<float, 3>, 3> cameraRotationMatrix;
-                    cameraRotationMatrix[0][0] = static_cast<float>(rot.at(0, 0));
-                    cameraRotationMatrix[0][1] = static_cast<float>(rot.at(0, 1));
-                    cameraRotationMatrix[0][2] = static_cast<float>(rot.at(0, 2));
-                    cameraRotationMatrix[1][0] = static_cast<float>(rot.at(1, 0));
-                    cameraRotationMatrix[1][1] = static_cast<float>(rot.at(1, 1));
-                    cameraRotationMatrix[1][2] = static_cast<float>(rot.at(1, 2));
-                    cameraRotationMatrix[2][0] = static_cast<float>(rot.at(2, 0));
-                    cameraRotationMatrix[2][1] = static_cast<float>(rot.at(2, 1));
-                    cameraRotationMatrix[2][2] = static_cast<float>(rot.at(2, 2));
+    //                std::array<std::array<float, 3>, 3> cameraRotationMatrix;
+    //                cameraRotationMatrix[0][0] = static_cast<float>(rot.at(0, 0));
+    //                cameraRotationMatrix[0][1] = static_cast<float>(rot.at(0, 1));
+    //                cameraRotationMatrix[0][2] = static_cast<float>(rot.at(0, 2));
+    //                cameraRotationMatrix[1][0] = static_cast<float>(rot.at(1, 0));
+    //                cameraRotationMatrix[1][1] = static_cast<float>(rot.at(1, 1));
+    //                cameraRotationMatrix[1][2] = static_cast<float>(rot.at(1, 2));
+    //                cameraRotationMatrix[2][0] = static_cast<float>(rot.at(2, 0));
+    //                cameraRotationMatrix[2][1] = static_cast<float>(rot.at(2, 1));
+    //                cameraRotationMatrix[2][2] = static_cast<float>(rot.at(2, 2));
 
-                    viewer3D->addCamera(mModel->image(image_id).name(), position[0], position[1], position[2], cameraRotationMatrix);
-                }
+    //                viewer3D->addCamera(mModel->image(image_id).name(), position[0], position[1], position[2], cameraRotationMatrix);
+    //            }
 
-            }
-        }
+    //        }
+    //    }
 
-        AppStatus *status = Application::instance().status();
-        status->activeFlag(AppStatus::Flag::tab_image_active, false);
-        status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, true);
+    //    AppStatus *status = Application::instance().status();
+    //    status->activeFlag(AppStatus::Flag::tab_image_active, false);
+    //    status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, true);
 
-    } catch (std::exception &e) {
-        tl::printException(e);
-    }
+    //} catch (std::exception &e) {
+    //    tl::printException(e);
+    //}
 }
 
 void MainWindowPresenter::openDtm()
@@ -715,7 +718,7 @@ void MainWindowPresenter::openOrthophoto(size_t ortho_id)
 
         // Añadir método para cargar directamente la orto que quiero
         const auto &orthos = mModel->orthophotos();
-        QString orthophoto = QString::fromStdString(orthos.at(ortho_id).path.toString());
+        QString orthophoto = QString::fromStdString(orthos.at(ortho_id).toString());
 
         map_viewer->loadGeoTiff(orthophoto);
 
@@ -754,12 +757,14 @@ void MainWindowPresenter::loadImage(size_t imageId)
 {
     try {
 
-        const Image &image = mModel->image(imageId);
-        mView->addImage(image, mModel->camera(image.cameraId()));
-        //mView->addImage(image.path(), image.id());
+        if (auto image = mModel->images().find(imageId)) {
+            if (auto camera = mModel->cameras().find(image->cameraId())) {
+                mView->addImage(*image, *camera);
 
-        Application &app = Application::instance();
-        app.status()->activeFlag(AppStatus::Flag::images_added, true);
+                Application &app = Application::instance();
+                app.status()->activeFlag(AppStatus::Flag::images_added, true);
+            }
+        }
 
     } catch (std::exception &e) {
         tl::printException(e);

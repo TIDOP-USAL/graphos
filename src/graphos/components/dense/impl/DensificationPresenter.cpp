@@ -25,9 +25,9 @@
 
 #include "graphos/components/dense/DensificationModel.h"
 #include "graphos/components/dense/DensificationView.h"
-#include "graphos/core/dense/CmvsPmvs.h"
-#include "graphos/core/dense/Smvs.h"
-#include "graphos/core/dense/mvs.h"
+#include "graphos/components/dense/impl/CmvsPmvsTask.h"
+#include "graphos/components/dense/impl/SmvsTask.h"
+#include "graphos/components/dense/impl/MvsTask.h"
 #include "graphos/core/task/Progress.h"
 #include "graphos/widgets/CmvsPmvsWidget.h"
 #include "graphos/widgets/SmvsWidget.h"
@@ -100,64 +100,58 @@ void DensificationPresenterImp::setCurrentDensifier(const QString &densifier)
 
 void DensificationPresenterImp::configureCmvsPmvsProperties() const
 {
-    CmvsPmvs *cmvs_pmvs = nullptr;
-    if (std::shared_ptr<Densification> densification = mModel->densification()) {
-        if (densification->method() == Densification::Method::cmvs_pmvs) {
-            cmvs_pmvs = dynamic_cast<CmvsPmvs*>(densification.get());
+    if (auto properties = mModel->densificationConfig()) {
+        if (properties->name() == "PMVS") {
+            auto cmvs_pmvs = dynamic_cast<CmvsPmvsProperties *>(properties.get());
+            if (cmvs_pmvs && mCmvsPmvs) {
+                mCmvsPmvs->setLevel(cmvs_pmvs->level());
+                mCmvsPmvs->setCellSize(cmvs_pmvs->cellSize());
+                mCmvsPmvs->setThreshold(cmvs_pmvs->threshold());
+                mCmvsPmvs->setWindowSize(cmvs_pmvs->windowSize());
+                mCmvsPmvs->setImagesPerCluster(cmvs_pmvs->imagesPerCluster());
+                mCmvsPmvs->setMinimunImageNumber(cmvs_pmvs->minimunImageNumber());
+                mCmvsPmvs->setUseVisibilityInformation(cmvs_pmvs->useVisibilityInformation());
+            }
         }
     } else {
         TL_TODO("std::shared_ptr<Densification> densification = mSettingsModel->densification();")
-    }
-
-    if (cmvs_pmvs && mCmvsPmvs) {
-        mCmvsPmvs->setLevel(cmvs_pmvs->level());
-        mCmvsPmvs->setCellSize(cmvs_pmvs->cellSize());
-        mCmvsPmvs->setThreshold(cmvs_pmvs->threshold());
-        mCmvsPmvs->setWindowSize(cmvs_pmvs->windowSize());
-        mCmvsPmvs->setImagesPerCluster(cmvs_pmvs->imagesPerCluster());
-        mCmvsPmvs->setMinimunImageNumber(cmvs_pmvs->minimunImageNumber());
-        mCmvsPmvs->setUseVisibilityInformation(cmvs_pmvs->useVisibilityInformation());
     }
 }
 
 void DensificationPresenterImp::configureSmvsProperties() const
 {
-    Smvs *smvs = nullptr;
-    if (std::shared_ptr<Densification> densification = mModel->densification()) {
-        if (densification->method() == Densification::Method::smvs) {
-            smvs = dynamic_cast<Smvs *>(densification.get());
+    if (auto properties = mModel->densificationConfig()) {
+        if (properties->name() == "SMVS") {
+            auto smvs = dynamic_cast<SmvsProperties *>(properties.get());
+            if (smvs && mSmvs) {
+                mSmvs->setInputImageScale(smvs->inputImageScale());
+                mSmvs->setOutputDepthScale(smvs->outputDepthScale());
+                mSmvs->setSemiGlobalMatching(smvs->semiGlobalMatching());
+                mSmvs->setSurfaceSmoothingFactor(smvs->surfaceSmoothingFactor());
+                mSmvs->setShadingBasedOptimization(smvs->shadingBasedOptimization());
+            }
         }
     } else {
         TL_TODO("std::shared_ptr<Densification> densification = mSettingsModel->densification();")
-    }
-
-    if (smvs && mSmvs) {
-        mSmvs->setInputImageScale(smvs->inputImageScale());
-        mSmvs->setOutputDepthScale(smvs->outputDepthScale());
-        mSmvs->setSemiGlobalMatching(smvs->semiGlobalMatching());
-        mSmvs->setSurfaceSmoothingFactor(smvs->surfaceSmoothingFactor());
-        mSmvs->setShadingBasedOptimization(smvs->shadingBasedOptimization());
     }
 }
 
 void DensificationPresenterImp::configureMvsProperties() const
 {
-    Mvs *mvs = nullptr;
-    if (std::shared_ptr<Densification> densification = mModel->densification()) {
-        if (densification->method() == Densification::Method::mvs) {
-            mvs = dynamic_cast<Mvs *>(densification.get());
+    if (auto properties = mModel->densificationConfig()) {
+        if (properties->name() == "MVS") {
+            auto mvs = dynamic_cast<MvsProperties *>(properties.get());
+            if (mvs && mMVS) {
+                mMVS->setQuality(mvs->resolutionLevel());
+                //mMVS->setResolutionLevel(mvs->resolutionLevel());
+                //mMVS->setMinResolution(mvs->minResolution());
+                //mMVS->setMaxResolution(mvs->maxResolution());
+                mMVS->setNumberViews(mvs->numberViews());
+                mMVS->setNumberViewsFuse(mvs->numberViewsFuse());
+            }
         }
     } else {
         TL_TODO("std::shared_ptr<Densification> densification = mSettingsModel->densification();")
-    }
-
-    if (mvs && mMVS) {
-        mMVS->setQuality(mvs->resolutionLevel());
-        //mMVS->setResolutionLevel(mvs->resolutionLevel());
-        //mMVS->setMinResolution(mvs->minResolution());
-        //mMVS->setMaxResolution(mvs->maxResolution());
-        mMVS->setNumberViews(mvs->numberViews());
-        mMVS->setNumberViewsFuse(mvs->numberViewsFuse());
     }
 }
 
@@ -190,7 +184,7 @@ void DensificationPresenterImp::onDensificationChanged(const QString &densificat
     mView->setCurrentDensificationMethod(densification);
 }
 
-void DensificationPresenterImp::onError(tl::TaskErrorEvent *event)
+void DensificationPresenterImp::onError(tl::TaskErrorEvent &event)
 {
     TaskPresenter::onError(event);
 
@@ -199,12 +193,18 @@ void DensificationPresenterImp::onError(tl::TaskErrorEvent *event)
     }
 }
 
-void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
+    if (auto *task = dynamic_cast<const DenseTaskBase *>(event.task())) {
+        try {
 
-    tl::Path dense_path = dynamic_cast<DensifierBase const *>(event->task())->denseModel();
+            mModel->setDensificationReport(task->report());
+            mModel->setDenseModel(task->denseModel());
 
-    mModel->setDenseModel(dense_path);
+        } catch (const std::exception &e) {
+            tl::printException(e);
+        }
+    }
 
     TaskPresenter::onFinished(event);
 
@@ -232,13 +232,13 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
     mModel->cleanProject();
     emit densification_deleted();
 
-    std::unordered_map<size_t, Image> images;
-    for (auto &image : mModel->images()) {
-        auto it = mModel->poses().find(image.first);
-        if (it != mModel->poses().end()) {
-            images[image.first] = image.second;
-        }
-    }
+    //std::unordered_map<size_t, Image> images;
+    //for (auto &image : mModel->images()) {
+    //    auto it = mModel->poses().find(image.first);
+    //    if (it != mModel->poses().end()) {
+    //        images[image.first] = image.second;
+    //    }
+    //}
 
     QString densification_method = mView->currentDensificationMethod();
 
@@ -249,31 +249,43 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
 
         dense_path.append("pmvs");
 
-        auto pmvs = std::make_unique<CmvsPmvsDensifier>(images,
-                                                        mModel->cameras(),
-                                                        mModel->poses(),
-                                                        mModel->groundPoints(),
-                                                        dense_path,
-                                                        mModel->database(),
-                                                        mModel->useCuda(),
-                                                        mView->autoSegmentation());
+        auto config = DensificationPropertiesFactory::create("PMVS");
 
-        pmvs->setUseVisibilityInformation(mCmvsPmvs->useVisibilityInformation());
-        pmvs->setImagesPerCluster(mCmvsPmvs->imagesPerCluster());
-        pmvs->setLevel(mCmvsPmvs->level());
-        pmvs->setCellSize(mCmvsPmvs->cellSize());
-        pmvs->setThreshold(mCmvsPmvs->threshold());
-        pmvs->setWindowSize(mCmvsPmvs->windowSize());
-        pmvs->setMinimunImageNumber(mCmvsPmvs->minimunImageNumber());
+        auto pmvs_properties = std::dynamic_pointer_cast<CmvsPmvsProperties>(config);
+        pmvs_properties->setUseVisibilityInformation(mCmvsPmvs->useVisibilityInformation());
+        pmvs_properties->setImagesPerCluster(mCmvsPmvs->imagesPerCluster());
+        pmvs_properties->setLevel(mCmvsPmvs->level());
+        pmvs_properties->setCellSize(mCmvsPmvs->cellSize());
+        pmvs_properties->setThreshold(mCmvsPmvs->threshold());
+        pmvs_properties->setWindowSize(mCmvsPmvs->windowSize());
+        pmvs_properties->setMinimunImageNumber(mCmvsPmvs->minimunImageNumber());
 
-        auto properties = std::make_shared<CmvsPmvs>(mCmvsPmvs->useVisibilityInformation(),
-                                                               mCmvsPmvs->imagesPerCluster(),
-                                                               mCmvsPmvs->level(),
-                                                               mCmvsPmvs->cellSize(),
-                                                               mCmvsPmvs->threshold(),
-                                                               mCmvsPmvs->windowSize(),
-                                                               mCmvsPmvs->minimunImageNumber());
-        mModel->setDensification(properties);
+        auto pmvs = std::make_unique<CmvsPmvsTask>(pmvs_properties,
+                                                   mModel->images(),
+                                                   mModel->cameras(),
+                                                   mModel->cameraPoses(),
+                                                   mModel->groundPoints(),
+                                                   dense_path,
+                                                   mModel->database(),
+                                                   mModel->useCuda(),
+                                                   mView->autoSegmentation());
+
+        //pmvs->setUseVisibilityInformation(mCmvsPmvs->useVisibilityInformation());
+        //pmvs->setImagesPerCluster(mCmvsPmvs->imagesPerCluster());
+        //pmvs->setLevel(mCmvsPmvs->level());
+        //pmvs->setCellSize(mCmvsPmvs->cellSize());
+        //pmvs->setThreshold(mCmvsPmvs->threshold());
+        //pmvs->setWindowSize(mCmvsPmvs->windowSize());
+        //pmvs->setMinimunImageNumber(mCmvsPmvs->minimunImageNumber());
+
+        //auto properties = std::make_shared<CmvsPmvs>(mCmvsPmvs->useVisibilityInformation(),
+        //                                                       mCmvsPmvs->imagesPerCluster(),
+        //                                                       mCmvsPmvs->level(),
+        //                                                       mCmvsPmvs->cellSize(),
+        //                                                       mCmvsPmvs->threshold(),
+        //                                                       mCmvsPmvs->windowSize(),
+        //                                                       mCmvsPmvs->minimunImageNumber());
+        mModel->setDensificationConfig(config);
 
         dense_task = std::move(pmvs);
 
@@ -281,26 +293,36 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
 
         dense_path.append("smvs");
 
-        auto smvs = std::make_unique<SmvsDensifier>(images,
-                                                    mModel->cameras(),
-                                                    mModel->poses(),
-                                                    mModel->groundPoints(),
-                                                    dense_path,
-                                                    mModel->useCuda(),
-                                                    mView->autoSegmentation());
+        auto config = DensificationPropertiesFactory::create("SMVS");
 
-        smvs->setInputImageScale(mSmvs->inputImageScale());
-        smvs->setOutputDepthScale(mSmvs->outputDepthScale());
-        smvs->setShadingBasedOptimization(mSmvs->shadingBasedOptimization());
-        smvs->setSemiGlobalMatching(mSmvs->semiGlobalMatching());
-        smvs->setSurfaceSmoothingFactor(mSmvs->surfaceSmoothingFactor());
-        
-        auto properties = std::make_shared<Smvs>(mSmvs->inputImageScale(),
-                                                           mSmvs->outputDepthScale(),
-                                                           mSmvs->shadingBasedOptimization(),
-                                                           mSmvs->semiGlobalMatching(),
-                                                           mSmvs->surfaceSmoothingFactor());
-        mModel->setDensification(properties);
+        auto smvs_properties = std::dynamic_pointer_cast<SmvsProperties>(config);
+        smvs_properties->setInputImageScale(mSmvs->inputImageScale());
+        smvs_properties->setOutputDepthScale(mSmvs->outputDepthScale());
+        smvs_properties->setShadingBasedOptimization(mSmvs->shadingBasedOptimization());
+        smvs_properties->setSemiGlobalMatching(mSmvs->semiGlobalMatching());
+        smvs_properties->setSurfaceSmoothingFactor(mSmvs->surfaceSmoothingFactor());
+
+        auto smvs = std::make_unique<SmvsTask>(smvs_properties,
+                                               mModel->images(),
+                                               mModel->cameras(),
+                                               mModel->cameraPoses(),
+                                               mModel->groundPoints(),
+                                               dense_path,
+                                               mModel->useCuda(),
+                                               mView->autoSegmentation());
+
+        //smvs->setInputImageScale(mSmvs->inputImageScale());
+        //smvs->setOutputDepthScale(mSmvs->outputDepthScale());
+        //smvs->setShadingBasedOptimization(mSmvs->shadingBasedOptimization());
+        //smvs->setSemiGlobalMatching(mSmvs->semiGlobalMatching());
+        //smvs->setSurfaceSmoothingFactor(mSmvs->surfaceSmoothingFactor());
+        //
+        //auto properties = std::make_shared<Smvs>(mSmvs->inputImageScale(),
+        //                                                   mSmvs->outputDepthScale(),
+        //                                                   mSmvs->shadingBasedOptimization(),
+        //                                                   mSmvs->semiGlobalMatching(),
+        //                                                   mSmvs->surfaceSmoothingFactor());
+        mModel->setDensificationConfig(config);
 
         dense_task = std::move(smvs);
 
@@ -308,29 +330,41 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
 
         dense_path.append("mvs");
 
-        auto mvs = std::make_unique<MvsDensifier>(images,
-                                                  mModel->cameras(),
-                                                  mModel->poses(),
-                                                  mModel->groundPoints(),
-                                                  dense_path,
-                                                  mModel->database(),
-                                                  mModel->useCuda(),
-                                                  mView->autoSegmentation());
+        auto config = DensificationPropertiesFactory::create("MVS");
 
-        mvs->setMaxResolution(3000/*mMVS->maxResolution()*/);
-        mvs->setMinResolution(256/*mMVS->minResolution()*/);
-        mvs->setNumberViews(mMVS->numberViews());
-        mvs->setNumberViewsFuse(mMVS->numberViewsFuse());
-        mvs->setResolutionLevel(mMVS->quality());
-        mvs->setEstimateColors(mMVS->estimateColors());
-        mvs->setEstimateNormals(mMVS->estimateNormals());
+        auto mvs_properties = std::dynamic_pointer_cast<MvsProperties>(config);
+        mvs_properties->setMaxResolution(3000/*mMVS->maxResolution()*/);
+        mvs_properties->setMinResolution(256/*mMVS->minResolution()*/);
+        mvs_properties->setNumberViews(mMVS->numberViews());
+        mvs_properties->setNumberViewsFuse(mMVS->numberViewsFuse());
+        mvs_properties->setResolutionLevel(mMVS->quality());
+        mvs_properties->setEstimateColors(mMVS->estimateColors());
+        mvs_properties->setEstimateNormals(mMVS->estimateNormals());
 
-        auto properties = std::make_shared<Mvs>(mMVS->quality(),
-                                                256/*mMVS->minResolution()*/,
-                                                3000/*mMVS->maxResolution()*/,
-                                                mMVS->numberViews(),
-                                                mMVS->numberViewsFuse());
-        mModel->setDensification(properties);
+        auto mvs = std::make_unique<MvsTask>(mvs_properties,
+                                             mModel->images(),
+                                             mModel->cameras(),
+                                             mModel->cameraPoses(),
+                                             mModel->groundPoints(),
+                                             dense_path,
+                                             mModel->database(),
+                                             mModel->useCuda(),
+                                             mView->autoSegmentation());
+
+        //mvs->setMaxResolution(3000/*mMVS->maxResolution()*/);
+        //mvs->setMinResolution(256/*mMVS->minResolution()*/);
+        //mvs->setNumberViews(mMVS->numberViews());
+        //mvs->setNumberViewsFuse(mMVS->numberViewsFuse());
+        //mvs->setResolutionLevel(mMVS->quality());
+        //mvs->setEstimateColors(mMVS->estimateColors());
+        //mvs->setEstimateNormals(mMVS->estimateNormals());
+
+        //auto properties = std::make_shared<Mvs>(mMVS->quality(),
+        //                                        256/*mMVS->minResolution()*/,
+        //                                        3000/*mMVS->maxResolution()*/,
+        //                                        mMVS->numberViews(),
+        //                                        mMVS->numberViewsFuse());
+        mModel->setDensificationConfig(config);
 
         dense_task = std::move(mvs);
 
@@ -339,13 +373,13 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
         throw std::runtime_error("Densification Method not valid");
     }
 
-    dense_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
+    //dense_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
-        auto report = dynamic_cast<DensifierBase const*>(event->task())->report();
+    //    auto report = dynamic_cast<DensifierBase const*>(event->task())->report();
 
-        mModel->setDenseReport(report);
+    //    mModel->setDenseReport(report);
 
-    });
+    //});
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);

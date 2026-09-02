@@ -103,16 +103,13 @@ protected:
     std::shared_ptr<DemProperties> mDemProperties;
     tl::Path mDtm;
     tl::Path mDsm;
+    tl::Path mDsmEnu;
     DemReport mDemReport;
 
     std::shared_ptr<OrthophotoProperties> mOrthoProperties;
     OrthophotoReport mOrthoReport;
     tl::Path mOrthoMosaic;
-    //std::map<size_t, OrthophotoData> mOrthophotos;
-    //static std::mutex sMutex;
-    ////int mCameraCount;
-    ////tl::Path mOrthophoto;
-    //tl::Matrix<double, 4, 4> mTransform;
+    tl::Matrix<double, 4, 4> mTransform;
 
 public:
 
@@ -212,6 +209,9 @@ public:
     auto dtm() const -> tl::Path;
     void setDtm(tl::Path dtm);
 
+    auto dsmEnu() const -> tl::Path;
+    void setDsmEnu(tl::Path dsmEnu);
+
     auto demReport() const -> DemReport;
     void setDemReport(DemReport demReport);
 
@@ -238,9 +238,9 @@ public:
     //bool checkOldVersion(const tl::Path &file) const;
     //void oldVersionBak(const tl::Path &file) const;
 
-    //tl::Matrix<double, 4, 4> &transform();
-    //const tl::Matrix<double, 4, 4> &transform() const;
-    //void setTransform(const tl::Matrix<double, 4, 4> &transform);
+    auto transform() -> tl::Matrix<double, 4, 4> &;
+    auto transform() const -> const tl::Matrix<double, 4, 4> &;
+    void setTransform(tl::Matrix<double, 4, 4> transform);
 
 };
 

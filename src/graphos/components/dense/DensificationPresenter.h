@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSE_PRESENTER_INTERFACE_H
-#define GRAPHOS_DENSE_PRESENTER_INTERFACE_H
+#pragma once
 
 #include "graphos/core/task/TaskPresenter.h"
 
@@ -81,5 +80,3 @@ signals:
 };
 
 } // End namespace graphos
-
-#endif // GRAPHOS_DENSE_PRESENTER_INTERFACE_H

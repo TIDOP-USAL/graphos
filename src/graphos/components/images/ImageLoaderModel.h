@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_LOADER_MODEL_INTERFACE_H
-#define GRAPHOS_LOADER_MODEL_INTERFACE_H
+#pragma once
 
 #include <tidop/core/base/Path.h>
 
@@ -33,6 +32,8 @@ namespace graphos
 {
 
 class Image;
+class CameraRepository;
+class ImageRepository;
 
 class ImageLoaderModel
   : public Model
@@ -42,24 +43,17 @@ class ImageLoaderModel
 
 public:
 
-    using Cameras = std::map<int, Camera>;
-
-public:
-
     ImageLoaderModel(QObject *parent = nullptr) : Model(parent) {}
     ~ImageLoaderModel() override = default;
 
-    //virtual auto projectCRS() const -> QString = 0;
-    //virtual void setProjectCRS(const QString &crs) = 0;
     virtual void addImage(const Image &image) = 0;
-    virtual bool existImage(size_t imageId) const = 0;
+    virtual auto existImage(size_t imageId) const -> bool = 0;
     virtual auto imagesDirectory() const -> tl::Path = 0;
-    virtual auto cameras() const -> const Cameras & = 0;
-    virtual auto addCamera(const Camera &camera) -> int = 0;
-    virtual auto cameraID(const Camera &camera) const -> int = 0;
+    virtual auto cameraRepository() -> CameraRepository & = 0;
+    virtual auto imagesRepository() -> ImageRepository & = 0;
+    virtual auto enuCrs() const -> std::string = 0;
+    virtual void setEnuCrs(const std::string &crs) = 0;
 
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_LOADER_MODEL_INTERFACE_H

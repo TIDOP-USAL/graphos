@@ -153,8 +153,8 @@ bool OrthophotoCommand::run()
         ortho_path.append("ortho");
         ortho_path.append("orthomosaic.tif");
 
-        OrthophotoTask orthophoto_task(undistorted_images,
-                                       undistorted_cameras,
+        OrthophotoTask orthophoto_task(std::move(undistorted_images),
+                                       std::move(undistorted_cameras),
                                        ortho_path,
                                        dsm_path,
                                        enu_crs,
@@ -205,34 +205,34 @@ auto OrthophotoCommand::undistortedCameras(const CameraRepository &cameraRepo) c
         Undistort undistort(camera);
         Camera undistort_camera = undistort.undistortCamera();
 
-        if (camera.calibratedHMatrix()) {
+        //if (camera.calibratedHMatrix()) {
 
-            auto &calibrated_h_matrix = camera.calibratedHMatrix().value();
-            cv::Mat H = cv::Mat::eye(3, 3, CV_32F);
-            H.at<float>(0, 0) = calibrated_h_matrix(0, 0);
-            H.at<float>(0, 1) = calibrated_h_matrix(0, 1);
-            H.at<float>(0, 2) = calibrated_h_matrix(0, 2);
-            H.at<float>(1, 0) = calibrated_h_matrix(1, 0);
-            H.at<float>(1, 1) = calibrated_h_matrix(1, 1);
-            H.at<float>(1, 2) = calibrated_h_matrix(1, 2);
-            H.at<float>(2, 0) = calibrated_h_matrix(2, 0);
-            H.at<float>(2, 1) = calibrated_h_matrix(2, 1);
-            H.at<float>(2, 2) = calibrated_h_matrix(2, 2);
+        //    auto &calibrated_h_matrix = camera.calibratedHMatrix().value();
+        //    cv::Mat H = cv::Mat::eye(3, 3, CV_32F);
+        //    H.at<float>(0, 0) = calibrated_h_matrix(0, 0);
+        //    H.at<float>(0, 1) = calibrated_h_matrix(0, 1);
+        //    H.at<float>(0, 2) = calibrated_h_matrix(0, 2);
+        //    H.at<float>(1, 0) = calibrated_h_matrix(1, 0);
+        //    H.at<float>(1, 1) = calibrated_h_matrix(1, 1);
+        //    H.at<float>(1, 2) = calibrated_h_matrix(1, 2);
+        //    H.at<float>(2, 0) = calibrated_h_matrix(2, 0);
+        //    H.at<float>(2, 1) = calibrated_h_matrix(2, 1);
+        //    H.at<float>(2, 2) = calibrated_h_matrix(2, 2);
 
-            auto calibration = camera.calibration() ? camera.calibration() : camera.priorCalibration();
-            float cx = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
-            float cy = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
+        //    auto calibration = camera.calibration() ? camera.calibration() : camera.priorCalibration();
+        //    float cx = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
+        //    float cy = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
 
-            std::vector<cv::Point2f> srcPoints = {{cx, cy}};
-            std::vector<cv::Point2f> dstPoints;
+        //    std::vector<cv::Point2f> srcPoints = {{cx, cy}};
+        //    std::vector<cv::Point2f> dstPoints;
 
-            cv::perspectiveTransform(srcPoints, dstPoints, H);
+        //    cv::perspectiveTransform(srcPoints, dstPoints, H);
 
-            auto calibration2 = undistort_camera.calibration() ? undistort_camera.calibration() : undistort_camera.priorCalibration();
-            calibration2->setParameter(Calibration::Parameters::cx, static_cast<double>(dstPoints[0].x));
-            calibration2->setParameter(Calibration::Parameters::cy, static_cast<double>(dstPoints[0].y));
+        //    auto calibration2 = undistort_camera.calibration() ? undistort_camera.calibration() : undistort_camera.priorCalibration();
+        //    calibration2->setParameter(Calibration::Parameters::cx, static_cast<double>(dstPoints[0].x));
+        //    calibration2->setParameter(Calibration::Parameters::cy, static_cast<double>(dstPoints[0].y));
 
-        }
+        //}
 
         undistorted_cameras[camera_id] = undistort_camera;
 

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORIENTATION_MODEL_H
-#define GRAPHOS_ORIENTATION_MODEL_H
+#pragma once
 
 #include "graphos/components/orientation/OrientationModel.h"
 
@@ -50,6 +49,7 @@ public:
     void setSparseModel(const tl::Path &sparseModel) override;
     void setEnuCrs(const QString &enuCrs) override;
     void setGroundPoints(const tl::Path &groundPoints) override;
+    void setCameraPosesFile(const tl::Path &cameraPosesFile) override;
     auto isPhotoOriented(size_t imageId) const -> bool override;
     auto photoOrientation(size_t imageId) const -> CameraPose override;
     void addPhotoOrientation(size_t imageId,
@@ -62,9 +62,9 @@ public:
     auto groundControlPointsFile() const -> tl::Path override;
     auto existReconstruction() const -> bool override;
     void clearProject() override;
-    auto cameras() const -> const std::map<int, Camera>& override;
+    auto cameras() -> CameraRepository & override;
     auto updateCamera(int id, const Camera& camera) -> bool override;
-    auto images() const -> const Images& override;
+    auto images() const -> const ImageRepository & override;
     auto orientationReport() const -> OrientationReport override;
     void setOrientationReport(const OrientationReport &orientationReport) override;
 
@@ -85,5 +85,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ORIENTATION_MODEL_H

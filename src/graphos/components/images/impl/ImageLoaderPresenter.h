@@ -21,10 +21,11 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_LOADER_PRESENTER_H
-#define GRAPHOS_LOADER_PRESENTER_H
+#pragma once
 
 #include "graphos/components/images/ImageLoaderPresenter.h"
+
+#include <tidop/geometry/primitives/Point.h>
 
 namespace graphos
 {
@@ -33,6 +34,7 @@ class Image;
 class Camera;
 class ImageLoaderView;
 class ImageLoaderModel;
+//class LoadImagesTask;
 
 class ImageLoaderPresenterImp
   : public ImageLoaderPresenter
@@ -54,14 +56,14 @@ public slots:
 
 protected slots:
 
-    void addImage(int imagePosition, int cameraPosition) override;
+    void addImage(int imageIndex, int cameraId) override;
 
 // TaskPresenter interface
 
 private:
 
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
+    void onError(tl::TaskErrorEvent &event) override;
+    void onFinished(tl::TaskFinalizedEvent &event) override;
     auto createTask() -> std::unique_ptr<tl::Task> override;
 
 public slots:
@@ -85,9 +87,7 @@ private:
     ImageLoaderModel *mModel;
     QStringList mImageFiles;
     std::vector<Image> mImages;
-    std::vector<Camera> mCameras;
+    //LoadImagesTask *mTaskRef{nullptr};
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_LOADER_PRESENTER_H

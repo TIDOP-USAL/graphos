@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORTHOPHOTO_PRESENTER_H
-#define GRAPHOS_ORTHOPHOTO_PRESENTER_H
+#pragma once
 
 #include "graphos/components/orthophoto/OrthophotoPresenter.h"
 
@@ -37,6 +36,8 @@ class OrthophotoView;
 class OrthophotoModel;
 class Camera;
 class Image;
+class CameraRepository;
+class ImageRepository;
 
 class OrthophotoPresenterImp
   : public OrthophotoPresenter
@@ -50,7 +51,7 @@ public:
                            OrthophotoModel *model);
     ~OrthophotoPresenterImp() override;
 
-    auto undistortedCameras(const std::map<int, Camera> &cameras) const -> std::map<int, Camera>;
+    auto undistortedCameras(const CameraRepository &cameras) const -> std::map<int, Camera>;
 
 // Presenter interface
 
@@ -67,11 +68,11 @@ private:
 
 protected:
 
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
+    void onError(tl::TaskErrorEvent &event) override;
+    void onFinished(tl::TaskFinalizedEvent &event) override;
     auto createTask() -> std::unique_ptr<tl::Task> override;
 
-    auto undistortedImages(const std::unordered_map<size_t, Image> &images,
+    auto undistortedImages(const ImageRepository &images,
                            tl::Path &undistort_path) const -> std::unordered_map<size_t, Image>;
 
 public slots:
@@ -86,5 +87,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ORTHOPHOTO_PRESENTER_H

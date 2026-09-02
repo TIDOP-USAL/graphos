@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_SAVE_PROJECT_VIEW_H
-#define GRAPHOS_SAVE_PROJECT_VIEW_H
+#pragma once
 
 #include "graphos/components/saveproject/SaveProjectView.h"
 
@@ -43,5 +42,3 @@ public:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_SAVE_PROJECT_VIEW_H

@@ -21,22 +21,22 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H
-#define GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H
+#pragma once
 
 #include <unordered_map>
 
 #include <tidop/core/base/Path.h>
 
 #include "graphos/core/mvp.h"
-#include "graphos/core/image.h"
-#include "graphos/core/features/features.h"
+#include "graphos/core/image/Image.h"
 
 namespace graphos
 {
 
 class FeatureExtractorProperties;
-class Camera;
+struct FeatureExtractorReport;
+class ImageRepository;
+class CameraRepository;
 
 class FeatureExtractorModel
   : public Model
@@ -47,18 +47,17 @@ public:
     FeatureExtractorModel(QObject *parent = nullptr) : Model(parent) {}
     ~FeatureExtractorModel() override = default;
 
-    virtual auto featureExtractor() const -> std::shared_ptr<FeatureExtractorProperties> = 0;
-    virtual void setFeatureExtractor(const std::shared_ptr<FeatureExtractorProperties> &featureExtractor) = 0;
+    virtual auto featureConfig() const -> std::shared_ptr<FeatureExtractorProperties> = 0;
+    virtual void setFeatureConfig(const std::shared_ptr<FeatureExtractorProperties> &featureExtractor) = 0;
     virtual void setFeatureExtractorReport(const FeatureExtractorReport &report) = 0;
     virtual auto database() const -> tl::Path = 0;
     virtual void addFeatures(size_t imageId, const QString &featuresFile) = 0;
     virtual auto useCuda() const -> bool = 0;
-    virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
-    virtual auto cameras() const -> const std::map<int, Camera>& = 0;
+    virtual auto images() const -> const ImageRepository & = 0;
+    virtual auto cameras() const -> const CameraRepository & = 0;
+    virtual auto enuCrs() const -> std::string = 0;
     virtual void clearProject() = 0;
 
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H

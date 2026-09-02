@@ -542,7 +542,8 @@ void ProjectWriter::writeMeshing(QXmlStreamWriter &stream, const Project &projec
 
     writeMeshingConfig(stream, project.meshConfig().get());
     writeMeshingReport(stream, project.meshReport());
-    stream.writeTextElement("MeshModel", project.meshModel().toString());
+    if (!project.meshModel().empty())
+        stream.writeTextElement("MeshModel", project.meshModel().toString());
 
     stream.writeEndElement(); // Mesh
 }
@@ -553,8 +554,12 @@ void ProjectWriter::writeDem(QXmlStreamWriter &stream, const Project &project)
 
     writeDemConfig(stream, project.demConfig().get());
     writeDemReport(stream, project.demReport());
-    stream.writeTextElement("Dsm", project.dsm().toString());
-    stream.writeTextElement("Dtm", project.dtm().toString());
+    if (!project.dsm().empty())
+        stream.writeTextElement("Dsm", project.dsm().toString());
+    if (!project.dsmEnu().empty())
+        stream.writeTextElement("DsmEnu", project.dsmEnu().toString());
+    if (!project.dtm().empty())
+        stream.writeTextElement("Dtm", project.dtm().toString());
 
     stream.writeEndElement(); // Dem
 }
@@ -565,7 +570,8 @@ void ProjectWriter::writeOrtho(QXmlStreamWriter &stream, const Project &project)
 
     writeOrthoConfig(stream, project.orthoConfig().get());
     writeOrthoReport(stream, project.orthoReport());
-    stream.writeTextElement("Path", project.orthophoto().toString());
+    if (!project.orthophoto().empty())
+        stream.writeTextElement("Path", project.orthophoto().toString());
 
     stream.writeEndElement(); // Orthophoto
 }

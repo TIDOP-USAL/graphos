@@ -21,13 +21,12 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_MATCHING_MODEL_H
-#define GRAPHOS_FEATURE_MATCHING_MODEL_H
+#pragma once
 
 #include <QObject>
 
 #include "graphos/components/featmatch/FeatureMatchingModel.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 
 class QSettings;
 
@@ -48,14 +47,13 @@ public:
 
 public:
 
-    auto featureMatching() const -> std::shared_ptr<MatchingProperties> override;
-    void setFeatureMatching(const std::shared_ptr<MatchingProperties> &featureMatching) override;
-    void setMatchingReport(const MatchingReport& report) override;
+    auto featureMatchingConfig() const -> std::shared_ptr<MatchingProperties> override;
+    void setFeatureMatchingConfig(const std::shared_ptr<MatchingProperties> &featureMatching) override;
+    void setMatchingReport(const MatchingReport &report) override;
     auto database() const -> tl::Path override;
     auto useCuda() const -> bool override;
     auto spatialMatching() const -> bool override;
     auto geodeticCoordinates() const -> bool override;
-    void writeMatchPairs() override;
     void cleanProject() override;
     auto imagesSize() const -> size_t override;
 
@@ -76,5 +74,3 @@ protected:
 };
 
 } // End namespace graphos
-
-#endif // GRAPHOS_FEATURE_MATCHING_MODEL_H

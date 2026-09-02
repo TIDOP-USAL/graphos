@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_CAMERA_UNDISTORT
-#define GRAPHOS_CORE_CAMERA_UNDISTORT
+#pragma once
 
 #include <unordered_map>
 #include <stop_token>
@@ -143,5 +142,3 @@ private:
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_CAMERA_UNDISTORT

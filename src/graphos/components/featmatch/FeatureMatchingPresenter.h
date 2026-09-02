@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_MATCHING_PRESENTER_INTERFACE_H
-#define GRAPHOS_FEATURE_MATCHING_PRESENTER_INTERFACE_H
+#pragma once
 
 #include "graphos/core/task/TaskPresenter.h"
 
@@ -51,5 +50,3 @@ public slots:
 };
 
 } // End namespace graphos
-
-#endif // GRAPHOS_FEATURE_MATCHING_PRESENTER_INTERFACE_H

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_COLMAP_CAMERA_H
-#define GRAPHOS_CORE_COLMAP_CAMERA_H
+#pragma once
 
 #include "graphos/graphos_global.h"
 
@@ -69,5 +68,3 @@ protected:
 auto cameraToColmapType(const Camera &camera) -> QString;
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_COLMAP_CAMERA_H

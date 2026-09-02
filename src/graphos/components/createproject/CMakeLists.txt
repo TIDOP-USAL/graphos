@@ -59,7 +59,7 @@ endif(BUILD_GUI)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt6::Core
-                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)

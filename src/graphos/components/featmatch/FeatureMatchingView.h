@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_MATCHING_VIEW_INTERFACE_H
-#define GRAPHOS_FEATURE_MATCHING_VIEW_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -63,5 +62,3 @@ public slots:
 };
 
 } // End namespace graphos
-
-#endif // GRAPHOS_FEATURE_MATCHING_VIEW_INTERFACE_H

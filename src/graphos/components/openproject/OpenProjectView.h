@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_OPEN_PROJECT_VIEW_INTERFACE_H
-#define GRAPHOS_OPEN_PROJECT_VIEW_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -53,5 +52,3 @@ public:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_OPEN_PROJECT_VIEW_INTERFACE_H

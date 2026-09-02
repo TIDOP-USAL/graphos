@@ -21,10 +21,11 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_EXTRACTOR_MODEL_H
-#define GRAPHOS_FEATURE_EXTRACTOR_MODEL_H
+#pragma once
 
 #include "graphos/components/featextract/FeatureExtractorModel.h"
+#include "graphos/core/image/ImageRepository.h"
+#include "graphos/core/camera/CameraRepository.h"
 
 class QSettings;
 
@@ -48,14 +49,15 @@ public:
 
 public:
 
-    auto featureExtractor() const -> std::shared_ptr<FeatureExtractorProperties> override;
-    void setFeatureExtractor(const std::shared_ptr<FeatureExtractorProperties> &featureExtractor) override;
+    auto featureConfig() const -> std::shared_ptr<FeatureExtractorProperties> override;
+    void setFeatureConfig(const std::shared_ptr<FeatureExtractorProperties> &featureExtractor) override;
     void setFeatureExtractorReport(const FeatureExtractorReport &report) override;
     auto database() const -> tl::Path override;
     void addFeatures(size_t imageId, const QString &featuresFile) override;
     auto useCuda() const -> bool override;
-    auto images() const -> const std::unordered_map<size_t, Image>& override;
-    auto cameras() const -> const std::map<int, Camera>& override;
+    auto images() const -> const ImageRepository & override;
+    auto cameras() const -> const CameraRepository & override;
+    auto enuCrs() const -> std::string override;
     void clearProject() override;
 
 // Model interface
@@ -75,5 +77,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_FEATURE_EXTRACTOR_MODEL_H

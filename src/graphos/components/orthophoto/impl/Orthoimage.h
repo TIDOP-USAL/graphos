@@ -112,7 +112,7 @@ private:
 	std::string mCrs;
     tl::Size<int> mSizeOrtho;
 	tl::Affine<double, 2> mGeoreference;
-	//tl::Window<tl::Point<double>> mWindowOrthoTerrain;
+	//tl::Window<tl::Point2d> mWindowOrthoTerrain;
 	std::string mInterpolation;
 	bool bCuda;
 	bool mReadWithOpenCV;

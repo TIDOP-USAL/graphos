@@ -28,8 +28,10 @@
 #include <tidop/rastertools/io/Reader.h>
 #include <tidop/geotools/CRSsTools.h>
 #include <tidop/geotools/GeoTools.h>
-#include <tidop/geometry/algorithms/distance.h>
-#include <tidop/math/geometry/affine.h>
+#include <tidop/geometry/algorithms/measurement/Distance.h>
+#include <tidop/geometry/algorithms/spatial/Intersection.h>
+#include <tidop/geometry/transform/Affine.h>
+#include <tidop/geometry/transform/estimators/Affine2D.h>
 
 /* QGeoView */
 #include <QGeoView/Raster/QGVImage.h>
@@ -49,8 +51,10 @@ RasterTiledLayer::RasterTiledLayer(const QString &tifPath, bool dem)
 {
     setZValue(-1);
 
-    reader = tl::ImageReaderFactory::create(tl::Path(tifPath.toStdString()));
-    reader->open();
+    reader = std::make_unique<tl::RasterReader>(tifPath.toStdString());
+    if (!reader->isOpen()) {
+        tl::Message::warning("The GeoTIFF file could not be opened: {}", tifPath.toStdString());
+    }
     auto georeference = reader->georeference();
     mAffineImageToWorld = georeference.inverse();
     auto window = reader->window();
@@ -67,8 +71,8 @@ RasterTiledLayer::RasterTiledLayer(const QString &tifPath, bool dem)
     if (!sourceRef.IsEmpty() && !sourceRef.IsSame(&targetRef)) {
         transform = OGRCreateCoordinateTransformation(&sourceRef, &targetRef);
 
-        transform->Transform(1, &window.pt1.x, &window.pt1.y);
-        transform->Transform(1, &window.pt2.x, &window.pt2.y);
+        transform->Transform(1, &window.min().x(), &window.min().y());
+        transform->Transform(1, &window.max().x(), &window.max().y());
 
         OCTDestroyCoordinateTransformation(transform);
 
@@ -80,7 +84,7 @@ RasterTiledLayer::RasterTiledLayer(const QString &tifPath, bool dem)
         }
     }
 
-    mGeoExtent = QGV::GeoRect(window.pt1.x, window.pt1.y, window.pt2.x, window.pt2.y);
+    mGeoExtent = QGV::GeoRect(window.min().x(), window.min().y(), window.max().x(), window.max().y());
     
     // Calculo de la escala máxima
     {
@@ -89,7 +93,7 @@ RasterTiledLayer::RasterTiledLayer(const QString &tifPath, bool dem)
         auto p1 = mAffineImageToWorld.transform(tl::Point2d(0., 0.));
         auto p2 = mAffineImageToWorld.transform(tl::Point2d(cols, rows));
         
-        mGSD = std::min(cols / std::abs(p1.x - p2.x), rows / std::abs(p1.y -p2.y));
+        mGSD = std::min(cols / std::abs(p1.x() - p2.x()), rows / std::abs(p1.y() - p2.y()));
     }
 
     // Se comprueba si la imagen es un DEM (tambien podría ser imagen termografica, etc)
@@ -178,51 +182,51 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             // QGeoView tiene un error en la transformación entre geograficas y EPSG:3857 y 
             // la Y sale con el signo cambiado
             // Puntos de los extremos del tile en coordenadas proyectadas
-            std::vector<tl::Point<double>> points_tile(4);
-            points_tile[0] = tl::Point<double>(tile_proj_rect.left(), -tile_proj_rect.top());
-            points_tile[1] = tl::Point<double>(tile_proj_rect.right(), -tile_proj_rect.top());
-            points_tile[2] = tl::Point<double>(tile_proj_rect.right(), -tile_proj_rect.bottom());
-            points_tile[3] = tl::Point<double>(tile_proj_rect.left(), -tile_proj_rect.bottom());
+            std::vector<tl::Point2d> points_tile(4);
+            points_tile[0] = tl::Point2d(tile_proj_rect.left(), -tile_proj_rect.top());
+            points_tile[1] = tl::Point2d(tile_proj_rect.right(), -tile_proj_rect.top());
+            points_tile[2] = tl::Point2d(tile_proj_rect.right(), -tile_proj_rect.bottom());
+            points_tile[3] = tl::Point2d(tile_proj_rect.left(), -tile_proj_rect.bottom());
 
-            std::vector<tl::Point<double>> points_image_epsg_3857(4);
-            points_image_epsg_3857[0] = tl::Point<double>(rect_image_epsg_3857.left(), -rect_image_epsg_3857.top());
-            points_image_epsg_3857[1] = tl::Point<double>(rect_image_epsg_3857.right(), -rect_image_epsg_3857.top());
-            points_image_epsg_3857[2] = tl::Point<double>(rect_image_epsg_3857.right(), -rect_image_epsg_3857.bottom());
-            points_image_epsg_3857[3] = tl::Point<double>(rect_image_epsg_3857.left(), -rect_image_epsg_3857.bottom());
+            std::vector<tl::Point2d> points_image_epsg_3857(4);
+            points_image_epsg_3857[0] = tl::Point2d(rect_image_epsg_3857.left(), -rect_image_epsg_3857.top());
+            points_image_epsg_3857[1] = tl::Point2d(rect_image_epsg_3857.right(), -rect_image_epsg_3857.top());
+            points_image_epsg_3857[2] = tl::Point2d(rect_image_epsg_3857.right(), -rect_image_epsg_3857.bottom());
+            points_image_epsg_3857[3] = tl::Point2d(rect_image_epsg_3857.left(), -rect_image_epsg_3857.bottom());
             
 
             // 1 - Tile window
-            std::vector<tl::Point<double>> tile_window(4);
-            tile_window[0] = tl::Point<double>(0., 0.);
-            tile_window[1] = tl::Point<double>(tileSize, 0.);
-            tile_window[2] = tl::Point<double>(tileSize, tileSize);
-            tile_window[3] = tl::Point<double>(0., tileSize);
+            std::vector<tl::Point2d> tile_window(4);
+            tile_window[0] = tl::Point2d(0., 0.);
+            tile_window[1] = tl::Point2d(tileSize, 0.);
+            tile_window[2] = tl::Point2d(tileSize, tileSize);
+            tile_window[3] = tl::Point2d(0., tileSize);
 
             // 2 - Affine transformation
             auto affine_image_epsg_3857 = tl::Affine2DEstimator<double>::estimate(tile_window, points_tile);
 
             // 3 - Ventana intersección
-            tl::WindowD window_tile_epsg_3857(points_tile);
-            tl::WindowD window_image_epsg_3857(points_image_epsg_3857);
-            tl::WindowD window_read_3857 = tl::windowIntersection(window_tile_epsg_3857, window_image_epsg_3857);
+            tl::BoundingBox2d window_tile_epsg_3857(points_tile);
+            tl::BoundingBox2d window_image_epsg_3857(points_image_epsg_3857);
+            tl::BoundingBox2d window_read_3857 = tl::intersection(window_tile_epsg_3857, window_image_epsg_3857);
 
             // 4 - Con la ventana intersección y la transformación afin calcular la zona con datos dentro de la tesela
-            tl::Window<tl::Point<int>> window_image_to_read_3857;
-            window_image_to_read_3857.pt1 = static_cast<tl::Point<int>>(affine_image_epsg_3857.inverse().transform(window_read_3857.pt1));
-            window_image_to_read_3857.pt2 = affine_image_epsg_3857.inverse().transform(window_read_3857.pt2);
+            tl::BoundingBox2i window_image_to_read_3857;
+            window_image_to_read_3857.min() = static_cast<tl::Point2i>(affine_image_epsg_3857.inverse().transform(window_read_3857.min()));
+            window_image_to_read_3857.max() = static_cast<tl::Point2i>(affine_image_epsg_3857.inverse().transform(window_read_3857.max()));
             window_image_to_read_3857.normalized();
 
-            tl::Point<int> offset = window_image_to_read_3857.pt1;
+            tl::Point2i offset = window_image_to_read_3857.min();
             int width = window_image_to_read_3857.width()/* - offset.x*/;
             int height = window_image_to_read_3857.height()/* - offset.y*/;
 
             //5 - Calcular ventana a leer en coordenadas origen.
 
-            std::vector<tl::Point<double>> points_source(4);
-            points_source[0] = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", mEpsgSource, tl::Point<double>(window_read_3857.pt1.x, window_read_3857.pt2.y));
-            points_source[1] = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", mEpsgSource, tl::Point<double>(window_read_3857.pt2.x, window_read_3857.pt2.y));
-            points_source[2] = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", mEpsgSource, tl::Point<double>(window_read_3857.pt2.x, window_read_3857.pt1.y));
-            points_source[3] = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", mEpsgSource, tl::Point<double>(window_read_3857.pt1.x, window_read_3857.pt1.y));
+            std::vector<tl::Point3d> points_source(4);
+            points_source[0] = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", mEpsgSource, tl::Point3d(window_read_3857.min().x(), window_read_3857.max().y(), 0));
+            points_source[1] = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", mEpsgSource, tl::Point3d(window_read_3857.max().x(), window_read_3857.max().y(), 0));
+            points_source[2] = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", mEpsgSource, tl::Point3d(window_read_3857.max().x(), window_read_3857.min().y(), 0));
+            points_source[3] = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", mEpsgSource, tl::Point3d(window_read_3857.min().x(), window_read_3857.min().y(), 0));
 
             // Aqui hay que calcular la distancia entre los puntos para que este bien la escala
             double scale_src = 1.0;
@@ -237,21 +241,20 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             }
 
 
-            tl::WindowD source_window(points_source);
+            tl::BoundingBox3d source_window(points_source);
 
             // Hay que expandir la ventana para evitar problemas en los bordes
-            auto p1 = mAffineImageToWorld.transform(tl::Point2d(source_window.pt1.x, source_window.pt2.y));
-            auto p2 = mAffineImageToWorld.transform(tl::Point2d(source_window.pt2.x, source_window.pt1.y));
+            auto p1 = mAffineImageToWorld.transform(tl::Point2d(source_window.min().x(), source_window.max().y()));
+            auto p2 = mAffineImageToWorld.transform(tl::Point2d(source_window.max().x(), source_window.min().y()));
+            tl::Rect<int> rect_src(static_cast<tl::Point2i>(p1), static_cast<tl::Point2i>(p2));
 
-            tl::Rect<int> rect_src(p1, p2);
-
-            double xSize = rect_src.width;
-            double ySize = rect_src.height;
+            double xSize = rect_src.width();
+            double ySize = rect_src.height();
 
             tl::Rect<int> rect_full_image(0, 0, reader->cols(), reader->rows());
             tl::Rect<int> rect_to_read = tl::intersect(rect_full_image, rect_src);
 
-            if (rect_to_read.width == 0 || rect_to_read.height == 0) return;
+            if (rect_to_read.width() == 0 || rect_to_read.height() == 0) return;
 
             cv::Mat mat_source = reader->read(scale_src, scale_src, rect_to_read);
 
@@ -310,7 +313,7 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             // Estas son coordenadas en píxeles dentro de la imagen completa (sin recorte).
 
             // 2) restamos la esquina superior izquierda de rect_to_read (en píxeles) para tener coords relativas a mat_source
-            tl::Point2d rectToReadTopLeft = rect_to_read.topLeft();
+            tl::Point2d rectToReadTopLeft = static_cast<tl::Point2d>(rect_to_read.topLeft());
 
             tl::Point2d p0_rel = (src_p0_full - rectToReadTopLeft) * scale_src;
             tl::Point2d p1_rel = (src_p1_full - rectToReadTopLeft) * scale_src;
@@ -318,10 +321,10 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             tl::Point2d p3_rel = (src_p3_full - rectToReadTopLeft) * scale_src;
 
             // Ahora construimos src_points_img con esos puntos (flotantes)
-            src_points_img[0] = cv::Point2f(static_cast<float>(p0_rel.x), static_cast<float>(p0_rel.y));
-            src_points_img[1] = cv::Point2f(static_cast<float>(p1_rel.x), static_cast<float>(p1_rel.y));
-            src_points_img[2] = cv::Point2f(static_cast<float>(p2_rel.x), static_cast<float>(p2_rel.y));
-            src_points_img[3] = cv::Point2f(static_cast<float>(p3_rel.x), static_cast<float>(p3_rel.y));
+            src_points_img[0] = cv::Point2f(static_cast<float>(p0_rel.x()), static_cast<float>(p0_rel.y()));
+            src_points_img[1] = cv::Point2f(static_cast<float>(p1_rel.x()), static_cast<float>(p1_rel.y()));
+            src_points_img[2] = cv::Point2f(static_cast<float>(p2_rel.x()), static_cast<float>(p2_rel.y()));
+            src_points_img[3] = cv::Point2f(static_cast<float>(p3_rel.x()), static_cast<float>(p3_rel.y()));
 
             // 2. Coordenadas destino en la tile de salida(EPSG:3857, 256x256 px)
             std::vector<cv::Point2f> dst_points = {
@@ -350,7 +353,7 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
                     int alpha = 255;
                     if (r == 0 && g == 0 && b == 0)
                         alpha = 0;
-                    tileImage.setPixelColor(x + offset.x, y + offset.y, QColor(r, g, b, alpha));
+                    tileImage.setPixelColor(x + offset.x(), y + offset.y(), QColor(r, g, b, alpha));
                 }
             }
 
@@ -358,13 +361,13 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
 
             // QGeoView tiene un error en la transformación entre geograficas y EPSG:3857 y 
             // la Y sale con el signo cambiado
-            auto p1 = mAffineImageToWorld.transform({tile_proj_rect.left(), -tile_proj_rect.top()});
-            auto p2 = mAffineImageToWorld.transform({tile_proj_rect.right(), -tile_proj_rect.bottom()});
+            auto p1 = mAffineImageToWorld.transform(tl::Point2d(tile_proj_rect.left(), -tile_proj_rect.top()));
+            auto p2 = mAffineImageToWorld.transform(tl::Point2d(tile_proj_rect.right(), -tile_proj_rect.bottom()));
 
-            int xOffset = std::floor(std::min(p1.x, p2.x));
-            int yOffset = std::floor(std::min(p1.y, p2.y));
-            int xSize = std::ceil(std::abs(p2.x - p1.x));
-            int ySize = std::ceil(std::abs(p2.y - p1.y));
+            int xOffset = std::floor(std::min(p1.x(), p2.x()));
+            int yOffset = std::floor(std::min(p1.y(), p2.y()));
+            int xSize = std::ceil(std::abs(p2.x() - p1.x()));
+            int ySize = std::ceil(std::abs(p2.y() - p1.y()));
 
             double sx = tile_size_x_dst / static_cast<double>(xSize);
             double sy = tile_size_y_dst / static_cast<double>(ySize);

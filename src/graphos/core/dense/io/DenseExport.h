@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_DENSE_EXPORT_H
-#define GRAPHOS_CORE_DENSE_EXPORT_H
+#pragma once
 
 #include <tidop/core/base/flags.h>
 #include <tidop/core/base/Path.h>
@@ -60,5 +59,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_DENSE_EXPORT_H

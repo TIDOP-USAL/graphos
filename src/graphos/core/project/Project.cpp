@@ -25,29 +25,6 @@
 
 #include "graphos/core/orientation/io/CameraPosesReader.h"
 
-//#include "graphos/core/features/SiftProperties.h"
-//#include "graphos/core/features/matching.h"
-//#include "graphos/core/dense/Smvs.h"
-//#include "graphos/core/dense/CmvsPmvs.h"
-//#include "graphos/core/dense/mvs.h"
-//#include "graphos/core/camera/Colmap.h"
-//#include "graphos/core/mesh/PoissonRecon.h"
-//#include "graphos/core/multispectral/Vignetting.h"
-//#include "graphos/core/orientation/GroundPoint.h"
-//
-//#include <tidop/core/app/Message.h>
-//#include <tidop/core/base/Exception.h>
-//#include <tidop/core/base/Split.h>
-
-//#include <colmap/scene/database.h>
-//
-//#include <QFile>
-//#include <QFileInfo>
-//#include <QXmlStreamWriter>
-//
-//#include <fstream>
-
-
 #define GRAPHOS_PROJECT_FILE_VERSION "1.0"
 
 namespace graphos
@@ -56,12 +33,9 @@ namespace graphos
 //std::mutex Project::sMutex;
 
 Project::Project()
-    : mMatchingRepository(mProjectInfo.database())
-  //: mCrs(""),
-    //mCameraCount(0),
-    //mTransform(tl::Matrix<double, 4, 4>::identity())
+    : mMatchingRepository(mProjectInfo.database()),
+      mTransform(tl::Matrix<double, 4, 4>::identity())
 {
-    //mImages.reserve(1000);
 }
 
 auto Project::info() -> ProjectInfo &
@@ -239,6 +213,7 @@ void Project::clearOrientation()
     mSparseModel.clear();
     mGroundPoints.clear();
     mPosesFile.clear();
+    mCameraPosesRepository.reset();
     mOrientationReport.clear();
     mOrientationConfig.reset();
     clearDensification();
@@ -343,6 +318,16 @@ void Project::setDsm(tl::Path dsm)
     mDsm = std::move(dsm);
 }
 
+auto Project::dsmEnu() const -> tl::Path
+{
+    return mDsmEnu;
+}
+
+void Project::setDsmEnu(tl::Path dsmEnu)
+{
+    mDsmEnu = std::move(dsmEnu);
+}
+
 auto Project::dtm() const -> tl::Path
 {
     return mDtm;
@@ -424,6 +409,7 @@ void Project::clear()
     mSparseModel.clear();
     mGroundPoints.clear();
     mPosesFile.clear();
+    mCameraPosesRepository.reset();
     mOrientationReport.clear();
     mOrientationConfig.reset();
     mDensificationConfig.reset();
@@ -439,6 +425,22 @@ void Project::clear()
     mOrthoProperties.reset();
     mOrthoReport.clear();
     mOrthoMosaic.clear();
+    mTransform = tl::Matrix<double, 4, 4>::identity();
+}
+
+auto Project::transform() -> tl::Matrix<double, 4, 4> &
+{
+    return mTransform;
+}
+
+auto Project::transform() const -> const tl::Matrix<double, 4, 4> &
+{
+    return mTransform;
+}
+
+void Project::setTransform(tl::Matrix<double, 4, 4> transform)
+{
+    mTransform = std::move(transform);
 }
 
 //void Project::exportCameras(const tl::Path &file)
@@ -629,374 +631,6 @@ void Project::clear()
 //    dst << src.rdbuf();
 //    src.close();
 //    dst.close();
-//}
-
-//void Project::readCamera(QXmlStreamReader &stream)
-//{
-//    Camera camera;
-//
-//    int id = 0;
-//    for (auto &attr : stream.attributes()) {
-//        if (attr.name().compare(QString("id")) == 0) {
-//            id = attr.value().toInt();
-//            break;
-//        }
-//    }
-//
-//    while (stream.readNextStartElement()) {
-//        if (stream.name() == "Make") {
-//            camera.setMake(stream.readElementText().toStdString());
-//        } else if (stream.name() == "Model") {
-//            camera.setModel(stream.readElementText().toStdString());
-//        } else if (stream.name() == "SerialNumber") {
-//            camera.setSerialNumber(stream.readElementText().toStdString());
-//        } else if (stream.name() == "Type") {
-//            camera.setType(stream.readElementText().toStdString());
-//        } else if (stream.name() == "Focal") {
-//            camera.setFocal(readDouble(stream));
-//        } else if (stream.name() == "Width") {
-//            camera.setWidth(readInt(stream));
-//        } else if (stream.name() == "Height") {
-//            camera.setHeight(readInt(stream));
-//        } else if (stream.name() == "BitsPerPixel") {
-//            camera.setBitsPerPixel(readInt(stream));
-//        } else if (stream.name() == "SensorSize") {
-//            camera.setSensorSize(readDouble(stream));
-//        } else if (stream.name() == "BandName") {
-//            camera.setBandName(stream.readElementText().toStdString());
-//        } else if (stream.name() == "BlackLevel") {
-//            camera.setBlackLevel(readInt(stream));
-//        } /*else if (stream.name() == "VignettingCenter") {
-//            auto vignetting_center = tl::split<float>(stream.readElementText().toStdString(), ';');
-//            if (vignetting_center.size() == 2)
-//                camera.setVignettingCenter(tl::Point2f(vignetting_center[0], vignetting_center[1]));
-//        } else if (stream.name() == "VignettingPolynomial") {
-//            auto vignetting_polynomial = tl::split<float>(stream.readElementText().toStdString(), ';');
-//            if (vignetting_polynomial.size() == 6)
-//                camera.setVignettingPolynomial(vignetting_polynomial);
-//        }*/ else if (stream.name() == "CalibratedHMatrix") {
-//            auto hmatrix = tl::split<float>(stream.readElementText().toStdString(), ' ');
-//            if (hmatrix.size() == 9) {
-//                tl::Matrix3x3f H;
-//                H(0, 0) = hmatrix[0];
-//                H(0, 1) = hmatrix[1];
-//                H(0, 2) = hmatrix[2];
-//                H(1, 0) = hmatrix[3];
-//                H(1, 1) = hmatrix[4];
-//                H(1, 2) = hmatrix[5];
-//                H(2, 0) = hmatrix[6];
-//                H(2, 1) = hmatrix[7];
-//                H(2, 2) = hmatrix[8];
-//                camera.setCalibratedHMatrix(H);
-//            }
-//
-//        } else if (stream.name() == "PriorCalibration") {
-//            this->readPriorCalibration(stream, camera);
-//        } else if (stream.name() == "Calibration") {
-//            this->readCalibration(stream, camera);
-//        } else if (stream.name() == "Vignetting") {
-//            this->readVignetting(stream, camera);
-//        } else
-//            stream.skipCurrentElement();
-//    }
-//
-//    mCameras.try_emplace(id, camera);
-//    mCameraCount = std::max(mCameraCount, id);
-//}
-//
-//void Project::readPriorCalibration(QXmlStreamReader &stream, Camera &camera)
-//{
-//    try {
-//
-//        std::shared_ptr<Calibration> calibration;
-//        calibration = CalibrationFactory::create(camera.type());
-//        while (stream.readNextStartElement()) {
-//            if (stream.name().compare(QString("f")) == 0) {
-//                calibration->setParameter(Calibration::Parameters::focal, readDouble(stream));
-//            } else if (stream.name() == "fx") {
-//                calibration->setParameter(Calibration::Parameters::focalx, readDouble(stream));
-//            } else if (stream.name() == "fy") {
-//                calibration->setParameter(Calibration::Parameters::focaly, readDouble(stream));
-//            } else if (stream.name() == "cx") {
-//                calibration->setParameter(Calibration::Parameters::cx, readDouble(stream));
-//            } else if (stream.name() == "cy") {
-//                calibration->setParameter(Calibration::Parameters::cy, readDouble(stream));
-//            } else if (stream.name() == "k1") {
-//                calibration->setParameter(Calibration::Parameters::k1, readDouble(stream));
-//            } else if (stream.name() == "k2") {
-//                calibration->setParameter(Calibration::Parameters::k2, readDouble(stream));
-//            } else if (stream.name() == "k3") {
-//                calibration->setParameter(Calibration::Parameters::k3, readDouble(stream));
-//            } else if (stream.name() == "k4") {
-//                calibration->setParameter(Calibration::Parameters::k4, readDouble(stream));
-//            } else if (stream.name() == "k5") {
-//                calibration->setParameter(Calibration::Parameters::k5, readDouble(stream));
-//            } else if (stream.name() == "k6") {
-//                calibration->setParameter(Calibration::Parameters::k6, readDouble(stream));
-//            } else if (stream.name() == "p1") {
-//                calibration->setParameter(Calibration::Parameters::p1, readDouble(stream));
-//            } else if (stream.name() == "p2") {
-//                calibration->setParameter(Calibration::Parameters::p2, readDouble(stream));
-//            } else
-//                stream.skipCurrentElement();
-//        }
-//
-//        camera.setPriorCalibration(calibration);
-//
-//    } catch (std::exception &e) {
-//        tl::printException(e);
-//    }
-//}
-//
-//void Project::readCalibration(QXmlStreamReader &stream, Camera &camera)
-//{
-//    try {
-//
-//        std::shared_ptr<Calibration> calibration;
-//        calibration = CalibrationFactory::create(camera.type());
-//        while (stream.readNextStartElement()) {
-//            if (stream.name().compare(QString("f")) == 0) {
-//                calibration->setParameter(Calibration::Parameters::focal, readDouble(stream));
-//            } else if (stream.name() == "fx") {
-//                calibration->setParameter(Calibration::Parameters::focalx, readDouble(stream));
-//            } else if (stream.name() == "fy") {
-//                calibration->setParameter(Calibration::Parameters::focaly, readDouble(stream));
-//            } else if (stream.name() == "cx") {
-//                calibration->setParameter(Calibration::Parameters::cx, readDouble(stream));
-//            } else if (stream.name() == "cy") {
-//                calibration->setParameter(Calibration::Parameters::cy, readDouble(stream));
-//            } else if (stream.name() == "k1") {
-//                calibration->setParameter(Calibration::Parameters::k1, readDouble(stream));
-//            } else if (stream.name() == "k2") {
-//                calibration->setParameter(Calibration::Parameters::k2, readDouble(stream));
-//            } else if (stream.name() == "k3") {
-//                calibration->setParameter(Calibration::Parameters::k3, readDouble(stream));
-//            } else if (stream.name() == "k4") {
-//                calibration->setParameter(Calibration::Parameters::k4, readDouble(stream));
-//            } else if (stream.name() == "k5") {
-//                calibration->setParameter(Calibration::Parameters::k5, readDouble(stream));
-//            } else if (stream.name() == "k6") {
-//                calibration->setParameter(Calibration::Parameters::k6, readDouble(stream));
-//            } else if (stream.name() == "p1") {
-//                calibration->setParameter(Calibration::Parameters::p1, readDouble(stream));
-//            } else if (stream.name() == "p2") {
-//                calibration->setParameter(Calibration::Parameters::p2, readDouble(stream));
-//            } else
-//                stream.skipCurrentElement();
-//        }
-//
-//        camera.setCalibration(calibration);
-//
-//    } catch (std::exception &e) {
-//        tl::printException(e);
-//    }
-//}
-//
-//void Project::readVignetting(QXmlStreamReader &stream, Camera &camera)
-//{
-//    try {
-//
-//        QString vignetting_model = 0;
-//        for (auto &attr : stream.attributes()) {
-//            if (attr.name().compare(QString("model")) == 0) {
-//                vignetting_model = attr.value().toString();
-//                break;
-//            }
-//        }
-//
-//        std::shared_ptr<Vignetting> model;
-//
-//        if (vignetting_model == "radial") {
-//
-//            tl::Point2f vignetting_center_point;
-//            std::vector<float> vignetting_polynomial;
-//
-//            while (stream.readNextStartElement()) {
-//
-//                if (stream.name() == "VignettingCenter") {
-//                    auto vignetting_center = tl::split<float>(stream.readElementText().toStdString(), ';');
-//                    if (vignetting_center.size() == 2)
-//                        vignetting_center_point = tl::Point2f(vignetting_center[0], vignetting_center[1]);
-//                } else if (stream.name() == "VignettingPolynomial") {
-//                    auto polynomial = tl::split<float>(stream.readElementText().toStdString(), ';');
-//                    if (polynomial.size() == 6)
-//                        vignetting_polynomial = polynomial;
-//                } else
-//                    stream.skipCurrentElement();
-//            }
-//
-//            if (!vignetting_polynomial.empty())
-//                model = std::make_shared<VignettingRadial>(vignetting_center_point, vignetting_polynomial);
-//
-//        } else if (vignetting_model == "polynomial2d") {
-//
-//            std::vector<float> coeffs;
-//            std::vector<std::pair<int, int>> power_pairs;
-//
-//            while (stream.readNextStartElement()) {
-//
-//                if (stream.name() == "VignettingCoeffs") {
-//                    coeffs = tl::split<float>(stream.readElementText().toStdString(), ';');
-//                } else if (stream.name() == "VignettingPowers") {
-//                    auto powers = tl::split<float>(stream.readElementText().toStdString(), ';');
-//                    power_pairs.reserve(powers.size() / 2);
-//                    for (size_t i = 0; i < powers.size(); i += 2) {
-//                        power_pairs.push_back(std::make_pair(static_cast<int>(powers[i]), static_cast<int>(powers[i + 1])));
-//                    }
-//                } else
-//                    stream.skipCurrentElement();
-//            }
-//
-//            model = std::make_shared<VignettingPolynomial2D>(coeffs, power_pairs);
-//
-//        } else {
-//            stream.skipCurrentElement();
-//            return; 
-//        }
-//
-//        camera.setVignettingModel(model);
-//
-//    } catch (std::exception &e) {
-//        tl::printException(e);
-//    }
-//}
-
-//
-//auto Project::readOrthophoto(QXmlStreamReader &stream) -> OrthophotoData
-//{
-//    OrthophotoData orthophoto;
-//
-//    while (stream.readNextStartElement()) {
-//        if (stream.name() == "Path") {
-//            orthophoto.path = stream.readElementText().toStdWString();
-//        } else if (stream.name() == "GSD") {
-//            orthophoto.gsd = stream.readElementText().toDouble();
-//        } else if (stream.name() == "CRS") {
-//            orthophoto.epsgCode = stream.readElementText();
-//        } else if (stream.name() == "Interpolation") {
-//            orthophoto.interpolation = stream.readElementText();
-//        } else if (stream.name() == "Report") {
-//            orthophoto.report = this->readOrthophotoReport(stream);
-//        } else
-//            stream.skipCurrentElement();
-//    }
-//
-//    return orthophoto;
-//}
-//
-//auto Project::readOrthophotoReport(QXmlStreamReader &stream) -> OrthophotoReport
-//{
-//    OrthophotoReport report;
-//
-//    while (stream.readNextStartElement()) {
-//        if (stream.name() == "Time") {
-//            report.time = readDouble(stream);
-//        } else if (stream.name() == "GSD") {
-//            report.gsd = stream.readElementText().toDouble();
-//        } else if (stream.name() == "Cols") {
-//            report.cols = stream.readElementText().toInt();
-//        } else if (stream.name() == "Rows") {
-//            report.rows = stream.readElementText().toInt();
-//        } else if (stream.name() == "Channels") {
-//            report.channels = stream.readElementText().toInt();
-//        } else
-//            stream.skipCurrentElement();
-//    }
-//
-//    return report;
-//}
-
-//void Project::writeDem(QXmlStreamWriter &stream) const
-//{
-//    if (mDem.dtmPath.empty() && mDem.dsmPath.empty()) return;
-//
-//    stream.writeStartElement("Dem");
-//    {
-//        stream.writeTextElement("DTMPath", QString::fromStdWString(mDem.dtmPath.toWString()));
-//        stream.writeTextElement("DSMPath", QString::fromStdWString(mDem.dsmPath.toWString()));
-//        stream.writeTextElement("CRS", mDem.epsgCode);
-//        stream.writeTextElement("GSD", QString::number(mDem.gsd));
-//
-//        this->writeDemReport(stream);
-//    }
-//    stream.writeEndElement();
-//}
-//
-//void Project::writeDemReport(QXmlStreamWriter &stream) const
-//{
-//    if (!mDemReport.isEmpty()) {
-//
-//        stream.writeStartElement("Report");
-//
-//        stream.writeTextElement("Time", QString::number(mDemReport.time, 'f', 10));
-//        stream.writeTextElement("GSD", QString::number(mDemReport.gsd, 'f', 10));
-//        stream.writeTextElement("Cols", QString::number(mDemReport.cols));
-//        stream.writeTextElement("Rows", QString::number(mDemReport.rows));
-//
-//        stream.writeEndElement(); // Report
-//    }
-//}
-//
-//void Project::writeOrthophoto(QXmlStreamWriter &stream) const
-//{
-//    for (const auto &ortho : mOrthophotos) {
-//
-//        stream.writeStartElement("Orthophoto");
-//        {
-//            stream.writeTextElement("CRS", ortho.second.epsgCode);
-//            stream.writeTextElement("Path", QString::fromStdWString(ortho.second.path.toWString()));
-//            stream.writeTextElement("GSD", QString::number(ortho.second.gsd));
-//            stream.writeTextElement("Interpolation", ortho.second.interpolation);
-//
-//            auto &report = ortho.second.report;
-//            if (!report.isEmpty()) {
-//
-//                stream.writeStartElement("Report");
-//
-//                stream.writeTextElement("Time", QString::number(report.time, 'f', 10));
-//                stream.writeTextElement("GSD", QString::number(report.gsd, 'f', 10));
-//                stream.writeTextElement("Cols", QString::number(report.cols));
-//                stream.writeTextElement("Rows", QString::number(report.rows));
-//                stream.writeTextElement("Channels", QString::number(report.channels));
-//
-//                stream.writeEndElement(); // Report
-//            }
-//        }
-//        stream.writeEndElement();
-//    }
-//}
-//
-//QSize Project::readSize(QXmlStreamReader &stream) const
-//{
-//    QSize blockSize;
-//    while (stream.readNextStartElement()) {
-//        if (stream.name() == "Width") {
-//            blockSize.setWidth(readInt(stream));
-//        } else if (stream.name() == "Height") {
-//            blockSize.setHeight(readInt(stream));
-//        } else
-//            stream.skipCurrentElement();
-//    }
-//    return blockSize;
-//}
-//
-//int Project::readInt(QXmlStreamReader &stream) const
-//{
-//    QString string = stream.readElementText();
-//    if (!string.isEmpty()) return string.toInt();
-//    else return 0;
-//}
-//
-//double Project::readDouble(QXmlStreamReader &stream) const
-//{
-//    QString string = stream.readElementText();
-//    if (!string.isEmpty()) return string.toDouble();
-//    else return 0.;
-//}
-//
-//bool Project::readBoolean(QXmlStreamReader &stream) const
-//{
-//    return stream.readElementText().compare("true") == 0 ? true : false;
 //}
 
 } // end namespace graphos

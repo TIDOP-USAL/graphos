@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_SAVE_PROJECT_MODEL_H
-#define GRAPHOS_SAVE_PROJECT_MODEL_H
+#pragma once
 
 #include "graphos/components/saveproject/SaveProjectModel.h"
 
@@ -66,5 +65,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_SAVE_PROJECT_MODEL_H

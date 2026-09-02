@@ -147,7 +147,7 @@ cv::Mat extractDTMfromTIN(const DelaunayTriangulation &tin,
 
             if (demTask->status() == DemTask::Status::stopping)  break;
 
-            auto point = georeference.transform(tl::Point<double>(c, r));
+            auto point = georeference.transform(tl::Point2d(c, r));
             Point_3 query(point.x(), point.y(), 0.);
             location = tin.locate(query, location);
 
@@ -370,12 +370,38 @@ DemTask::DemTask(tl::Path pointCloud,
     mEnuCrs(std::move(enuCrs)),
     mProperties(properties)
 {
+    if (mProperties->dsm()) {
+        mDsmPath = mDemPath;
+        mDsmPath.append("dsm.tif");
+    }
 
+    if (mProperties->dtm()) {
+        mDtmPath = mDemPath;
+        mDtmPath.append("dtm.tif");
+    }
+
+    mDsmEnuPath = mDemPath;
+    mDsmEnuPath.append("dsm_enu.tif");
 }
 
 auto DemTask::report() const -> DemReport
 {
     return mDemReport;
+}
+
+auto DemTask::dsmPath() const -> tl::Path
+{
+    return mDsmPath;
+}
+
+auto DemTask::dtmPath() const -> tl::Path
+{
+    return mDtmPath;
+}
+
+auto DemTask::dsmEnuPath() const -> tl::Path
+{
+    return mDsmEnuPath;
 }
 
 void DemTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
@@ -403,7 +429,7 @@ void DemTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
 
         tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
         {
-            std::vector<tl::Point<double>> points;
+            std::vector<tl::Point2d> points;
             tl::Point3d pt1(cgal_bbox.xmin(), cgal_bbox.ymin(), cgal_bbox.zmin());
             geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, crs, pt1.x(), pt1.y(), pt1.z());
             points.emplace_back(pt1.x(), pt1.y());
@@ -436,7 +462,7 @@ void DemTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
 
                     auto z = dsm_raster_enu.at<float>(r, c);
                     if (z <= -9000.0f || !std::isfinite(z)) continue;
-                    auto point = georeference_enu.transform(tl::Point<double>(c, r));
+                    auto point = georeference_enu.transform(tl::Point2d(c, r));
                     points_dsm.emplace_back(point.x(), point.y(), z);
                 }
             }
@@ -447,10 +473,10 @@ void DemTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
                                    tl::roundToInteger(bbox.height() / gsd));
                 dsm_raster_enu = extractDTMfromTIN(dtm_clean, size, georeference_enu, nullptr, this);
 
-                tl::Path mds_path = mDemPath;
-                mds_path.append("dsm_enu.tif");
+                //tl::Path mds_path = mDemPath;
+                //mds_path.append("dsm_enu.tif");
 
-                writeDTM(mds_path, dsm_raster_enu, georeference_enu, "");
+                writeDTM(mDsmEnuPath, dsm_raster_enu, georeference_enu, "");
 
                 dsm_raster_enu.release();
             } else {
@@ -471,7 +497,7 @@ void DemTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
                 auto z = dsm_raster.at<float>(r, c);
                 if (z <= -9000.0f || !std::isfinite(z)) continue;
 
-                auto point = georeference.transform(tl::Point<double>(c, r));
+                auto point = georeference.transform(tl::Point2d(c, r));
                 points_dsm.emplace_back(point.x(), point.y(), z);
 
             }
@@ -487,14 +513,14 @@ void DemTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
             DelaunayTriangulation dtm_clean(points_dsm.begin(), points_dsm.end());
             dsm_raster = extractDTMfromTIN(dtm_clean, size, georeference, progressBar, this);
 
-            tl::Path mds_path = mDemPath;
-            mds_path.append("dsm.tif");
+            //tl::Path mds_path = mDemPath;
+            //mds_path.append("dsm.tif");
 
-            writeDTM(mds_path, dsm_raster, georeference, crs);
+            writeDTM(mDsmPath, dsm_raster, georeference, crs);
 
             dsm_raster.release();
 
-            tl::Message::info("DSM writed at: {}", mds_path.toUtf8());
+            tl::Message::info("DSM writed at: {}", mDsmPath.toUtf8());
 
 
             // TODO: En el caso que se utilice un datum vertical
@@ -504,7 +530,7 @@ void DemTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
 
 
             // Write overviews
-            addOverviewsToImage(mds_path.toString());
+            addOverviewsToImage(mDsmPath.toString());
 
         }
 
@@ -534,19 +560,18 @@ void DemTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
                 points_ground.insert(Point_3(csf_points[idx].x, -csf_points[idx].y, csf_points[idx].z));
             }
 
-            tl::Path mdt_path = mDemPath;
-            mdt_path.append("dtm.tif");
+            //tl::Path mdt_path = mDemPath;
+            //mdt_path.append("dtm.tif");
 
             DelaunayTriangulation dtm(points_ground.points().begin(), points_ground.points().end());
 
             cv::Mat dtm_raster = extractDTMfromTIN(dtm, size, georeference, progressBar, this);
-            writeDTM(mdt_path, dtm_raster, georeference, crs);
+            writeDTM(mDtmPath, dtm_raster, georeference, crs);
             dtm_raster.release();
 
             // Write overviews
-            addOverviewsToImage(mdt_path.toString());
-
-            tl::Message::info("DTM writed at: {}", mdt_path.toString());
+            addOverviewsToImage(mDtmPath.toString());
+            tl::Message::info("DTM writed at: {}", mDtmPath.toString());
         }
 
         mDemReport.time = this->time();

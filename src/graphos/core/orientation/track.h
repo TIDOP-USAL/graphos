@@ -137,15 +137,15 @@ public:
      * \param idx The index of the point.
      * \return The 2D point at the specified index.
      */
-    auto point(size_t idx) const -> tl::Point<double>;
-    auto point(size_t idx) -> tl::Point<double>&;
+    auto point(size_t idx) const -> tl::Point2d;
+    auto point(size_t idx) -> tl::Point2d&;
 
     /*!
      * \brief Get the mapping of image IDs to 2D points in the track.
      *
      * \return A reference to the unordered map containing image IDs and 2D points.
      */
-    auto points() const -> const std::unordered_map<size_t, tl::Point<double>>&;
+    auto points() const -> const std::unordered_map<size_t, tl::Point2d>&;
 
     /*!
      * \brief Add a 2D point associated with an image ID to the track.
@@ -153,7 +153,7 @@ public:
      * \param imageId The image ID associated with the point.
      * \param point The 2D point to add.
      */
-    void addPoint(size_t imageId, const tl::Point<double> &point);
+    void addPoint(size_t imageId, const tl::Point2d &point);
 
     /*!
      * \brief Check if a point with the specified image ID exists in the track.
@@ -176,7 +176,7 @@ public:
 
 private:
 
-    std::unordered_map<size_t, tl::Point<double>> mImageIdPoint;
+    std::unordered_map<size_t, tl::Point2d> mImageIdPoint;
     std::unordered_map<size_t, tl::Vector2d> mError;
 };
 

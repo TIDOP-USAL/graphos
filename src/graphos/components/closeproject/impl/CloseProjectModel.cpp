@@ -23,7 +23,8 @@
 
 #include "CloseProjectModel.h"
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 
 #include <QStandardPaths>
 
@@ -44,7 +45,8 @@ CloseProjectModelImp::~CloseProjectModelImp()
 
 void CloseProjectModelImp::saveProject()
 {
-    mProject->save(mProject->projectPath());
+    ProjectWriter writer;
+    writer.write(mProject->info().projectPath(), *mProject);
 }
 
 void CloseProjectModelImp::init()

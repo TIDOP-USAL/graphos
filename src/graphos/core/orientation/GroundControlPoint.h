@@ -97,7 +97,7 @@ public:
      * \param imageId The ID of the image.
      * \param point The point to add to the track.
      */
-    void addPointToTrack(size_t imageId, const tl::Point<double> &point);
+    void addPointToTrack(size_t imageId, const tl::Point2d &point);
 
     void addErrorToTrack(size_t imageId, const tl::Vector2d &error);
 

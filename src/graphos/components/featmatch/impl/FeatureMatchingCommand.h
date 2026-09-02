@@ -39,10 +39,6 @@ public:
     FeatureMatchingCommand();
     ~FeatureMatchingCommand() override;
 
-private:
-
-    //static void writeMatchPairs(Project *project);
-
 // Command
 
 public:

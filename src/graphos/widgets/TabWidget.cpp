@@ -25,7 +25,7 @@
 
 #include "graphos/widgets/ImageMenu.h"
 #include "graphos/widgets/GraphicViewer.h"
-#include "graphos/widgets/Viewer3d.h"
+//#include "graphos/widgets/Viewer3d.h"
 
 TL_DISABLE_WARNINGS
 #include <QMenu>
@@ -105,15 +105,15 @@ void TabWidget::closeTab(int tabId)
 {
     if (tabId != -1) {
         GraphicViewer *graphicViewer = dynamic_cast<GraphicViewer *>(this->widget(tabId));
-        Viewer3D *viewer3D = dynamic_cast<Viewer3D *>(this->widget(tabId));
+        //Viewer3D *viewer3D = dynamic_cast<Viewer3D *>(this->widget(tabId));
         this->removeTab(tabId);
         if (graphicViewer) {
             delete graphicViewer;
             graphicViewer = nullptr;
-        } else if (viewer3D) {
+        } /*else if (viewer3D) {
             delete viewer3D;
             viewer3D = nullptr;
-        }
+        }*/
 
         if (this->count() == 0)
             emit all_tabs_closed();
@@ -142,16 +142,16 @@ auto TabWidget::fileTab(const QString& file) const -> int
 void TabWidget::onTabChanged(int tabId)
 {
     GraphicViewer *graphic_viewer = dynamic_cast<GraphicViewer *>(this->widget(tabId));
-    Viewer3D *viewer_3d = dynamic_cast<Viewer3D *>(this->widget(tabId));
+    //Viewer3D *viewer_3d = dynamic_cast<Viewer3D *>(this->widget(tabId));
 
     if (graphic_viewer) {
         emit imageActive(true);
         emit model3dActive(false);
         emit model3dChange(nullptr);
-    } else if (viewer_3d) {
-        emit model3dActive(true);
-        emit imageActive(false);
-        emit model3dChange(viewer_3d);
+    //} else if (viewer_3d) {
+    //    emit model3dActive(true);
+    //    emit imageActive(false);
+    //    emit model3dChange(viewer_3d);
     } else {
         emit imageActive(false);
         emit model3dActive(false);

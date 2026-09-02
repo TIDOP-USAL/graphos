@@ -23,7 +23,9 @@
 
 #include "FeatureMatchingPresenter.h"
 
-#include "graphos/core/features/matching.h"
+#include "graphos/core/matching/MatchingProperties.h"
+#include "graphos/components/featmatch/impl/MatchFeaturesTask.h"
+#include "graphos/components/featmatch/impl/MatchSpatiallyTask.h"
 #include "graphos/components/featmatch/FeatureMatchingView.h"
 #include "graphos/components/featmatch/FeatureMatchingModel.h"
 #include "graphos/core/task/Progress.h"
@@ -34,6 +36,7 @@
 
 #include <QMessageBox>
 #include <QApplication>
+#include <cmath>
 
 namespace graphos
 {
@@ -86,16 +89,20 @@ void FeatureMatchingPresenterImp::initSignalAndSlots()
 
 void FeatureMatchingPresenterImp::setMatchingProperties()
 {
-    if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()) {
-        mFeatureMatchingWidget->setConfidence(feature_matcher->confidence());
-        mFeatureMatchingWidget->enableCrossCheck(feature_matcher->crossCheck());
-        mFeatureMatchingWidget->setDistance(feature_matcher->distance());
-        mFeatureMatchingWidget->setMaxError(feature_matcher->maxError());
-        mFeatureMatchingWidget->setRatio(feature_matcher->ratio());
+    try {
+        if (auto feature_matcher = mModel->featureMatchingConfig()) {
+            mFeatureMatchingWidget->setConfidence(feature_matcher->confidence());
+            mFeatureMatchingWidget->enableCrossCheck(feature_matcher->crossCheck());
+            mFeatureMatchingWidget->setDistance(feature_matcher->distance());
+            mFeatureMatchingWidget->setMaxError(feature_matcher->maxError());
+            mFeatureMatchingWidget->setRatio(feature_matcher->ratio());
+        }
+    } catch (std::exception &e) {
+        tl::printException(e);
     }
 }
 
-void FeatureMatchingPresenterImp::onError(tl::TaskErrorEvent *event)
+void FeatureMatchingPresenterImp::onError(tl::TaskErrorEvent &event)
 {
     TaskPresenter::onError(event);
 
@@ -104,22 +111,26 @@ void FeatureMatchingPresenterImp::onError(tl::TaskErrorEvent *event)
     }
 }
 
-void FeatureMatchingPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void FeatureMatchingPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
     TaskPresenter::onFinished(event);
+
+    if (auto *spatial_task = dynamic_cast<const MatchSpatiallyTask *>(event.task())) {
+        mModel->setMatchingReport(spatial_task->report());
+    } else if (auto *match_task = dynamic_cast<const MatchFeaturesTask *>(event.task())) {
+        mModel->setMatchingReport(match_task->report());
+    }
 
     if (progressHandler()) {
         progressHandler()->setDescription(QApplication::translate("FeatureMatchingComponent", "Task finished"));
     }
-
-    mModel->writeMatchPairs();
 }
 
 std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> featmatching_task;
 
-    if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()) {
+    if (mModel->featureMatchingConfig()) {
         int i_ret = QMessageBox(QMessageBox::Warning,
                                 QApplication::translate("FeatureMatchingComponent", "Previous results"),
                                 QApplication::translate("FeatureMatchingComponent", "The previous results will be overwritten. Do you wish to continue?"),
@@ -135,9 +146,9 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createTask()
 
     QString current_match_method = mView->currentMatchMethod();
 
-    std::shared_ptr<FeatureMatching> feature_matching;
+    std::shared_ptr<MatchingProperties> feature_matching;
     if (current_match_method.compare("Feature Matching Colmap") == 0) {
-        feature_matching = std::make_shared<FeatureMatching>();
+        feature_matching = std::make_shared<MatchingProperties>();
         feature_matching->setRatio(mFeatureMatchingWidget->ratio());
         feature_matching->setDistance(mFeatureMatchingWidget->distance());
         feature_matching->setMaxError(mFeatureMatchingWidget->maxError());
@@ -147,34 +158,18 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createTask()
         throw std::runtime_error("Invalid Feature Matching method");
     }
 
-    mModel->setFeatureMatching(feature_matching);
+    mModel->setFeatureMatchingConfig(feature_matching);
 
     if (mView->spatialMatching()) {
-        featmatching_task = std::make_unique<SpatialMatchingTask>(mModel->database(),
+        featmatching_task = std::make_unique<MatchSpatiallyTask>(mModel->database(),
                                                                   mModel->useCuda(),
                                                                   feature_matching,
                                                                   mModel->geodeticCoordinates());
 
-        featmatching_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
-
-            auto report = dynamic_cast<SpatialMatchingTask const*>(event->task())->report();
-
-            mModel->setFeatureMatchingReport(report);
-
-        });
-
     } else {
-        featmatching_task = std::make_unique<FeatureMatchingTask>(mModel->database(),
-                                                                  mModel->useCuda(),
-                                                                  feature_matching);
-
-        featmatching_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
-
-            auto report = dynamic_cast<FeatureMatchingTask const*>(event->task())->report();
-
-            mModel->setFeatureMatchingReport(report);
-
-        });
+        featmatching_task = std::make_unique<MatchFeaturesTask>(mModel->database(),
+                                                                 mModel->useCuda(),
+                                                                 feature_matching);
     }
 
     if (progressHandler()) {

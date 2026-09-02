@@ -72,7 +72,6 @@ void ProgressBarWidget::initUI()
 
     QGridLayout *layout = new QGridLayout();
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setMargin(0);
     this->setLayout(layout);
 
     layout->addWidget(mProgressBar, 0, 0);

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORIENTATION_VIEW_H
-#define GRAPHOS_ORIENTATION_VIEW_H
+#pragma once
 
 #include "graphos/components/orientation/OrientationView.h"
 
@@ -96,5 +95,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_FEATURE_EXTRACTOR_VIEW_H

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_LOADER_VIEW_H
-#define GRAPHOS_LOADER_VIEW_H
+#pragma once
 
 #include "graphos/components/images/ImageLoaderView.h"
 
@@ -48,5 +47,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_LOADER_VIEW_H

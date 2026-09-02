@@ -483,17 +483,17 @@ if(Qt6_FOUND)
 endif()
 
 if(BUILD_GUI)
-set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
-find_package(CloudCompare REQUIRED)
-set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
-
-if (NOT CloudCompare_FOUND)
-    set(HAVE_CloudCompare NO)
-else()
-    set(HAVE_CloudCompare YES)
-    include_directories(${CloudCompare_INCLUDE_DIR})
-	message(STATUS "  Found CloudCompare")
-endif()
+#set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
+#find_package(CloudCompare REQUIRED)
+#set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+#
+#if (NOT CloudCompare_FOUND)
+#    set(HAVE_CloudCompare NO)
+#else()
+#    set(HAVE_CloudCompare YES)
+#    include_directories(${CloudCompare_INCLUDE_DIR})
+#	message(STATUS "  Found CloudCompare")
+#endif()
 endif(BUILD_GUI)
 
 

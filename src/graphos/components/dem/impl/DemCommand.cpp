@@ -98,10 +98,10 @@ bool DemCommand::run()
     try {
 
         auto project_path = this->value<Path>("prj");
-        auto gsd =  this->value<double>("gsd");
-        auto dsm =  this->value<bool>("dsm");
-        auto dtm =  this->value<bool>("dtm");
-        auto crs =  this->value<std::string>("crs");
+        auto gsd = this->value<double>("gsd");
+        auto dsm = this->value<bool>("dsm");
+        auto dtm = this->value<bool>("dtm");
+        auto crs = this->value<std::string>("crs");
         //auto progress_bar = this->value<std::string>("progress_bar");
 
         tl::Path log_path = project_path;
@@ -130,7 +130,7 @@ bool DemCommand::run()
         DemTask dem_task(project.denseModel(), dem_path, project.info().enuCrs(), dem_properties);
         dem_task.run(/*progress.get()*/);
 
-        tl::Path dsm_file = dem_path;
+ /*       tl::Path dsm_file = dem_path;
         dsm_file.append("dsm.tif");
         if (dsm && dsm_file.exists()) {
             project.setDsm(dsm_file);
@@ -140,10 +140,13 @@ bool DemCommand::run()
         dtm_file.replaceBaseName("dem");
         if (dtm && dtm_file.exists()) {
             project.setDtm(dtm_file);
-        }
+        }*/
 
         project.setDemConfig(dem_properties);
         project.setDemReport(dem_task.report());
+        if (dsm) project.setDsm(dem_task.dsmPath());
+        if (dtm) project.setDtm(dem_task.dtmPath());
+        project.setDsmEnu(dem_task.dsmEnuPath());
 
         ProjectWriter writer;
         writer.write(project_path, project);

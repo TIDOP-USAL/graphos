@@ -75,7 +75,12 @@ public:
     [[nodiscard]]
     auto loadMatches(const std::string &imageNameLeft, const std::string &imageNameRight) const -> Matches;
 
+    [[nodiscard]]
+    auto imagePairs(const std::string &imageName) const->std::vector<std::string>;
+
     void clear();
+
+    void removeMatches();
 
 };
 

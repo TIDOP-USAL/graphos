@@ -23,14 +23,16 @@
 
 #include "FeatureExtractorPresenter.h"
 
-#include "graphos/core/features/features.h"
-#include "graphos/core/features/sift.h"
-#include "graphos/core/features/featextract.h"
+#include "graphos/core/features/SiftProperties.h"
+#include "graphos/components/featextract/impl/ExtractFeaturesTask.h"
+#include "graphos/components/featextract/impl/SiftCPUExtractor.h"
+#include "graphos/components/featextract/impl/SiftGPUExtractor.h"
 #include "graphos/components/featextract/FeatureExtractorView.h"
 #include "graphos/components/featextract/FeatureExtractorModel.h"
 #include "graphos/core/task/Progress.h"
 #include "graphos/widgets/SiftWidget.h"
 #include "graphos/core/camera/Camera.h"
+#include "graphos/core/image/ImageRepository.h"
 
 #include <tidop/core/app/Message.h>
 #include <tidop/core/task/Task.h>
@@ -106,13 +108,9 @@ void FeatureExtractorPresenterImp::setDetectorAndDescriptorProperties()
 
 void FeatureExtractorPresenterImp::setSiftProperties()
 {
-    std::shared_ptr<Sift> sift;
-    if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()) {
-        if (feature_extractor->type() == Feature::Type::sift) {
-            sift = std::dynamic_pointer_cast<Sift>(feature_extractor);
-        }
-    } else {
-        TL_TODO("Sift *sift = mSettingsModel->sift();")
+    std::shared_ptr<SiftProperties> sift;
+    if (auto config = mModel->featureConfig()) {
+        sift = std::dynamic_pointer_cast<SiftProperties>(config);
     }
 
     if (sift) {
@@ -123,11 +121,10 @@ void FeatureExtractorPresenterImp::setSiftProperties()
             mSift->setEdgeThreshold(sift->edgeThreshold());
         mSift->setFeaturesNumber(sift->featuresNumber());
         mSift->setContrastThreshold(sift->contrastThreshold());
-        //mSift->setDomainSizePooling(sift->domainSizePooling());
     }
 }
 
-void FeatureExtractorPresenterImp::onError(tl::TaskErrorEvent* event)
+void FeatureExtractorPresenterImp::onError(tl::TaskErrorEvent &event)
 {
     TaskPresenter::onError(event);
 
@@ -136,9 +133,13 @@ void FeatureExtractorPresenterImp::onError(tl::TaskErrorEvent* event)
     }
 }
 
-void FeatureExtractorPresenterImp::onFinished(tl::TaskFinalizedEvent* event)
+void FeatureExtractorPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
     TaskPresenter::onFinished(event);
+
+    if (auto *extract_task = dynamic_cast<const ExtractFeaturesTask *>(event.task())) {
+        mModel->setFeatureExtractorReport(extract_task->report());
+    }
 
     if (progressHandler()) {
         progressHandler()->setDescription(QApplication::translate("FeatureExtractorComponent", "Task finished"));
@@ -149,7 +150,7 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> feat_extract_task;
 
-    if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()) {
+    if (mModel->featureConfig()) {
 
         int i_ret = QMessageBox(QMessageBox::Warning,
                                 QApplication::translate("FeatureExtractorComponent", "Previous results"),
@@ -167,23 +168,22 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createTask()
     emit features_deleted();
 
     QString currentKeyPointDetector = mView->currentDetectorDescriptor();
+
+    auto sift_config = std::make_shared<SiftProperties>();
+    sift_config->setFeaturesNumber(mSift->featuresNumber());
+    sift_config->setOctaveLayers(mSift->octaveLayers());
+    sift_config->setEdgeThreshold(mSift->edgeThreshold());
+    sift_config->setContrastThresholdAuto(mSift->constrastThresholdAuto());
+    sift_config->setContrastThreshold(mSift->constrastThresholdAuto() ? 0.0 : mSift->contrastThreshold());
+
     std::shared_ptr<FeatureExtractor> feature_extractor;
 
     if (currentKeyPointDetector.compare("SIFT") == 0) {
 
         if (mModel->useCuda()) {
-            feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mSift->featuresNumber(),
-                                                                             mSift->octaveLayers(),
-                                                                             mSift->edgeThreshold(),
-                                                                             mSift->constrastThresholdAuto() ?
-                                                                             0. : mSift->contrastThreshold()/*,
-                                                                             mSift->domainSizePooling()*/);
+            feature_extractor = std::make_shared<SiftGPUExtractor>(*sift_config);
         } else {
-            feature_extractor = std::make_shared<SiftCPUDetectorDescriptor>(mSift->featuresNumber(),
-                                                                            mSift->octaveLayers(),
-                                                                            mSift->edgeThreshold(),
-                                                                            mSift->constrastThresholdAuto() ?
-                                                                            0. : mSift->contrastThreshold());
+            feature_extractor = std::make_shared<SiftCPUExtractor>(*sift_config);
         }
 
     } else {
@@ -191,42 +191,33 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createTask()
         throw std::runtime_error("Invalid Keypoint Detector");
     }
 
-    mModel->setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
-
-    const std::unordered_map<size_t, Image> &images = mModel->images();
+    mModel->setFeatureConfig(sift_config);
 
     int maxSize = -1;
     if (mView->fullImageSize() == false) {
         maxSize = mView->maxImageSize();
     }
 
-    feat_extract_task = std::make_unique<FeatureExtractorTask>(images,
-                                                               mModel->cameras(),
-                                                               mModel->database(),
-                                                               maxSize,
-                                                               mModel->useCuda(),
-                                                               feature_extractor);
+    auto extract_task = std::make_unique<ExtractFeaturesTask>(mModel->images(),
+                                                              mModel->cameras(),
+                                                              mModel->enuCrs(),
+                                                              mModel->database(),
+                                                              maxSize,
+                                                              mModel->useCuda(),
+                                                              feature_extractor);
 
-    connect(dynamic_cast<FeatureExtractorTask*>(feat_extract_task.get()), &FeatureExtractorTask::features_extracted,
+    connect(extract_task.get(), &ExtractFeaturesTask::features_extracted,
             this, &FeatureExtractorPresenterImp::onFeaturesExtracted);
 
-    feat_extract_task->subscribe([&](tl::TaskFinalizedEvent *event) {
-
-        auto report = dynamic_cast<FeatureExtractorTask const*>(event->task())->report();
-    
-        mModel->setFeatureExtractorReport(report);
-
-    });
-
     if (progressHandler()) {
-        progressHandler()->setRange(0, images.size());
+        progressHandler()->setRange(0, mModel->images().size());
         progressHandler()->setTitle(QApplication::translate("FeatureExtractorComponent", "Feature Extraction"));
         progressHandler()->setDescription(QApplication::translate("FeatureExtractorComponent", "Image feature extraction..."));
     }
 
     mView->hide();
 
-    return feat_extract_task;
+    return extract_task;
 }
 
 void FeatureExtractorPresenterImp::onFeaturesExtracted(size_t imageId,

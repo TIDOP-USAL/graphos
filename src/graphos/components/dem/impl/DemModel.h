@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DEM_MODEL_H
-#define GRAPHOS_DEM_MODEL_H
+#pragma once
 
 #include "graphos/components/dem/DemModel.h"
 
@@ -43,20 +42,26 @@ public:
 // DtmModel interface
 
 public:
-
-    auto enuCrs() const -> QString override;
+    
+    auto config() const -> std::shared_ptr<DemProperties> override;
+    auto enuCrs() const -> std::string override;
     auto projectPath() const -> tl::Path override;
     auto denseModel() const -> tl::Path override;
-    auto crs() const -> QString override;
-    auto gsd() const -> double override;
-    auto dtmPath() const -> tl::Path override;
-    auto dsmPath() const -> tl::Path override;
+    auto crs() const -> std::string override;
+    //auto gsd() const -> double override;
+    //TODO: ¿Mantener o quitar?
+    //auto dtmPath() const -> tl::Path override;
+    //auto dsmPath() const -> tl::Path override;
 
-    void setGsd(double gsd) override;
-    void setDtmPath(const tl::Path &dtmPath) override;
-    void setDsmPath(const tl::Path &dsmPath) override;
-    void setCrs(const QString &crs) override;
-    void setReport(const DemReport &report) override;
+    void cleanProject() override;
+
+    //void setGsd(double gsd) override;
+    void setConfig(std::shared_ptr<DemProperties> config) override;
+    void setDtmPath(tl::Path dtmPath) override;
+    void setDsmPath(tl::Path dsmPath) override;
+    void setDsmEnuPath(tl::Path dsmEnuPath) override;
+    //void setCrs(const QString &crs) override;
+    void setReport(DemReport report) override;
 
 // Model interface
 
@@ -74,7 +79,4 @@ protected:
 
 };
 
-
 } // namespace graphos
-
-#endif // GRAPHOS_DTM_MODEL_H

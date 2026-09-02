@@ -24,6 +24,8 @@
 #ifndef GRAPHOS_GRAPHIC_ITEM_H
 #define GRAPHOS_GRAPHIC_ITEM_H
 
+#include "graphos/graphos_global.h"
+
 #include <QGraphicsItem>
 #include <QPen>
 

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_EXTRACTOR_PRESENTER_INTERFACE_H
-#define GRAPHOS_FEATURE_EXTRACTOR_PRESENTER_INTERFACE_H
+#pragma once
 
 #include "graphos/core/task/TaskPresenter.h"
 
@@ -52,5 +51,3 @@ public slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_FEATURE_EXTRACTOR_PRESENTER_INTERFACE_H

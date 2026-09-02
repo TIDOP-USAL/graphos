@@ -27,8 +27,12 @@
 #include "graphos/components/orthophoto/impl/OrthophotoModel.h"
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"
 #include "graphos/components/orthophoto/impl/OrthophotoTask.h"
+#include "graphos/core/camera/Undistort.h"
+#include "graphos/core/camera/CameraRepository.h"
+#include "graphos/core/image/ImageRepository.h"
 
 //#include <tidop/rastertools/io/Reader.h>
+#include <tidop/core/task/TaskList.h>
 
 #include <QFileInfo>
 #include <QMessageBox>
@@ -52,14 +56,11 @@ OrthophotoPresenterImp::~OrthophotoPresenterImp()
 
 }
 
-auto OrthophotoPresenterImp::undistortedCameras(const std::map<int, Camera> &cameras) const -> std::map<int, Camera>
+auto OrthophotoPresenterImp::undistortedCameras(const CameraRepository &cameraRepo) const -> std::map<int, Camera>
 {
     std::map<int, Camera> undistorted_cameras;
 
-    for (const auto &camera_pair : cameras) {
-
-        int camera_id = camera_pair.first;
-        const auto &camera = camera_pair.second;
+    for (const auto &[camera_id, camera] : cameraRepo) {
 
         Undistort undistort(camera);
         Camera undistort_camera = undistort.undistortCamera();
@@ -104,7 +105,7 @@ void OrthophotoPresenterImp::open()
 {
     mModel->loadSettings();
 
-    mView->setCrs(mModel->crs());
+    mView->setCrs(QString::fromStdString(mModel->crs()));
 
     mView->exec();
 }
@@ -122,7 +123,7 @@ void OrthophotoPresenterImp::initSignalAndSlots()
     });
 }
 
-void OrthophotoPresenterImp::onError(tl::TaskErrorEvent *event)
+void OrthophotoPresenterImp::onError(tl::TaskErrorEvent &event)
 {
     TaskPresenter::onError(event);
 
@@ -131,8 +132,19 @@ void OrthophotoPresenterImp::onError(tl::TaskErrorEvent *event)
     }
 }
 
-void OrthophotoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void OrthophotoPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
+    if (auto *task = dynamic_cast<const OrthophotoTask *>(event.task())) {
+        try {
+
+            mModel->setOrthoReport(task->report());
+            mModel->setOrthophoto(task->orthoPath());
+
+        } catch (const std::exception &e) {
+            tl::printException(e);
+        }
+    }
+
     TaskPresenter::onFinished(event);
 
     if(progressHandler()) {
@@ -142,7 +154,9 @@ void OrthophotoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
 {
-    auto task_list = std::make_unique<tl::TaskList>();
+    // Que sea una lista de tareas complica la gesti贸n de los eventos de finalizaci贸n y error, ya que no se puede saber a qu茅 tarea pertenece el evento.
+    // Como las imagenes tienen que venir corregidas de distorsi贸n desde la densificaci贸n se omite esa tarea.
+    //auto task_list = std::make_unique<tl::TaskList>();
 
     //tl::Path ortho_path = mModel->orthoPath();
     //if(!ortho_path.exists()) {
@@ -171,18 +185,18 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
         undistorted_image_paths = undistort_path.list(".tif");
     }
 
-    if (undistorted_image_paths.size() != images.size()) {
+    //if (undistorted_image_paths.size() != images.size()) {
 
-        undistort_path.createDirectories();
+    //    undistort_path.createDirectories();
 
-        auto undistort = std::make_shared<UndistortImages>(images,
-                                                           cameras,
-                                                           undistort_path,
-                                                           UndistortImages::Format::tiff,
-                                                           use_cuda,
-                                                           true);
-        task_list->push_back(undistort);
-    }
+    //    auto undistort = std::make_shared<UndistortImages>(images,
+    //                                                       cameras,
+    //                                                       undistort_path,
+    //                                                       UndistortImages::Format::tiff,
+    //                                                       use_cuda,
+    //                                                       true);
+    //    task_list->push_back(undistort);
+    //}
 
 
 
@@ -206,39 +220,46 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
 
     //}
 
-    auto ortho_task = std::make_shared<OrthophotoTask>(undistorted_images,
-                                                       undistorted_cameras,
+    // TODO: Pasar config a la tarea
+    auto config = std::make_shared<OrthophotoProperties>();
+    config->setCrs(mView->crs().toStdString());
+    config->setGsd(mView->gsd());
+    config->setInterpolation(mView->interpolation().toStdString());
+    mModel->setProperties(config);
+
+    auto ortho_task = std::make_unique<OrthophotoTask>(std::move(undistorted_images),
+                                                       std::move(undistorted_cameras),
                                                        ortho_path,
                                                        mModel->dtmPath(),
-                                                       mModel->enuCrs().toStdString(),
+                                                       mModel->enuCrs(),
                                                        mView->crs().toStdString(),
                                                        mView->interpolation().toStdString(),
                                                        mView->gsd(),
                                                        mModel->useCuda());
 
-    ortho_task->subscribe([&, ortho_path](const tl::TaskFinalizedEvent *event) {
+    //ortho_task->subscribe([&, ortho_path](const tl::TaskFinalizedEvent *event) {
 
-        try {
+    //    try {
 
-            auto task = dynamic_cast<OrthophotoTask const *>(event->task());
-            if (task) {
-                auto report = task->report();
-                OrthophotoData ortho_data;
-                ortho_data.path = ortho_path;
-                ortho_data.epsgCode = mView->crs();
-                ortho_data.gsd = mView->gsd();
-                ortho_data.interpolation = mView->interpolation();
-                ortho_data.report = report;
-                mModel->addOrthophoto(ortho_data);
-            }
+    //        auto task = dynamic_cast<OrthophotoTask const *>(event->task());
+    //        if (task) {
+    //            auto report = task->report();
+    //            OrthophotoData ortho_data;
+    //            ortho_data.path = ortho_path;
+    //            ortho_data.epsgCode = mView->crs();
+    //            ortho_data.gsd = mView->gsd();
+    //            ortho_data.interpolation = mView->interpolation();
+    //            ortho_data.report = report;
+    //            mModel->addOrthophoto(ortho_data);
+    //        }
 
-        } catch (std::exception &e) {
-            tl::printException(e);
-        }
+    //    } catch (std::exception &e) {
+    //        tl::printException(e);
+    //    }
 
-    });
+    //});
 
-    task_list->push_back(ortho_task);
+    //task_list->push_back(ortho_task);
 
     if(progressHandler()) {
         progressHandler()->setRange(0, mModel->images().size()*4);
@@ -248,29 +269,28 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
 
     mView->hide();
 
-    return task_list;
+    return ortho_task/*task_list*/;
 }
 
-auto OrthophotoPresenterImp::undistortedImages(const std::unordered_map<size_t, Image> &images,
+auto OrthophotoPresenterImp::undistortedImages(const ImageRepository &images,
                                                tl::Path &undistort_path) const -> std::unordered_map<size_t, Image>
 {
     std::unordered_map<size_t, Image> undistorted_images;
 
     const auto &poses = mModel->poses();
 
-    for (const auto &pose : poses) {
+    for (const auto &[image_id, pose] : poses) {
 
-        size_t image_id = pose.first;
-        Image image = images.at(image_id);
+        Image image = *images.find(image_id);
 
-        // Se utiliza el path de la imagen corregida de distorsi髇.
+        // Se utiliza el path de la imagen corregida de distorsi贸n.
         tl::Path image_path = undistort_path;
         std::string file_name = std::to_string(image_id).append(".tif");
         image_path.append(file_name);
         image.setPath(image_path);
 
-        // Se sustituye las poses importadas (EXIF) por las de la orientaci髇
-        CameraPose camera_pose = pose.second;
+        // Se sustituye las poses importadas (EXIF) por las de la orientaci贸n
+        CameraPose camera_pose = pose;
         auto rotation_matrix = camera_pose.rotationMatrix();
         rotation_matrix.at(1, 0) = -rotation_matrix.at(1, 0);
         rotation_matrix.at(1, 1) = -rotation_matrix.at(1, 1);
@@ -279,7 +299,7 @@ auto OrthophotoPresenterImp::undistortedImages(const std::unordered_map<size_t, 
         rotation_matrix.at(2, 1) = -rotation_matrix.at(2, 1);
         rotation_matrix.at(2, 2) = -rotation_matrix.at(2, 2);
         camera_pose.setRotationMatrix(rotation_matrix);
-        image.setCameraPose(camera_pose);
+        image.cameraPose() = camera_pose;
 
         int camera_id = image.cameraId();
 

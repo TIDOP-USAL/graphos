@@ -21,30 +21,26 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORIENTATION_MODEL_INTERFACE_H
-#define GRAPHOS_ORIENTATION_MODEL_INTERFACE_H
+#pragma once
 
-#include <unordered_map>
+#include <cstddef>
 
 #include <tidop/core/base/Path.h>
 
 #include "graphos/core/mvp.h"
-#include "graphos/core/image.h"
-#include "graphos/core/sfm/poses.h"
-#include "graphos/core/sfm/OrientationReport.h"
+#include "graphos/core/orientation/CameraPose.h"
+#include "graphos/core/orientation/OrientationReport.h"
 
 namespace graphos
 {
 
 class Camera;
+class CameraRepository;
+class ImageRepository;
 
 class OrientationModel
   : public Model
 {
-public :
-
-    using Images = const std::unordered_map<size_t, Image>;
-
 public:
 
     OrientationModel(QObject *parent = nullptr) : Model(parent) {}
@@ -55,6 +51,7 @@ public:
     virtual void setSparseModel(const tl::Path &sparseModel) = 0;
     virtual void setEnuCrs(const QString &enuCrs) = 0;
     virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
+    virtual void setCameraPosesFile(const tl::Path &cameraPosesFile) = 0;
     virtual auto isPhotoOriented(size_t imageId) const -> bool = 0;
     virtual auto photoOrientation(size_t imageId) const -> CameraPose = 0;
     virtual void addPhotoOrientation(size_t imageId, const CameraPose &orientation) = 0;
@@ -66,13 +63,11 @@ public:
     virtual auto groundControlPointsFile() const -> tl::Path = 0;
     virtual auto existReconstruction() const -> bool = 0;
     virtual void clearProject() = 0;
-    virtual auto cameras() const -> const std::map<int, Camera>& = 0;
+    virtual auto cameras() -> CameraRepository & = 0;
     virtual auto updateCamera(int id, const Camera& camera) -> bool = 0;
-    virtual auto images() const -> const Images & = 0;
+    virtual auto images() const -> const ImageRepository & = 0;
     virtual auto orientationReport() const -> OrientationReport = 0;
     virtual void setOrientationReport(const OrientationReport &orientationReport) = 0;
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ORIENTATION_MODEL_INTERFACE_H

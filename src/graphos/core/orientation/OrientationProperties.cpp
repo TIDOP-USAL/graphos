@@ -90,7 +90,7 @@ void OrientationProperties::enableAbsoluteOrientation(bool enable)
 
 void OrientationProperties::setProperty(const std::string &key, const std::string &value)
 {
-    mProperties.setProperty(key, value);
+    mProperties.property(key).fromString(value);
 }
 
 void OrientationProperties::clear()

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GCPS_PRESENTER_H
-#define GRAPHOS_GCPS_PRESENTER_H
+#pragma once
 
 #include "graphos/components/gcps/GroundControlPointsPresenter.h"
 
@@ -69,5 +68,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_GCPS_PRESENTER_H

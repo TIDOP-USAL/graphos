@@ -27,10 +27,12 @@
 #include "graphos/components/images/ImageLoaderView.h"
 #include "graphos/components/images/impl/LoadImagesTask.h"
 #include "graphos/core/task/Progress.h"
-#include "graphos/core/image.h"
+#include "graphos/core/image/Image.h"
 #include "graphos/core/camera/Camera.h"
 
 #include <tidop/core/app/Message.h>
+#include <tidop/geotools/GeoTools.h>
+#include <tidop/geotools/CRSsTools.h>
 
 #include <QApplication>
 
@@ -68,21 +70,16 @@ void ImageLoaderPresenterImp::open()
     mView->exec();
 }
 
-void ImageLoaderPresenterImp::addImage(int imagePosition, int cameraPosition)
+void ImageLoaderPresenterImp::addImage(int imageIndex, int cameraId)
 {
-    Image image = mImages[imagePosition];
-    Camera camera = mCameras[cameraPosition];
-    int camera_id = mModel->cameraID(camera);
-    if (camera_id == 0)
-        camera_id = mModel->addCamera(camera);
-
-    image.setCameraId(camera_id);
-    mModel->addImage(image);
+    Image image = mImages[imageIndex];
+    image.setCameraId(cameraId);
+    mModel->addImage(std::move(image));
 
     emit image_loaded(Image::id(image));
 }
 
-void ImageLoaderPresenterImp::onError(tl::TaskErrorEvent *event)
+void ImageLoaderPresenterImp::onError(tl::TaskErrorEvent &event)
 {
     TaskPresenter::onError(event);
 
@@ -91,9 +88,15 @@ void ImageLoaderPresenterImp::onError(tl::TaskErrorEvent *event)
     }
 }
 
-void ImageLoaderPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void ImageLoaderPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
     TaskPresenter::onFinished(event);
+
+    if (auto *load_images_task = dynamic_cast<const LoadImagesTask *>(event.task())) {
+        std::string enu_str = load_images_task->enuCrs();
+        mModel->setEnuCrs(enu_str);
+        tl::Message::info("Calculated Local ENU Reference System: {}", enu_str);
+    }
 
     if (progressHandler()) {
         progressHandler()->setDescription(QApplication::translate("ImageLoaderComponent", "Task finished"));
@@ -107,18 +110,18 @@ auto ImageLoaderPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     if (mImageFiles.empty()) return image_loader_task;
 
     mImages.clear();
-    for (auto &image : mImageFiles) {
-        Image img(image);
-        if (!mModel->existImage(Image::id(image)))
-            mImages.push_back(img);
+    for (auto &image_file : mImageFiles) {
+        tl::Path image_path(image_file.toStdString());
+        size_t hash_id = tl::Path::hash(image_path.toString());
+        if (!mModel->existImage(hash_id)) {
+            mImages.emplace_back(image_path);
+        }
     }
 
-    mCameras.clear();
-    for (const auto &camera : mModel->cameras()) {
-        mCameras.push_back(camera.second);
-    }
+    if (mImages.empty()) return image_loader_task;
 
-    image_loader_task = std::make_unique<LoadImagesTask>(&mImages, &mCameras, "OpenCV 1"/*, mModel->projectCRS()*/);
+    image_loader_task = std::make_unique<LoadImagesTask>(mImages, mModel->cameraRepository(), "OpenCV 1");
+    //mTaskRef = load_task.get();
 
     connect(dynamic_cast<LoadImagesTask *>(image_loader_task.get()), &LoadImagesTask::imageAdded,
             this, &ImageLoaderPresenterImp::addImage);

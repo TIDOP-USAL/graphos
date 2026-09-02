@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_MATCHING_VIEW_H
-#define GRAPHOS_FEATURE_MATCHING_VIEW_H
+#pragma once
 
 #include "graphos/components/featmatch/FeatureMatchingView.h"
 
@@ -88,5 +87,3 @@ protected:
 };
 
 } // End namespace graphos
-
-#endif // GRAPHOS_FEATURE_MATCHING_VIEW_H

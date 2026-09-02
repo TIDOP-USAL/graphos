@@ -21,19 +21,19 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DEM_MODEL_INTERFACE_H
-#define GRAPHOS_DEM_MODEL_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
 #include <tidop/core/base/Path.h>
 #include <tidop/geometry/primitives/Point.h>
 
-#include "impl/DemTask.h"
+#include "graphos/core/dem/DemReport.h"
 
 namespace graphos
 {
 
+class DemProperties;
 
 /*!
  * \brief The DemModel class provides an interface for accessing Digital elevation Model (DEM) data.
@@ -55,11 +55,14 @@ public:
      */
     ~DemModel() override = default;
 
+    virtual auto config() const -> std::shared_ptr<DemProperties> = 0;
+
+
     /*!
      * \brief Retrieves the ENU CRS.
      * \return The ENU CRS.
      */
-    virtual auto enuCrs() const -> QString = 0;
+    virtual auto enuCrs() const -> std::string = 0;
 
     /*!
      * \brief Retrieves the path to the project folder.
@@ -77,49 +80,54 @@ public:
      * \brief Retrieves the Coordinate Reference System (CRS) information.
      * \return The CRS information as a string.
      */
-    virtual auto crs() const -> QString = 0;
+    virtual auto crs() const -> std::string = 0;
 
-    /*!
-     * \brief Retrieves the Ground Sample Distance (GSD).
-     * \return The GSD value.
-     */
-    virtual auto gsd() const -> double = 0;
+    ///*!
+    // * \brief Retrieves the Ground Sample Distance (GSD).
+    // * \return The GSD value.
+    // */
+    //virtual auto gsd() const -> double = 0;
 
     /*!
      * \brief Retrieves the path to the Digital Terrain Model (DTM) file.
      * \return The path to the DTM file.
      */
-    virtual auto dtmPath() const -> tl::Path = 0;
+    //virtual auto dtmPath() const -> tl::Path = 0;
 
     /*!
      * \brief Retrieves the path to the Digital Surface Model (DSM) file.
      * \return The path to the DSM file.
      */
-    virtual auto dsmPath() const -> tl::Path = 0;
+    //virtual auto dsmPath() const -> tl::Path = 0;
 
-    /*!
-     * \brief Sets the Ground Sample Distance (GSD).
-     * \param[in] gsd The GSD value to set.
-     */
-    virtual void setGsd(double gsd) = 0;
+    virtual void cleanProject() = 0;
+
+    ///*!
+    // * \brief Sets the Ground Sample Distance (GSD).
+    // * \param[in] gsd The GSD value to set.
+    // */
+    //virtual void setGsd(double gsd) = 0;
+
+    //virtual void setCrs(const QString &crs) = 0;
+
+    virtual void setConfig(std::shared_ptr<DemProperties> config) = 0;
 
     /*!
      * \brief Sets the path to the Digital Terrain Model (DTM) file.
      * \param[in] dtmPath The path to the DTM file.
      */
-    virtual void setDtmPath(const tl::Path &dtmPath) = 0;
+    virtual void setDtmPath(tl::Path dtmPath) = 0;
 
     /*!
      * \brief Sets the path to the Digital Surface Model (DSM) file.
      * \param[in] dsmPath The path to the DSM file.
      */
-    virtual void setDsmPath(const tl::Path &dsmPath) = 0;
+    virtual void setDsmPath(tl::Path dsmPath) = 0;
 
-    virtual void setCrs(const QString &crs) = 0;
-    virtual void setReport(const DemReport &report) = 0;
+    virtual void setDsmEnuPath(tl::Path dsmEnuPath) = 0;
+
+    virtual void setReport(DemReport report) = 0;
 
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_DEM_MODEL_INTERFACE_H

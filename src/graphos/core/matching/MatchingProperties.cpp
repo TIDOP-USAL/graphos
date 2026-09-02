@@ -111,7 +111,7 @@ void MatchingProperties::clear()
 
 void MatchingProperties::setProperty(const std::string &key, const std::string &value)
 {
-    mProperties.setProperty(key, value);
+    mProperties.property(key).fromString(value);
 }
 
 

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CLOSE_PROJECT_PRESENTER_H
-#define GRAPHOS_CLOSE_PROJECT_PRESENTER_H
+#pragma once
 
 #include "graphos/components/closeproject/CloseProjectPresenter.h"
 
@@ -65,5 +64,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CLOSE_PROJECT_PRESENTER_H

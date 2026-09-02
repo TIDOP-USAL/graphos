@@ -32,7 +32,7 @@
 #include <tidop/graphic/entities/GPolygon.h>
 //#include <tidop/vect/vectwriter.h>
 //#include <tidop/graphic/entities/polygon.h>
-//#include <tidop/math/geometry/affine.h>
+//#include <tidop/geometry/transform/Affine.h>
 //
 #include "graphos/core/image/Image.h"
 #include "graphos/core/camera/Camera.h"
@@ -78,7 +78,7 @@ private:
 
 	void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
-	//auto orthoimageGraphProjected(const tl::Window<tl::Point<double>> &windowOrthoTerrain) const -> std::shared_ptr<tl::GPolygon>;
+	//auto orthoimageGraphProjected(const tl::Window<tl::Point2d> &windowOrthoTerrain) const -> std::shared_ptr<tl::GPolygon>;
 	auto footprintProjected(const tl::GPolygon &footprint) const -> std::unique_ptr<tl::GPolygon>;
 
 private:

@@ -189,4 +189,9 @@ auto PoissonReconTask::report() const -> MeshReport
     return mReport;
 }
 
+auto PoissonReconTask::meshModel() const -> tl::Path
+{
+    return mOutput;
+}
+
 } // namespace graphos

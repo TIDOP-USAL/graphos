@@ -23,7 +23,8 @@
 
 #include "SaveProjectAsModel.h"
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 #include "graphos/core/Application.h"
 
 #include <QStandardPaths>
@@ -43,7 +44,9 @@ SaveProjectAsModelImp::~SaveProjectAsModelImp() = default;
 
 void SaveProjectAsModelImp::save(const tl::Path &file)
 {
-    mProject->save(file);
+    ProjectWriter writer;
+    writer.write(file, *mProject);
+    writer.write(file, *mProject);
 }
 
 auto SaveProjectAsModelImp::graphosProjectsDirectory() const -> tl::Path

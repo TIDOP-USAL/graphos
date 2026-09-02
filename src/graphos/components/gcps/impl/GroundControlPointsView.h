@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GCPS_VIEW_H
-#define GRAPHOS_GCPS_VIEW_H
+#pragma once
 
 #include "graphos/components/gcps/GroundControlPointsView.h"
 
@@ -136,5 +135,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_GCPS_VIEW_H

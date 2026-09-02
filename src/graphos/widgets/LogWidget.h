@@ -27,11 +27,11 @@
 #include "graphos/widgets/GraphosWidget.h"
 
 #include <mutex>
+#include <string_view>
 
-#include <tidop/core/defs.h>
-#include <tidop/core/base/flags.h>
-#include <tidop/core/msg/handler.h>
-#include <tidop/core/log.h>
+#include <tidop/core/base/Flags.h>
+#include <tidop/core/app/MessageHandler.h>
+#include <tidop/core/app/Logger.h>
 
 class QDateTimeEdit;
 class QListWidget;
@@ -63,7 +63,7 @@ public:
      */
     static void setLogLevel(tl::MessageLevel level);
 
-    void print(String msg, tl::MessageLevel level) const;
+    void print(std::string_view msg, tl::MessageLevel level) const;
     void refresh();
 
 private slots:
@@ -95,12 +95,13 @@ private:
 
 public:
 
-    void debug(String message) override;
-    void info(String message) override;
-    void success(String message) override;
-    void warning(String message) override;
-    void error(String message) override;
-
+    [[nodiscard]]
+    auto isEnabled(tl::MessageLevel level) const -> bool override;
+    void debug(std::string_view message) override;
+    void info(std::string_view message) override;
+    void success(std::string_view message) override;
+    void warning(std::string_view message) override;
+    void error(std::string_view message) override;
 private:
 
     static tl::EnumFlags<tl::MessageLevel> sLevel;

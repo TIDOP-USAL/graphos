@@ -21,9 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-
-#ifndef GRAPHOS_ORTHOPHOTO_PRESENTER_INTERFACE_H
-#define GRAPHOS_ORTHOPHOTO_PRESENTER_INTERFACE_H
+#pragma once
 
 #include "graphos/core/task/TaskPresenter.h"
 
@@ -47,6 +45,3 @@ signals:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_ORTHOPHOTO_PRESENTER_INTERFACE_H

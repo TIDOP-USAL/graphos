@@ -23,16 +23,19 @@
 
 #include "DemModel.h"
 
-#include "graphos/core/project.h"
-#include "graphos/core/sfm/posesio.h"
+#include "graphos/core/project/Project.h"
+//#include "graphos/core/sfm/posesio.h"
 
-#include <tidop/geospatial/crs.h>
-#include <tidop/geospatial/crstransf.h>
+//#include <tidop/geospatial/crs.h>
+//#include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
+#include <tidop/core/base/Split.h>
+#include <tidop/core/base/TypeConversions.h>
 
 #include <QFileInfo>
 #include <QFile>
 #include <QTextStream>
+#include "DemTask.h"
 
 
 namespace graphos
@@ -45,9 +48,14 @@ DemModelImp::DemModelImp(Project *project, QObject *parent)
     DemModelImp::init();
 }
 
+auto DemModelImp::config() const -> std::shared_ptr<DemProperties>
+{
+    return mProject->demConfig();
+}
+
 auto DemModelImp::projectPath() const -> tl::Path
 {
-    return mProject->projectFolder();
+    return mProject->info().projectFolder();
 }
 
 auto DemModelImp::denseModel() const -> tl::Path
@@ -55,20 +63,22 @@ auto DemModelImp::denseModel() const -> tl::Path
     return mProject->denseModel();
 }
 
-auto DemModelImp::crs() const -> QString
+auto DemModelImp::crs() const -> std::string
 {
-    QString epsg_code;
+    std::string epsg_code;
 
     try {
 
-        epsg_code = mProject->dem().epsgCode;
+        if (auto config = mProject->demConfig()) {
+            epsg_code = config->crs();
+        }
 
-        if (epsg_code.isEmpty()) {
+        if (epsg_code.empty()) {
             auto enu_crs = enuCrs();
-            auto v = tl::split<std::string>(enu_crs.toStdString(), ';');
-            auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
+            auto v = tl::split<std::string>(enu_crs, ';');
+            auto zone = tl::utmZoneFromLonLat(tl::convertStringTo<double>(v.at(1)), tl::convertStringTo<double>(v.at(2)));
             epsg_code = "EPSG:326";
-            epsg_code.append(QString::number(zone.first));
+            epsg_code.append(std::to_string(zone.first));
         }
 
     } catch (...) {
@@ -78,49 +88,64 @@ auto DemModelImp::crs() const -> QString
     return epsg_code;
 }
 
-auto DemModelImp::gsd() const -> double
+//auto DemModelImp::gsd() const -> double
+//{
+//    return mProject->dem().gsd;
+//}
+//
+//void DemModelImp::setGsd(double gsd)
+//{
+//    mProject->dem().gsd = gsd;
+//}
+
+//auto DemModelImp::dtmPath() const -> tl::Path
+//{
+//    return mProject->dtm();
+//}
+//
+//auto DemModelImp::dsmPath() const -> tl::Path
+//{
+//    return mProject->dsm();
+//}
+
+void DemModelImp::cleanProject()
 {
-    return mProject->dem().gsd;
+    mProject->clearDem();
 }
 
-void DemModelImp::setGsd(double gsd)
+void DemModelImp::setConfig(std::shared_ptr<DemProperties> config)
 {
-    mProject->dem().gsd = gsd;
+    mProject->setDemConfig(std::move(config));
 }
 
-auto DemModelImp::dtmPath() const -> tl::Path
+void DemModelImp::setDtmPath(tl::Path dtmPath)
 {
-    return mProject->dem().dtmPath;
+    mProject->setDtm(std::move(dtmPath));
 }
 
-auto DemModelImp::dsmPath() const -> tl::Path
+void DemModelImp::setDsmPath(tl::Path dsmPath)
 {
-    return mProject->dem().dsmPath;
+    mProject->setDsm(std::move(dsmPath));
 }
 
-void DemModelImp::setDtmPath(const tl::Path &dtmPath)
+void DemModelImp::setDsmEnuPath(tl::Path dsmPath)
 {
-    mProject->dem().dtmPath = dtmPath;
+    mProject->setDsmEnu(std::move(dsmPath));
 }
 
-void DemModelImp::setDsmPath(const tl::Path &dsmPath)
+//void DemModelImp::setCrs(const QString &crs)
+//{
+//    mProject->dem().epsgCode = crs;
+//}
+
+void DemModelImp::setReport(DemReport report)
 {
-    mProject->dem().dsmPath = dsmPath;
+    mProject->setDemReport(std::move(report));
 }
 
-void DemModelImp::setCrs(const QString &crs)
+auto DemModelImp::enuCrs() const -> std::string
 {
-    mProject->dem().epsgCode = crs;
-}
-
-void DemModelImp::setReport(const DemReport &report)
-{
-    mProject->setDemReport(report);
-}
-
-auto DemModelImp::enuCrs() const -> QString
-{
-    return mProject->enuCrs();
+    return mProject->info().enuCrs();
 }
 
 void DemModelImp::init()

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GCPS_PRESENTER_INTERFACE_H
-#define GRAPHOS_GCPS_PRESENTER_INTERFACE_H
+#pragma once
 
 
 #include "graphos/core/mvp.h"
@@ -48,5 +47,3 @@ public slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_GCPS_PRESENTER_INTERFACE_H

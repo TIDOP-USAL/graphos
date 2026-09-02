@@ -30,7 +30,7 @@
 
 #include <tidop/core/base/flags.h>
 
-#include "graphos/core/image.h"
+#include "graphos/core/image/Image.h"
 #include "graphos/core/camera/Camera.h"
 
 namespace Ui {

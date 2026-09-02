@@ -21,11 +21,10 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORIENTATION_PRESENTER_H
-#define GRAPHOS_ORIENTATION_PRESENTER_H
+#pragma once
 
 #include "graphos/components/orientation/OrientationPresenter.h"
-#include "graphos/core/sfm/Reconstruction.h"
+#include "graphos/components/orientation/impl/EstimatePosesTask.h"
 
 namespace graphos
 {
@@ -46,14 +45,14 @@ public:
 
 private:
 
-    ReconstructionTask::Options reconstructionOptions() const;
+    EstimatePosesTask::Options reconstructionOptions() const;
 
 // TaskPresenter interface
 
 protected:
 
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
+    void onError(tl::TaskErrorEvent &event) override;
+    void onFinished(tl::TaskFinalizedEvent &event) override;
     auto createTask() -> std::unique_ptr<tl::Task> override;
 
 public slots:
@@ -79,5 +78,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ORIENTATION_PRESENTER_H

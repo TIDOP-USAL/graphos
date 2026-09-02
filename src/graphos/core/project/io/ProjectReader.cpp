@@ -738,6 +738,8 @@ void ProjectReader::readDem(QXmlStreamReader &stream, Project &project)
             project.setDtm(streamToStdString(stream));
         } else if (stream.name() == "Dsm") {
             project.setDsm(streamToStdString(stream));
+        } else if (stream.name() == "DsmEnu") {
+            project.setDsmEnu(streamToStdString(stream));
         } else if (stream.name() == "Report") {
 
             DemReport report;
@@ -795,9 +797,9 @@ void ProjectReader::readOrtho(QXmlStreamReader &stream, Project &project)
                 } else if (stream.name() == "Crs") {
                     report.epsg = streamToStdString(stream);
                 } else if (stream.name() == "Cols") {
-                    report.cols = stream.readElementText().toDouble();
+                    report.cols = stream.readElementText().toInt();
                 } else if (stream.name() == "Rows") {
-                    report.rows = stream.readElementText().toDouble();
+                    report.rows = stream.readElementText().toInt();
                 } else if (stream.name() == "Channels") {
                                 report.channels = stream.readElementText().toInt();
                 } else

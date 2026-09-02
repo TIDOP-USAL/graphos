@@ -36,7 +36,7 @@ auto DensificationProperties::name() const -> std::string
 
 void DensificationProperties::setProperty(const std::string &key, const std::string &value)
 {
-    mProperties.setProperty(key, value);
+    mProperties.property(key).fromString(value);
 }
 
 

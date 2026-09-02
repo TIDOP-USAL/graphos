@@ -23,7 +23,10 @@
 
 #include "OrientationModel.h"
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/camera/CameraRepository.h"
+#include "graphos/core/image/ImageRepository.h"
+#include "graphos/core/orientation/CameraPosesRepository.h"
 
 #include <QFileInfo>
 
@@ -73,7 +76,7 @@ void OrientationModelImp::setSparseModel(const tl::Path &sparseModel)
 
 void OrientationModelImp::setEnuCrs(const QString &enuCrs)
 {
-    mProject->setEnuCrs(enuCrs);
+    mProject->info().setEnuCrs(enuCrs.toStdString());
 }
 
 void OrientationModelImp::setGroundPoints(const tl::Path &groundPoints)
@@ -81,31 +84,40 @@ void OrientationModelImp::setGroundPoints(const tl::Path &groundPoints)
     mProject->setGroundPoints(groundPoints);
 }
 
+void OrientationModelImp::setCameraPosesFile(const tl::Path &cameraPosesFile)
+{
+    mProject->setCameraPosesFile(cameraPosesFile);
+}
+
 auto OrientationModelImp::isPhotoOriented(size_t imageId) const -> bool
 {
-    return mProject->isPhotoOriented(imageId);
+    return mProject->cameraPoses().contains(imageId);
 }
 
 auto OrientationModelImp::photoOrientation(size_t imageId) const -> CameraPose
 {
-    return mProject->photoOrientation(imageId);
+    if (const auto *camera_pose = mProject->cameraPoses().find(imageId)) {
+        return *camera_pose;
+    }
+
+    return {};
 }
 
 void OrientationModelImp::addPhotoOrientation(size_t imageId,
                                               const CameraPose &orientation)
 {
-    mProject->addPhotoOrientation(imageId, orientation);
+    mProject->cameraPoses().add(imageId, orientation);
 }
 
 auto OrientationModelImp::database() const -> tl::Path
 {
-    return mProject->database();
+    return mProject->info().database();
 }
 
 
 auto OrientationModelImp::projectFolder() const -> tl::Path
 {
-    return mProject->projectFolder();
+    return mProject->info().projectFolder();
 }
 
 auto OrientationModelImp::hasCameraPoses() const -> bool
@@ -144,14 +156,14 @@ auto OrientationModelImp::hasRtkPoses() const -> bool
 
 auto OrientationModelImp::hasGroundControlPoints() const -> bool
 {
-    tl::Path gcp_file = mProject->projectFolder();
+    tl::Path gcp_file = mProject->info().projectFolder();
     gcp_file.append("sfm").append("georef.xml");
     return gcp_file.exists();
 }
 
 auto OrientationModelImp::groundControlPointsFile() const -> tl::Path
 {
-    tl::Path gcp_file = mProject->projectFolder();
+    tl::Path gcp_file = mProject->info().projectFolder();
     gcp_file.append("sfm").append("georef.xml");
     return gcp_file;
 }
@@ -163,20 +175,20 @@ auto OrientationModelImp::existReconstruction() const -> bool
 
 void OrientationModelImp::clearProject()
 {
-    mProject->clearReconstruction();
+    mProject->clearOrientation();
 }
 
-auto OrientationModelImp::cameras() const -> const std::map<int, Camera>&
+auto OrientationModelImp::cameras() -> CameraRepository &
 {
     return mProject->cameras();
 }
 
 auto OrientationModelImp::updateCamera(int id, const Camera& camera) -> bool
 {
-    return mProject->updateCamera(id, camera);
+    return mProject->cameras().update(id, camera);
 }
 
-auto OrientationModelImp::images() const -> const std::unordered_map<size_t, Image>&
+auto OrientationModelImp::images() const -> const ImageRepository &
 {
     return mProject->images();
 }

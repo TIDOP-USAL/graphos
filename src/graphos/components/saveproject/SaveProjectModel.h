@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_SAVE_PROJECT_MODEL_INTERFACE_H
-#define GRAPHOS_SAVE_PROJECT_MODEL_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -53,5 +52,3 @@ public slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_SAVE_PROJECT_MODEL_INTERFACE_H

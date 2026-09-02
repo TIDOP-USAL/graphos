@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_PRESENTER_H
-#define GRAPHOS_CREATE_PROJECT_PRESENTER_H
+#pragma once
 
 #include "graphos/components/createproject/CreateProjectPresenter.h"
 
@@ -80,6 +79,3 @@ private:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_CREATE_PROJECT_PRESENTER_H

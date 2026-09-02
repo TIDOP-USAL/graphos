@@ -31,13 +31,13 @@
 #include <tidop/core/base/TypeConversions.h>
 #include <tidop/geospatial/util.h>
 
-#ifdef GRAPHOS_GUI
-#include <FileIOFilter.h>
-#include <ccPointCloud.h>
-#include <ccGenericMesh.h>
-#include <PlyFilter.h>
-#include <ccHObjectCaster.h>
-#endif // GRAPHOS_GUI
+//#ifdef GRAPHOS_GUI
+//#include <FileIOFilter.h>
+//#include <ccPointCloud.h>
+//#include <ccGenericMesh.h>
+//#include <PlyFilter.h>
+//#include <ccHObjectCaster.h>
+//#endif // GRAPHOS_GUI
 
 #ifdef HAVE_CUDA
 #include <cuda_runtime.h>
@@ -436,63 +436,63 @@ tl::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const st
 
 void transformModel(const tl::Matrix<double> &transform, const std::string &model)
 {
-#ifdef GRAPHOS_GUI
-    CC_FILE_ERROR result = CC_FERR_NO_ERROR;
-    ccHObject group;
-
-    try {
-
-        PlyFilter filter;
-        FileIOFilter::LoadParameters parameters;
-        parameters.alwaysDisplayLoadDialog = false;
-        parameters.shiftHandlingMode = ccGlobalShiftManager::NO_DIALOG_AUTO_SHIFT;
-        parameters.parentWidget = nullptr;
-        result = filter.loadFile(QString::fromStdString(model), group, parameters);
-        
-        TL_ASSERT(result == CC_FERR_NO_ERROR, "Open Ply error");
-
-        ccHObject::Container clouds;
-        group.filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
-
-        //TL_ASSERT(clouds.size() == 1, "Error");
-
-        ccHObject *model_3d = clouds.at(0);
-
-        bool lockedVertices;
-        ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(model_3d, &lockedVertices);
-        ccGLMatrix cc_rot;
-        float *mat = cc_rot.data();
-
-        mat[0] = static_cast<float>(transform[0][0]);
-        mat[1] = static_cast<float>(transform[1][0]);
-        mat[2] = static_cast<float>(transform[2][0]);
-
-        mat[4] = static_cast<float>(transform[0][1]);
-        mat[5] = static_cast<float>(transform[1][1]);
-        mat[6] = static_cast<float>(transform[2][1]);
-
-        mat[8] = static_cast<float>(transform[0][2]);
-        mat[9] = static_cast<float>(transform[1][2]);
-        mat[10] = static_cast<float>(transform[2][2]);
-       
-        CCVector3 t(static_cast<PointCoordinateType>(transform[0][3]),
-                    static_cast<PointCoordinateType>(transform[1][3]),
-                    static_cast<PointCoordinateType>(transform[2][3]));
-        cc_rot.setTranslation(t);
-
-        cloud->applyRigidTransformation(cc_rot);
-
-        FileIOFilter::SaveParameters save_parameters;
-        save_parameters.alwaysDisplaySaveDialog = false;
-        save_parameters.parentWidget = nullptr;
-        result = filter.saveToFile(group.getChild(0), QString::fromStdString(model), save_parameters);
-
-        TL_ASSERT(result == CC_FERR_NO_ERROR, "Save Ply error");
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("Transform model error");
-    }
-#endif // GRAPHOS_GUI
+//#ifdef GRAPHOS_GUI
+//    CC_FILE_ERROR result = CC_FERR_NO_ERROR;
+//    ccHObject group;
+//
+//    try {
+//
+//        PlyFilter filter;
+//        FileIOFilter::LoadParameters parameters;
+//        parameters.alwaysDisplayLoadDialog = false;
+//        parameters.shiftHandlingMode = ccGlobalShiftManager::NO_DIALOG_AUTO_SHIFT;
+//        parameters.parentWidget = nullptr;
+//        result = filter.loadFile(QString::fromStdString(model), group, parameters);
+//        
+//        TL_ASSERT(result == CC_FERR_NO_ERROR, "Open Ply error");
+//
+//        ccHObject::Container clouds;
+//        group.filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+//
+//        //TL_ASSERT(clouds.size() == 1, "Error");
+//
+//        ccHObject *model_3d = clouds.at(0);
+//
+//        bool lockedVertices;
+//        ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(model_3d, &lockedVertices);
+//        ccGLMatrix cc_rot;
+//        float *mat = cc_rot.data();
+//
+//        mat[0] = static_cast<float>(transform[0][0]);
+//        mat[1] = static_cast<float>(transform[1][0]);
+//        mat[2] = static_cast<float>(transform[2][0]);
+//
+//        mat[4] = static_cast<float>(transform[0][1]);
+//        mat[5] = static_cast<float>(transform[1][1]);
+//        mat[6] = static_cast<float>(transform[2][1]);
+//
+//        mat[8] = static_cast<float>(transform[0][2]);
+//        mat[9] = static_cast<float>(transform[1][2]);
+//        mat[10] = static_cast<float>(transform[2][2]);
+//       
+//        CCVector3 t(static_cast<PointCoordinateType>(transform[0][3]),
+//                    static_cast<PointCoordinateType>(transform[1][3]),
+//                    static_cast<PointCoordinateType>(transform[2][3]));
+//        cc_rot.setTranslation(t);
+//
+//        cloud->applyRigidTransformation(cc_rot);
+//
+//        FileIOFilter::SaveParameters save_parameters;
+//        save_parameters.alwaysDisplaySaveDialog = false;
+//        save_parameters.parentWidget = nullptr;
+//        result = filter.saveToFile(group.getChild(0), QString::fromStdString(model), save_parameters);
+//
+//        TL_ASSERT(result == CC_FERR_NO_ERROR, "Save Ply error");
+//
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("Transform model error");
+//    }
+//#endif // GRAPHOS_GUI
 }
 
 QString enuCrsToEpsg(const QString &enuCRS)

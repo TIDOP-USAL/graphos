@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_OPEN_PROJECT_MODEL_H
-#define GRAPHOS_OPEN_PROJECT_MODEL_H
+#pragma once
 
 #include "graphos/components/openproject/OpenProjectModel.h"
 
@@ -71,5 +70,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_OPEN_PROJECT_MODEL_H

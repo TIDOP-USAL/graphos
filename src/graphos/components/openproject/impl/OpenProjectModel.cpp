@@ -23,7 +23,9 @@
 
 #include "OpenProjectModel.h"
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/project/io/ProjectReader.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 #include "graphos/core/Application.h"
 
 #include <QStandardPaths>
@@ -48,12 +50,14 @@ auto OpenProjectModelImp::graphosProjectsDirectory() const -> tl::Path
 
 void OpenProjectModelImp::saveProject()
 {
-    mProject->save(mProject->projectPath());
+    ProjectWriter writer;
+    writer.write(mProject->info().projectPath(), *mProject);
 }
 
 void OpenProjectModelImp::loadProject(const tl::Path &projectPath)
 {
-    mProject->load(projectPath);
+    ProjectReader reader;
+    reader.read(projectPath, *mProject);
 }
 
 void OpenProjectModelImp::init()

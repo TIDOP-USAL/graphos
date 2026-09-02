@@ -21,11 +21,10 @@
  *                                                                      *
  ************************************************************************/
  
-#ifndef GRAPHOS_MESH_MODEL_H
-#define GRAPHOS_MESH_MODEL_H
+#pragma once
 
 #include "graphos/components/mesh/MeshModel.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 
 class QSettings;
 
@@ -52,13 +51,14 @@ public:
     auto denseModel() const -> tl::Path override;
     auto projectDir() const -> tl::Path override;
     auto mesh() const -> tl::Path override;
-    void setMesh(const tl::Path &mesh) override;
+
     void cleanProject() override;
 
 public slots:
 
-    void setProperties(const std::shared_ptr<PoissonReconProperties> &properties) override;
-    void setMeshReport(const MeshReport &report) override;
+    void setProperties(std::shared_ptr<PoissonReconProperties> properties) override;
+    void setMeshReport(MeshReport report) override;
+    void setMeshModel(tl::Path mesh) override;
 
     void loadSettings() override;
     void saveSettings() override;
@@ -81,5 +81,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_MESH_MODEL_H

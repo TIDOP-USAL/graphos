@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/sfm/GroundControlPoint.h"
+#include "graphos/core/orientation/GroundControlPoint.h"
 
 #include <tidop/core/base/Endian.h>
 #include <tidop/core/base/Split.h>
@@ -79,7 +79,7 @@ void GroundControlPoint::removeTrackPoint(size_t imageId)
     mTrack.removePoint(imageId);
 }
 
-void GroundControlPoint::addPointToTrack(size_t imageId, const tl::Point<double> &point)
+void GroundControlPoint::addPointToTrack(size_t imageId, const tl::Point2d &point)
 {
     mTrack.addPoint(imageId, point);
 }
@@ -220,7 +220,7 @@ private:
                     if (stream.name() == "ImagePoint") {
 
                         size_t image_id = 0;
-                        tl::Point<double> point_2d;
+                        tl::Point2d point_2d;
                         tl::Vector2d error;
                         for (auto &attr : stream.attributes()) {
                             if (attr.name().compare(QString("image_id")) == 0) {
@@ -308,7 +308,7 @@ public:
             ss << line;
 
             tl::Point3d point;
-            tl::Point<double> image_point;
+            tl::Point2d image_point;
             std::string image_name;
             ss >> point.x() >> point.y() >> point.z() >> image_point.x() >> image_point.y() >> image_name;
             ss.clear();

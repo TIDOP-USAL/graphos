@@ -850,7 +850,7 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
 //
 //                                    if (track.existPoint(image_ids_colmap_to_graphos[image.second.ImageId()])) {
 //
-//                                        tl::Point<double> point = track.point(image_ids_colmap_to_graphos[image.second.ImageId()]);
+//                                        tl::Point2d point = track.point(image_ids_colmap_to_graphos[image.second.ImageId()]);
 //
 //                                        colmap::TriangulationEstimator::PointData point_data;
 //                                        point_data.point = Eigen::Vector2d(point.x, point.y);
@@ -1035,7 +1035,7 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
 //                                    size_t graphos_image_id = image_ids_colmap_to_graphos[image.second.ImageId()];
 //                                    if (track.existPoint(graphos_image_id)) {
 //
-//                                        tl::Point<double> point = track.point(graphos_image_id);
+//                                        tl::Point2d point = track.point(graphos_image_id);
 //
 //                                        colmap::TriangulationEstimator::PointData point_data;
 //                                        point_data.point = Eigen::Vector2d(point.x, point.y);

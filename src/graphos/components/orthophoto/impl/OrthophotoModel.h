@@ -21,14 +21,12 @@
  *                                                                      *
  ************************************************************************/
  
-#ifndef GRAPHOS_ORTHOPHOTO_MODEL_H
-#define GRAPHOS_ORTHOPHOTO_MODEL_H
+#pragma once
 
 #include "graphos/components/orthophoto/OrthophotoModel.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 
 class QSettings;
-
 
 namespace graphos
 {
@@ -48,16 +46,21 @@ public:
 
 public:
 
-    auto images() const -> const Images& override;
-    auto cameras() const -> const Cameras& override;
-    auto poses() const -> const Poses& override;
+    auto properties() const -> std::shared_ptr<OrthophotoProperties> override;
+    auto images() const -> const ImageRepository & override;
+    auto cameras() const -> const CameraRepository & override;
+    auto poses() const -> const CameraPosesRepository & override;
     auto projectFolder() const -> tl::Path override;
     auto dtmPath() const -> tl::Path override;
-    auto enuCrs() const -> QString override;
-    auto crs() const -> QString override;
+    auto enuCrs() const -> std::string override;
+    auto crs() const -> std::string override;
     void clearProject() override;
     auto useCuda() const -> bool override;
-    void addOrthophoto(const OrthophotoData &ortho_data) override;
+    //void addOrthophoto(const OrthophotoData &ortho_data) override;
+
+    void setProperties(std::shared_ptr<OrthophotoProperties> properties) override;
+    void setOrthoReport(OrthophotoReport report) override;
+    void setOrthophoto(tl::Path ortho) override;
 
     void loadSettings() override;
     void saveSettings() override;
@@ -80,5 +83,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ORTHOPHOTO_MODEL_H

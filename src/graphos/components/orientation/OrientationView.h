@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORIENTATION_VIEW_INTERFACE_H
-#define GRAPHOS_ORIENTATION_VIEW_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -41,7 +40,6 @@ public:
     OrientationView(QWidget *parent = nullptr) : DialogView(parent) {}
     ~OrientationView() override = default;
 
-    //virtual auto useAutoCalibration() const -> bool = 0;
     virtual auto usePriorCalibration() const -> bool = 0;
     virtual auto useAdjustedCalibration() const -> bool = 0;
     virtual auto fixCalibration() const -> bool = 0;
@@ -54,7 +52,6 @@ public slots:
     virtual void enabledFixCalibration(bool enabled) = 0;
     virtual void enablePriorCalibration(bool enabled) = 0;
     virtual void enableAdjustedCalibration(bool enabled) = 0;
-    //virtual void enabledCalibration(bool enabled) = 0;
     virtual void setAbsoluteOrientation(bool active) = 0;
     virtual void enabledAbsoluteOrientation(bool enabled) = 0;
     virtual void setRtkPositioningAccuracy(bool active) = 0;
@@ -67,5 +64,3 @@ signals:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_FEATURE_EXTRACTOR_VIEW_INTERFACE_H

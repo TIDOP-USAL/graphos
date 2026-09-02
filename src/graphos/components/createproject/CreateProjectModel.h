@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_MODEL_INTERFACE_H
-#define GRAPHOS_CREATE_PROJECT_MODEL_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -50,22 +49,16 @@ public:
 public slots:
 
     /*!
-     * \brief Set project name
-     * \param[in] name Project's name
-     */
-    virtual void setProjectName(const QString& name) = 0;
-
-    /*!
      * \brief Set project description
      * \param[in] projectDescription Project description
      */
     virtual void setProjectDescription(const QString &projectDescription) = 0;
 
     /*!
-     * \brief Set project directory
-     * \param[in] folder Project Directory
+     * \brief Set project path
+     * \param[in] path Project path
      */
-    virtual void setProjectFolder(const tl::Path &folder) = 0;
+    virtual void setProjectPath(const tl::Path &path) = 0;
 
     /*!
      * \brief Save the project
@@ -76,6 +69,4 @@ public slots:
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_CREATE_PROJECT_MODEL_INTERFACE_H
 

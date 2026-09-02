@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_CAMERA_CALIBRATION_WRITER_H
-#define GRAPHOS_CORE_CAMERA_CALIBRATION_WRITER_H
+#pragma once
 
 #include <memory>
 #include <string>
@@ -66,5 +65,3 @@ public:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_CAMERA_CALIBRATION_WRITER_H

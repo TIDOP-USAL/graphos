@@ -27,13 +27,13 @@
 
 #include <QGeoView/QGVLayerTiles.h>
 
-#include <tidop/math/geometry/affine.h>
+#include <tidop/geometry/transform/Affine.h>
 
 #include <opencv2/core.hpp>
 
 namespace tl
 {
-class ImageReader;
+class RasterReader;
 }
 
 namespace graphos
@@ -65,7 +65,7 @@ private:
 
     QRect mTileGridBounds;
     QGV::GeoRect mGeoExtent;
-    std::unique_ptr<tl::ImageReader> reader;
+    std::unique_ptr<tl::RasterReader> reader;
     tl::Affine<double, 2> mAffineImageToWorld;
     double mGSD;
     bool mCrsTransform;

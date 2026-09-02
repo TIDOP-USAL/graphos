@@ -23,8 +23,9 @@
 
 #include "CreateProjectModel.h"
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/Application.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 
 namespace graphos
 {
@@ -48,31 +49,28 @@ auto CreateProjectModelImp::projectsDefaultPath() const -> tl::Path
     return Application::documentsLocation();
 }
 
-void CreateProjectModelImp::setProjectName(const QString &name)
-{
-    mProject->setName(name);
-}
-
 void CreateProjectModelImp::setProjectDescription(const QString &description)
 {
-    mProject->setDescription(description);
+    mProject->info().setDescription(description.toStdString());
 }
 
-void CreateProjectModelImp::setProjectFolder(const tl::Path &folder)
+void CreateProjectModelImp::setProjectPath(const tl::Path &path)
 {
-    mProject->setProjectFolder(folder);
+    mProject->info().setProjectPath(path);
 }
 
 void CreateProjectModelImp::save()
 {
-    tl::Path project_path = mProject->projectFolder();
-    project_path.append(mProject->name().append(".xml").toStdWString());
+    tl::Path project_path = mProject->info().projectPath();
+    //project_path.append(mProject->name().append(".xml").toStdWString());
 
-    tl::Path database_path = project_path;
-    database_path.replaceExtension(".db");
-    mProject->setDatabase(database_path);
+    //tl::Path database_path = project_path;
+    //database_path.replaceExtension(".db");
+    //mProject->setDatabase(database_path);
 
-    mProject->save(project_path);
+    //mProject->save(project_path);
+    ProjectWriter writer;
+    writer.write(project_path, *mProject);
 }
 
 void CreateProjectModelImp::init()

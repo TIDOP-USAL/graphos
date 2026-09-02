@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_EXTRACTOR_VIEW_H
-#define GRAPHOS_FEATURE_EXTRACTOR_VIEW_H
+#pragma once
 
 #include "graphos/components/featextract/FeatureExtractorView.h"
 
@@ -94,5 +93,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_FEATURE_EXTRACTOR_VIEW_H

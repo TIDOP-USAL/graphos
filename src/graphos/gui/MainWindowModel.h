@@ -21,14 +21,13 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MAINWINDOW_MODEL_H
-#define GRAPHOS_MAINWINDOW_MODEL_H
+#pragma once
 
 #include "graphos/core/mvp.h"
-#include "graphos/core/project.h"
-#include "graphos/core/image.h"
-#include "graphos/core/camera/Camera.h"
-#include "graphos/core/sfm/poses.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/image/ImageRepository.h"
+#include "graphos/core/camera/CameraRepository.h"
+#include "graphos/core/orientation/CameraPose.h"
 
 #include <QImage>
 
@@ -50,27 +49,28 @@ public:
     auto projectName() const -> QString;
     auto projectPath() const -> tl::Path;
 
-    auto images() const -> const std::unordered_map<size_t, Image> &;
-    auto image(size_t imageId) const -> Image;
-    auto cameras() const -> const std::map<int, Camera> &;
-    auto camera(int id) const -> Camera;
+    auto images() const -> const ImageRepository &;
+    //auto image(size_t imageId) const -> Image;
+    auto cameras() const -> const CameraRepository &;
+    //auto camera(int id) const -> Camera;
     void deleteImages(const std::vector<size_t> &imageIds);
     auto readImage(const tl::Path &imageFile) -> QImage;
 
-    auto features() const -> const std::unordered_map<size_t, QString> &;
+    auto features() const -> const FeaturesRepository &;
+    auto matches() const -> const MatchingRepository &;
     auto imagePairs(size_t imageId) const -> std::vector<size_t>;
 
     auto sparseModel() const -> tl::Path;
     auto isAbsoluteOrientation() const -> bool;
 
-    auto poses() const -> const std::unordered_map<size_t, CameraPose>&;
+    auto poses() const -> const CameraPosesRepository &;
     auto transform() const -> tl::Matrix<double, 4, 4>;
 
     auto denseModel() const -> tl::Path;
     auto mesh() const -> tl::Path;
     auto dtm() const -> tl::Path;
     auto dsm() const -> tl::Path;
-    auto orthophotos() const -> const std::map<size_t, OrthophotoData> &;
+    auto orthophotos() const -> std::map<size_t, tl::Path>;
 
     auto graphicViewerBackgroundColor() const -> QString;
 
@@ -102,5 +102,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_MAINWINDOW_MODEL_H

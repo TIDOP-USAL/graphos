@@ -79,7 +79,6 @@ public slots:
 
 private slots:
 
-
     void navigateBackward();
     void navigateForward();
     void setContentSource(const QModelIndex &index);

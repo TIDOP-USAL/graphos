@@ -25,6 +25,7 @@
 
 TL_DISABLE_WARNINGS
 #include <QAction>
+#include <QActionGroup>
 #include <QApplication>
 #include <QMenu>
 TL_DEFAULT_WARNINGS

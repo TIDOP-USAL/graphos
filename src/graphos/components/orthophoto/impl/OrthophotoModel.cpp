@@ -24,19 +24,18 @@
 #include "OrthophotoModel.h"
 
 #include "graphos/core/camera/Camera.h"
-#include "graphos/core/sfm/poses.h"
-#include "graphos/core/sfm/posesio.h"
+//#include "graphos/core/sfm/poses.h"
+//#include "graphos/core/sfm/posesio.h"
 
+#include <tidop/core/base/Split.h>
+#include <tidop/core/base/TypeConversions.h>
 #include <tidop/geospatial/crs.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
 
 #include <QSettings>
 #include <QFileInfo>
-
-/// TODO: mover
-#include <colmap/base/reconstruction.h>
-
+#include <QCoreApplication>
 
 namespace graphos
 {
@@ -57,10 +56,10 @@ OrthophotoModelImp::~OrthophotoModelImp()
     }
 }
 
-void OrthophotoModelImp::addOrthophoto(const OrthophotoData &ortho_data)
-{
-    mProject->setOrthophoto(ortho_data);
-}
+//void OrthophotoModelImp::addOrthophoto(const OrthophotoData &ortho_data)
+//{
+//    mProject->setOrthophoto(ortho_data);
+//}
 
 void OrthophotoModelImp::loadSettings()
 {
@@ -92,7 +91,12 @@ void OrthophotoModelImp::saveSettings()
     }
 }
 
-auto OrthophotoModelImp::images() const -> const Images &
+auto OrthophotoModelImp::properties() const -> std::shared_ptr<OrthophotoProperties>
+{
+    return mProject->orthoConfig();
+}
+
+auto OrthophotoModelImp::images() const -> const ImageRepository &
 {
     return mProject->images();
     //Images images;
@@ -125,29 +129,29 @@ auto OrthophotoModelImp::images() const -> const Images &
     //return images;
 }
 
-auto OrthophotoModelImp::cameras() const -> const Cameras &
+auto OrthophotoModelImp::cameras() const -> const CameraRepository &
 {
     return mProject->cameras();
 }
 
-auto OrthophotoModelImp::poses() const -> const Poses&
+auto OrthophotoModelImp::poses() const -> const CameraPosesRepository &
 {
-    return mProject->poses();
+    return mProject->cameraPoses();
 }
 
 auto OrthophotoModelImp::projectFolder() const -> tl::Path
 {
-    return mProject->projectFolder();
+    return mProject->info().projectFolder();
 }
 
 auto OrthophotoModelImp::dtmPath() const -> tl::Path
 {
-    return mProject->dem().dsmPath;
+    return mProject->dsm();
 }
 
-auto OrthophotoModelImp::enuCrs() const -> QString
+auto OrthophotoModelImp::enuCrs() const -> std::string
 {
-    return mProject->enuCrs();
+    return mProject->info().enuCrs();
 }
 
 void OrthophotoModelImp::clearProject()
@@ -160,9 +164,24 @@ auto OrthophotoModelImp::useCuda() const -> bool
     return mSettings->value("UseCuda", true).toBool();
 }
 
-auto OrthophotoModelImp::crs() const -> QString
+void OrthophotoModelImp::setProperties(std::shared_ptr<OrthophotoProperties> properties)
 {
-    QString epsg_code/* = mProject->orthophoto().epsgCode*/;
+    mProject->setOrthoConfig(std::move(properties));
+}
+
+void OrthophotoModelImp::setOrthoReport(OrthophotoReport report)
+{
+    mProject->setOrthoReport(std::move(report));
+}
+
+void OrthophotoModelImp::setOrthophoto(tl::Path ortho)
+{
+    mProject->setOrthophoto(std::move(ortho));
+}
+
+auto OrthophotoModelImp::crs() const -> std::string
+{
+    std::string epsg_code/* = mProject->orthophoto().epsgCode*/;
 
     try {
 
@@ -170,10 +189,10 @@ auto OrthophotoModelImp::crs() const -> QString
 
         //if (epsg_code.isEmpty()) {
             auto enu_crs = enuCrs();
-            auto v = tl::split<std::string>(enu_crs.toStdString(), ';');
-            auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
+            auto v = tl::split<std::string>(enu_crs, ';');
+            auto zone = tl::utmZoneFromLonLat(tl::convertStringTo<double>(v.at(1)), tl::convertStringTo<double>(v.at(2)));
             epsg_code = "EPSG:326";
-            epsg_code.append(QString::number(zone.first));
+            epsg_code.append(std::to_string(zone.first));
         //}
 
     } catch (...) {

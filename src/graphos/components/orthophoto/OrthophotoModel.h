@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORTHOPHOTO_MODEL_INTERFACE_H
-#define GRAPHOS_ORTHOPHOTO_MODEL_INTERFACE_H
+#pragma once
 
 #include <unordered_map>
 
@@ -30,14 +29,19 @@
 #include <tidop/geometry/primitives/Point.h>
 
 #include "graphos/core/mvp.h"
-#include "graphos/core/reports/orthophoto.h"
+#include "graphos/core/ortho/OrthophotoReport.h"
+//#include "graphos/core/ortho/orthophoto.h"
 
 namespace graphos
 {
 
-class Image;
-class Camera;
-class CameraPose;
+//class Image;
+//class Camera;
+//class CameraPose;
+class ImageRepository;
+class CameraRepository;
+class CameraPosesRepository;
+class OrthophotoProperties;
 
 class OrthophotoModel
   : public Model
@@ -47,32 +51,33 @@ class OrthophotoModel
 
 public:
 
-    using Images = std::unordered_map<size_t, Image>;
-    using Cameras = std::map<int, Camera>;
-    using Poses = std::unordered_map<size_t, CameraPose>;
+    //using Images = std::unordered_map<size_t, Image>;
+    //using Cameras = std::map<int, Camera>;
+    //using Poses = std::unordered_map<size_t, CameraPose>;
 
 public:
 
     OrthophotoModel(QObject *parent = nullptr) : Model(parent){}
     ~OrthophotoModel() override = default;
 
-    virtual auto images() const -> const Images& = 0;
-    virtual auto cameras() const -> const Cameras& = 0;
-    virtual auto poses() const -> const Poses& = 0;
+    virtual auto properties() const -> std::shared_ptr<OrthophotoProperties> = 0;
+    virtual auto images() const -> const ImageRepository & = 0;
+    virtual auto cameras() const -> const CameraRepository & = 0;
+    virtual auto poses() const -> const CameraPosesRepository & = 0;
     virtual auto projectFolder() const -> tl::Path = 0;
     virtual auto dtmPath() const -> tl::Path = 0;
     virtual void clearProject() = 0;
     virtual auto useCuda() const -> bool = 0;
-    virtual auto enuCrs() const -> QString = 0;
-    virtual auto crs() const -> QString = 0;
+    virtual auto enuCrs() const -> std::string = 0;
+    virtual auto crs() const -> std::string = 0;
 
-    virtual void addOrthophoto(const OrthophotoData &ortho_data) = 0;
+    //virtual void addOrthophoto(const OrthophotoData &ortho_data) = 0;
+    virtual void setProperties(std::shared_ptr<OrthophotoProperties> properties) = 0;
+    virtual void setOrthoReport(OrthophotoReport report) = 0;
+    virtual void setOrthophoto(tl::Path ortho) = 0;
 
     virtual void loadSettings() = 0;
     virtual void saveSettings() = 0;
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_ORTHOPHOTO_MODEL_INTERFACE_H
