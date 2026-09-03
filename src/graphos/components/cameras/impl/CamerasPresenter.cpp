@@ -25,8 +25,8 @@
 
 #include "graphos/components/cameras/CamerasModel.h"
 #include "graphos/components/cameras/CamerasView.h"
-#include "graphos/core/image.h"
-#include "graphos/core/camera/Camera.h"
+//#include "graphos/core/image/Image.h"
+#include "graphos/core/camera/CameraRepository.h"
 
 #include <tidop/core/app/Message.h>
 
@@ -239,15 +239,12 @@ void CamerasPresenterImp::loadCameras()
     QSignalBlocker blocker(mView);
 
     int first_camera = -1;
-    for (const auto &map_camera : mModel->cameras()) {
-
-        int camera_id = map_camera.first;
+    for (const auto &[camera_id, camera] : mModel->cameras()) {
 
         if (first_camera == -1) {
             first_camera = camera_id;
         }
 
-        Camera camera = map_camera.second;
         QString camera_name = QString(camera.make().c_str()).append("-").append(camera.model().c_str());
         mView->addCamera(camera_id, camera_name);
     }

@@ -21,14 +21,13 @@
  *                                                                      *
  ************************************************************************/
  
-#ifndef GRAPHOS_ABOUT_MODEL_H
-#define GRAPHOS_ABOUT_MODEL_H
+#pragma once
 
 #include "graphos/components/about/AboutModel.h"
 
 namespace tl
 {
-class AppLicence;
+class AppLicense;
 }
 
 namespace graphos
@@ -49,8 +48,8 @@ public:
 
 public:
 
-    auto licence() const -> const tl::Licence& override;
-    auto readLicence(const QString& licence) -> QString override;
+    auto license() const -> const tl::License & override;
+    auto readLicense(const QString &license) -> QString override;
     auto begin() const -> const_iterator override;
     auto end() const -> const_iterator override;
 
@@ -66,9 +65,7 @@ public slots:
 
 private:
 
-    tl::AppLicence *mAppLicence;
+    tl::AppLicense *mAppLicense;
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ABOUT_MODEL_H

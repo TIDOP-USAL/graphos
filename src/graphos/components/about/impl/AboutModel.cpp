@@ -23,7 +23,7 @@
  
 #include "AboutModel.h"
 
-#include <tidop/core/licence.h>
+#include <tidop/core/app/License.h>
 #include <tidop/core/base/Path.h>
 
 #include <QJsonDocument>
@@ -38,32 +38,30 @@ namespace graphos
 
 AboutModelImp::AboutModelImp(QObject *parent)
   : AboutModel(parent),
-    mAppLicence(new tl::AppLicence)
+    mAppLicense(new tl::AppLicense)
 {
     AboutModelImp::init();
 }
 
 AboutModelImp::~AboutModelImp()
 {
-    if (mAppLicence) {
-        delete mAppLicence;
-        mAppLicence = nullptr;
+    if (mAppLicense) {
+        delete mAppLicense;
+        mAppLicense = nullptr;
     }
 }
 
-auto AboutModelImp::licence() const -> const tl::Licence&
+auto AboutModelImp::license() const -> const tl::License&
 {
-    return *static_cast<tl::Licence *>(mAppLicence);
+    return *static_cast<tl::License *>(mAppLicense);
 }
 
-auto AboutModelImp::readLicence(const QString& licence) -> QString
+auto AboutModelImp::readLicense(const QString &license) -> QString
 {
     QString licence_text;
 
-    QFile file(licence);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    if (file.isOpen()) {
+    QFile file(license);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 
         licence_text = file.readAll();
         file.close();
@@ -74,12 +72,12 @@ auto AboutModelImp::readLicence(const QString& licence) -> QString
 
 auto AboutModelImp::begin() const -> const_iterator
 {
-    return mAppLicence->begin();
+    return mAppLicense->begin();
 }
 
 auto AboutModelImp::end() const -> const_iterator
 {
-    return mAppLicence->end();
+    return mAppLicense->end();
 }
 
 /* private */
@@ -89,12 +87,10 @@ void AboutModelImp::init()
     // Lectura de la licencia y de las licencias de terceros
 
     QDir plugins_dir = QDir(QCoreApplication::applicationDirPath() + "\\licenses");
-    QFile file(plugins_dir.absoluteFilePath("licence.json"));
+    QFile file(plugins_dir.absoluteFilePath("license.json"));
     tl::Path path(plugins_dir.absolutePath().toStdWString());
 
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    if (file.isOpen()) {
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 
         QString json = file.readAll();
         file.close();
@@ -104,24 +100,24 @@ void AboutModelImp::init()
 
         QJsonValue json_value = json_object.value("ProductName");
         if (!json_value.isNull())
-            mAppLicence->setProductName(json_value.toString().toStdString());
+            mAppLicense->setProductName(json_value.toString().toStdString());
 
         json_value = json_object.value("ProductVersion");
         if (!json_value.isNull())
-            mAppLicence->setVersion(json_value.toString().toStdString());
+            mAppLicense->setVersion(json_value.toString().toStdString());
 
         json_value = json_object.value("LicenceFile");
         if (!json_value.isNull()) {
-            tl::Path path_licence(path);
-            path_licence.append(json_value.toString().toStdString());
-            mAppLicence->setText(path_licence.toString());
+            tl::Path path_license(path);
+            path_license.append(json_value.toString().toStdString());
+            mAppLicense->setLicenseText(path_license.toString());
         }
 
 
         json_value = json_object.value("ThirdPartyLicences");
         if (!json_value.isNull()) {
 
-            tl::Licence licence;
+            tl::License license;
 
             QJsonArray json_array = json_value.toArray();
             for (const auto &json : json_array) {
@@ -129,20 +125,20 @@ void AboutModelImp::init()
                 QJsonObject json_object = json.toObject();
                 QJsonValue json_value = json_object.value("ProductName");
                 if (!json_value.isNull())
-                    licence.setProductName(json_value.toString().toStdString());
+                    license.setProductName(json_value.toString().toStdString());
 
                 json_value = json_object.value("ProductVersion");
                 if (!json_value.isNull())
-                    licence.setVersion(json_value.toString().toStdString());
+                    license.setVersion(json_value.toString().toStdString());
 
                 json_value = json_object.value("LicenceFile");
                 if (!json_value.isNull()) {
-                    tl::Path path_licence(path);
-                    path_licence.append(json_value.toString().toStdString());
-                    licence.setText(path_licence.toString());
+                    tl::Path path_license(path);
+                    path_license.append(json_value.toString().toStdString());
+                    license.setLicenseText(path_license.toString());
                 }
 
-                mAppLicence->push_back(licence);
+                mAppLicense->push_back(license);
             }
         }
     }

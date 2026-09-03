@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ABOUT_PRESENTER_H
-#define GRAPHOS_ABOUT_PRESENTER_H
+#pragma once
 
 #include "graphos/components/about/AboutPresenter.h"
 
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ABOUT_PRESENTER_H

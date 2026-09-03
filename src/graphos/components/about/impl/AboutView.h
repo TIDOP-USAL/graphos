@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ABOUT_VIEW_H
-#define GRAPHOS_ABOUT_VIEW_H
+#pragma once
 
 #include "graphos/components/about/AboutView.h"
 
@@ -89,5 +88,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ABOUT_VIEW_H

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CAMERAS_MODEL_INTERFACE_H
-#define GRAPHOS_CAMERAS_MODEL_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -30,6 +29,7 @@ namespace graphos
 {
 
 class Camera;
+class CameraRepository;
 
 
 /*!
@@ -58,7 +58,7 @@ public:
      * \brief Retrieves a map of all cameras with their IDs.
      * \return A constant reference to a map of cameras with their IDs.
      */
-    virtual auto cameras() const -> const std::map<int, Camera>& = 0;
+    virtual auto cameras() const -> const CameraRepository & = 0;
 
     /*!
      * \brief addCamera Adds a camera to the model.
@@ -178,5 +178,3 @@ public slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CAMERAS_MODEL_INTERFACE_H

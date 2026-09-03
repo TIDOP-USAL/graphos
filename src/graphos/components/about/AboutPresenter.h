@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ABOUT_PRESENTER_INTERFACE_H
-#define GRAPHOS_ABOUT_PRESENTER_INTERFACE_H
+#pragma once
 
 #include <QObject>
 
@@ -50,5 +49,3 @@ public:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ABOUT_PRESENTER_INTERFACE_H

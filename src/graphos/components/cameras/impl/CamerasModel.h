@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CAMERAS_MODEL_H
-#define GRAPHOS_CAMERAS_MODEL_H
+#pragma once
 
 #include "graphos/components/cameras/CamerasModel.h"
 #include "graphos/core/project/Project.h"
@@ -30,7 +29,7 @@
 namespace graphos
 {
 
-class Image;
+//class Image;
 
 class CamerasModelImp
   : public CamerasModel
@@ -48,7 +47,7 @@ public:
 
 public:
 
-    auto cameras() const -> const std::map<int, Camera> & override;
+    auto cameras() const -> const CameraRepository & override;
     auto addCamera(const Camera &camera) -> int override;
     auto cameraID(const Camera &camera) const -> int override;
     auto cameraID(const QString &make,
@@ -114,9 +113,7 @@ protected:
     Project *mProject;
     bool mModifiedProject;
     mutable int mActiveCameraId;
-    mutable std::map<int, Camera> mCameraCache;
+    mutable CameraRepository mCameraCache;
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CAMERAS_MODEL_H

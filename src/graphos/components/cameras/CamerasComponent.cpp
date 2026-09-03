@@ -29,7 +29,6 @@
 #include "graphos/components/cameras/impl/CamerasPresenter.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/cameras/impl/CamerasCommand.h"
-#include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

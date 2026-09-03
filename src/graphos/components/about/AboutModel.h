@@ -21,15 +21,13 @@
  *                                                                      *
  ************************************************************************/
  
-#ifndef GRAPHOS_ABOUT_MODEL_INTERFACE_H
-#define GRAPHOS_ABOUT_MODEL_INTERFACE_H
+#pragma once
 
-#include <tidop/core/defs.h>
 #include "graphos/core/mvp.h"
 
 namespace tl
 {
-class Licence;
+class License;
 }
 
 namespace graphos
@@ -55,7 +53,7 @@ public:
      *
      * Defines a type alias for the constant iterator to iterate through licenses.
      */
-    using const_iterator = std::list<tl::Licence>::const_iterator;
+    using const_iterator = std::vector<tl::License>::const_iterator;
 
 public:
 
@@ -77,7 +75,7 @@ public:
      *
      * \return Reference to the license information.
      */
-    virtual auto licence() const -> const tl::Licence& = 0;
+    virtual auto license() const -> const tl::License& = 0;
 
     /*!
      * \brief Read a license
@@ -87,7 +85,7 @@ public:
      * \param[in] licence The filename of the license to read.
      * \return Contents of the license file as a string.
      */
-    virtual auto readLicence(const QString& licence) -> QString = 0;
+    virtual auto readLicense(const QString &license) -> QString = 0;
 
     /*!
      * \brief Get the beginning iterator
@@ -110,5 +108,3 @@ public:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_ABOUT_MODEL_INTERFACE_H

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CAMERAS_PRESENTER_INTERFACE_H
-#define GRAPHOS_CAMERAS_PRESENTER_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -74,5 +73,3 @@ signals:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CAMERAS_PRESENTER_INTERFACE_H

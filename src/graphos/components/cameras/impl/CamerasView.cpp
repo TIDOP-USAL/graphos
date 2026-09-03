@@ -39,7 +39,6 @@
 #include <QStandardPaths>
 #include <QTabWidget>
 
-#include <tidop/core/defs.h>
 #include <tidop/core/app/Message.h>
 
 namespace graphos
@@ -553,20 +552,6 @@ void CamerasViewImp::initSignalAndSlots()
     connect(mDoubleSpinBoxPriorP1, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorP1Change);
     connect(mDoubleSpinBoxPriorP2, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibPriorP2Change);
 
-    //connect(mDoubleSpinBoxAdjustCx, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustCxChange);
-    //connect(mDoubleSpinBoxAdjustCy, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustCyChange);
-    //connect(mDoubleSpinBoxAdjustF, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustFChange);
-    //connect(mDoubleSpinBoxAdjustFx, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustFxChange);
-    //connect(mDoubleSpinBoxAdjustFy, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustFyChange);
-    //connect(mDoubleSpinBoxAdjustK1, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustK1Change);
-    //connect(mDoubleSpinBoxAdjustK2, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustK2Change);
-    //connect(mDoubleSpinBoxAdjustK3, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustK3Change);
-    //connect(mDoubleSpinBoxAdjustK4, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustK4Change);
-    //connect(mDoubleSpinBoxAdjustK5, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustK5Change);
-    //connect(mDoubleSpinBoxAdjustK6, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustK6Change);
-    //connect(mDoubleSpinBoxAdjustP1, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustP1Change);
-    //connect(mDoubleSpinBoxAdjustP2, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibAdjustP2Change);
-
     connect(mButtonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked, this, &QDialog::accept);
     connect(mButtonBox->button(QDialogButtonBox::Cancel), &QAbstractButton::clicked, this, &QDialog::reject);
     connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
@@ -596,19 +581,6 @@ void CamerasViewImp::clear()
     const QSignalBlocker blocker19(mDoubleSpinBoxPriorK6);
     const QSignalBlocker blocker20(mDoubleSpinBoxPriorP1);
     const QSignalBlocker blocker21(mDoubleSpinBoxPriorP2);
-    //const QSignalBlocker blocker22(mDoubleSpinBoxAdjustCx);
-    //const QSignalBlocker blocker23(mDoubleSpinBoxAdjustCy);
-    //const QSignalBlocker blocker24(mDoubleSpinBoxAdjustF);
-    //const QSignalBlocker blocker25(mDoubleSpinBoxAdjustFx);
-    //const QSignalBlocker blocker26(mDoubleSpinBoxAdjustFy);
-    //const QSignalBlocker blocker27(mDoubleSpinBoxAdjustK1);
-    //const QSignalBlocker blocker28(mDoubleSpinBoxAdjustK2);
-    //const QSignalBlocker blocker29(mDoubleSpinBoxAdjustK3);
-    //const QSignalBlocker blocker30(mDoubleSpinBoxAdjustK4);
-    //const QSignalBlocker blocker31(mDoubleSpinBoxAdjustK5);
-    //const QSignalBlocker blocker32(mDoubleSpinBoxAdjustK6);
-    //const QSignalBlocker blocker33(mDoubleSpinBoxAdjustP1);
-    //const QSignalBlocker blocker34(mDoubleSpinBoxAdjustP2);
 
     mListWidgetCameras->clear();
     mListWidgetImages->clear();
@@ -716,7 +688,7 @@ void CamerasViewImp::update()
     mDoubleSpinBoxAdjustFy->setVisible(isFocalXYVisible());
 
     mActionImportPriorCalibration->setEnabled(selected_camera);
-    // Hay que comprobar que exista calibración previa
+    // Hay que comprobar que exista calibraciÃ³n previa
     mActionExportPriorCalibration->setEnabled(selected_camera);
     mActionExportAdjustCalibration->setEnabled(selected_camera);
 

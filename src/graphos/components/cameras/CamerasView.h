@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CAMERAS_VIEW_INTERFACE_H
-#define GRAPHOS_CAMERAS_VIEW_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -226,5 +225,3 @@ protected slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CAMERAS_VIEW_INTERFACE_H

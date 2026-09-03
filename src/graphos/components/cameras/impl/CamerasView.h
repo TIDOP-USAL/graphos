@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CAMERAS_VIEW_H
-#define GRAPHOS_CAMERAS_VIEW_H
+#pragma once
 
 #include "graphos/components/cameras/CamerasView.h"
 
@@ -225,5 +224,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CAMERAS_VIEW_H

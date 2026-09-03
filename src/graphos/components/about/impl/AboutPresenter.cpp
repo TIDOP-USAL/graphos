@@ -26,7 +26,7 @@
 #include "graphos/components/about/AboutModel.h"
 #include "graphos/components/about/AboutView.h"
 
-#include <tidop/core/licence.h>
+#include <tidop/core/app/License.h>
 
 #include <QStandardPaths>
 #include <QDir>
@@ -50,19 +50,19 @@ void AboutPresenterImp::open()
 
 void AboutPresenterImp::init()
 {
-    tl::Licence licence = mModel->licence();
+    tl::License licence = mModel->license();
 
     // Set Graphos licence
 
     mView->setVersion(QString::fromStdString(licence.version()));
-    mView->setLicence(mModel->readLicence(QString::fromStdString(licence.text())));
+    mView->setLicence(mModel->readLicense(QString::fromStdString(licence.licenseText())));
 
     // Set licenses 
 
     for (const auto &third_party_licence : *mModel) {
         std::string name = third_party_licence.productName();
         name.append("  ").append(third_party_licence.version());
-        QString licence_text = mModel->readLicence(QString::fromStdString(third_party_licence.text()));
+        QString licence_text = mModel->readLicense(QString::fromStdString(third_party_licence.licenseText()));
         mView->addLicence(QString::fromStdString(name), licence_text);
     }
 

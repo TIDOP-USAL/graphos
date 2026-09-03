@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CAMERAS_COMMAND_H
-#define GRAPHOS_CAMERAS_COMMAND_H
+#pragma once
 
 #include "graphos/core/command.h"
 
@@ -47,5 +46,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CAMERAS_COMMAND_H

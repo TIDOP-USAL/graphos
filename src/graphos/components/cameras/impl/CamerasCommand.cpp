@@ -23,10 +23,13 @@
 
 #include "CamerasCommand.h"
 
-#include <tidop/core/log.h>
+#include <tidop/core/app/Logger.h>
 #include <tidop/core/base/Exception.h>
+#include <tidop/core/console/ValuesValidator.h>
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/project/io/ProjectReader.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 #include "graphos/core/camera/io/CalibrationReader.h"
 #include "graphos/core/camera/io/CalibrationWriter.h"
 
@@ -60,7 +63,7 @@ bool CamerasCommand::run()
 {
     bool r = false;
 
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
 
     try {
 
@@ -78,61 +81,61 @@ bool CamerasCommand::run()
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
-        ProjectImp project;
-        project.load(project_path);
-        auto cameras = project.cameras();
+        Project project;
+        ProjectReader reader;
+        reader.read(project_path, project);
+
+        auto &cameras = project.cameras();
 
         TL_ASSERT(!cameras.empty(), "No cameras in the project");
 
         if (list_cameras) {
             tl::Message::info("Cameras in the project:");
-            for (const auto &camera : cameras) {
-                tl::Message::info("ID: {}, Make: {}, Model: {}", camera.first, camera.second.make(), camera.second.model());
+            for (const auto &[camera_id, camera] : cameras) {
+                tl::Message::info("ID: {}, Make: {}, Model: {}", camera_id, camera.make(), camera.model());
             }
         } else {
-            
-            if (camera_id > 0) {
 
-                auto camera = project.findCamera(camera_id);
-                
-                if (!export_calib.empty()) {
+            auto camera = cameras.find(camera_id);
 
-                    try {
-                        auto calibration_writer = CalibrationWriterFactory::create(format);
-                        calibration_writer->write(export_calib, camera);
-                    } catch (...) {
-                        TL_THROW_EXCEPTION_WITH_NESTED("Failed to export calibration to file: {}", export_calib.toUtf8());
-                    }
+            TL_ASSERT(camera, "Camera with ID {} not found", camera_id);
 
-                    tl::Message::info("Calibration exported to '{}'", export_calib.toUtf8());
+            if (!export_calib.empty()) {
 
-                } else if (import_calib.exists() && import_calib.isFile()) {
-
-                    try {
-                        auto calibration_reader = CalibrationReaderFactory::create(format);
-                        calibration_reader->read(import_calib, camera);
-                    } catch (...) {
-                        TL_THROW_EXCEPTION_WITH_NESTED("Failed to import calibration to file: {}", import_calib.toUtf8());
-                    }
-
-                    tl::Message::info("Calibration imported from '{}'", import_calib.toUtf8());
-
-                } else {
-                    tl::Message::info("Camera Make: {}", camera.make());
-                    tl::Message::info("Camera Model: {}", camera.model());
-                    tl::Message::info("Type: {}", camera.type());
-                    tl::Message::info("Focal length: {}", camera.focal());
-                    tl::Message::info("Sensor width: {} px", camera.width());
-                    tl::Message::info("Sensor height: {} px", camera.height());
-                    tl::Message::info("Sensor size: {} mm", camera.sensorSize());
+                try {
+                    auto calibration_writer = CalibrationWriterFactory::create(format);
+                    calibration_writer->write(export_calib, *camera);
+                } catch (...) {
+                    TL_THROW_EXCEPTION_WITH_NESTED("Failed to export calibration to file: {}", export_calib.toUtf8());
                 }
 
+                tl::Message::info("Calibration exported to '{}'", export_calib.toUtf8());
 
+            } else if (import_calib.exists() && import_calib.isFile()) {
+
+                try {
+                    auto calibration_reader = CalibrationReaderFactory::create(format);
+                    calibration_reader->read(import_calib, *camera);
+                } catch (...) {
+                    TL_THROW_EXCEPTION_WITH_NESTED("Failed to import calibration to file: {}", import_calib.toUtf8());
+                }
+
+                tl::Message::info("Calibration imported from '{}'", import_calib.toUtf8());
+
+            } else {
+                tl::Message::info("Camera Make: {}", camera->make());
+                tl::Message::info("Camera Model: {}", camera->model());
+                tl::Message::info("Type: {}", camera->type());
+                tl::Message::info("Focal length: {}", camera->focal());
+                tl::Message::info("Sensor width: {} px", camera->width());
+                tl::Message::info("Sensor height: {} px", camera->height());
+                tl::Message::info("Sensor size: {} mm", camera->sensorSize());
             }
 
         }
 
-        project.save(project_path);
+        ProjectWriter writer;
+        writer.write(project_path, project);
 
     } catch (const std::exception &e) {
         tl::printException(e);

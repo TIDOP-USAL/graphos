@@ -40,20 +40,21 @@ CamerasModelImp::CamerasModelImp(Project *project,
   : CamerasModel(parent),
     mProject(project),
     mModifiedProject(false),
-    mActiveCameraId(0),
-    mCameraCache()
+    mActiveCameraId(0)
 {
     CamerasModelImp::init();
 }
 
-auto CamerasModelImp::cameras() const -> const std::map<int, Camera>&
+auto CamerasModelImp::cameras() const -> const CameraRepository &
 {
     return mProject->cameras();
 }
 
 auto CamerasModelImp::addCamera(const Camera &camera) -> int
 {
-    return mProject->addCamera(camera);
+    //return mProject->cameras().add(camera);
+    mModifiedProject = true;
+    return mCameraCache.add(camera);
 }
 
 auto CamerasModelImp::cameraID(const Camera &camera) const -> int
@@ -64,41 +65,51 @@ auto CamerasModelImp::cameraID(const Camera &camera) const -> int
 auto CamerasModelImp::cameraID(const QString &make,
                                const QString &model) const -> int
 {
-    int id_camera = 0;
+    //int id_camera = 0;
 
-    QString camera_make;
-    QString camera_model;
+    //QString camera_make;
+    //QString camera_model;
 
-    for (const auto &camera : mProject->cameras()) {
+    //for (const auto &camera : mProject->cameras()) {
 
-        camera_make.fromStdString(camera.second.make());
-        camera_model.fromStdString(camera.second.model());
+    //    camera_make.fromStdString(camera.second.make());
+    //    camera_model.fromStdString(camera.second.model());
 
-        if (make.compare(camera_make) == 0 &&
-            model.compare(camera_model) == 0) {
-            id_camera = camera.first;
-            break;
-        }
-    }
+    //    if (make.compare(camera_make) == 0 &&
+    //        model.compare(camera_model) == 0) {
+    //        id_camera = camera.first;
+    //        break;
+    //    }
+    //}
 
-    return id_camera;
+    //return id_camera;
+    auto optId = mCameraCache.findIdBySignature(make.toStdString(), model.toStdString());
+
+    return optId.value_or(0);
 }
 
 auto CamerasModelImp::camera(int id) const -> Camera
 {
-    Camera camera;
-
-    auto it = mCameraCache.find(id);
-    if (it != mCameraCache.end()) {
-        camera = it->second;
-    } else {
-        camera = mProject->findCamera(id);
-        mCameraCache[id] = camera;
+//    Camera camera;
+//
+//    auto it = mCameraCache.find(id);
+//    if (it != mCameraCache.end()) {
+//        camera = it->second;
+//    } else {
+//        camera = mProject->findCamera(id);
+//        mCameraCache[id] = camera;
+//    }
+//
+//    mActiveCameraId = id;
+//
+//    return camera;
+    if (auto *cam = mCameraCache.find(id)) {
+        mActiveCameraId = id;
+        return *cam;
     }
 
-    mActiveCameraId = id;
-
-    return camera;
+    mActiveCameraId = 0;
+    return Camera{};
 }
 
 auto CamerasModelImp::camera(const QString &make,
@@ -115,41 +126,65 @@ auto CamerasModelImp::currentCameraID() const -> int
 
 auto CamerasModelImp::updateCamera(int id, const Camera &camera) -> bool
 {
-    return mProject->updateCamera(id, camera);
+    //return mProject->updateCamera(id, camera);
+    if (mCameraCache.update(id, camera)) {
+        mModifiedProject = true;
+        return true;
+    }
+    return false;
 }
 
 void CamerasModelImp::updateCurrentCameraMake(const QString &make)
 {
-    auto it = mCameraCache.find(mActiveCameraId);
-    if (it != mCameraCache.end()) {
-        mCameraCache[mActiveCameraId].setMake(make.toStdString());
+    //auto it = mCameraCache.find(mActiveCameraId);
+    //if (it != mCameraCache.end()) {
+    //    mCameraCache[mActiveCameraId].setMake(make.toStdString());
+    //    mModifiedProject = true;
+    //}
+    if (auto *camera = mCameraCache.find(mActiveCameraId)) {
+        //Camera updated = *camera;
+        //updated.setMake(make.toStdString());
+        //mCameraCache.update(mActiveCameraId, updated);
+        camera->setMake(make.toStdString());
         mModifiedProject = true;
     }
 }
 
 void CamerasModelImp::updateCurrentCameraModel(const QString &model)
 {
-    auto it = mCameraCache.find(mActiveCameraId);
-    if (it != mCameraCache.end()) {
-        mCameraCache[mActiveCameraId].setModel(model.toStdString());
+    //auto it = mCameraCache.find(mActiveCameraId);
+    //if (it != mCameraCache.end()) {
+    //    mCameraCache[mActiveCameraId].setModel(model.toStdString());
+    //    mModifiedProject = true;
+    //}
+    if (auto *camera = mCameraCache.find(mActiveCameraId)) {
+        camera->setModel(model.toStdString());
         mModifiedProject = true;
     }
 }
 
 void CamerasModelImp::updateCurrentCameraSensorSize(const QString &sensorSize)
 {
-    auto it = mCameraCache.find(mActiveCameraId);
-    if (it != mCameraCache.end()) {
-        mCameraCache[mActiveCameraId].setSensorSize(sensorSize.toDouble());
+    //auto it = mCameraCache.find(mActiveCameraId);
+    //if (it != mCameraCache.end()) {
+    //    mCameraCache[mActiveCameraId].setSensorSize(sensorSize.toDouble());
+    //    mModifiedProject = true;
+    //}
+    if (auto *camera = mCameraCache.find(mActiveCameraId)) {
+        camera->setSensorSize(sensorSize.toDouble());
         mModifiedProject = true;
     }
 }
 
 void CamerasModelImp::updateCurrentCameraFocal(const QString &focal)
 {
-    auto it = mCameraCache.find(mActiveCameraId);
-    if (it != mCameraCache.end()) {
-        mCameraCache[mActiveCameraId].setFocal(focal.toDouble());
+    //auto it = mCameraCache.find(mActiveCameraId);
+    //if (it != mCameraCache.end()) {
+    //    mCameraCache[mActiveCameraId].setFocal(focal.toDouble());
+    //    mModifiedProject = true;
+    //}
+    if (auto *camera = mCameraCache.find(mActiveCameraId)) {
+        camera->setFocal(focal.toDouble());
         mModifiedProject = true;
     }
 }
@@ -158,31 +193,56 @@ void CamerasModelImp::updateCurrentCameraType(const QString &type)
 {
     try {
 
-        auto it = mCameraCache.find(mActiveCameraId);
-        if (it != mCameraCache.end()) {
-            mCameraCache[mActiveCameraId].setType(type.toStdString());
-            mModifiedProject = true;
-            if (auto calibration_old = mCameraCache[mActiveCameraId].calibration()) {
+        //auto it = mCameraCache.find(mActiveCameraId);
+        //if (it != mCameraCache.end()) {
+        //    mCameraCache[mActiveCameraId].setType(type.toStdString());
+        //    mModifiedProject = true;
+        //    if (auto calibration_old = mCameraCache[mActiveCameraId].calibration()) {
 
+        //        auto calibration = CalibrationFactory::create(type.toStdString());
+
+        //        for (const auto &param : *calibration){
+        //            Calibration::Parameters param_name = param.first;
+
+        //            if (param_name == Calibration::Parameters::focal && !calibration_old->existParameter(param_name)) {
+        //                double focal = calibration_old->parameter(Calibration::Parameters::focalx) + calibration_old->parameter(Calibration::Parameters::focaly) / 2.;
+        //                calibration->setParameter(param_name, focal);
+        //            } else if ((param_name == Calibration::Parameters::focalx || param_name == Calibration::Parameters::focaly) &&
+        //                       calibration_old->existParameter(Calibration::Parameters::focal)) {
+        //                calibration->setParameter(param_name, calibration_old->parameter(Calibration::Parameters::focal));
+        //            } else if (calibration_old->existParameter(param_name)) {
+        //                calibration->setParameter(param_name, calibration_old->parameter(param_name));
+        //            }
+
+        //        }
+
+        //        mCameraCache[mActiveCameraId].setCalibration(calibration);
+
+        //    }
+        //}
+        if (auto *camera = mCameraCache.find(mActiveCameraId)) {
+            camera->setType(type.toStdString());
+            mModifiedProject = true;
+
+            if (auto calibration_old = camera->calibration()) {
                 auto calibration = CalibrationFactory::create(type.toStdString());
 
-                for (const auto &param : *calibration){
+                for (const auto &param : *calibration) {
                     Calibration::Parameters param_name = param.first;
 
                     if (param_name == Calibration::Parameters::focal && !calibration_old->existParameter(param_name)) {
-                        double focal = calibration_old->parameter(Calibration::Parameters::focalx) + calibration_old->parameter(Calibration::Parameters::focaly) / 2.;
+                        double focal = calibration_old->parameter(Calibration::Parameters::focalx) +
+                                       calibration_old->parameter(Calibration::Parameters::focaly) / 2.;
                         calibration->setParameter(param_name, focal);
                     } else if ((param_name == Calibration::Parameters::focalx || param_name == Calibration::Parameters::focaly) &&
-                               calibration_old->existParameter(Calibration::Parameters::focal)) {
+                                calibration_old->existParameter(Calibration::Parameters::focal)) {
                         calibration->setParameter(param_name, calibration_old->parameter(Calibration::Parameters::focal));
                     } else if (calibration_old->existParameter(param_name)) {
                         calibration->setParameter(param_name, calibration_old->parameter(param_name));
                     }
-
                 }
 
-                mCameraCache[mActiveCameraId].setCalibration(calibration);
-
+                camera->setCalibration(calibration);
             }
         }
 
@@ -260,8 +320,13 @@ void CamerasModelImp::priorCalibrationImport(const QString &file,
                                              const QString &format)
 {
     try {
-        auto calibration_reader = CalibrationReaderFactory::create(format.toStdString());
-        calibration_reader->read(tl::Path(file.toStdString()), mCameraCache[mActiveCameraId], true);
+        //auto calibration_reader = CalibrationReaderFactory::create(format.toStdString());
+        //calibration_reader->read(tl::Path(file.toStdString()), mCameraCache[mActiveCameraId], true);
+        if (auto *camera = mCameraCache.find(mActiveCameraId)) {
+            auto calibration_reader = CalibrationReaderFactory::create(format.toStdString());
+            calibration_reader->read(tl::Path(file.toStdString()), *camera, true);
+            mModifiedProject = true;
+        }
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Failed to import calibration to file: {}", file.toStdString());
     }
@@ -271,8 +336,12 @@ void CamerasModelImp::priorCalibrationExport(const QString &file,
                                              const QString &format)
 {
     try {
-        auto calibration_writer = CalibrationWriterFactory::create(format.toStdString());
-        calibration_writer->write(tl::Path(file.toStdString()), mCameraCache[mActiveCameraId], true);
+        //auto calibration_writer = CalibrationWriterFactory::create(format.toStdString());
+        //calibration_writer->write(tl::Path(file.toStdString()), mCameraCache[mActiveCameraId], true);
+        if (auto *camera = mCameraCache.find(mActiveCameraId)) {
+            auto calibration_writer = CalibrationWriterFactory::create(format.toStdString());
+            calibration_writer->write(tl::Path(file.toStdString()), *camera, true);
+        }
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Failed to export calibration to file: {}", file.toStdString());
     }
@@ -282,8 +351,12 @@ void CamerasModelImp::adjustCalibrationExport(const QString &file,
                                               const QString &format)
 {
     try {
-        auto calibration_writer = CalibrationWriterFactory::create(format.toStdString());
-        calibration_writer->write(tl::Path(file.toStdString()), mCameraCache[mActiveCameraId]);
+        //auto calibration_writer = CalibrationWriterFactory::create(format.toStdString());
+        //calibration_writer->write(tl::Path(file.toStdString()), mCameraCache[mActiveCameraId]);
+        if (auto *camera = mCameraCache.find(mActiveCameraId)) {
+            auto calibration_writer = CalibrationWriterFactory::create(format.toStdString());
+            calibration_writer->write(tl::Path(file.toStdString()), *camera);
+        }
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Failed to export calibration to file: {}", file.toStdString());
     }
@@ -291,36 +364,55 @@ void CamerasModelImp::adjustCalibrationExport(const QString &file,
 
 auto CamerasModelImp::removeCamera(int id) -> bool
 {
-    return mProject->removeCamera(id);
+    //return mProject->removeCamera(id);
+    if (mCameraCache.erase(id)) {
+        mModifiedProject = true;
+        return true;
+    }
+    return false;
 }
 
 auto CamerasModelImp::removeCamera(const Camera &camera) -> bool
 {
-    int id_camera = cameraID(camera.make().c_str(), camera.model().c_str());
-    return mProject->removeCamera(id_camera);
+    //int id_camera = cameraID(camera.make().c_str(), camera.model().c_str());
+    //return mProject->removeCamera(id_camera);
+    int id_camera = cameraID(camera);
+    return removeCamera(id_camera);
 }
 
 auto CamerasModelImp::imagesFromCamera(int id) const -> QStringList
 {
+    //QStringList images_list;
+    //auto &images = mProject->images();
+    //for (const auto &image : images) {
+    //    if (image.second.cameraId() == id) {
+    //        images_list.push_back(image.second.path());
+    //    }
+    //}
+
+    //return images_list;
     QStringList images_list;
-    auto &images = mProject->images();
-    for (const auto &image : images) {
-        if (image.second.cameraId() == id) {
-            images_list.push_back(image.second.path());
+    for (const auto &[imageId, image] : mProject->images()) {
+        if (image.cameraId() == id) {
+            images_list.push_back(QString::fromStdString(image.path().toString()));
         }
     }
-
     return images_list;
 }
 
 void CamerasModelImp::save()
 {
+    //if (mModifiedProject) {
+
+    //    for (auto &camera : mCameraCache) {
+    //        mProject->updateCamera(camera.first, camera.second);
+    //    }
+
+    //    mModifiedProject = false;
+    //}
     if (mModifiedProject) {
-
-        for (auto &camera : mCameraCache) {
-            mProject->updateCamera(camera.first, camera.second);
-        }
-
+        // Reemplaza el repositorio original del proyecto con el repositorio borrador editado
+        mProject->cameras() = mCameraCache;
         mModifiedProject = false;
     }
 }
@@ -332,17 +424,29 @@ bool CamerasModelImp::modified()
 
 void CamerasModelImp::init()
 {
-
+    if (mProject) {
+        mCameraCache = mProject->cameras();
+    }
+    mModifiedProject = false;
 }
 
 void CamerasModelImp::updateCalibrationParameter(Calibration::Parameters param, double value)
 {
-    auto it = mCameraCache.find(mActiveCameraId);
-    if (it != mCameraCache.end()) {
-        auto calibration = mCameraCache[mActiveCameraId].priorCalibration();
+    //auto it = mCameraCache.find(mActiveCameraId);
+    //if (it != mCameraCache.end()) {
+    //    auto calibration = mCameraCache[mActiveCameraId].priorCalibration();
+    //    if (!calibration) {
+    //        calibration = CalibrationFactory::create(mCameraCache[mActiveCameraId].type());
+    //        mCameraCache[mActiveCameraId].setPriorCalibration(calibration);
+    //    }
+    //    calibration->setParameter(param, value);
+    //    mModifiedProject = true;
+    //}
+    if (auto *cam = mCameraCache.find(mActiveCameraId)) {
+        auto calibration = cam->priorCalibration();
         if (!calibration) {
-            calibration = CalibrationFactory::create(mCameraCache[mActiveCameraId].type());
-            mCameraCache[mActiveCameraId].setPriorCalibration(calibration);
+            calibration = CalibrationFactory::create(cam->type());
+            cam->setPriorCalibration(calibration);
         }
         calibration->setParameter(param, value);
         mModifiedProject = true;
@@ -352,8 +456,7 @@ void CamerasModelImp::updateCalibrationParameter(Calibration::Parameters param, 
 void CamerasModelImp::clear()
 {
     mActiveCameraId = 0;
-    mCameraCache.clear();
-    mModifiedProject = false;
+    init();
 }
 
 } // namespace graphos
