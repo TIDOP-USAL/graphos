@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROPERTIES_MODEL_INTERFACE_H
-#define GRAPHOS_PROPERTIES_MODEL_INTERFACE_H
+#pragma once
 
 #include <unordered_map>
 
@@ -60,8 +59,5 @@ public:
 };
 
 
-
 } // namespace graphos
-
-#endif // GRAPHOS_PROPERTIES_MODEL_INTERFACE_H
 

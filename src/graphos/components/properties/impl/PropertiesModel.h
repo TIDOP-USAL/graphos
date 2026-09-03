@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROPERTIES_MODEL_H
-#define GRAPHOS_PROPERTIES_MODEL_H
+#pragma once
 
 #include "graphos/components/properties/PropertiesModel.h"
 
@@ -82,6 +81,4 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_PROPERTIES_MODEL_H
 

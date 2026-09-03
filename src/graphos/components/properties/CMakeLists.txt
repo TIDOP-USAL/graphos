@@ -63,7 +63,7 @@ if(BUILD_PROPERTIES_COMPONENT AND BUILD_GUI)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt6::Core
-                          Qt6:Widgets
+                          Qt6::Widgets
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)

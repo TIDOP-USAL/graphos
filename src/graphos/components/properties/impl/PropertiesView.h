@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROPERTIES_VIEW_H
-#define GRAPHOS_PROPERTIES_VIEW_H
+#pragma once
 
 #include "graphos/components/properties/PropertiesView.h"
 
@@ -71,6 +70,3 @@ protected:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_PROPERTIES_VIEW_H

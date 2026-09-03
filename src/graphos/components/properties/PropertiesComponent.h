@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROPERTIES_COMPONENT_H
-#define GRAPHOS_PROPERTIES_COMPONENT_H
+#pragma once
 
 #include "graphos/core/Component.h"
 #include "graphos/components/properties/PropertiesParser.h"
@@ -74,6 +73,3 @@ protected:
 
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_PROPERTIES_COMPONENT_H

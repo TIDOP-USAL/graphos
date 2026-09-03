@@ -21,9 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROPERTIES_READER_INTERFACE_H
-#define GRAPHOS_PROPERTIES_READER_INTERFACE_H
-
+#pragma once
 
 #include <unordered_map>
 #include <memory>
@@ -79,6 +77,3 @@ private:
 
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_PROPERTIES_READER_INTERFACE_H

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROPERTIES_PRESENTER_H
-#define GRAPHOS_PROPERTIES_PRESENTER_H
+#pragma once
 
 #include "graphos/components/properties/PropertiesPresenter.h"
 
@@ -78,6 +77,3 @@ private:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_PROPERTIES_PRESENTER_H
