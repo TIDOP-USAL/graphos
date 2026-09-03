@@ -25,10 +25,7 @@ include(TidopUtils)
 
 if(BUILD_CRS_COMPONENT AND BUILD_GUI)
 
-    project(CoordinateReferenceSystem CXX)
-
-    set(CMAKE_DEBUG_POSTFIX d)
-    set (CMAKE_CXX_STANDARD 14)
+    project(CoordinateReferenceSystem LANGUAGES CXX)
 
     # Find includes in corresponding build directories
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -37,9 +34,6 @@ if(BUILD_CRS_COMPONENT AND BUILD_GUI)
     # Create code from a list of Qt designer ui files
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
-
-    set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
-    set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
@@ -83,7 +77,7 @@ if(BUILD_CRS_COMPONENT AND BUILD_GUI)
             ARCHIVE DESTINATION lib)
                     
     install(DIRECTORY .
-            DESTINATION include/graphos/components/${componentName}
+            DESTINATION include/graphos/components/crs
             FILES_MATCHING PATTERN "*.h"
             PATTERN "impl" EXCLUDE)
 		

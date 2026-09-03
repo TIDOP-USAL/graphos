@@ -21,10 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-
-#ifndef GRAPHOS_CRS_VIEW_INTERFACE_H
-#define GRAPHOS_CRS_VIEW_INTERFACE_H
-
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -49,6 +46,3 @@ signals:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_CRS_VIEW_INTERFACE_H

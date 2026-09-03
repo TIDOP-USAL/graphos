@@ -27,7 +27,7 @@
 #include "graphos/components/crs/impl/CoordinateReferenceSystemModel.h"
 #include "graphos/components/crs/impl/CoordinateReferenceSystemView.h"
 #include "graphos/components/crs/impl/CoordinateReferenceSystemPresenter.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

@@ -25,9 +25,7 @@
 
 #include "graphos/components/crs/impl/CoordinateReferenceSystemModel.h"
 #include "graphos/components/crs/impl/CoordinateReferenceSystemView.h"
-#include "graphos/core/utils.h"
-
-#include <tidop/core/defs.h>
+//#include "graphos/core/utils.h"
 
 #include <QFileDialog>
 

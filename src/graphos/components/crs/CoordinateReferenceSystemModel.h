@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CRS_MODEL_INTERFACE_H
-#define GRAPHOS_CRS_MODEL_INTERFACE_H
+#pragma once
 
 #include <array>
 
@@ -52,6 +51,3 @@ public slots:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_CRS_MODEL_INTERFACE_H

@@ -21,9 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-
-#ifndef GRAPHOS_CRS_VIEW_H
-#define GRAPHOS_CRS_VIEW_H
+#pragma once
 
 #include "graphos/components/crs/CoordinateReferenceSystemView.h"
 
@@ -35,24 +33,12 @@ class QDialogButtonBox;
 class QLabel;
 class QLineEdit;
 class QTreeWidget;
-class QStringList;
 class QTextEdit;
 class QCheckBox;
 class QComboBox;
 
 namespace graphos
 {
-
-//struct CRSInfo 
-//{
-//    QString auth_name;
-//    QString name;
-//    QString code;
-//    QString type;
-//    QString area_name;
-//    QString projection_method_name;
-//    bool deprecated;
-//};
 
 class CoordinateReferenceSystemViewImp
   : public CoordinateReferenceSystemView
@@ -76,7 +62,6 @@ private:
 
     void loadCRS();
     void loadVerticalCRS();
-    //QString pjTypeToString(PJ_TYPE type);
 
 // DialogView
 
@@ -98,18 +83,15 @@ protected:
 
     QLabel *mLabel2d3dCRS;
     QLineEdit *mLineEditCRS;
-    QLineEdit* mLineEditVerticalCRS;
+    QLineEdit *mLineEditVerticalCRS;
     QTreeWidget *mCRSTree;
-    QTreeWidget* mVerticalCRSTree;
+    QTreeWidget *mVerticalCRSTree;
     QCheckBox *mCheckBoxVerticalCRS;
     QDialogButtonBox *mButtonBox;
     QTextEdit *mTextEdidCRSDetails;
     QTextEdit* mTextEdidVerticalCRSDetails;
-    //QList<CRSInfo> crsInfoList;
     std::map<std::string, tl::CRSInfo> mCRSsInfo;
     std::map<std::string, tl::CRSInfo> mVerticalCRSsInfo;
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CRS_VIEW_H

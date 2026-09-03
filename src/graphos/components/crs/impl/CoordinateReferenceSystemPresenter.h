@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CRS_PRESENTER_H
-#define GRAPHOS_CRS_PRESENTER_H
+#pragma once
 
 #include "graphos/components/crs/CoordinateReferenceSystemPresenter.h"
 
@@ -64,5 +63,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CRS_PRESENTER_H

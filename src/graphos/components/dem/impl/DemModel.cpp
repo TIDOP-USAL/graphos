@@ -24,10 +24,7 @@
 #include "DemModel.h"
 
 #include "graphos/core/project/Project.h"
-//#include "graphos/core/sfm/posesio.h"
 
-//#include <tidop/geospatial/crs.h>
-//#include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
 #include <tidop/core/base/Split.h>
 #include <tidop/core/base/TypeConversions.h>
@@ -35,8 +32,6 @@
 #include <QFileInfo>
 #include <QFile>
 #include <QTextStream>
-#include "DemTask.h"
-
 
 namespace graphos
 {

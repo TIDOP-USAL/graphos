@@ -39,7 +39,7 @@
 
 #include <tidop/geotools/GeoTools.h>
 #include <tidop/geotools/CRSsTools.h>
-#include <tidop/geotools/impl/CRSsToolsDefinitions.h>
+#include <tidop/geotools/CRSsToolsDefinitions.h>
 
 
 namespace graphos

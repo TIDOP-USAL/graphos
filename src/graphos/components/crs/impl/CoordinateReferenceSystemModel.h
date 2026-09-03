@@ -21,11 +21,10 @@
  *                                                                      *
  ************************************************************************/
  
-#ifndef GRAPHOS_CRS_MODEL_H
-#define GRAPHOS_CRS_MODEL_H
+#pragma once
 
 #include "graphos/components/crs/CoordinateReferenceSystemModel.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 
 class QSettings;
 
@@ -77,5 +76,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_CRS_MODEL_H

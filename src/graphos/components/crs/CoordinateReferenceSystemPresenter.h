@@ -21,9 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-
-#ifndef GRAPHOS_CRS_PRESENTER_INTERFACE_H
-#define GRAPHOS_CRS_PRESENTER_INTERFACE_H
+#pragma once
 
 #include "graphos/core/mvp.h"
 
@@ -44,6 +42,3 @@ public:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_CRS_PRESENTER_INTERFACE_H
