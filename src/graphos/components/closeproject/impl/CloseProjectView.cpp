@@ -36,4 +36,12 @@ void CloseProjectViewImp::init()
 {
 }
 
+void CloseProjectViewImp::clear()
+{
+}
+
+void CloseProjectViewImp::retranslate()
+{
+}
+
 } // namespace graphos

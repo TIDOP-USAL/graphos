@@ -31,4 +31,16 @@ SaveProjectViewImp::SaveProjectViewImp(QWidget *parent)
 {
 }
 
+void SaveProjectViewImp::init()
+{
+}
+
+void SaveProjectViewImp::retranslate()
+{
+}
+
+void SaveProjectViewImp::clear()
+{
+}
+
 } // namespace graphos

@@ -27,7 +27,7 @@
 #include <tidop/core/base/flags.h>
 
 /* GRAPHOS */
-#include "graphos/core/Component.h"
+#include "graphos/framework/component/TaskComponent.h"
 
 namespace graphos
 {

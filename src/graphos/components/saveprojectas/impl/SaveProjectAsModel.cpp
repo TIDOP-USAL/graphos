@@ -25,7 +25,7 @@
 
 #include "graphos/core/project/Project.h"
 #include "graphos/core/project/io/ProjectWriter.h"
-#include "graphos/core/Application.h"
+#include "graphos/framework/app/Application.h"
 
 #include <QStandardPaths>
 

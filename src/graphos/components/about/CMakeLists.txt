@@ -65,7 +65,8 @@ if(BUILD_ABOUT_COMPONENT AND BUILD_GUI)
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt6::Core
                           Qt6::Widgets
-                          Graphos::Core)
+                          Graphos::Core
+                          Graphos::Framework)
     
     install(TARGETS ${PROJECT_NAME}
             EXPORT "${TARGETS_EXPORT_NAME}"

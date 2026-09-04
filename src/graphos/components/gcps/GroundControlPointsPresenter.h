@@ -24,7 +24,7 @@
 #pragma once
 
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Presenter.h"
 
 namespace graphos
 {

@@ -25,12 +25,12 @@
 
 #include "graphos/components/createproject/CreateProjectModel.h"
 #include "graphos/components/createproject/CreateProjectView.h"
-#include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
 /* Qt */
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QApplication>
 
 namespace graphos
 {

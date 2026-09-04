@@ -29,7 +29,7 @@
 #include "graphos/components/featextract/impl/SiftGPUExtractor.h"
 #include "graphos/components/featextract/FeatureExtractorView.h"
 #include "graphos/components/featextract/FeatureExtractorModel.h"
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 #include "graphos/widgets/SiftWidget.h"
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/image/ImageRepository.h"

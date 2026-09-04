@@ -24,7 +24,7 @@
 
 #include "MeshPresenter.h"
 
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 #include "graphos/components/mesh/impl/MeshModel.h"
 #include "graphos/components/mesh/impl/MeshView.h"
 #include "graphos/components/mesh/impl/PoissonReconTask.h"

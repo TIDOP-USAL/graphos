@@ -31,7 +31,7 @@
 #endif // GRAPHOS_GUI
 
 #include "graphos/core/project/Project.h"
-#include "graphos/core/Application.h"
+#include "graphos/framework/app/Application.h"
 #include "graphos/core/AppStatus.h"
 #include "graphos/widgets/TabWidget.h"
 

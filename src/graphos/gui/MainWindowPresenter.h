@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_MAINWINDOW_PRESENTER_H
 #define GRAPHOS_MAINWINDOW_PRESENTER_H
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Presenter.h"
 
 class QTextEdit;
 

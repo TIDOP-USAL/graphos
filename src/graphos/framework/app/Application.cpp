@@ -21,11 +21,11 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/Application.h"
+#include "graphos/framework/app/Application.h"
 
 #include "graphos/core/AppStatus.h"
-#include "graphos/core/Component.h"
-#include "graphos/core/command.h"
+#include "graphos/framework/component/Component.h"
+#include "graphos/framework/command/Command.h"
 #include "graphos/core/project/Project.h"
 #include "graphos/core/settings.h"
 

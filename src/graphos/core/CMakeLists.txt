@@ -30,10 +30,10 @@ project(Core LANGUAGES CXX)
 
 add_files_to_project(${PROJECT_NAME}
                      SOURCE_FILES
-                         Application.cpp
+                         #Application.cpp
                          AppStatus.cpp
                          ColorTable.cpp
-                         Component.cpp
+                         #Component.cpp
                          settings.cpp
                          Pdf.cpp
                          ply.cpp
@@ -84,16 +84,16 @@ add_files_to_project(${PROJECT_NAME}
                          project/ProjectInfo.cpp
                          project/io/ProjectReader.cpp
                          project/io/ProjectWriter.cpp
-                         task/Progress.cpp
-                         task/TaskPresenter.cpp         
-                         task/TaskView.cpp
+                         #task/Progress.cpp
+                         #task/TaskPresenter.cpp         
+                         #task/TaskView.cpp
                      HEADER_FILES
-                         Application.h
+                         #Application.h
                          AppStatus.h
                          ColorTable.h
-                         command.h
-                         Component.h
-                         mvp.h
+                         #command.h
+                         #Component.h
+                         #mvp.h
                          Pdf.h
                          ply.h
                          settings.h
@@ -151,10 +151,10 @@ add_files_to_project(${PROJECT_NAME}
                          project/Project.h
                          project/ProjectInfo.h
                          project/io/ProjectReader.h
-                         project/io/ProjectWriter.h
-                         task/Progress.h
-                         task/TaskPresenter.h            
-                         task/TaskView.h)
+                         project/io/ProjectWriter.h)
+                         #task/Progress.h
+                         #task/TaskPresenter.h            
+                         #task/TaskView.h)
 
 	
 add_library(${PROJECT_NAME} ${LIB_TYPE}

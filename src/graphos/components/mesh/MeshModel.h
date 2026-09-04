@@ -25,7 +25,7 @@
 
 #include <tidop/core/base/Path.h>
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 #include "graphos/core/mesh/MeshReport.h"
 
 namespace graphos

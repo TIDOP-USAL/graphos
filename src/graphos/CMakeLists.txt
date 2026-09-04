@@ -1,4 +1,5 @@
 add_subdirectory(core)
+add_subdirectory(framework)
 add_subdirectory(widgets)
 add_subdirectory(components)
 add_subdirectory(gui)

@@ -23,11 +23,7 @@
 
 #pragma once
 
-#include <array>
-
-#include <QString>
-
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 
 namespace graphos
 {

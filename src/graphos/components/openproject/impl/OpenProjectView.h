@@ -41,16 +41,27 @@ public:
 
 private:
 
-    void init();
-
-private:
-
 // OpenProjectView interface
 
 public:
 
     void setGraphosProjectsPath(const QString &directory) override;
 
+// FileDialogView
+
+private:
+
+    void init() override;
+
+private slots:
+
+    void retranslate() override;
+
+// View
+
+public slots:
+
+    void clear() override;
 };
 
 } // namespace graphos

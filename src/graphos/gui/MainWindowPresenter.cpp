@@ -23,7 +23,7 @@
 
 #include "MainWindowPresenter.h"
 
-#include "graphos/core/Application.h"
+#include "graphos/framework/app/Application.h"
 #include "graphos/core/AppStatus.h"
 #include "graphos/core/utils.h"
 #include "graphos/widgets/StartPageWidget.h"

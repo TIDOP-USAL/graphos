@@ -25,11 +25,12 @@
 
 #include "graphos/components/closeproject/CloseProjectModel.h"
 #include "graphos/components/closeproject/CloseProjectView.h"
-#include "graphos/core/Application.h"
+//#include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QApplication>
 
 namespace graphos
 {

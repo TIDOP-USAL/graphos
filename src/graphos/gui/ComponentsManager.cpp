@@ -23,14 +23,15 @@
 
 #include "ComponentsManager.h"
 
-#include "graphos/core/Component.h"
+#include "graphos/framework/component/MultiComponent.h"
+#include "graphos/framework/component/TaskComponent.h"
 #include "graphos/core/AppStatus.h"
 #include "graphos/gui/MainWindowModel.h"
 #include "graphos/gui/MainWindowView.h"
 #include "graphos/gui/MainWindowPresenter.h"
 #include "graphos/components/cameras/CamerasComponent.h"
 #include "graphos/gui/HelpDialog.h"
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 #include "graphos/widgets/ProgressBarDialog.h"
 #include "graphos/widgets/ProgressBarWidget.h"
 #include "graphos/core/Plugin.h"

@@ -25,7 +25,7 @@
 
 #include <unordered_map>
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 
 namespace graphos
 {

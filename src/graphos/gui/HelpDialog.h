@@ -21,12 +21,10 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_HELP_DIALOG_H
-#define GRAPHOS_HELP_DIALOG_H
-
-#include "graphos/core/mvp.h"
+#pragma once
 
 #include <QTextBrowser>
+#include <QDialog>
 
 class QHelpEngine;
 
@@ -108,6 +106,3 @@ private:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_HELP_DIALOG_H

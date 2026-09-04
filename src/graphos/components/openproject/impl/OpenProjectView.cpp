@@ -23,7 +23,7 @@
  
  #include "OpenProjectView.h"
 
-#include "graphos/core/Application.h"
+#include "graphos/framework/app/Application.h"
 
 namespace graphos
 {
@@ -37,14 +37,25 @@ OpenProjectViewImp::OpenProjectViewImp(QWidget *parent)
 void OpenProjectViewImp::init()
 {
     QString filter = Application::applicationDisplayName() + QString(" project (*.xml)");
-    QFileDialog::setWindowTitle(QApplication::translate("OpenProjectComponent", "Open Project"));
-    QFileDialog::setNameFilter(filter);
-    QFileDialog::setFileMode(QFileDialog::ExistingFile);
+    this->setWindowTitle("Open Project");
+    this->setNameFilter(filter);
+    this->setFileMode(QFileDialog::ExistingFile);
 }
 
 void OpenProjectViewImp::setGraphosProjectsPath(const QString &directory)
 {
-    QFileDialog::setDirectory(directory);
+    this->setDirectory(directory);
+}
+
+void OpenProjectViewImp::clear()
+{
+}
+
+void OpenProjectViewImp::retranslate()
+{
+    QString filter = Application::applicationDisplayName() + QString(QApplication::translate("OpenProjectComponent", " project (*.xml)"));
+    this->setNameFilter(filter);
+    this->setWindowTitle(QApplication::translate("OpenProjectComponent", "Open Project"));
 }
 
 } // namespace graphos

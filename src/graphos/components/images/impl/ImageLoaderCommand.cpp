@@ -29,7 +29,7 @@
 #include "graphos/core/project/io/ProjectReader.h"
 #include "graphos/core/project/io/ProjectWriter.h"
 #include "graphos/core/image/Image.h"
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 
 #include <tidop/core/app/Message.h>
 #include <tidop/core/task/Progress.h>

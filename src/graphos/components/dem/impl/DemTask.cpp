@@ -23,7 +23,7 @@
 
 #include "DemTask.h"
 
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 #include "graphos/core/utils.h"
 
 TL_DISABLE_WARNINGS

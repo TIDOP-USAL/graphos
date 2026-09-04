@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 
 #include <tidop/core/base/Path.h>
 #include <tidop/geometry/primitives/Point.h>

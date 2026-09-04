@@ -24,7 +24,7 @@
 #include "ThumbnailsWidget.h"
 
 #include "graphos/core/utils.h"
-#include "graphos/core/Application.h"
+#include "graphos/framework/app/Application.h"
 #include "graphos/core/AppStatus.h"
 
 #include <tidop/core/task/TaskQueue.h>

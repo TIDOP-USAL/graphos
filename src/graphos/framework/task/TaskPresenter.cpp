@@ -21,8 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/task/TaskPresenter.h"
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/TaskPresenter.h"
+#include "graphos/framework/task/ProgressHandler.h"
 
 #include <tidop/core/task/Progress.h>
 #include <tidop/core/task/events/Events.h>

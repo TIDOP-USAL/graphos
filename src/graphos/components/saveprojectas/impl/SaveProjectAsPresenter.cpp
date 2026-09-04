@@ -25,7 +25,7 @@
 
 #include "graphos/components/saveprojectas/SaveProjectAsModel.h"
 #include "graphos/components/saveprojectas/SaveProjectAsView.h"
-#include "graphos/core/Application.h"
+#include "graphos/framework/app/Application.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QFileDialog>

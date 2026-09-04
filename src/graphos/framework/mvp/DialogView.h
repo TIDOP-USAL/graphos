@@ -21,50 +21,23 @@
  *                                                                      *
  ************************************************************************/
 
-
-#ifndef GRAPHOS_MVP_H
-#define GRAPHOS_MVP_H
+#pragma once
 
 #include "graphos/graphos_global.h"
 
-#include <memory>
+#include "graphos/framework/mvp/View.h"
 
 TL_DISABLE_WARNINGS
-#include <QObject>
 #include <QDialog>
 #include <QEvent>
-#include <QDockWidget>
 TL_DEFAULT_WARNINGS
-
-namespace tl
-{
-class Command;
-}
 
 namespace graphos
 {
 
-using View = QObject;
-
-//class CommandView
-//  : public View
-//{
-//
-//public:
-//
-//    CommandView(QObject *parent = nullptr)
-//      : View(parent)
-//    {
-//    }
-//    virtual ~CommandView() override = default;
-//
-//    virtual std::shared_ptr<tl::Command> command() = 0;
-//
-//};
-
-
 class DialogView
-  : public QDialog
+  : public QDialog,
+    public View
 {
     Q_OBJECT
 
@@ -97,19 +70,27 @@ private:
 signals:
 
     void help();
-    //void restore();
 
-public slots:
-
-    /*!
-     * \brief Clear dialog
-     */
-    virtual void clear() = 0;
+//public slots:
+//
+//    /*!
+//     * \brief Clear dialog
+//     */
+//    virtual void clear() = 0;
 
 private slots:
 
     virtual void update() = 0;
     virtual void retranslate() = 0;
+
+// View interface
+
+public:
+
+    auto widget() -> QWidget *override
+    {
+        return this;
+    }
 
 // QWidget interface
 
@@ -123,70 +104,4 @@ protected:
     }
 };
 
-
-
-class Model
-  : public QObject
-{
-
-    Q_OBJECT
-
-public:
-
-    Model(QObject *parent = nullptr) : QObject(parent) {}
-    virtual ~Model() = default;
-
-private:
-
-    /*!
-     * \brief Class Initialization
-     */
-    virtual void init() = 0;
-
-public slots:
-
-    virtual void clear() = 0;
-
-};
-
-
-class Presenter
-  : public QObject
-{
-    Q_OBJECT
-
-public:
-
-    Presenter() : QObject() {}
-    virtual ~Presenter() = default;
-
-public slots:
-
-    /*!
-     * \brief Open
-     */
-    virtual void open() = 0;
-
-private:
-
-    /*!
-     * \brief Class Initialization
-     */
-    virtual void init() = 0;
-
-    /*!
-     * \brief Signal and slots initialization
-     */
-    virtual void initSignalAndSlots() = 0;
-
-
-signals:
-
-    void help(QString);
-
-};
-
-
 } // namespace graphos
-
-#endif // GRAPHOS_MVP_H

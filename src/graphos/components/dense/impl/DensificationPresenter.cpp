@@ -28,7 +28,7 @@
 #include "graphos/components/dense/impl/CmvsPmvsTask.h"
 #include "graphos/components/dense/impl/SmvsTask.h"
 #include "graphos/components/dense/impl/MvsTask.h"
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 #include "graphos/widgets/CmvsPmvsWidget.h"
 #include "graphos/widgets/SmvsWidget.h"
 #include "graphos/widgets/MvsWidget.h"

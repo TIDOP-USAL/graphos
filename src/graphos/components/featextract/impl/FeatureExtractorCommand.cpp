@@ -28,7 +28,7 @@
 #include "graphos/core/project/Project.h"
 #include "graphos/core/project/io/ProjectReader.h"
 #include "graphos/core/project/io/ProjectWriter.h"
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 #include "graphos/components/featextract/impl/ExtractFeaturesTask.h"
 #include "graphos/components/featextract/impl/SiftCPUExtractor.h"
 #include "graphos/components/featextract/impl/SiftGPUExtractor.h"

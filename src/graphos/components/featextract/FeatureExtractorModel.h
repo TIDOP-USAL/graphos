@@ -23,11 +23,9 @@
 
 #pragma once
 
-#include <unordered_map>
-
 #include <tidop/core/base/Path.h>
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 #include "graphos/core/image/Image.h"
 
 namespace graphos

@@ -21,59 +21,33 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_TASK_VIEW_H
-#define GRAPHOS_TASK_VIEW_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/component/Component.h"
 
+class QMenu;
 
 namespace graphos
 {
 
-/*!
- * \brief View for Tasks
- *
- * The `TaskView` class represents the view for tasks in the application. It inherits from the `DialogView` class.
- */
-class TaskView
-  : public DialogView
+class ProgressHandler;
+class Command;
+
+
+class MultiComponent
+  : public Component
 {
 
     Q_OBJECT
 
 public:
 
-    /*!
-     * \brief Constructor
-     *
-     * Constructs a `TaskView` object with the specified parent widget and window flags.
-     *
-     * \param[in] parent Pointer to the parent widget.
-     * \param[in] f Window flags specifying the behavior of the window.
-     */
-    TaskView(QWidget *parent = nullptr,
-             Qt::WindowFlags f = Qt::WindowFlags());
+    MultiComponent() = default;
+    virtual ~MultiComponent() = default;
 
-    /*!
-     * \brief Destructor
-     *
-     * Destroys the `TaskView` object.
-     */
-    ~TaskView() override;
-
-signals:
-
-    /*!
-     * \brief Signal emitted when starting a task
-     *
-     * This signal is emitted when the user initiates the execution of a task.
-     */
-    void run();
+    virtual auto subMenu() const -> QMenu* = 0;
 
 };
 
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_TASK_VIEW_H

@@ -28,7 +28,7 @@
 #include "graphos/components/featmatch/impl/MatchSpatiallyTask.h"
 #include "graphos/components/featmatch/FeatureMatchingView.h"
 #include "graphos/components/featmatch/FeatureMatchingModel.h"
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 #include "graphos/widgets/FeatureMatchingWidget.h"
 
 #include <tidop/core/app/Message.h>

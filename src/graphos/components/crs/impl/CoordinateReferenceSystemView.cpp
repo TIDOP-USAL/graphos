@@ -281,7 +281,7 @@ void CoordinateReferenceSystemViewImp::initSignalAndSlots()
     connect(mLineEditVerticalCRS, &QLineEdit::textChanged, this, &CoordinateReferenceSystemViewImp::filterVerticalCRS);
     connect(mLineEditCRS, &QLineEdit::textChanged, this, &CoordinateReferenceSystemViewImp::filterCRS);
     //connect(mLineEditCRS, &QLineEdit::textChanged, this, &CoordinateReferenceSystemViewImp::update);
-    connect(mCheckBoxVerticalCRS, &QCheckBox::stateChanged, this, &CoordinateReferenceSystemViewImp::loadVerticalCRS);
+    connect(mCheckBoxVerticalCRS, &QCheckBox::checkStateChanged, this, &CoordinateReferenceSystemViewImp::loadVerticalCRS);
     connect(mCRSTree, &QTreeWidget::itemSelectionChanged, this, &CoordinateReferenceSystemViewImp::showCRSDetails);
     connect(mVerticalCRSTree, &QTreeWidget::itemSelectionChanged, this, &CoordinateReferenceSystemViewImp::showVerticalCRSDetails);
 

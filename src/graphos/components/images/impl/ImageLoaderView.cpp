@@ -34,11 +34,21 @@ ImageLoaderViewImp::ImageLoaderViewImp(QWidget *parent)
     this->init();
 }
 
+void ImageLoaderViewImp::clear()
+{
+}
+
 void ImageLoaderViewImp::init()
 {
-    QFileDialog::setWindowTitle(QApplication::translate("ImageLoaderComponent", "Add images"));
+    QFileDialog::setWindowTitle("Load images");
     QFileDialog::setFileMode(QFileDialog::ExistingFiles);
-    QFileDialog::setNameFilter(QApplication::translate("ImageLoaderComponent", "Image files (*.tif *.tiff *.jpg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg)"));
+    QFileDialog::setNameFilter("Image files (*.tif *.tiff *.jpg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg)");
+}
+
+void ImageLoaderViewImp::retranslate()
+{
+    this->setWindowTitle(QCoreApplication::translate("ImageLoaderComponent", "Load images", nullptr));
+    this->setNameFilter(QCoreApplication::translate("ImageLoaderComponent", "Image files (*.tif *.tiff *.jpg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg)", nullptr));
 }
 
 void ImageLoaderViewImp::setImagesDirectory(const QString &directory)

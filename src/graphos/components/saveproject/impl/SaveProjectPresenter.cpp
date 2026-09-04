@@ -24,8 +24,9 @@
 #include "SaveProjectPresenter.h"
 
 #include "graphos/components/saveproject/SaveProjectModel.h"
-#include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
+
+#include <tidop/core/base/Exception.h>
 
 namespace graphos
 {

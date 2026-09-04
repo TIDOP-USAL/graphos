@@ -26,7 +26,7 @@
 #include "graphos/components/dem/DemView.h"
 #include "graphos/components/dem/DemModel.h"
 #include "graphos/components/dem/impl/DemTask.h"
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 
 #include <tidop/core/app/Message.h>
 

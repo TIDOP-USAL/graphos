@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROGRESS_BAR_DIALOG_H
-#define GRAPHOS_PROGRESS_BAR_DIALOG_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/DialogView.h"
 
 class QLabel;
 class QPushButton;
@@ -96,6 +95,3 @@ private:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_PROGRESS_BAR_DIALOG_H

@@ -26,7 +26,7 @@
 #include "graphos/components/images/ImageLoaderModel.h"
 #include "graphos/components/images/ImageLoaderView.h"
 #include "graphos/components/images/impl/LoadImagesTask.h"
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 #include "graphos/core/image/Image.h"
 #include "graphos/core/camera/Camera.h"
 

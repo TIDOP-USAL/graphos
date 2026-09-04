@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROGRESS_H
-#define GRAPHOS_PROGRESS_H
+#pragma once
 
 #include <QObject>
 
@@ -175,7 +174,4 @@ protected:
 
 };
 
-
 } // namespace graphos
-
-#endif // GRAPHOS_PROGRESS_H

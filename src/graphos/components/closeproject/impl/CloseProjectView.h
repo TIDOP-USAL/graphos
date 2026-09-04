@@ -39,10 +39,21 @@ public:
     explicit CloseProjectViewImp(QWidget *parent = nullptr);
     ~CloseProjectViewImp() override = default;
 
+// FileDialogView
+
 private:
 
-    void init();
+    void init() override;
 
+private slots:
+
+    void retranslate() override;
+
+// View
+
+public slots:
+
+    void clear() override;
 };
 
 } // namespace graphos

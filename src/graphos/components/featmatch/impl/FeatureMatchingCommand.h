@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "graphos/core/command.h"
+#include "graphos/framework/command/Command.h"
 
 namespace graphos
 {

@@ -23,9 +23,7 @@
 
 #pragma once
 
-#include "graphos/core/mvp.h"
-
-#include <QFileDialog>
+#include "graphos/framework/mvp/FileDialogView.h"
 
 namespace graphos
 {
@@ -34,13 +32,13 @@ namespace graphos
  * \brief SaveProjectAsView interface
  */
 class SaveProjectAsView
-  : public QFileDialog
+  : public FileDialogView
 {
     Q_OBJECT
 
 public:
 
-    SaveProjectAsView(QWidget *parent) : QFileDialog(parent) {}
+    SaveProjectAsView(QWidget *parent) : FileDialogView(parent) {}
     ~SaveProjectAsView() override = default;
 
     virtual void setGraphosProjectsPath(const QString &directory) = 0;

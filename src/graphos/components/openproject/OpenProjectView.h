@@ -23,9 +23,7 @@
 
 #pragma once
 
-#include "graphos/core/mvp.h"
-
-#include <QFileDialog>
+#include "graphos/framework/mvp/FileDialogView.h"
 
 namespace graphos
 {
@@ -34,13 +32,13 @@ namespace graphos
  * \brief OpenProjectView interface
  */
 class OpenProjectView
-  : public QFileDialog
+  : public FileDialogView
 {
     Q_OBJECT
 
 public:
 
-    OpenProjectView(QWidget *parent) : QFileDialog(parent) {}
+    OpenProjectView(QWidget *parent) : FileDialogView(parent) {}
     ~OpenProjectView() override = default;
 
     /*!

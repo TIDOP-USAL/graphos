@@ -23,21 +23,19 @@
 
 #pragma once
 
-#include "graphos/core/mvp.h"
-
-#include <QFileDialog>
+#include "graphos/framework/mvp/FileDialogView.h"
 
 namespace graphos
 {
 
 class ImageLoaderView
-  : public QFileDialog
+  : public FileDialogView
 {
     Q_OBJECT
 
 public:
 
-    ImageLoaderView(QWidget *parent) : QFileDialog(parent) {}
+    ImageLoaderView(QWidget *parent) : FileDialogView(parent) {}
     ~ImageLoaderView() override = default;
 
     virtual void setImagesDirectory(const QString &directory) = 0;

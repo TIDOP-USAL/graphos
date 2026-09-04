@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "graphos/core/task/TaskView.h"
+#include "graphos/framework/task/TaskView.h"
 
 namespace graphos
 {

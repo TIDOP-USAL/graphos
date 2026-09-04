@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 #include "graphos/core/project/Project.h"
 #include "graphos/core/image/ImageRepository.h"
 #include "graphos/core/camera/CameraRepository.h"

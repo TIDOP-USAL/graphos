@@ -23,7 +23,7 @@
 
 #include "OrientationPresenter.h"
 
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 #include "graphos/core/orientation/io/CameraPosesReader.h"
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Colmap.h"

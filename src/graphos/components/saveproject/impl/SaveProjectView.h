@@ -39,6 +39,21 @@ public:
     explicit SaveProjectViewImp(QWidget *parent = nullptr);
     ~SaveProjectViewImp() override = default;
 
+// FileDialogView
+
+private:
+
+    void init() override;
+
+private slots:
+
+    void retranslate() override;
+
+// View
+
+public slots:
+
+    void clear() override;
 };
 
 } // namespace graphos

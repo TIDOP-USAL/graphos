@@ -21,14 +21,13 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_TASK_PRESENTER_H
-#define GRAPHOS_TASK_PRESENTER_H
+#pragma once
 
 #include <QObject>
 
 #include <tidop/core/task/Task.h>
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Presenter.h"
 
 namespace tl
 {
@@ -170,8 +169,4 @@ private:
     ProgressHandler *mProgressHandler;
 };
 
-
 } // namespace graphos
-
-
-#endif // GRAPHOS_TASK_PRESENTER_H

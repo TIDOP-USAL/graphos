@@ -43,9 +43,21 @@ public:
 
     void setGraphosProjectsPath(const QString &directory) override;
 
+// FileDialogView
+
 private:
 
-    void init();
+    void init() override;
+
+private slots:
+
+    void retranslate() override;
+
+// View
+
+public slots:
+
+    void clear() override;
 
 };
 

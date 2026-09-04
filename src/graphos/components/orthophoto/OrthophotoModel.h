@@ -28,7 +28,7 @@
 #include <tidop/core/base/Path.h>
 #include <tidop/geometry/primitives/Point.h>
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 #include "graphos/core/ortho/OrthophotoReport.h"
 //#include "graphos/core/ortho/orthophoto.h"
 
