@@ -40,13 +40,15 @@ class ProjectWriter
 public:
 
     void write(const tl::Path &file, const Project &project);
+    void exportCameras(const Project &project, const tl::Path &file);
 
 private:
 
     void writeInfo(QXmlStreamWriter &stream, const ProjectInfo &projectInfo);
-    void writeCameras(QXmlStreamWriter &stream, const CameraRepository &cameraRepository);
+    void writeCameras(QXmlStreamWriter &stream, const CameraRepository &cameraRepository, bool writeUndistortedCameras = false);
     void writePriorCalibration(QXmlStreamWriter &stream, const Calibration *calibration);
     void writeCalibration(QXmlStreamWriter &stream, const Calibration *calibration);
+    void writeCalibrationUndistorted(QXmlStreamWriter &stream, const Calibration *calibration);
     void writeVignetting(QXmlStreamWriter &stream, const Vignetting *vignetting);
     void writeImages(QXmlStreamWriter &stream, const ImageRepository &imageRepository);
     void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition);

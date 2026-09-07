@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_VIEW_INTERFACE_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_VIEW_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/DialogView.h"
 
 #include <QFileDialog>
 
@@ -60,5 +59,3 @@ signals:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_VIEW_INTERFACE_H

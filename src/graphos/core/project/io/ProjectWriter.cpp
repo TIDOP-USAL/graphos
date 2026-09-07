@@ -25,6 +25,8 @@
 
 #include "graphos/core/features/SiftProperties.h"
 #include "graphos/core/matching/MatchingProperties.h"
+#include "graphos/core/camera/Undistort.h"
+#include "graphos/core/orientation/GroundControlPoint.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -305,6 +307,91 @@ void ProjectWriter::write(const tl::Path &file, const Project &project)
     tl::Path::removeFile(tmp_file);
 }
 
+void ProjectWriter::exportCameras(const Project &project, const tl::Path &file)
+{
+    try {
+
+        QFile output(QString::fromStdWString(file.toWString()));
+        if (!output.open(QFile::WriteOnly)) return;
+
+        QXmlStreamWriter stream(&output);
+        stream.setAutoFormatting(true);
+        stream.writeStartDocument();
+
+        stream.writeStartElement("GraphosCameras");
+        {
+            writeCameras(stream, project.cameras(), true);
+            writeImages(stream, project.images());
+
+            // Exportar Orientaciones
+            auto &camera_poses = project.cameraPoses();
+            stream.writeStartElement("CameraPoses");
+            for (const auto &[image_id, pose] : camera_poses) {
+                stream.writeStartElement("CameraPosition");
+                {
+                    //TODO: Esto creo que debería ser el ENU
+                    stream.writeTextElement("CRS", project.info().enuCrs());
+                    stream.writeTextElement("X", QString::number(pose.position().x(), 'f', 8));
+                    stream.writeTextElement("Y", QString::number(pose.position().y(), 'f', 8));
+                    stream.writeTextElement("Z", QString::number(pose.position().z(), 'f', 3));
+                    stream.writeTextElement("QX", QString::number(pose.quaternion().x(), 'f', 10));
+                    stream.writeTextElement("QY", QString::number(pose.quaternion().y(), 'f', 10));
+                    stream.writeTextElement("QZ", QString::number(pose.quaternion().z(), 'f', 10));
+                    stream.writeTextElement("QW", QString::number(pose.quaternion().w(), 'f', 10));
+                }
+                stream.writeEndElement();
+            }
+            stream.writeEndElement(); // CameraPoses
+
+            // Exportar Puntos de Control (GCPs) si existen
+            tl::Path gcp_file = project.info().projectFolder();
+            gcp_file.append("sfm");
+            gcp_file.append("georef.xml");
+
+            if (gcp_file.exists()) {
+                auto reader = GCPsReaderFactory::create("GRAPHOS");
+                reader->read(gcp_file);
+
+                auto crs = reader->epsgCode();
+                auto gcps = reader->gcps();
+
+                stream.writeStartElement("GroundControlPoints");
+                stream.writeTextElement("Crs", QString::fromStdString(crs));
+
+                for (const auto &gcp : gcps) {
+                    stream.writeStartElement("GroundControlPoint");
+                    stream.writeTextElement("Name", QString::fromStdString(gcp.name()));
+                    stream.writeTextElement("x", QString::number(gcp.x(), 'f', 6));
+                    stream.writeTextElement("y", QString::number(gcp.y(), 'f', 6));
+                    stream.writeTextElement("z", QString::number(gcp.z(), 'f', 6));
+                    stream.writeTextElement("error", QString::number(gcp.error(), 'f', 3));
+
+                    stream.writeStartElement("ImagePoints");
+                    for (const auto &point : gcp.track().points()) {
+                        stream.writeStartElement("ImagePoint");
+                        stream.writeAttribute("image_id", QString::number(point.first));
+                        stream.writeTextElement("x", QString::number(point.second.x()));
+                        stream.writeTextElement("y", QString::number(point.second.y()));
+                        stream.writeTextElement("ex", QString::number(gcp.track().error(point.first).x()));
+                        stream.writeTextElement("ey", QString::number(gcp.track().error(point.first).y()));
+                        stream.writeEndElement(); // ImagePoint
+                    }
+                    stream.writeEndElement(); // ImagePoints
+                    stream.writeEndElement(); // GroundControlPoint
+                }
+                stream.writeEndElement(); // GroundControlPoints
+            }
+        }
+        stream.writeEndElement(); // GraphosCameras
+
+        output.close();
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("An exception was detected when exporting the cameras.");
+    }
+
+}
+
 void ProjectWriter::writeInfo(QXmlStreamWriter &stream, const ProjectInfo &projectInfo)
 {
     stream.writeAttribute("version", projectInfo.version());
@@ -321,7 +408,7 @@ void ProjectWriter::writeInfo(QXmlStreamWriter &stream, const ProjectInfo &proje
     //stream.writeTextElement("Database", QString::fromStdWString(projectInfo.database().toWString()));
 }
 
-void ProjectWriter::writeCameras(QXmlStreamWriter &stream, const CameraRepository &cameraRepository)
+void ProjectWriter::writeCameras(QXmlStreamWriter &stream, const CameraRepository &cameraRepository, bool writeUndistortedCameras)
 {
     stream.writeStartElement("Cameras");
     for (const auto &[id, camera] : cameraRepository.all()) {
@@ -356,6 +443,10 @@ void ProjectWriter::writeCameras(QXmlStreamWriter &stream, const CameraRepositor
             }
             writePriorCalibration(stream, camera.priorCalibration().get());
             writeCalibration(stream, camera.calibration().get());
+            if (writeUndistortedCameras) {
+                Undistort undistort(camera);
+                writeCalibrationUndistorted(stream, undistort.undistortCamera().calibration().get());
+            }
             writeVignetting(stream, camera.vignettingModel().get());
         }
         stream.writeEndElement(); // Camera
@@ -389,6 +480,20 @@ void ProjectWriter::writeCalibration(QXmlStreamWriter &stream, const Calibration
             }
         }
         stream.writeEndElement(); // Calibration
+    }
+}
+
+void ProjectWriter::writeCalibrationUndistorted(QXmlStreamWriter &stream, const Calibration *calibration)
+{
+    if (calibration) {
+        stream.writeStartElement("CalibrationUndistorted");
+        {
+            for (auto &[parameter, value] : *calibration) {
+                stream.writeTextElement(QString::fromStdString(calibration->parameterName(parameter)),
+                    QString::number(value, 'f', 10));
+            }
+        }
+        stream.writeEndElement(); // CalibrationUndistorted
     }
 }
 

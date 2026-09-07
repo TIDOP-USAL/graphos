@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MATCH_VIEWER_MODEL_H
-#define GRAPHOS_MATCH_VIEWER_MODEL_H
+#pragma once
 
 #include <memory>
 
@@ -61,8 +60,8 @@ public:
     auto lineColor() const -> QString override;
     auto lineWidth() const -> int override;
 
-    auto images() const -> const Images& override;
-    auto image(size_t imageId) const -> Image override;
+    auto images() const -> const ImageRepository & override;
+    auto findImage(size_t imageId) const -> const Image * override;
     auto imagePairs(size_t imageId) const -> std::vector<size_t> override;
     auto loadMatches(size_t imageId1, size_t imageId2) const -> Matches override;
 
@@ -83,5 +82,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_MATCH_VIEWER_MODEL_H

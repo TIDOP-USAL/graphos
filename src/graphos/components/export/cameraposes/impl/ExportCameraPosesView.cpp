@@ -94,7 +94,7 @@ void ExportCameraPosesViewImp::update()
 
 void ExportCameraPosesViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("ExportCameraPosesView", "Export Cameras", nullptr));
+    this->setWindowTitle(QApplication::translate("ExportCameraPosesView", "Export Camera Poses", nullptr));
     mLabelFormat->setText(QApplication::translate("ExportCameraPosesView", "Format:", nullptr));
     mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ExportCameraPosesView", "Cancel", nullptr));
     mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ExportCameraPosesView", "Save", nullptr));

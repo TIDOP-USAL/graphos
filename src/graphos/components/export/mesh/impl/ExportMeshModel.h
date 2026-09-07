@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_MESH_MODEL_H
-#define GRAPHOS_EXPORT_MESH_MODEL_H
+#pragma once
 
 #include "graphos/components/export/mesh/ExportMeshModel.h"
 
@@ -71,5 +70,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_MESH_MODEL_H

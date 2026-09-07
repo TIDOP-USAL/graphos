@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERA_POSES_MODEL_H
-#define GRAPHOS_EXPORT_CAMERA_POSES_MODEL_H
+#pragma once
 
 #include "graphos/components/export/cameraposes/ExportCameraPosesModel.h"
 
@@ -44,9 +43,9 @@ public:
 
 public:
     
-    auto images() const -> const std::unordered_map<size_t, Image>& override;
-    auto poses() const -> const std::unordered_map<size_t, CameraPose>& override;
-    auto cameras() const -> const std::map<int, Camera> & override;
+    auto images() const -> const ImageRepository & override;
+    auto poses() const -> const CameraPosesRepository & override;
+    auto cameras() const -> const CameraRepository & override;
     auto enuCrs() const -> QString override;
     void graphosExport(const tl::Path &file) const override;
 
@@ -67,5 +66,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_ORIENTATIONS_MODEL_H

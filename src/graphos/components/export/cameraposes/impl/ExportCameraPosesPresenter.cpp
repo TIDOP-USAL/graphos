@@ -30,9 +30,8 @@
 #include "graphos/widgets/BundlerFormatWidget.h"
 #include "graphos/widgets/MveFormatWidget.h"
 #include "graphos/widgets/OriTxtFormatWidget.h"
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 
-#include <tidop/core/defs.h>
 #include <tidop/geometry/primitives/Point.h>
 
 #include <QApplication>
@@ -130,7 +129,7 @@ void ExportCameraPosesPresenterImp::initSignalAndSlots()
     });
 }
 
-void ExportCameraPosesPresenterImp::onError(tl::TaskErrorEvent *event)
+void ExportCameraPosesPresenterImp::onError(tl::TaskErrorEvent &event)
 {
     TaskPresenter::onError(event);
 
@@ -139,7 +138,7 @@ void ExportCameraPosesPresenterImp::onError(tl::TaskErrorEvent *event)
     }
 }
 
-void ExportCameraPosesPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void ExportCameraPosesPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
     TaskPresenter::onFinished(event);
 
@@ -167,8 +166,8 @@ auto ExportCameraPosesPresenterImp::createTask() -> std::unique_ptr<tl::Task>
                                                           mModel->images(),
                                                           mModel->poses(),
                                                           mModel->cameras(),
-                                                          mModel->enuCrs(),
-                                                          mExportFormat);
+                                                          mModel->enuCrs().toStdString(),
+                                                          mExportFormat.toStdString());
     if (mExportFormat == "TXT") {
         dynamic_cast<ExportCameraPosesTask *>(export_task.get())->setQuaternionRotation(mOriTxtFormatWidget->rotation() == "Quaternions");
     }

@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERA_POSES_PRESENTER_INTERFACE_H
-#define GRAPHOS_EXPORT_CAMERA_POSES_PRESENTER_INTERFACE_H
+#pragma once
 
-#include "graphos/core/task/TaskPresenter.h"
+#include "graphos/framework/task/TaskPresenter.h"
 
 namespace graphos
 {
@@ -45,5 +44,3 @@ public slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_CAMERA_POSES_PRESENTER_INTERFACE_H

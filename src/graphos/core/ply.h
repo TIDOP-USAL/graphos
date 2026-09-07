@@ -398,9 +398,9 @@ auto Ply::point(size_t index) const -> tl::Point3<T>
 template <typename T>
 auto Ply::addPoint(const tl::Point3<T>& point) -> size_t
 {
-    auto index = addProperty("x", point.x);
-    addProperty("y", point.y);
-    addProperty("z", point.z);
+    auto index = addProperty("x", point.x());
+    addProperty("y", point.y());
+    addProperty("z", point.z());
 
     mSize = index + 1;
 
@@ -421,9 +421,9 @@ template <typename T>
 void Ply::addNormals(const tl::Point3<T>& normals)
 {
     mHasNormals = true; // Esto se tiene que definir antes
-    addProperty("nx", normals.x);
-    addProperty("ny", normals.y);
-    addProperty("nz", normals.z);
+    addProperty("nx", normals.x());
+    addProperty("ny", normals.y());
+    addProperty("nz", normals.z());
 }
 
 template <typename T>

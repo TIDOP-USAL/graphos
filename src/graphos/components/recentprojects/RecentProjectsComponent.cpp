@@ -26,7 +26,7 @@
 #include "graphos/components/recentprojects/impl/RecentProjectsModel.h"
 #include "graphos/components/recentprojects/impl/RecentProjectsView.h"
 #include "graphos/components/recentprojects/impl/RecentProjectsPresenter.h"
-#include "graphos/core/project.h"
+//#include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QString>

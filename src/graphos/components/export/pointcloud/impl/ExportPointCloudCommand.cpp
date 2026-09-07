@@ -25,17 +25,20 @@
 #include "ExportPointCloudCommand.h"
 
 #include "graphos/core/utils.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/project/io/ProjectReader.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudTask.h"
-#include "graphos/core/sfm/posesio.h"
+//#include "graphos/core/sfm/posesio.h"
 
 #include <tidop/core/app/Message.h>
-#include <tidop/core/log.h>
+#include <tidop/core/app/Logger.h>
+#include <tidop/core/console/ValuesValidator.h>
 
 #include <QFileInfo>
 #include <tidop/geospatial/util.h>
 
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 
 
 using namespace tl;
@@ -45,8 +48,7 @@ namespace graphos
 
 
 ExportPointCloudCommand::ExportPointCloudCommand()
-  : Command("export_point_cloud", "Export point cloud"),
-    mProject(nullptr)
+  : Command("export_point_cloud", "Export point cloud")
 {
     this->addArgument<Path>("prj", 'p', "Project file");
     this->addArgument<Path>("file", 'f', "Export file (.las, .ply)");
@@ -66,38 +68,30 @@ ExportPointCloudCommand::ExportPointCloudCommand()
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
-ExportPointCloudCommand::~ExportPointCloudCommand()
-{
-    if (mProject) {
-        delete mProject;
-        mProject = nullptr;
-    }
-}
-
-auto ExportPointCloudCommand::crs() const -> std::string
-{
-    std::string epsg_code;
-
-    try {
-
-        auto enu_crs = mProject->enuCrs().toStdString();
-        auto v = tl::split<std::string>(enu_crs, ';');
-        auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
-        epsg_code = "EPSG:326";
-        epsg_code.append(std::to_string(zone.first));
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("");
-    }
-
-    return epsg_code;
-}
+//auto ExportPointCloudCommand::crs() const -> std::string
+//{
+//    std::string epsg_code;
+//
+//    try {
+//
+//        auto enu_crs = mProject->enuCrs();
+//        auto v = tl::split<std::string>(enu_crs, ';');
+//        auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
+//        epsg_code = "EPSG:326";
+//        epsg_code.append(std::to_string(zone.first));
+//
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("");
+//    }
+//
+//    return epsg_code;
+//}
 
 bool ExportPointCloudCommand::run()
 {
     bool r = false;
 
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
 
     try {
 
@@ -116,30 +110,34 @@ bool ExportPointCloudCommand::run()
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
-        mProject = new ProjectImp;
-        mProject->load(project_path);
+        Project project;
+        ProjectReader reader;
+        reader.read(project_path, project);
 
         std::unique_ptr<tl::Task> export_point_cloud_task;
 
+        auto enu_crs = project.info().enuCrs();
+        if (crs.empty()) crs = enuCrsToEpsg(enu_crs);
+
         if (tl::compareInsensitiveCase(file.extension().toString(), ".ply")) {
-            export_point_cloud_task = std::make_unique<ExportPointCloudTask>(mProject->denseModel(),
+            export_point_cloud_task = std::make_unique<ExportPointCloudTask>(project.denseModel(),
                                                                              file,
-                                                                             mProject->enuCrs().toStdString(),
-                                                                             crs.empty() ? this->crs() : crs,
+                                                                             enu_crs,
+                                                                             crs,
                                                                              ply_format == "binary",
                                                                              colors,
                                                                              normals);
         } else {
-            export_point_cloud_task = std::make_unique<ExportPointCloudTask>(mProject->denseModel(),
+            export_point_cloud_task = std::make_unique<ExportPointCloudTask>(project.denseModel(),
                                                                              file,
-                                                                             mProject->enuCrs().toStdString(),
-                                                                             crs.empty() ? this->crs() : crs,
+                                                                             enu_crs,
+                                                                             crs,
                                                                              false, // se ignora
                                                                              colors,
                                                                              normals);
         }
 
-        size_t size = static_cast<size_t>(mProject->denseReport().points / 80.) * 20 + mProject->denseReport().points;
+        size_t size = static_cast<size_t>(project.densificationReport().points / 80.) * 20 + project.densificationReport().points;
 
         auto progress = getProgressBar(progress_bar, size);
         export_point_cloud_task->run(progress.get());

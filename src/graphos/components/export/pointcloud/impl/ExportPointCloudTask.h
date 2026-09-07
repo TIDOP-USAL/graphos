@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_TASK_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_TASK_H
+#pragma once
 
 #include <tidop/core/task/Task.h>
 #include <tidop/core/task/Progress.h>
@@ -35,7 +34,7 @@ namespace graphos
 
 class ExportPointCloudTask
   : public QObject,
-    public tl::TaskBase
+    public tl::Task
 {
 
     Q_OBJECT
@@ -56,7 +55,7 @@ public:
 
 protected:
 
-    void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 private:
 
@@ -72,5 +71,3 @@ private:
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_TASK_H

@@ -221,12 +221,10 @@ void FeaturesViewerViewImp::setCurrentImage(const QString &imagePath)
     mComboBoxImages->setCurrentText(file_info.baseName());
     mGraphicView->scene()->clearSelection();
 
-    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(imagePath.toStdString());
-    imageReader->open();
-    if (imageReader->isOpen()) {
-        cv::Mat bmp = imageReader->read();
+    tl::RasterReader imageReader(imagePath.toStdString());
+    if (imageReader.isOpen()) {
+        cv::Mat bmp = imageReader.read();
         mGraphicView->setImage(cvMatToQImage(bmp));
-        imageReader->close();
     }
     mGraphicView->zoomExtend();
 }

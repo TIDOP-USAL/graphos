@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_H
+#pragma once
 
 #include "graphos/components/export/pointcloud/ExportPointCloudPresenter.h"
 
@@ -72,8 +71,8 @@ private:
 
 protected:
 
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
+    void onError(tl::TaskErrorEvent &event) override;
+    void onFinished(tl::TaskFinalizedEvent &event) override;
     auto createTask() -> std::unique_ptr<tl::Task> override;
 
 public slots:
@@ -91,5 +90,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_H

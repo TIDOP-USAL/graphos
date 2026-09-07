@@ -115,11 +115,8 @@ void RecentProjectsViewImp::setHistory(const QStringList &history)
     update();
 }
 
-void RecentProjectsViewImp::changeEvent(QEvent* event)
+void RecentProjectsViewImp::clear()
 {
-    if (event->type() == QEvent::LanguageChange) {
-        retranslate();
-    }
 }
 
 } // namespace graphos

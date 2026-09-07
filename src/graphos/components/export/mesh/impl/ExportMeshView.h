@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_MESH_VIEW_H
-#define GRAPHOS_EXPORT_MESH_VIEW_H
+#pragma once
 
 #include "graphos/components/export/mesh/ExportMeshView.h"
 
@@ -44,12 +43,22 @@ public:
 
     void setGraphosProjectsPath(const QString &directory) override;
 
+// FileDialogView
+
 private:
 
-    void init();
+    void init() override;
+
+private slots:
+
+    void retranslate() override;
+
+// View
+
+public slots:
+
+    void clear() override;
 
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_MESH_VIEW_H

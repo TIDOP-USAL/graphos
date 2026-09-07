@@ -21,10 +21,11 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_RECENT_PROJECTS_PRESENTER_INTERFACE_H
-#define GRAPHOS_RECENT_PROJECTS_PRESENTER_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include <QObject>
+
+#include "graphos/framework/mvp/Presenter.h"
 
 namespace graphos
 {
@@ -57,5 +58,3 @@ signals:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_RECENT_PROJECTS_PRESENTER_INTERFACE_H

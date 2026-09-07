@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERA_POSES_MODEL_INTERFACE_H
-#define GRAPHOS_EXPORT_CAMERA_POSES_MODEL_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 
 #include <unordered_map>
 #include <tidop/geometry/primitives/Point.h>
@@ -32,9 +31,9 @@
 namespace graphos
 {
 
-class Image;
-class CameraPose;
-class Camera;
+class ImageRepository;
+class CameraPosesRepository;
+class CameraRepository;
 
 class ExportCameraPosesModel
   : public Model
@@ -46,13 +45,11 @@ public:
 
     ExportCameraPosesModel(QObject *parent = nullptr) : Model(parent) {}
 
-    virtual auto poses() const -> const std::unordered_map<size_t, CameraPose>& = 0;
-    virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
-    virtual auto cameras() const -> const std::map<int, Camera> & = 0;
+    virtual auto poses() const -> const CameraPosesRepository & = 0;
+    virtual auto images() const -> const ImageRepository & = 0;
+    virtual auto cameras() const -> const CameraRepository & = 0;
     virtual auto enuCrs() const -> QString = 0;
     virtual void graphosExport(const tl::Path &file) const = 0;
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_CAMERA_POSES_MODEL_INTERFACE_H

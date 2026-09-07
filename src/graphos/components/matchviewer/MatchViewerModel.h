@@ -21,13 +21,11 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MATCH_VIEWER_MODEL_INTERFACE_H
-#define GRAPHOS_MATCH_VIEWER_MODEL_INTERFACE_H
+#pragma once
 
-#include <unordered_map>
-
-#include "graphos/core/mvp.h"
-#include "graphos/core/image.h"
+#include "graphos/framework/mvp/Model.h"
+#include "graphos/core/image/Image.h"
+#include "graphos/core/image/ImageRepository.h"
 
 namespace graphos
 {
@@ -41,7 +39,6 @@ class MatchViewerModel
 public:
 
     using Matches = std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>>;
-    using Images = std::unordered_map<size_t, Image>;
 
 public:
 
@@ -58,8 +55,8 @@ public:
     virtual auto lineColor() const -> QString = 0;
     virtual auto lineWidth() const -> int = 0;
 
-    virtual auto images() const -> const Images& = 0;
-    virtual auto image(size_t imageId) const -> Image = 0;
+    virtual auto images() const -> const ImageRepository & = 0;
+    virtual auto findImage(size_t imageId) const -> const Image * = 0;
     virtual auto imagePairs(size_t imageId) const -> std::vector<size_t> = 0;
     virtual auto loadMatches(size_t imageId1, size_t imageId2) const -> Matches = 0;
 
@@ -67,5 +64,3 @@ public:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_MATCH_VIEWER_MODEL_INTERFACE_H

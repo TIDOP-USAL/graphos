@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_RECENT_PROJECTS_VIEW_H
-#define GRAPHOS_RECENT_PROJECTS_VIEW_H
+#pragma once
 
 #include "graphos/components/recentprojects/RecentProjectsView.h"
 
@@ -44,13 +43,11 @@ public:
 
 private:
 
-    void init();
     void initSignalAndSlots();
 
 private slots:
 
     void update() const;
-    void retranslate();
     void openFromHistory();
 
 // RecentProjectsView interface
@@ -59,11 +56,21 @@ public:
 
     void setHistory(const QStringList &history) override;
 
-// QWidget interface
+// MenuView
 
-protected:
+private:
 
-    void changeEvent(QEvent *event) override;
+    void init() override;
+
+private slots:
+
+    void retranslate() override;
+
+// View
+
+public slots:
+
+    void clear() override;
 
 private:
 
@@ -73,5 +80,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_RECENT_PROJECTS_VIEW_H

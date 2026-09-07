@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURES_VIEWER_PRESENTER_H
-#define GRAPHOS_FEATURES_VIEWER_PRESENTER_H
+#pragma once
 
 #include "graphos/components/featviewer/FeaturesViewerPresenter.h"
 
@@ -75,5 +74,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_FEATURES_VIEWER_PRESENTER_H

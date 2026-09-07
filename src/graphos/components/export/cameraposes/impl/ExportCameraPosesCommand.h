@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERA_POSES_COMMAND_H
-#define GRAPHOS_EXPORT_CAMERA_POSES_COMMAND_H
+#pragma once
 
-#include "graphos/core/command.h"
+#include "graphos/framework/command/Command.h"
 
 namespace graphos
 {
@@ -48,7 +47,4 @@ public:
 
 };
 
-
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_CAMERA_POSES_COMMAND_H

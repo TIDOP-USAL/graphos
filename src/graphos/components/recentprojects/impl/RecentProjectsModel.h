@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_OPEN_PROJECT_MODEL_H
-#define GRAPHOS_OPEN_PROJECT_MODEL_H
+#pragma once
 
 #include "graphos/components/recentprojects/RecentProjectsModel.h"
 
@@ -65,5 +64,3 @@ public slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_OPEN_PROJECT_MODEL_H

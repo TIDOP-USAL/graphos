@@ -23,9 +23,11 @@
 
 #include "ExportCameraPosesModel.h"
 
-#include "graphos/core/project.h"
-#include "graphos/core/sfm/posesio.h"
-
+#include "graphos/core/project/Project.h"
+#include "graphos/core/project/io/ProjectWriter.h"
+#include "graphos/core/camera/CameraRepository.h"
+#include "graphos/core/image/ImageRepository.h"
+#include "graphos/core/orientation/CameraPosesRepository.h"
 
 namespace graphos
 {
@@ -38,29 +40,30 @@ ExportCameraPosesModelImp::ExportCameraPosesModelImp(Project *project,
     ExportCameraPosesModelImp::init();
 }
 
-auto ExportCameraPosesModelImp::images() const -> const std::unordered_map<size_t, Image>&
+auto ExportCameraPosesModelImp::images() const -> const ImageRepository &
 {
     return mProject->images();
 }
 
-auto ExportCameraPosesModelImp::poses() const -> const std::unordered_map<size_t, CameraPose>&
+auto ExportCameraPosesModelImp::poses() const -> const CameraPosesRepository &
 {
-    return mProject->poses();
+    return mProject->cameraPoses();
 }
 
-auto ExportCameraPosesModelImp::cameras() const -> const std::map<int, Camera> &
+auto ExportCameraPosesModelImp::cameras() const -> const CameraRepository &
 {
     return mProject->cameras();
 }
 
 auto ExportCameraPosesModelImp::enuCrs() const -> QString
 {
-    return mProject->enuCrs();
+    return QString::fromStdString(mProject->info().enuCrs());
 }
 
 void ExportCameraPosesModelImp::graphosExport(const tl::Path &file) const
 {
-    mProject->exportCameras(file);
+    ProjectWriter writer;
+    writer.exportCameras(*mProject, file);
 }
 
 void ExportCameraPosesModelImp::init()

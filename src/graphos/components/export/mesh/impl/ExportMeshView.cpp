@@ -35,15 +35,23 @@ ExportMeshViewImp::ExportMeshViewImp(QWidget *parent)
 
 void ExportMeshViewImp::setGraphosProjectsPath(const QString &directory)
 {
-    QFileDialog::setDirectory(directory);
+    this->setDirectory(directory);
 }
 
 void ExportMeshViewImp::init()
 {
-    QFileDialog::setWindowTitle(QApplication::translate("ExportMeshComponent", "Export Mesh..."));
-    QFileDialog::setNameFilter(QApplication::translate("ExportMeshComponent", "PLY file (*.ply)"));
-    //QFileDialog::setFileMode(QFileDialog::ExistingFile);
-    QFileDialog::setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
+    retranslate();
+    this->setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
+}
+
+void ExportMeshViewImp::clear()
+{
+}
+
+void ExportMeshViewImp::retranslate()
+{
+    this->setWindowTitle(QApplication::translate("ExportMeshComponent", "Export Mesh..."));
+    this->setNameFilter(QApplication::translate("ExportMeshComponent", "PLY file (*.ply)"));
 }
 
 } // namespace graphos

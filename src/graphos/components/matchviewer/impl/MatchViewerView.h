@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MATCH_VIEWER_VIEW_H
-#define GRAPHOS_MATCH_VIEWER_VIEW_H
+#pragma once
 
 #include "graphos/components/matchviewer/MatchViewerView.h"
 
@@ -116,5 +115,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_MATCH_VIEWER_VIEW_H

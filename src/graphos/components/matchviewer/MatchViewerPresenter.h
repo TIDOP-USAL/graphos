@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MATCH_VIEWER_PRESENTER_INTERFACE_H
-#define GRAPHOS_MATCH_VIEWER_PRESENTER_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Presenter.h"
 
 namespace graphos
 {
@@ -53,5 +52,3 @@ protected slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_MATCH_VIEWER_PRESENTER_INTERFACE_H

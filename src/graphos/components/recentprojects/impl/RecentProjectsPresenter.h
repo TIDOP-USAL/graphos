@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_RECENT_PROJECTS_PRESENTER_H
-#define GRAPHOS_RECENT_PROJECTS_PRESENTER_H
+#pragma once
 
 #include "graphos/components/recentprojects/RecentProjectsPresenter.h"
 
@@ -73,5 +72,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_RECENT_PROJECTS_PRESENTER_H

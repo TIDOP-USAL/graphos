@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_MODEL_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_MODEL_H
+#pragma once
 
 #include "graphos/components/export/pointcloud/ExportPointCloudModel.h"
 
@@ -49,8 +48,8 @@ public:
 
     auto graphosProjectsDirectory() const -> tl::Path override;
     auto pointCloud() const -> tl::Path override;
-    auto enuCrs() const -> QString override;
-    auto crs() const -> QString override;
+    auto enuCrs() const -> std::string override;
+    auto crs() const -> std::string override;
     auto pointCloudSize() const -> size_t override;
 
 public slots:
@@ -74,5 +73,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_MODEL_H

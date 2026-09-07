@@ -21,15 +21,12 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_COMMAND_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_COMMAND_H
+#pragma once
 
-#include "graphos/core/command.h"
+#include "graphos/framework/command/Command.h"
 
 namespace graphos
 {
-
-class Project;
 
 class ExportPointCloudCommand
   : public Command
@@ -38,7 +35,7 @@ class ExportPointCloudCommand
 public:
 
     ExportPointCloudCommand();
-    ~ExportPointCloudCommand() override;
+    ~ExportPointCloudCommand() override = default;
 
 private:
 
@@ -49,13 +46,7 @@ private:
 public:
 
     bool run() override;
-
-private:
-
-    Project *mProject;
 };
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_COMMAND_H

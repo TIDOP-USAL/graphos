@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_RECENT_PROJECTS_MODEL_INTERFACE_H
-#define GRAPHOS_RECENT_PROJECTS_MODEL_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 
 namespace graphos
 {
@@ -55,5 +54,3 @@ public slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_RECENT_PROJECTS_MODEL_INTERFACE_H

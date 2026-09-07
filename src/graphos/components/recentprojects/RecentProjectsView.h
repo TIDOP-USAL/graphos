@@ -21,12 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_OPEN_PROJECT_VIEW_INTERFACE_H
-#define GRAPHOS_OPEN_PROJECT_VIEW_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
-
-#include <QMenu>
+#include "graphos/framework/mvp/MenuView.h"
 
 namespace graphos
 {
@@ -35,13 +32,13 @@ namespace graphos
  * \brief RecentProjectsView interface
  */
 class RecentProjectsView
-  : public QMenu
+  : public MenuView
 {
     Q_OBJECT
 
 public:
 
-    RecentProjectsView(QWidget *parent) : QMenu(parent) {}
+    RecentProjectsView(QWidget *parent) : MenuView(parent) {}
     ~RecentProjectsView() override = default;
 
     virtual void setHistory(const QStringList &history) = 0;
@@ -54,5 +51,3 @@ signals:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_OPEN_PROJECT_VIEW_INTERFACE_H

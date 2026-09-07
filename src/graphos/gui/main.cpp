@@ -101,9 +101,9 @@
 #ifdef GRAPHOS_HAVE_MATCH_VIEWER
 #include "graphos/components/matchviewer/MatchViewerComponent.h"
 #endif // GRAPHOS_HAVE_MATCH_VIEWER
-#ifdef GRAPHOS_HAVE_EXPORT_CAMERAS
+#ifdef GRAPHOS_HAVE_EXPORT_CAMERA_POSES
 #include "graphos/components/export/cameraposes/ExportCameraPosesComponent.h"
-#endif // GRAPHOS_HAVE_EXPORT_CAMERAS
+#endif // GRAPHOS_HAVE_EXPORT_CAMERA_POSES
 #ifdef GRAPHOS_HAVE_EXPORT_POINT_CLOUD
 #include "graphos/components/export/pointcloud/ExportPointCloudComponent.h"
 #endif // GRAPHOS_HAVE_EXPORT_POINT_CLOUD
@@ -289,9 +289,9 @@ int main(int argc, char *argv[])
     CamerasComponent cameras_component(&app);
 #endif // GRAPHOS_HAVE_CAMERAS
 
-#ifdef GRAPHOS_HAVE_EXPORT_CAMERAS
+#ifdef GRAPHOS_HAVE_EXPORT_CAMERA_POSES
     ExportCameraPosesComponent export_camera_poses_component(&app);
-#endif // GRAPHOS_HAVE_EXPORT_CAMERAS
+#endif // GRAPHOS_HAVE_EXPORT_CAMERA_POSES
 
 #ifdef GRAPHOS_HAVE_EXPORT_POINT_CLOUD
     ExportPointCloudComponent export_point_cloud_component(&app);
@@ -463,7 +463,7 @@ int main(int argc, char *argv[])
         componentsManager.registerComponent(&cameras_component);
 #endif
 
-#ifdef GRAPHOS_HAVE_EXPORT_CAMERAS
+#ifdef GRAPHOS_HAVE_EXPORT_CAMERA_POSES
         componentsManager.registerComponent(&export_camera_poses_component);
 #endif
 

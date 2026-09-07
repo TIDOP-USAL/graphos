@@ -28,8 +28,8 @@
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudTask.h"
 #include "graphos/widgets/PlyFormatWidget.h"
 #include "graphos/widgets/LasFormatWidget.h"
-#include "graphos/core/task/Progress.h"
-#include "graphos/core/Application.h"
+#include "graphos/framework/task/ProgressHandler.h"
+#include "graphos/framework/app/Application.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QFileDialog>
@@ -51,7 +51,7 @@ ExportPointCloudPresenterImp::ExportPointCloudPresenterImp(ExportPointCloudView 
     ExportPointCloudPresenterImp::initSignalAndSlots();
 }
 
-void ExportPointCloudPresenterImp::onError(tl::TaskErrorEvent *event)
+void ExportPointCloudPresenterImp::onError(tl::TaskErrorEvent &event)
 {
     TaskPresenter::onError(event);
 
@@ -60,7 +60,7 @@ void ExportPointCloudPresenterImp::onError(tl::TaskErrorEvent *event)
     }
 }
 
-void ExportPointCloudPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void ExportPointCloudPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
     TaskPresenter::onFinished(event);
 
@@ -77,16 +77,16 @@ auto ExportPointCloudPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     if (mPlyFormatWidget && mPlyFormatWidget->windowTitle() == mView->format()) {
         export_point_cloud_task = std::make_unique<ExportPointCloudTask>(mModel->pointCloud(),
                                                                          mExportFile.toStdString(),
-                                                                         mModel->enuCrs().toStdString(),
-                                                                         mModel->crs().toStdString(),
+                                                                         mModel->enuCrs(),
+                                                                         mModel->crs(),
                                                                          mPlyFormatWidget->format() == PlyFormatWidget::Format::binary,
                                                                          mPlyFormatWidget->isExportColorsEnabled(),
                                                                          mPlyFormatWidget->isExportNormalsEnabled());
     } else if (mLasFormatWidget && mLasFormatWidget->windowTitle() == mView->format()) {
         export_point_cloud_task = std::make_unique<ExportPointCloudTask>(mModel->pointCloud(),
                                                                          mExportFile.toStdString(),
-                                                                         mModel->enuCrs().toStdString(),
-                                                                         mModel->crs().toStdString(),
+                                                                         mModel->enuCrs(),
+                                                                         mModel->crs(),
                                                                          false,
                                                                          mLasFormatWidget->isExportColorsEnabled(),
                                                                          mLasFormatWidget->isExportNormalsEnabled());
@@ -138,7 +138,7 @@ void ExportPointCloudPresenterImp::open()
             return;
         }
 
-        mView->setCrs(mModel->crs());
+        mView->setCrs(QString::fromStdString(mModel->crs()));
 
         mView->exec();
     }

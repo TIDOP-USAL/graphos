@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_MESH_PRESENTER_H
-#define GRAPHOS_EXPORT_MESH_PRESENTER_H
+#pragma once
 
 #include "graphos/components/export/mesh/ExportMeshPresenter.h"
 
@@ -71,5 +70,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_MESH_PRESENTER_H

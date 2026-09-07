@@ -21,14 +21,13 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_COMPONENT_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_COMPONENT_H
+#pragma once
 
 /* TidopLib */
 #include <tidop/core/base/flags.h>
 
 /* GRAPHOS */
-#include "graphos/core/Component.h"
+#include "graphos/framework/component/TaskComponent.h"
 
 
 namespace graphos
@@ -98,6 +97,3 @@ private:
 ALLOW_BITWISE_FLAG_OPERATIONS(ExportPointCloudComponent::Format)
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_COMPONENT_H

@@ -47,6 +47,7 @@ add_files_to_project(${PROJECT_NAME}
                          component/TaskComponent.h
                          mvp/DialogView.h
                          mvp/FileDialogView.h
+                         mvp/MenuView.h
                          mvp/Model.h
                          mvp/Presenter.h
                          mvp/View.h

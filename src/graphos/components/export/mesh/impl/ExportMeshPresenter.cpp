@@ -25,7 +25,7 @@
 
 #include "graphos/components/export/mesh/ExportMeshModel.h"
 #include "graphos/components/export/mesh/ExportMeshView.h"
-#include "graphos/core/Application.h"
+#include "graphos/framework/app/Application.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QFileDialog>

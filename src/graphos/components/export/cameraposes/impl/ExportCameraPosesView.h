@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERA_POSES_VIEW_H
-#define GRAPHOS_EXPORT_CAMERA_POSES_VIEW_H
+#pragma once
 
 #include "graphos/components/export/cameraposes/ExportCameraPosesView.h"
 
@@ -81,5 +80,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_CAMERA_POSES_VIEW_H

@@ -128,7 +128,7 @@ auto formatDegreesFromExif(const std::string &exifAngle, const std::string &ref)
 
 void transformModel(const tl::Matrix<double> &transform, const std::string &model);
 
-QString enuCrsToEpsg(const QString &enuCRS);
+auto enuCrsToEpsg(const std::string &enuCRS) -> std::string;
 
 
 

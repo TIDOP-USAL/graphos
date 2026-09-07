@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURES_VIEWER_VIEW_H
-#define GRAPHOS_FEATURES_VIEWER_VIEW_H
+#pragma once
 
 #include "graphos/components/featviewer/FeaturesViewerView.h"
 
@@ -99,6 +98,4 @@ protected:
     int mSelectedMarkerWidth;
 };
 
-} // namespace graphos
-
-#endif // GRAPHOS_FEATURES_VIEWER_VIEW_H
+} // nam

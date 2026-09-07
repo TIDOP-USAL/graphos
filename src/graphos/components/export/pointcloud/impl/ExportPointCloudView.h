@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_VIEW_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_VIEW_H
+#pragma once
 
 #include "graphos/components/export/pointcloud/ExportPointCloudView.h"
 
@@ -83,5 +82,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_VIEW_H

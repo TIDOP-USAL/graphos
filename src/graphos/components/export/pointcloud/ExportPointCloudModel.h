@@ -21,13 +21,12 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_MODEL_INTERFACE_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_MODEL_INTERFACE_H
+#pragma once
 
 #include <tidop/core/base/Path.h>
 
 #include "ExportPointCloudComponent.h"
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 
 namespace graphos
 {
@@ -48,12 +47,10 @@ public:
 
     virtual auto graphosProjectsDirectory() const -> tl::Path = 0;
     virtual auto pointCloud() const -> tl::Path = 0;
-    virtual auto enuCrs() const -> QString = 0;
-    virtual auto crs() const -> QString = 0;
+    virtual auto enuCrs() const -> std::string = 0;
+    virtual auto crs() const -> std::string = 0;
     virtual auto pointCloudSize() const -> size_t = 0;
 
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_MODEL_INTERFACE_H

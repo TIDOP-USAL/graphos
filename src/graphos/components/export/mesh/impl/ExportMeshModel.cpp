@@ -23,8 +23,8 @@
 
 #include "ExportMeshModel.h"
 
-#include "graphos/core/project.h"
-#include "graphos/core/Application.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/framework/app/Application.h"
 
 #include <QStandardPaths>
 
@@ -45,7 +45,7 @@ ExportMeshModelImp::~ExportMeshModelImp()
 
 void ExportMeshModelImp::exportMesh(const tl::Path &exportPath)
 {
-    tl::Path::copy(mProject->meshPath(), exportPath);
+    tl::Path::copy(mProject->meshModel(), exportPath);
 }
 
 auto ExportMeshModelImp::graphosProjectsDirectory() const -> tl::Path

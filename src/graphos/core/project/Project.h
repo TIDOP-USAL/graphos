@@ -168,7 +168,7 @@ public:
     auto cameraPosesFile() const -> tl::Path;
     void setCameraPosesFile(tl::Path poses);
 
-    auto cameraPoses() -> CameraPosesRepository &;
+    auto cameraPoses() const -> CameraPosesRepository &;
 
     void clearOrientation();
 

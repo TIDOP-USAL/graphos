@@ -23,14 +23,16 @@
 
 #include "FeaturesViewerModel.h"
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/image/ImageRepository.h"
 
 #include <tidop/core/app/Message.h>
 
-#include <colmap/base/database.h>
+#include <colmap/scene/database.h>
 
 #include <QFileInfo>
 #include <QSettings>
+#include <QApplication>
 
 namespace graphos
 {
@@ -64,15 +66,15 @@ void FeaturesViewerModelImp::clear()
 
 }
 
-auto FeaturesViewerModelImp::images() const -> const std::unordered_map<size_t, Image>&
+auto FeaturesViewerModelImp::images() const -> const ImageRepository &
 {
     return mProject->images();
 }
 
-auto FeaturesViewerModelImp::image(size_t imageId) const -> Image
-{
-    return mProject->findImageById(imageId);
-}
+//auto FeaturesViewerModelImp::image(size_t imageId) const -> Image
+//{
+//    return mProject->findImageById(imageId);
+//}
 
 auto FeaturesViewerModelImp::loadKeypoints(size_t imageId) -> std::vector<std::tuple<QPointF, float, float>>
 {
@@ -80,41 +82,45 @@ auto FeaturesViewerModelImp::loadKeypoints(size_t imageId) -> std::vector<std::t
 
     try {
 
-        Image image = mProject->findImageById(imageId);
+        auto image = images().find(imageId);
+        TL_ASSERT(image, "Image not found");
+        //Image image = mProject->findImageById(imageId);
 
-        tl::Path database_path = mProject->database();
+        tl::Path database_path = mProject->info().database();
 
         TL_ASSERT(database_path.exists(), "Database not found");
 
-        colmap::Database database(database_path.toUtf8());
+        auto database = colmap::Database::Open(database_path.toUtf8());
 
-        auto _images = database.ReadAllImages();
+        auto _images = database->ReadAllImages();
         for (const auto &image : _images) {
             std::string name = image.Name();
         }
 
-        if (!database.ExistsImageWithName(image.path().toStdString()))
-            throw std::runtime_error(std::string("Image not found in database: ").append(image.path().toStdString()));
+        if (!database->ExistsImageWithName(image->path().toString()))
+            throw std::runtime_error(std::string("Image not found in database: ").append(image->path().toString()));
 
-        colmap::Image image_colmap = database.ReadImageWithName(image.path().toStdString());
-        colmap::image_t image_id = image_colmap.ImageId();
+        if (auto image_colmap = database->ReadImageWithName(image->path().toString())) {
+            colmap::image_t image_id = image_colmap->ImageId();
 
-        if (image_id > 0) {
+            if (image_id > 0) {
 
-            colmap::FeatureKeypoints colmap_feature_keypoints = database.ReadKeypoints(image_id);
-            size_t size = colmap_feature_keypoints.size();
-            keyPoints.resize(size);
+                colmap::FeatureKeypoints colmap_feature_keypoints = database->ReadKeypoints(image_id);
+                size_t size = colmap_feature_keypoints.size();
+                keyPoints.resize(size);
 
-            for (size_t i = 0; i < size; i++) {
+                for (size_t i = 0; i < size; i++) {
 
-                QPointF keypoint(static_cast<qreal>(colmap_feature_keypoints[i].x),
-                                 static_cast<qreal>(colmap_feature_keypoints[i].y));
+                    QPointF keypoint(static_cast<qreal>(colmap_feature_keypoints[i].x),
+                        static_cast<qreal>(colmap_feature_keypoints[i].y));
 
-                keyPoints[i] = std::make_tuple(keypoint,
-                                               colmap_feature_keypoints[i].ComputeScale(),
-                                               colmap_feature_keypoints[i].ComputeOrientation() * tl::consts::rad_to_deg<float>);
+                    keyPoints[i] = std::make_tuple(keypoint,
+                        colmap_feature_keypoints[i].ComputeScale(),
+                        colmap_feature_keypoints[i].ComputeOrientation() * tl::consts::rad_to_deg<float>);
+                }
             }
         }
+
     } catch (std::exception &e) {
         tl::printException(e);
     }

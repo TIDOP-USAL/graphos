@@ -31,7 +31,7 @@
 #include "graphos/widgets/mapviewer/MapViewer.h"
 //#include "graphos/widgets/Viewer3d.h"
 #include "graphos/widgets/ProgressBarWidget.h"
-#include "graphos/core/Application.h"
+#include "graphos/framework/app/Application.h"
 #include "graphos/core/AppStatus.h"
 
 #include <tidop/core/app/Message.h>

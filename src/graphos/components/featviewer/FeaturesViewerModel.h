@@ -21,16 +21,15 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURES_VIEWER_MODEL_INTERFACE_H
-#define GRAPHOS_FEATURES_VIEWER_MODEL_INTERFACE_H
+#pragma once
 
-#include <unordered_map>
-
-#include "graphos/core/mvp.h"
-#include "graphos/core/image.h"
+#include "graphos/framework/mvp/Model.h"
+//#include "graphos/core/image/Image.h"
 
 namespace graphos
 {
+
+class ImageRepository;
 
 class FeaturesViewerModel
   : public Model
@@ -43,8 +42,8 @@ public:
     FeaturesViewerModel(QObject *parent = nullptr) : Model(parent) {}
     ~FeaturesViewerModel() override = default;
 
-    virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
-    virtual auto image(size_t imageId) const -> Image = 0;
+    virtual auto images() const -> const ImageRepository & = 0;
+    //virtual auto image(size_t imageId) const -> Image = 0;
     virtual auto loadKeypoints(size_t imageId) -> std::vector<std::tuple<QPointF, float, float>> = 0;
 
     virtual auto backgroundColor() const -> QString = 0;
@@ -58,5 +57,3 @@ public:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_FEATURES_VIEWER_MODEL_INTERFACE_H

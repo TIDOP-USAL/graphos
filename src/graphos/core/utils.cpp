@@ -495,12 +495,12 @@ void transformModel(const tl::Matrix<double> &transform, const std::string &mode
 //#endif // GRAPHOS_GUI
 }
 
-QString enuCrsToEpsg(const QString &enuCRS)
+auto enuCrsToEpsg(const std::string &enuCRS) -> std::string
 {
-    auto v = tl::split<std::string>(enuCRS.toStdString(), ';');
+    auto v = tl::split<std::string>(enuCRS, ';');
     auto zone = tl::utmZoneFromLonLat(tl::convertStringTo<double>(v.at(1)), tl::convertStringTo<double>(v.at(2)));
-    QString epsg_code("EPSG:326");
-    epsg_code.append(QString::number(zone.first));
+    std::string epsg_code("EPSG:326");
+    epsg_code.append(std::to_string(zone.first));
     return epsg_code;
 }
 

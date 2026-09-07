@@ -24,12 +24,14 @@
 #include "ExportCameraPosesCommand.h"
 
 #include "graphos/core/utils.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/project/io/ProjectReader.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 #include "graphos/components/export/cameraposes/impl/ExportCameraPosesTask.h"
 
 #include <tidop/core/app/Message.h>
-#include <tidop/core/log.h>
-
+#include <tidop/core/app/Logger.h>
+#include <tidop/core/console/ValuesValidator.h>
 
 using namespace tl;
 
@@ -61,7 +63,7 @@ bool ExportCameraPosesCommand::run()
 {
     bool r = false;
 
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
 
     try {
 
@@ -81,15 +83,16 @@ bool ExportCameraPosesCommand::run()
                   file.extension() == tl::Path(".json") && format == "ODM", 
                   "Invalid export file format. Supported formats are TXT (*.txt) and ODM (*.json).");
 
-        ProjectImp project;
-        project.load(project_path);
+        Project project;
+        ProjectReader reader;
+        reader.read(project_path, project);
 
         auto export_task = std::make_unique<ExportCameraPosesTask>(file,
                                                                    project.images(),
-                                                                   project.poses(),
+                                                                   project.cameraPoses(),
                                                                    project.cameras(),
-                                                                   project.enuCrs(),
-                                                                   QString::fromStdString(format));
+                                                                   project.info().enuCrs(),
+                                                                   format);
 
         if (format == "TXT" && quaternions) {
             dynamic_cast<ExportCameraPosesTask *>(export_task.get())->setQuaternionRotation(true);

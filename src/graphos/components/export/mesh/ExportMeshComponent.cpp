@@ -26,7 +26,7 @@
 #include "graphos/components/export/mesh/impl/ExportMeshModel.h"
 #include "graphos/components/export/mesh/impl/ExportMeshView.h"
 #include "graphos/components/export/mesh/impl/ExportMeshPresenter.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

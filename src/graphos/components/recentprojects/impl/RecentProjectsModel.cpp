@@ -23,7 +23,7 @@
 
 #include "RecentProjectsModel.h"
 
-#include "graphos/core/Application.h"
+#include "graphos/framework/app/Application.h"
 
 #include <QStandardPaths>
 

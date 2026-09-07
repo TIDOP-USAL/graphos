@@ -29,7 +29,6 @@
 #include "graphos/components/export/cameraposes/impl/ExportCameraPosesPresenter.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/export/cameraposes/impl/ExportCameraPosesCommand.h"
-#include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>
@@ -51,7 +50,7 @@ ExportCameraPosesComponent::~ExportCameraPosesComponent()
 
 void ExportCameraPosesComponent::init()
 {
-    setName(QApplication::translate("ExportCameraPosesComponent", "Export Cameras"));
+    setName(QApplication::translate("ExportCameraPosesComponent", "Export Camera Poses"));
     setMenu("file_export");
 
     createCommand();

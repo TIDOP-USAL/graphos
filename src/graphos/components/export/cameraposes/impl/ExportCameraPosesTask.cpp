@@ -23,14 +23,18 @@
 
 #include "ExportCameraPosesTask.h"
 
-#include "graphos/core/sfm/orientationexport.h"
+#include "graphos/core/camera/CameraRepository.h"
+#include "graphos/core/image/ImageRepository.h"
+#include "graphos/core/orientation/CameraPosesRepository.h"
+//#include "graphos/core/sfm/orientationexport.h"
 #include "graphos/core/utils.h"
 
 /* TidopLib */
 #include <tidop/core/base/Chrono.h>
 #include <tidop/core/task/Progress.h>
-#include <tidop/math/algebra/rotation_convert.h>
+//#include <tidop/math/algebra/rotation_convert.h>
 #include <tidop/math/algebra/rotations/Quaternion.h>
+#include <tidop/math/algebra/rotations/EulerAngles.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geotools/CRSsTools.h>
 #include <tidop/geotools/GeoTools.h>
@@ -52,16 +56,16 @@ namespace graphos
 {
 
 ExportCameraPosesTask::ExportCameraPosesTask(tl::Path file,
-                                             const std::unordered_map<size_t, Image> &images,
-                                             const std::unordered_map<size_t, CameraPose> &poses,
-                                             const std::map<int, Camera> &cameras,
-                                             QString enuCrs,
-                                             QString format)
-  : tl::TaskBase(),
+                                             const ImageRepository &imageRepo,
+                                             const CameraPosesRepository &posesRepo,
+                                             const CameraRepository &cameraRepo,
+                                             std::string enuCrs,
+                                             std::string format)
+  : tl::Task(),
     mFile(std::move(file)),
-    mImages(images),
-    mPoses(poses),
-    mCameras(cameras),
+    mImages(imageRepo),
+    mPoses(posesRepo),
+    mCameras(cameraRepo),
     mEnuCrs(std::move(enuCrs)),
     mFormat(std::move(format)),
     mQuaternions(false)
@@ -84,29 +88,30 @@ void ExportCameraPosesTask::textExport()
         stream << "image X Y Z Omega Phi Kappa" << std::endl;
     }
 
-    for (auto &pose : mPoses) {
-        auto image_id = pose.first;
-        auto &camera_pose = pose.second;
-        auto &image = mImages[image_id];
+    for (auto &[image_id, camera_pose] : mPoses) {
 
-        TL_TODO("Permitir cambio de sistema de referencia")
-        auto position = camera_pose.position() /*+ mOffset*/;
-        auto quaternion = camera_pose.quaternion();
+        if (auto image = mImages.find(image_id)) {
+            TL_TODO("Permitir cambio de sistema de referencia")
+            auto position = camera_pose.position() /*+ mOffset*/;
+            auto quaternion = camera_pose.quaternion();
 
-        stream << std::fixed << "\"" << image.path().toStdString() << "\" "
-               << position.x << " " << position.y << " " << position.z << " ";
+            stream << std::fixed << "\"" << image->path().toString() << "\" "
+                   << position.x() << " " << position.y() << " " << position.z() << " ";
 
-        if (mQuaternions) {
+            if (mQuaternions) {
             
-            stream << quaternion.w  << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << "\n";
+                stream << quaternion.w()  << " " << quaternion.x() << " " << quaternion.y() << " " << quaternion.z() << "\n";
 
-        } else {
+            } else {
 
-            EulerAngles<double> euler_angles;
-            RotationConverter<double>::convert(quaternion, euler_angles);
+                EulerAngles<double> euler_angles = quaternion;
+                //RotationConverter<double>::convert(quaternion, euler_angles);
 
-            stream << euler_angles.x << " " << euler_angles.y << " " << euler_angles.z << "\n";
+                stream << euler_angles.x() << " " << euler_angles.y() << " " << euler_angles.z() << "\n";
+            }
         }
+
+
 
     }
 
@@ -119,13 +124,16 @@ void ExportCameraPosesTask::odmExport()
 
     tl::GeoTools *ptrGeoTools = tl::GeoTools::getInstance();
 
-    auto enu = mEnuCrs.toStdString();
-    auto epsg = enuCrsToEpsg(mEnuCrs).toStdString();
+    //auto enu = mEnuCrs.toStdString();
+    auto epsg = enuCrsToEpsg(mEnuCrs);
 
-    for (auto &pose : mPoses) {
-        size_t image_id = pose.first;
-        const auto &camera_pose = pose.second;
-        const auto &image = mImages.at(image_id);
+    for (auto &[image_id, camera_pose] : mPoses) {
+
+        auto image = mImages.find(image_id);
+        if (!image) continue;
+
+        auto camera = mCameras.find(image->cameraId());
+        if (!camera) continue;
 
         auto position = camera_pose.position();
         auto quaternion = camera_pose.quaternion();
@@ -133,19 +141,17 @@ void ExportCameraPosesTask::odmExport()
         EulerAngles<double> angles = quaternion;
 
         tl::Point3d pose_utm;
-        if (!enu.empty() && !epsg.empty())
-            pose_utm = ptrGeoTools->ptrCRSsTools()->crsOperation(enu, epsg, position);
+        if (!mEnuCrs.empty() && !epsg.empty())
+            pose_utm = ptrGeoTools->ptrCRSsTools()->crsOperation(mEnuCrs, epsg, position);
 
         tl::Point3d pose_geo;
-        if (!enu.empty() && !epsg.empty())
-            pose_geo = ptrGeoTools->ptrCRSsTools()->crsOperation(enu, "EPSG:4326", position);
+        if (!mEnuCrs.empty() && !epsg.empty())
+            pose_geo = ptrGeoTools->ptrCRSsTools()->crsOperation(mEnuCrs, "EPSG:4326", position);
         
-
-        Camera camera = mCameras.at(image.cameraId());
-        auto calibration = camera.calibration();
-        auto width = camera.width();
-        auto height = camera.height();
-        auto sensor_size = camera.sensorSize();
+        auto calibration = camera->calibration();
+        auto width = camera->width();
+        auto height = camera->height();
+        auto sensor_size = camera->sensorSize();
         auto focal = calibration->existParameter(Calibration::Parameters::focal) ?
                      calibration->parameter(Calibration::Parameters::focal) :
                      (calibration->parameter(Calibration::Parameters::focalx) + calibration->parameter(Calibration::Parameters::focaly)) / 2.;
@@ -154,11 +160,11 @@ void ExportCameraPosesTask::odmExport()
         double focal_ratio = std::round((focal_mm / sensor_size) * 10000.0) / 10000.0;
 
         QJsonObject properties;
-        properties["filename"] = image.name();
-        properties["camera"] = QString::fromStdString(camera.make()).append(" ").
-            append(QString::fromStdString(camera.model())).
-            append(" ").append(QString::number(camera.width())).
-            append(" ").append(QString::number(camera.height())).
+        properties["filename"] = image->name();
+        properties["camera"] = QString::fromStdString(camera->make()).append(" ").
+            append(QString::fromStdString(camera->model())).
+            append(" ").append(QString::number(camera->width())).
+            append(" ").append(QString::number(camera->height())).
             append(" ").append("brown ").append(QString::number(focal_ratio));
 
         properties["focal"] = focal_ratio;
@@ -167,18 +173,18 @@ void ExportCameraPosesTask::odmExport()
         properties["capture_time"] = 0.0;
 
         QJsonArray translationArray;
-        translationArray << pose_utm.x << pose_utm.y << pose_utm.z;
+        translationArray << pose_utm.x() << pose_utm.y() << pose_utm.z();
         properties["translation"] = translationArray;
 
         QJsonArray rotationArray;
-        rotationArray << angles.x << angles.y << angles.z;
+        rotationArray << angles.x() << angles.y() << angles.z();
         properties["rotation"] = rotationArray;
 
         QJsonObject geometry;
         geometry["type"] = "Point";
 
         QJsonArray coordinatesArray;
-        coordinatesArray << pose_geo.x << pose_geo.y << pose_geo.z;
+        coordinatesArray << pose_geo.x() << pose_geo.y() << pose_geo.z();
         geometry["coordinates"] = coordinatesArray;
 
         QJsonObject feature;
@@ -203,7 +209,7 @@ void ExportCameraPosesTask::odmExport()
     file.close();
 }
 
-void ExportCameraPosesTask::execute(tl::Progress *progressBar)
+void ExportCameraPosesTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
 {
     try {
 

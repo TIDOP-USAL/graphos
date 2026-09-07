@@ -23,9 +23,11 @@
 
 #include "MatchViewerModel.h"
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/image/ImageRepository.h"
+#include "graphos/core/matching/MatchingRepository.h"
 
-#include <colmap/base/database.h>
+#include <colmap/scene/database.h>
 
 #include <QImageReader>
 #include <QFileInfo>
@@ -103,19 +105,33 @@ void MatchViewerModelImp::init()
 {
 }
 
-auto MatchViewerModelImp::images() const -> const Images&
+auto MatchViewerModelImp::images() const -> const ImageRepository &
 {
     return mProject->images();
 }
 
-auto MatchViewerModelImp::image(size_t imageId) const -> Image
+auto MatchViewerModelImp::findImage(size_t imageId) const -> const Image *
 {
-    return mProject->findImageById(imageId);
+    return mProject->images().find(imageId);
 }
 
 auto MatchViewerModelImp::imagePairs(size_t imageId) const -> std::vector<size_t>
 {
-    std::vector<size_t> image_pairs = mProject->matchesPairs(imageId);
+    std::vector<size_t> image_pairs;
+    
+    const Image *image = mProject->images().find(imageId);
+    if (image) {
+        std::vector<std::string> pair_names = mProject->matches().imagePairs(image->path().toString());
+        for (const auto &pair_name : pair_names) {
+            for (const auto &img_pair : mProject->images()) {
+                if (img_pair.second.path().toString() == pair_name) {
+                    image_pairs.push_back(img_pair.first);
+                    break;
+                }
+            }
+        }
+    }
+    
     return image_pairs;
 }
 
@@ -123,41 +139,47 @@ auto MatchViewerModelImp::loadMatches(size_t imageId1, size_t imageId2) const ->
 {
     std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> matches;
 
-    Image image_left = mProject->findImageById(imageId1);
-    Image image_right = mProject->findImageById(imageId2);
+    const Image *image_left = mProject->images().find(imageId1);
+    const Image *image_right = mProject->images().find(imageId2);
+    
+    TL_ASSERT(image_left, "Image left not found");
+    TL_ASSERT(image_right, "Image right not found");
 
-    tl::Path database_path = mProject->database();
+    tl::Path database_path = mProject->info().database();
 
     TL_ASSERT(database_path.exists(), "Database not found");
 
-    colmap::Database database(database_path.toUtf8());
+    auto database = colmap::Database::Open(database_path.toUtf8());
 
-    if (!database.ExistsImageWithName(image_left.path().toStdString()))
-        throw std::runtime_error(std::string("Image not found in database: ").append(image_left.name().toStdString()));
-    if (!database.ExistsImageWithName(image_right.path().toStdString()))
-        throw std::runtime_error(std::string("Image not found in database: ").append(image_right.name().toStdString()));
+    if (!database->ExistsImageWithName(image_left->path().toString()))
+        throw std::runtime_error(std::string("Image not found in database: ").append(image_left->name().toStdString()));
+    if (!database->ExistsImageWithName(image_right->path().toString()))
+        throw std::runtime_error(std::string("Image not found in database: ").append(image_right->name().toStdString()));
 
-    colmap::Image image_left_colmap = database.ReadImageWithName(image_left.path().toStdString());
-    colmap::image_t image_left_id = image_left_colmap.ImageId();
-    colmap::Image image_right_colmap = database.ReadImageWithName(image_right.path().toStdString());
-    colmap::image_t image_right_id = image_right_colmap.ImageId();
+    if (auto image_left_colmap = database->ReadImageWithName(image_left->path().toString())) {
+        colmap::image_t image_left_id = image_left_colmap->ImageId();
+        
+        if (auto image_right_colmap = database->ReadImageWithName(image_right->path().toString())) {
+            colmap::image_t image_right_id = image_right_colmap->ImageId();
 
-    if (image_left_id != 0 && image_right_id != 0) {
-        colmap::FeatureKeypoints kp_1 = database.ReadKeypoints(image_left_id);
-        colmap::FeatureKeypoints kp_2 = database.ReadKeypoints(image_right_id);
+            if (image_left_id > 0 && image_right_id > 0) {
+                colmap::FeatureKeypoints kp_1 = database->ReadKeypoints(image_left_id);
+                colmap::FeatureKeypoints kp_2 = database->ReadKeypoints(image_right_id);
 
-        colmap::TwoViewGeometry two_view_colmap = database.ReadTwoViewGeometry(image_left_id, image_right_id);
-        colmap::FeatureMatches inlier_matches = two_view_colmap.inlier_matches;
-        colmap::FeatureMatch match_colmap;
+                colmap::TwoViewGeometry two_view_colmap = database->ReadTwoViewGeometry(image_left_id, image_right_id);
+                colmap::FeatureMatches inlier_matches = two_view_colmap.inlier_matches;
+                colmap::FeatureMatch match_colmap;
 
-        for (size_t i = 0; i < inlier_matches.size(); i++) {
-            match_colmap = inlier_matches[i];
-            QPointF left_point(static_cast<qreal>(kp_1[match_colmap.point2D_idx1].x),
-                               static_cast<qreal>(kp_1[match_colmap.point2D_idx1].y));
-            QPointF right_point(static_cast<qreal>(kp_2[match_colmap.point2D_idx2].x),
-                                static_cast<qreal>(kp_2[match_colmap.point2D_idx2].y));
-            matches.emplace_back(i, match_colmap.point2D_idx1, left_point,
-                                 match_colmap.point2D_idx1, right_point);
+                for (size_t i = 0; i < inlier_matches.size(); i++) {
+                    match_colmap = inlier_matches[i];
+                    QPointF left_point(static_cast<qreal>(kp_1[match_colmap.point2D_idx1].x),
+                                       static_cast<qreal>(kp_1[match_colmap.point2D_idx1].y));
+                    QPointF right_point(static_cast<qreal>(kp_2[match_colmap.point2D_idx2].x),
+                                        static_cast<qreal>(kp_2[match_colmap.point2D_idx2].y));
+                    matches.emplace_back(i, match_colmap.point2D_idx1, left_point,
+                                         match_colmap.point2D_idx1, right_point);
+                }
+            }
         }
     }
 

@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_RECENT_PROJECTS_COMPONENT_H
-#define GRAPHOS_RECENT_PROJECTS_COMPONENT_H
+#pragma once
 
-#include "graphos/core/Component.h"
+#include "graphos/framework/component/MultiComponentBase.h"
 
 
 namespace graphos
@@ -49,7 +48,7 @@ signals:
 
     void open_project(QString);
 
-    // MultiComponentBase
+// MultiComponentBase
 
 protected:
 
@@ -60,8 +59,4 @@ protected:
 
 };
 
-
 } // namespace graphos
-
-
-#endif // GRAPHOS_OPEN_PROJECT_COMPONENT_H

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURES_VIEWER_MODEL_H
-#define GRAPHOS_FEATURES_VIEWER_MODEL_H
+#pragma once
 
 #include <memory>
 
@@ -51,8 +50,8 @@ public:
 
 public:
 
-    auto images() const -> const std::unordered_map<size_t, Image>& override;
-    auto image(size_t imageId) const -> Image override;
+    auto images() const -> const ImageRepository & override;
+    //auto image(size_t imageId) const -> Image override;
     auto loadKeypoints(size_t imageId) -> std::vector<std::tuple<QPointF, float, float>> override;
 
     auto backgroundColor() const -> QString override;
@@ -81,5 +80,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_FEATURES_VIEWER_MODEL_H

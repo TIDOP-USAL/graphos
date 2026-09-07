@@ -27,6 +27,7 @@
 #include "graphos/widgets/GraphicItem.h"
 #include "graphos/core/utils.h"
 
+#include <tidop/core/base/Meta.h>
 #include <tidop/rastertools/io/Reader.h>
 
 #include <QPushButton>
@@ -156,10 +157,10 @@ void MatchViewerViewImp::initSignalAndSlots()
 void MatchViewerViewImp::clear()
 {
     const QSignalBlocker blocker1(mComboBoxLeftImage);
-    const QSignalBlocker blocker2(mComboBoxLeftImage);
+    const QSignalBlocker blocker2(mComboBoxRightImage);
 
     mComboBoxLeftImage->clear();
-    mComboBoxLeftImage->clear();
+    mComboBoxRightImage->clear();
 }
 
 void MatchViewerViewImp::update()
@@ -194,12 +195,10 @@ void MatchViewerViewImp::setLeftImage(const QString &imageLeft)
     mComboBoxLeftImage->setCurrentText(file_info.baseName());
     mGraphicsViewLeftImage->scene()->clearSelection();
 
-    auto image_reader = tl::ImageReaderFactory::create(imageLeft.toStdString());
-    image_reader->open();
-    if (image_reader->isOpen()) {
-        cv::Mat bmp = image_reader->read();
+    tl::RasterReader image_reader(imageLeft.toStdString());
+    if (image_reader.isOpen()) {
+        cv::Mat bmp = image_reader.read();
         mGraphicsViewLeftImage->setImage(cvMatToQImage(bmp));
-        image_reader->close();
     }
 }
 
@@ -210,12 +209,10 @@ void MatchViewerViewImp::setRightImage(const QString &imageRight)
     mComboBoxRightImage->setCurrentText(imageRight);
     mGraphicsViewRightImage->scene()->clearSelection();
 
-    auto image_reader = tl::ImageReaderFactory::create(imageRight.toStdString());
-    image_reader->open();
-    if (image_reader->isOpen()) {
-        cv::Mat bmp = image_reader->read();
+    tl::RasterReader image_reader(imageRight.toStdString());
+    if (image_reader.isOpen()) {
+        cv::Mat bmp = image_reader.read();
         mGraphicsViewRightImage->setImage(cvMatToQImage(bmp));
-        image_reader->close();
     }
 }
 

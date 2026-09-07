@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERA_POSES_PRESENTER_H
-#define GRAPHOS_EXPORT_CAMERA_POSES_PRESENTER_H
+#pragma once
 
 #include "graphos/components/export/cameraposes/ExportCameraPosesPresenter.h"
 
@@ -57,8 +56,8 @@ public slots:
 
 protected:
 
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
+    void onError(tl::TaskErrorEvent &event) override;
+    void onFinished(tl::TaskFinalizedEvent &event) override;
     auto createTask() -> std::unique_ptr<tl::Task> override;
 
 public slots:
@@ -90,5 +89,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_CAMERA_POSES_PRESENTER_H

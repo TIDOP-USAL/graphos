@@ -25,8 +25,9 @@
 
 #include <QFile>
 
-#include "graphos/core/project.h"
-#include "graphos/core/Application.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/utils.h"
+#include "graphos/framework/app/Application.h"
 
 #include <QStandardPaths>
 #include <tidop/geospatial/crs.h>
@@ -34,7 +35,6 @@
 #include <tidop/geospatial/util.h>
 
 #include "graphos/core/ply.h"
-#include "graphos/core/sfm/posesio.h"
 
 namespace tl
 {
@@ -66,35 +66,26 @@ auto ExportPointCloudModelImp::pointCloud() const -> tl::Path
     return mProject->denseModel();
 }
 
-auto ExportPointCloudModelImp::enuCrs() const -> QString
+auto ExportPointCloudModelImp::enuCrs() const -> std::string
 {
-    return mProject->enuCrs();
+    return mProject->info().enuCrs();
 }
 
-auto ExportPointCloudModelImp::crs() const -> QString
+auto ExportPointCloudModelImp::crs() const -> std::string
 {
-    QString epsg_code;
-
     try {
 
-        auto enu_crs = mProject->enuCrs();
-
-        auto v = tl::split<std::string>(enu_crs.toStdString(), ';');
-
-        auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
-        epsg_code = "EPSG:326";
-        epsg_code.append(QString::number(zone.first));
+        auto enu_crs = mProject->info().enuCrs();
+        return enuCrsToEpsg(mProject->info().enuCrs());
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
     }
-
-    return epsg_code;
 }
 
 auto ExportPointCloudModelImp::pointCloudSize() const -> size_t
 {
-    return mProject->denseReport().points;
+    return mProject->densificationReport().points;
 }
 
 void ExportPointCloudModelImp::init()

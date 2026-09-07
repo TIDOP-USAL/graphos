@@ -194,7 +194,7 @@ void Project::setCameraPosesFile(tl::Path poses)
     mPosesFile = std::move(poses);
 }
 
-auto Project::cameraPoses() -> CameraPosesRepository &
+auto Project::cameraPoses() const -> CameraPosesRepository &
 {
     if (!mCameraPosesRepository) {
         if (auto reader = CameraPosesReaderFactory::create("GRAPHOS")) {

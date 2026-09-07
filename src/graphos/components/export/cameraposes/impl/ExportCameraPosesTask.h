@@ -21,26 +21,26 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERA_POSES_TASK_H
-#define GRAPHOS_EXPORT_CAMERA_POSES_TASK_H
-
-#include <unordered_map>
+#pragma once
 
 #include <QObject>
 
 #include <tidop/core/task/Task.h>
+#include <tidop/core/task/Progress.h>
 
-#include "graphos/core/image.h"
+#include "graphos/core/image/Image.h"
 #include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
 
-class Camera;
+class ImageRepository;
+class CameraPosesRepository;
+class CameraRepository;
 
 class ExportCameraPosesTask
   : public QObject,
-    public tl::TaskBase
+    public tl::Task
 {
 
     Q_OBJECT
@@ -48,11 +48,11 @@ class ExportCameraPosesTask
 public:
 
     ExportCameraPosesTask(tl::Path file,
-                          const std::unordered_map<size_t, Image> &images,
-                          const std::unordered_map<size_t, CameraPose> &poses,
-                          const std::map<int, Camera> &cameras,
-                          QString enuCrs,
-                          QString format);
+                          const ImageRepository &imageRepo,
+                          const CameraPosesRepository &posesRepo,
+                          const CameraRepository &cameraRepo,
+                          std::string enuCrs,
+                          std::string format);
 
     void setQuaternionRotation(bool quaternions);
 
@@ -65,19 +65,17 @@ private:
 
 protected:
 
-    void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 protected:
 
     tl::Path mFile;
-    std::unordered_map<size_t, Image> mImages;
-    std::unordered_map<size_t, CameraPose> mPoses;
-    std::map<int, Camera> mCameras;
-    QString mEnuCrs;
-    QString mFormat;
+    const ImageRepository &mImages;
+    const CameraPosesRepository &mPoses;
+    const CameraRepository &mCameras;
+    std::string mEnuCrs;
+    std::string mFormat;
     bool mQuaternions;
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_CAMERA_POSES_TASK_H

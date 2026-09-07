@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_MESH_PRESENTER_INTERFACE_H
-#define GRAPHOS_EXPORT_MESH_PRESENTER_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Presenter.h"
 
 namespace graphos
 {
@@ -49,5 +48,3 @@ public slots:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_MESH_PRESENTER_INTERFACE_H

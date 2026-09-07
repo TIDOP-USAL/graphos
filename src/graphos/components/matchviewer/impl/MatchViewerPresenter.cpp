@@ -23,6 +23,8 @@
 
 #include "MatchViewerPresenter.h"
 
+#include <tidop/core/app/Message.h>
+
 #include "graphos/components/matchviewer/impl/MatchViewerModel.h"
 #include "graphos/components/matchviewer/impl/MatchViewerView.h"
 
@@ -48,12 +50,19 @@ MatchViewerPresenterImp::~MatchViewerPresenterImp()
 
 void MatchViewerPresenterImp::setLeftImage(size_t imageId)
 {
-    Image image = mModel->image(imageId);
-    mView->setLeftImage(image.path());
+    const Image *image = mModel->findImage(imageId);
+    if (!image) {
+        tl::printException(std::runtime_error("Image not found"));
+        return;
+    }
+    mView->setLeftImage(QString::fromStdString(image->path().toString()));
 
     std::vector<std::pair<size_t, QString>> pairs;
     for (const auto &pair_id : mModel->imagePairs(imageId)) {
-        pairs.emplace_back(pair_id, mModel->image(pair_id).path());
+        const Image *pair_image = mModel->findImage(pair_id);
+        if (pair_image) {
+            pairs.emplace_back(pair_id, QString::fromStdString(pair_image->path().toString()));
+        }
     }
 
     if (!pairs.empty()) {
@@ -65,7 +74,12 @@ void MatchViewerPresenterImp::setLeftImage(size_t imageId)
 
 void MatchViewerPresenterImp::setRightImage(size_t imageId)
 {
-    mView->setRightImage(mModel->image(imageId).path());
+    const Image *image = mModel->findImage(imageId);
+    if (!image) {
+        tl::printException(std::runtime_error("Image not found"));
+        return;
+    }
+    mView->setRightImage(QString::fromStdString(image->path().toString()));
 }
 
 void MatchViewerPresenterImp::loadMatches(size_t imageId1,
@@ -97,8 +111,8 @@ void MatchViewerPresenterImp::open()
     mView->show();
 
     std::vector<std::pair<size_t, QString>> images;
-    for (const auto &pair_id_image : mModel->images()) {
-        images.emplace_back(pair_id_image.first, pair_id_image.second.path());
+    for (const auto &[image_id, image] : mModel->images()) {
+        images.emplace_back(image_id, QString::fromStdString(image.path().toString()));
     }
 
     if (!images.empty()) {

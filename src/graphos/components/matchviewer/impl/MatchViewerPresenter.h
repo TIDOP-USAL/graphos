@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MATCH_VIEWER_PRESENTER_H
-#define GRAPHOS_MATCH_VIEWER_PRESENTER_H
+#pragma once
 
 #include <QObject>
 
@@ -79,5 +78,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_MATCH_VIEWER_PRESENTER_H

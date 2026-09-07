@@ -21,11 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_CAMERA_POSES_COMPONENT_H
-#define GRAPHOS_EXPORT_CAMERA_POSES_COMPONENT_H
+#pragma once
 
-#include "graphos/core/Component.h"
-
+#include "graphos/framework/component/TaskComponent.h"
 
 namespace graphos
 {
@@ -66,6 +64,3 @@ protected slots:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_EXPORT_CAMERA_POSES_COMPONENT_H

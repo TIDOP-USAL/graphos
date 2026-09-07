@@ -25,7 +25,7 @@
 
 #include "graphos/components/recentprojects/RecentProjectsModel.h"
 #include "graphos/components/recentprojects/RecentProjectsView.h"
-#include "graphos/core/Application.h"
+#include "graphos/framework/app/Application.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QFileDialog>

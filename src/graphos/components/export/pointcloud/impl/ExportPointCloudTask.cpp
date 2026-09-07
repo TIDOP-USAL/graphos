@@ -28,8 +28,8 @@
 #include <tidop/geotools/GeoTools.h>
 
 #include "graphos/core/ply.h"
-#include "graphos/core/sfm/posesio.h"
-#include "graphos/core/task/Progress.h"
+#include "graphos/core/orientation/io/CameraPosesReader.h"
+
 
 
 /////// Prueba para guardar como LAS
@@ -54,7 +54,7 @@ ExportPointCloudTask::ExportPointCloudTask(tl::Path pointCloud,
                                            bool bynary,
                                            bool colors,
                                            bool normals)
-  : tl::TaskBase(),
+  : tl::Task(),
     mPointCloud(std::move(pointCloud)),
     mExportPointCloud(std::move(exportPointCloud)),
     mCrsEnu(std::move(crsEnu)),
@@ -66,7 +66,7 @@ ExportPointCloudTask::ExportPointCloudTask(tl::Path pointCloud,
 
 }
 
-void ExportPointCloudTask::execute(tl::Progress *progressBar)
+void ExportPointCloudTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
 {
 
     try {
@@ -108,7 +108,7 @@ void ExportPointCloudTask::execute(tl::Progress *progressBar)
                 auto point = ply_reader.point<double>(i);
 
                 if (!mCrsEnu.empty() && !mCrs.empty())
-                    ptrGeoTools->ptrCRSsTools()->crsOperation(mCrsEnu, mCrs, point.x, point.y, point.z);
+                    point = ptrGeoTools->ptrCRSsTools()->crsOperation(mCrsEnu, mCrs, point);
 
                 ply.addPoint<double>(point);
                 if (ply_reader.hasColors() && mColors)
@@ -149,11 +149,11 @@ void ExportPointCloudTask::execute(tl::Progress *progressBar)
                 auto point = ply_reader.point<double>(i);
 
                 if (!mCrsEnu.empty() && !mCrs.empty())
-                    ptrGeoTools->ptrCRSsTools()->crsOperation(mCrsEnu, mCrs, point.x, point.y, point.z);
+                    point = ptrGeoTools->ptrCRSsTools()->crsOperation(mCrsEnu, mCrs, point);
 
-                pointView->setField(pdal::Dimension::Id::X, i, point.x);
-                pointView->setField(pdal::Dimension::Id::Y, i, point.y);
-                pointView->setField(pdal::Dimension::Id::Z, i, point.z);
+                pointView->setField(pdal::Dimension::Id::X, i, point.x());
+                pointView->setField(pdal::Dimension::Id::Y, i, point.y());
+                pointView->setField(pdal::Dimension::Id::Z, i, point.z());
 
                 if (ply_reader.hasColors() && mColors) {
                     auto color = ply_reader.color(i);
@@ -164,9 +164,9 @@ void ExportPointCloudTask::execute(tl::Progress *progressBar)
 
                 if (ply_reader.hasNormals() && mNormals) {
                     auto normal = ply_reader.normals<float>(i);
-                    pointView->setField(pdal::Dimension::Id::NormalX, i, normal.x);
-                    pointView->setField(pdal::Dimension::Id::NormalY, i, normal.y);
-                    pointView->setField(pdal::Dimension::Id::NormalZ, i, normal.z);
+                    pointView->setField(pdal::Dimension::Id::NormalX, i, normal.x());
+                    pointView->setField(pdal::Dimension::Id::NormalY, i, normal.y());
+                    pointView->setField(pdal::Dimension::Id::NormalZ, i, normal.z());
                 }
 
                 if (progressBar) (*progressBar)();

@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_MESH_VIEW_INTERFACE_H
-#define GRAPHOS_EXPORT_MESH_VIEW_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/FileDialogView.h"
 
 #include <QFileDialog>
 
@@ -35,13 +34,13 @@ namespace graphos
  * \brief ExportMeshView interface
  */
 class ExportMeshView
-  : public QFileDialog
+  : public FileDialogView
 {
     Q_OBJECT
 
 public:
 
-    ExportMeshView(QWidget *parent) : QFileDialog(parent) {}
+    ExportMeshView(QWidget *parent) : FileDialogView(parent) {}
     ~ExportMeshView() override = default;
 
     virtual void setGraphosProjectsPath(const QString &directory) = 0;
@@ -49,5 +48,3 @@ public:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_EXPORT_MESH_VIEW_INTERFACE_H

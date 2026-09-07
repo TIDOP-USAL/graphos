@@ -27,6 +27,7 @@
 
 #include "graphos/components/featviewer/FeaturesViewerModel.h"
 #include "graphos/components/featviewer/FeaturesViewerView.h"
+#include "graphos/core/image/ImageRepository.h"
 
 #include <QFileInfo>
 
@@ -64,8 +65,8 @@ void FeaturesViewerPresenterImp::open()
 
     bool active_image = false;
     std::vector<std::pair<size_t, QString>> images;
-    for (const auto &image : mModel->images()) {
-        images.emplace_back(image.first, image.second.path());
+    for (const auto &[image_id, image] : mModel->images()) {
+        images.emplace_back(image_id, QString::fromStdString(image.path().toString()));
     }
 
     if (!images.empty()) {
@@ -89,9 +90,10 @@ void FeaturesViewerPresenterImp::initSignalAndSlots()
 
 void FeaturesViewerPresenterImp::setImageActive(size_t imageId)
 {
-    auto image = mModel->image(imageId);
-    mView->setCurrentImage(image.path());
-    loadKeypoints(Image::id(image));
+    if (auto image = mModel->images().find(imageId)) {
+        mView->setCurrentImage(QString::fromStdString(image->path().toString()));
+        loadKeypoints(Image::id(*image));
+    }
 }
 
 void FeaturesViewerPresenterImp::loadKeypoints(size_t imageId)
