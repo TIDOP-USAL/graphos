@@ -25,6 +25,8 @@
 
 #include "graphos/framework/mvp/DialogView.h"
 
+#include <string>
+
 
 namespace graphos
 {
@@ -45,6 +47,7 @@ public:
     virtual auto fixCalibration() const -> bool = 0;
     virtual auto absoluteOrientation() const -> bool = 0;
     virtual auto rtkPositioningAccuracy() const -> bool = 0;
+    virtual auto orientationMethod() const -> std::string = 0;
 
 public slots:
 
@@ -56,6 +59,7 @@ public slots:
     virtual void enabledAbsoluteOrientation(bool enabled) = 0;
     virtual void setRtkPositioningAccuracy(bool active) = 0;
     virtual void enabledRtkPositioningAccuracy(bool enabled) = 0;
+    virtual void setOrientationMethod(const std::string &method) = 0;
 
 signals:
 

@@ -25,11 +25,13 @@
 
 //#include <cstddef>
 
+#include <memory>
 #include <tidop/core/base/Path.h>
 
 #include "graphos/framework/mvp/Model.h"
 #include "graphos/core/orientation/CameraPose.h"
 #include "graphos/core/orientation/OrientationReport.h"
+#include "graphos/core/orientation/OrientationProperties.h"
 
 namespace graphos
 {
@@ -46,6 +48,7 @@ public:
     OrientationModel(QObject *parent = nullptr) : Model(parent) {}
     ~OrientationModel() override = default;
 
+    virtual auto orientationMethod() const -> std::string = 0;
     virtual auto hasPriorCalibration() const -> bool = 0;
     virtual auto hasAdjustedCalibration() const -> bool = 0;
     virtual void setSparseModel(const tl::Path &sparseModel) = 0;
@@ -68,6 +71,7 @@ public:
     virtual auto images() const -> const ImageRepository & = 0;
     virtual auto orientationReport() const -> OrientationReport = 0;
     virtual void setOrientationReport(const OrientationReport &orientationReport) = 0;
+    virtual void setOrientationConfig(std::shared_ptr<OrientationProperties> config) = 0;
 };
 
 } // namespace graphos

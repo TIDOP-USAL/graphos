@@ -351,6 +351,7 @@ void Project::clearDem()
 {
     mDemProperties.reset();
     mDsm.clear();
+    mDsmEnu.clear();
     mDtm.clear();
     mDemReport.clear();
     clearOrthophoto();

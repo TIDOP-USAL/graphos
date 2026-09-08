@@ -30,6 +30,7 @@
 #include "graphos/components/orientation/OrientationModel.h"
 #include "graphos/components/orientation/OrientationView.h"
 #include "graphos/core/image/ImageRepository.h"
+#include "graphos/core/orientation/OrientationProperties.h"
 
 #include <tidop/core/app/Message.h>
 #include <tidop/core/task/Task.h>
@@ -59,6 +60,8 @@ void OrientationPresenterImp::open()
     mView->enabledFixCalibration(mModel->hasAdjustedCalibration() || mModel->hasPriorCalibration());
     mView->enablePriorCalibration(mModel->hasPriorCalibration());
     mView->enableAdjustedCalibration(mModel->hasAdjustedCalibration());
+
+    mView->setOrientationMethod(mModel->orientationMethod());
 
     if (mModel->hasCameraPoses() || mModel->hasGroundControlPoints()) {
         mView->enabledAbsoluteOrientation(true);
@@ -154,6 +157,14 @@ void OrientationPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
             report.type = mView->absoluteOrientation() ? "Absolute" : "Relative";
             mModel->setOrientationReport(report);
 
+            auto config = std::make_shared<OrientationProperties>(mView->orientationMethod());
+            config->enableAbsoluteOrientation(mView->absoluteOrientation());
+            config->enableFixCalibration(mView->fixCalibration());
+            config->enableUseGcp(mModel->hasGroundControlPoints());
+            config->enableUsePoses(mModel->hasCameraPoses());
+            config->enableUseRtkAccuracy(mView->rtkPositioningAccuracy());
+            mModel->setOrientationConfig(config);
+
         } catch (const std::exception &e) {
             tl::printException(e);
         }
@@ -227,6 +238,10 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 EstimatePosesTask::Options OrientationPresenterImp::reconstructionOptions() const
 {
     EstimatePosesTask::Options options = {};
+
+    if (mView->orientationMethod() == "global") {
+        options |= EstimatePosesTask::Options::orientation_global;
+    }
 
     if (mView->absoluteOrientation()) {
 

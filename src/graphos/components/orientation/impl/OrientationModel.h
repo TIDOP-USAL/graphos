@@ -44,6 +44,7 @@ public:
 
 public:
 
+    auto orientationMethod() const -> std::string override;
     auto hasPriorCalibration() const -> bool override;
     auto hasAdjustedCalibration() const -> bool override;
     void setSparseModel(const tl::Path &sparseModel) override;
@@ -67,6 +68,7 @@ public:
     auto images() const -> const ImageRepository & override;
     auto orientationReport() const -> OrientationReport override;
     void setOrientationReport(const OrientationReport &orientationReport) override;
+    void setOrientationConfig(std::shared_ptr<OrientationProperties> config) override;
 
 // Model interface
 

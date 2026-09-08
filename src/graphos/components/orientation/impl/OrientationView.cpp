@@ -39,6 +39,8 @@ OrientationViewImp::OrientationViewImp(QWidget *parent)
   : OrientationView(parent),
     mComboCalibration(new QComboBox(this)),
     mLabelCalibrationSource(new QLabel(this)),
+    mLabelOrientationMethod(new QLabel(this)),
+    mComboOrientationMethod(new QComboBox(this)),
     mCheckBoxFixCalibration(new QCheckBox(this)),
     mCheckBoxAbsoluteOrientation(new QCheckBox(this)),
     mCheckBoxRtkPositioningAccuracy(new QCheckBox(this)),
@@ -51,7 +53,7 @@ OrientationViewImp::OrientationViewImp(QWidget *parent)
 void OrientationViewImp::initUI()
 {
     this->setObjectName(QString("OrientationView"));
-    this->resize(380, 250);
+    //this->resize(380, 280);
 
     auto grid_layout = new QGridLayout();
     this->setLayout(grid_layout);
@@ -69,12 +71,18 @@ void OrientationViewImp::initUI()
     calib_layout->addWidget(mCheckBoxFixCalibration);
 
     grid_layout->addWidget(mGroupCalibration, 0, 0, 1, 2);
-    grid_layout->addWidget(mCheckBoxAbsoluteOrientation, 1, 0, 1, 2);
-    grid_layout->addWidget(mCheckBoxRtkPositioningAccuracy, 2, 0, 1, 2);
+
+    mComboOrientationMethod->addItem("");
+    mComboOrientationMethod->addItem("");
+
+    grid_layout->addWidget(mLabelOrientationMethod, 1, 0);
+    grid_layout->addWidget(mComboOrientationMethod, 1, 1);
+    grid_layout->addWidget(mCheckBoxAbsoluteOrientation, 2, 0, 1, 2);
+    grid_layout->addWidget(mCheckBoxRtkPositioningAccuracy, 3, 0, 1, 2);
 
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    grid_layout->addWidget(mButtonBox, 3, 0, 1, 2);
+    grid_layout->addWidget(mButtonBox, 4, 0, 1, 2);
 
     this->retranslate();
     this->clear();
@@ -95,8 +103,8 @@ void OrientationViewImp::initSignalAndSlots()
             }
         });
 
-    connect(mCheckBoxFixCalibration, SIGNAL(clicked(bool)), this, SIGNAL(calibrationChange(bool)));
-    connect(mCheckBoxAbsoluteOrientation, SIGNAL(clicked(bool)), this, SIGNAL(absoluteOrientationChange(bool)));
+    //connect(mCheckBoxFixCalibration, SIGNAL(clicked(bool)), this, SIGNAL(calibrationChange(bool)));
+    //connect(mCheckBoxAbsoluteOrientation, SIGNAL(clicked(bool)), this, SIGNAL(absoluteOrientationChange(bool)));
 
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, &OrientationView::run);
@@ -111,6 +119,7 @@ void OrientationViewImp::clear()
     mCheckBoxAbsoluteOrientation->setEnabled(false);
     mCheckBoxRtkPositioningAccuracy->setChecked(false);
     mCheckBoxRtkPositioningAccuracy->setEnabled(false);
+    mComboOrientationMethod->setCurrentIndex(0);
 }
 
 void OrientationViewImp::update()
@@ -125,6 +134,9 @@ void OrientationViewImp::retranslate()
     mComboCalibration->setItemText(0, QApplication::translate("OrientationComponent", "None", nullptr));
     mComboCalibration->setItemText(1, QApplication::translate("OrientationComponent", "Prior calibration", nullptr));
     mComboCalibration->setItemText(2, QApplication::translate("OrientationComponent", "Adjusted calibration", nullptr));
+    mLabelOrientationMethod->setText(QApplication::translate("OrientationComponent", "Orientation method:", nullptr));
+    mComboOrientationMethod->setItemText(0, QApplication::translate("OrientationComponent", "Sequential", nullptr));
+    mComboOrientationMethod->setItemText(1, QApplication::translate("OrientationComponent", "Global", nullptr));
     mCheckBoxFixCalibration->setText(QApplication::translate("OrientationComponent", "Fix Calibration (do not recalculate)", nullptr));
     mCheckBoxRtkPositioningAccuracy->setText(QApplication::translate("OrientationComponent", "Use GNSS positioning accuracy from EXIF", nullptr));
     mCheckBoxAbsoluteOrientation->setText(QApplication::translate("OrientationComponent", "Absolute Orientation", nullptr));
@@ -201,6 +213,24 @@ void OrientationViewImp::setRtkPositioningAccuracy(bool active)
 void OrientationViewImp::enabledRtkPositioningAccuracy(bool enabled)
 {
     mCheckBoxRtkPositioningAccuracy->setEnabled(enabled);
+}
+
+auto OrientationViewImp::orientationMethod() const -> std::string
+{
+    if (mComboOrientationMethod->currentIndex() == 1) {
+        return "global";
+    } else {
+        return "sequential";
+    }
+}
+
+void OrientationViewImp::setOrientationMethod(const std::string &method)
+{
+    if (method == "global") {
+        mComboOrientationMethod->setCurrentIndex(1);
+    } else {
+        mComboOrientationMethod->setCurrentIndex(0);
+    }
 }
 
 

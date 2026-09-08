@@ -51,6 +51,15 @@ void OrientationModelImp::clear()
 
 }
 
+auto OrientationModelImp::orientationMethod() const -> std::string 
+{
+    if (auto config = mProject->orientationConfig()) {
+        return config->name();
+    }
+
+    return "sequential";
+}
+
 auto OrientationModelImp::hasPriorCalibration() const -> bool
 {
     bool calibrated = false;
@@ -201,6 +210,11 @@ auto OrientationModelImp::orientationReport() const -> OrientationReport
 void OrientationModelImp::setOrientationReport(const OrientationReport &orientationReport)
 {
     mProject->setOrientationReport(orientationReport);
+}
+
+void OrientationModelImp::setOrientationConfig(std::shared_ptr<OrientationProperties> config)
+{
+    mProject->setOrientationConfig(config);
 }
 
 } // namespace graphos

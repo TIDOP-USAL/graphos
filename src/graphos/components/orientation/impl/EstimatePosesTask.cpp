@@ -435,7 +435,7 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
 
         TL_ASSERT(summary->termination_type == colmap::BundleAdjustmentTerminationType::CONVERGENCE, "Bundle adjustment failed to converge");
 
-        tl::Message::success("Relative orientation finished in {:.2f} minutes", mOrientationReport.time / 60.0);
+        //tl::Message::success("Relative orientation finished in {:.2f} minutes", mOrientationReport.time / 60.0);
 
         // 8. Exportación y Generación de informes
         if (mOptions.isEnabled(Options::orientation_global)) {

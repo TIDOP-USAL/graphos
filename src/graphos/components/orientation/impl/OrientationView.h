@@ -53,6 +53,7 @@ public:
     auto fixCalibration() const -> bool override;
     auto absoluteOrientation() const -> bool override;
     auto rtkPositioningAccuracy() const -> bool override;
+    auto orientationMethod() const -> std::string override;
 
 public slots:
 
@@ -65,6 +66,7 @@ public slots:
     void enabledAbsoluteOrientation(bool enabled) override;
     void setRtkPositioningAccuracy(bool active) override;
     void enabledRtkPositioningAccuracy(bool enabled) override;
+    void setOrientationMethod(const std::string &method) override;
 
 // DialogView interface
 
@@ -87,6 +89,8 @@ protected:
     QGroupBox *mGroupCalibration;
     QLabel *mLabelCalibrationSource;
     QComboBox *mComboCalibration;
+    QLabel *mLabelOrientationMethod;
+    QComboBox *mComboOrientationMethod;
     QCheckBox *mCheckBoxFixCalibration;
     QCheckBox *mCheckBoxAbsoluteOrientation;
     QCheckBox *mCheckBoxRtkPositioningAccuracy;
