@@ -90,7 +90,7 @@ protected:
     tl::Path mSparseModel;
     tl::Path mGroundPoints;
     tl::Path mPosesFile;
-    mutable std::unique_ptr<CameraPosesRepository> mCameraPosesRepository;
+    mutable CameraPosesRepository mCameraPosesRepository;
 
     std::shared_ptr<DensificationProperties> mDensificationConfig;
     tl::Path mDenseModel;

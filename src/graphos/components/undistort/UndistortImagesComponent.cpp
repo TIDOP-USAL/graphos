@@ -30,7 +30,6 @@
 #include "graphos/components/undistort/impl/UndistortImagesPresenter.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/undistort/impl/UndistortImagesCommand.h"
-#include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

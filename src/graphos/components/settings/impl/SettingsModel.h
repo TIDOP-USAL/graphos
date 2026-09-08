@@ -21,12 +21,11 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_SETTINGS_MODEL_H
-#define GRAPHOS_SETTINGS_MODEL_H
+#pragma once
 
 #include <QObject>
 
-#include "graphos/core/settings.h"
+#include "graphos/core/Settings.h"
 #include "graphos/components/settings/SettingsModel.h"
 
 namespace graphos
@@ -119,5 +118,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_SETTINGS_MODEL_H

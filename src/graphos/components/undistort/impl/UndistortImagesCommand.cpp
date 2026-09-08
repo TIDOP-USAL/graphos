@@ -24,11 +24,13 @@
 
 #include "UndistortImagesCommand.h"
 
-#include <tidop/core/log.h>
+#include <tidop/core/app/Logger.h>
 #include <tidop/core/task/Progress.h>
 
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/core/utils.h"
+#include "graphos/core/project/Project.h"
+#include "graphos/core/project/io/ProjectReader.h"
 
 namespace graphos
 {
@@ -62,7 +64,7 @@ bool UndistortImagesCommand::run()
 {
     bool r = false;
 
-    tl::Log &log = tl::Log::instance();
+    auto &log = tl::Logger::instance();
 
     try {
 
@@ -78,8 +80,9 @@ bool UndistortImagesCommand::run()
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
-        ProjectImp project;
-        project.load(project_path);
+        Project project;
+        ProjectReader project_reader;
+        project_reader.read(project_path, project);
 
         UndistortImages task(project.images(),
                              project.cameras(),

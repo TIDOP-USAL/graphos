@@ -24,7 +24,7 @@
 
 #include "LoadFromVideoPresenter.h"
 
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoModel.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoView.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoTask.h"
@@ -49,13 +49,13 @@ LoadFromVideoPresenterImp::~LoadFromVideoPresenterImp() = default;
 
 void LoadFromVideoPresenterImp::addImage(QString imagePath, int cameraId)
 {
-    Image image(imagePath);
-    Camera camera = mCameras[cameraId];
-    int camera_id = mModel->cameraID(camera);
-    if (camera_id == 0)
-        camera_id = mModel->addCamera(camera);
+    Image image(imagePath.toStdString());
+    //Camera camera = mCameras[cameraId];
+    //int camera_id = mModel->cameraID(camera);
+    //if (camera_id == 0)
+    //    camera_id = mModel->addCamera(camera);
 
-    image.setCameraId(camera_id);
+    image.setCameraId(cameraId);
     mModel->addImage(image);
 
     emit frame_loaded(Image::id(image));
@@ -79,7 +79,7 @@ void LoadFromVideoPresenterImp::initSignalAndSlots()
             });
 }
 
-void LoadFromVideoPresenterImp::onError(tl::TaskErrorEvent *event)
+void LoadFromVideoPresenterImp::onError(tl::TaskErrorEvent &event)
 {
     TaskPresenter::onError(event);
 
@@ -88,7 +88,7 @@ void LoadFromVideoPresenterImp::onError(tl::TaskErrorEvent *event)
     }
 }
 
-void LoadFromVideoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void LoadFromVideoPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
     TaskPresenter::onFinished(event);
 
@@ -101,12 +101,12 @@ auto LoadFromVideoPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
     std::unique_ptr<tl::Task> task;
 
-    tl::Path images_path = mModel->imagesPath();
+    tl::Path images_path = mModel->imagesDirectory();
 
-    mCameras.clear();
-    for (const auto &camera : mModel->cameras()) {
-        mCameras.push_back(camera.second);
-    }
+    //mCameras.clear();
+    //for (const auto &camera : mModel->cameras()) {
+    //    mCameras.push_back(camera.second);
+    //}
 
     int skip_frames = mView->skipFrames();
     int begin = mView->videoIni();
@@ -114,12 +114,12 @@ auto LoadFromVideoPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
 
     task = std::make_unique<LoadFromVideoTask>(mView->video().toStdWString(),
-                                                  skip_frames,
-                                                  begin,
-                                                  end,
-                                                  images_path,
-                                                  &mCameras,
-                                                  "OpenCV 1");
+                                               mModel->imagesDirectory(),
+                                               mModel->cameras(),
+                                               "OpenCV 1",
+                                               skip_frames,
+                                               begin,
+                                               end);
 
     connect(dynamic_cast<LoadFromVideoTask *>(task.get()),
             &LoadFromVideoTask::image_added,

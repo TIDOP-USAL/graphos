@@ -21,13 +21,11 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_UNDISTORT_IMAGES_COMMAND_H
-#define GRAPHOS_UNDISTORT_IMAGES_COMMAND_H
+#pragma once
 
 #include <QObject>
 
-#include "graphos/core/command.h"
-#include "graphos/core/project.h"
+#include "graphos/framework/command/Command.h"
 
 namespace graphos
 {
@@ -56,7 +54,4 @@ private:
 
 };
 
-
 } // namespace graphos
-
-#endif // GRAPHOS_UNDISTORT_IMAGES_COMMAND_H

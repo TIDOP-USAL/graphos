@@ -21,13 +21,14 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_LOADFROMVIDEO_PROCESS_H
-#define GRAPHOS_LOADFROMVIDEO_PROCESS_H
+#pragma once
 
 #include <QObject>
 
 #include <tidop/core/task/Task.h>
 #include <tidop/core/base/Path.h>
+
+#include "graphos/core/camera/CameraRepository.h"
 
 namespace tl
 {
@@ -42,20 +43,20 @@ class Camera;
 
 class LoadFromVideoTask
   : public QObject,
-    public tl::TaskBase
+    public tl::Task
 {
 
     Q_OBJECT
 
 public:
 
-    LoadFromVideoTask(const tl::Path &video,
+    LoadFromVideoTask(tl::Path video,
+                      tl::Path imagesPath,
+                      CameraRepository &cameraRepo,
+                      std::string cameraType,
                       int skip,
                       int videoIni,
-                      int videoEnd,
-                      const tl::Path &imagesPath,
-                      std::vector<Camera> *cameras,
-                      const std::string &cameraType);
+                      int videoEnd);
     ~LoadFromVideoTask() override;
 
 signals:
@@ -66,19 +67,17 @@ signals:
 
 protected:
 
-    void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 protected:
 
     tl::Path mVideo;
+    tl::Path mImagesPath;
+    CameraRepository &mCameras;
+    std::string mCameraType;
     int mSkipFrames;
     int mVideoIni;
     int mVideoEnd;
-    tl::Path mImagesPath;
-    std::vector<Camera> *mCameras;
-    std::string mCameraType;
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_LOADFROMVIDEO_PROCESS_H

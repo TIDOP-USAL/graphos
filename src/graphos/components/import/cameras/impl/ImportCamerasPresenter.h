@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_IMPORT_CAMERAS_PRESENTER_H
-#define GRAPHOS_IMPORT_CAMERAS_PRESENTER_H
+#pragma once
 
 #include "graphos/components/import/cameras/ImportCamerasPresenter.h"
 
@@ -71,5 +70,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_IMPORT_CAMERAS_PRESENTER_H

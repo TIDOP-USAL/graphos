@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_IMPORT_CAMERAS_VIEW_INTERFACE_H
-#define GRAPHOS_IMPORT_CAMERAS_VIEW_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/DialogView.h"
 
 class QStandardItemModel;
 
@@ -100,5 +99,3 @@ signals:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_IMPORT_CAMERAS_VIEW_INTERFACE_H

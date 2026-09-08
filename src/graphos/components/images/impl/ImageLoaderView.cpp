@@ -40,9 +40,9 @@ void ImageLoaderViewImp::clear()
 
 void ImageLoaderViewImp::init()
 {
-    QFileDialog::setWindowTitle("Load images");
-    QFileDialog::setFileMode(QFileDialog::ExistingFiles);
-    QFileDialog::setNameFilter("Image files (*.tif *.tiff *.jpg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg)");
+    this->setFileMode(QFileDialog::ExistingFiles);
+
+    retranslate();
 }
 
 void ImageLoaderViewImp::retranslate()
@@ -53,7 +53,7 @@ void ImageLoaderViewImp::retranslate()
 
 void ImageLoaderViewImp::setImagesDirectory(const QString &directory)
 {
-    QFileDialog::setDirectory(directory);
+    this->setDirectory(directory);
 }
 
 } // namespace graphos

@@ -25,12 +25,10 @@
 #include "UndistortImagesPresenter.h"
 
 #include "graphos/core/utils.h"
-#include "graphos/core/task/Progress.h"
+#include "graphos/framework/task/ProgressHandler.h"
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/components/undistort/impl/UndistortImagesModel.h"
 #include "graphos/components/undistort/impl/UndistortImagesView.h"
-
-#include <tidop/core/defs.h>
 
 namespace graphos
 {
@@ -70,7 +68,7 @@ void UndistortImagesPresenterImp::initSignalAndSlots()
     connect(mView, &UndistortImagesView::rejected, this, &UndistortImagesPresenterImp::cancel);
 }
 
-void UndistortImagesPresenterImp::onError(tl::TaskErrorEvent *event)
+void UndistortImagesPresenterImp::onError(tl::TaskErrorEvent &event)
 {
     TaskPresenter::onError(event);
 
@@ -79,7 +77,7 @@ void UndistortImagesPresenterImp::onError(tl::TaskErrorEvent *event)
     }
 }
 
-void UndistortImagesPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void UndistortImagesPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
     TaskPresenter::onFinished(event);
 

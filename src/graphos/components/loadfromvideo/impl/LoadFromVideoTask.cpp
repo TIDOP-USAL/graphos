@@ -26,14 +26,13 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Database.h"
-#include "graphos/core/image.h"
+#include "graphos/core/image/Image.h"
 
 #include <tidop/core/app/Message.h>
 #include <tidop/core/base/Chrono.h>
 #include <tidop/core/task/Progress.h>
 #include <tidop/rastertools/io/Writer.h>
-#include <tidop/img/metadata.h>
-#include <tidop/math/angles.h>
+#include <tidop/rastertools/io/Metadata.h>
 #include <tidop/geospatial/crstransf.h>
 
 #include <QFileInfo>
@@ -210,21 +209,21 @@ auto ImportVideoFramesAlgorithm::framePosition() const -> int
 namespace graphos
 {
 
-LoadFromVideoTask::LoadFromVideoTask(const tl::Path &video,
+LoadFromVideoTask::LoadFromVideoTask(tl::Path video,
+                                     tl::Path imagesPath,
+                                     CameraRepository &cameraRepo,
+                                     std::string cameraType,
                                      int skip,
                                      int videoIni,
-                                     int videoEnd,
-                                     const tl::Path &imagesPath,
-                                     std::vector<Camera> *cameras,
-                                     const std::string &cameraType)
-  : tl::TaskBase(),
-    mVideo(video),
+                                     int videoEnd)
+  : tl::Task(),
+    mVideo(std::move(video)),
+    mImagesPath(std::move(imagesPath)),
+    mCameras(cameraRepo),
+    mCameraType(std::move(cameraType)),
     mSkipFrames(skip),
     mVideoIni(videoIni),
-    mVideoEnd(videoEnd),
-    mImagesPath(imagesPath),
-    mCameras(cameras),
-    mCameraType(cameraType)
+    mVideoEnd(videoEnd)
 {
 }
 
@@ -233,7 +232,7 @@ LoadFromVideoTask::~LoadFromVideoTask()
 
 }
 
-void LoadFromVideoTask::execute(tl::Progress *progressBar)
+void LoadFromVideoTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
 {
     try {
 
@@ -255,15 +254,14 @@ void LoadFromVideoTask::execute(tl::Progress *progressBar)
         camera.setWidth(width);
         camera.setHeight(height);
         camera.setFocal(1.2 * std::max(width, height));
-        int camera_id = static_cast<int>(mCameras->size());
-        mCameras->push_back(camera);
+        int camera_id = mCameras.add(camera);
 
         //https://exiftool.org/forum/index.php?topic=13015.0
         //exiftool -n -p "$gpsdatetime,$gpslatitude,$gpslongitude,$gpsaltitude,$gpsvelocityeast,$gpsvelocitynorth" -ee video.mp4 > metadata.csv
 
-        std::shared_ptr<tl::ImageMetadata> image_metadata = std::make_shared<tl::ImageMetadata>();
-        image_metadata->setMetadata("EXIF_PixelXDimension", std::to_string(width));
-        image_metadata->setMetadata("EXIF_PixelYDimension", std::to_string(height));
+        tl::ImageMetadata image_metadata;
+        image_metadata.set("EXIF_PixelXDimension", std::to_string(width));
+        image_metadata.set("EXIF_PixelYDimension", std::to_string(height));
 
         int delay = static_cast<int>(1000. / import_video_algorithm.framesPerSecond());
         //char c;
@@ -276,20 +274,17 @@ void LoadFromVideoTask::execute(tl::Progress *progressBar)
             tl::Path path(mImagesPath);
             path.createDirectories();
             path.append(std::string("frame").append(std::to_string(pos)).append(".jpg"));
-            Image image(QString::fromStdWString(path.toWString()));
-            auto image_writer = tl::ImageWriterFactory::create(path);
-            image_writer->open();
-            TL_ASSERT(image_writer->isOpen(), "Can't create image");
-            image_writer->setMetadata(image_metadata);
-            image_writer->create(height, width, frame.channels(), tl::DataType::TL_8U);
-            image_writer->write(frame);
-            image_writer->close();
+            Image image(path);
+            tl::RasterWriter image_writer(path);
+            TL_ASSERT(image_writer.isOpen(), "Can't create image");
+            image_writer.setMetadata(image_metadata);
+            image_writer.create(height, width, frame.channels(), tl::DataType::TL_8U);
+            image_writer.write(frame);
 
-            emit image_added(image.path(), camera_id);
+            emit image_added(QString::fromStdString(image.path().toString()), camera_id);
 
             if (progressBar) (*progressBar)();
         }
-
 
         if (status() == tl::Task::Status::stopping) {
             chrono.reset();

@@ -54,6 +54,7 @@ add_files_to_project(${PROJECT_NAME}
                          TabWidget.cpp
                          ProgressBarDialog.cpp
                          ProgressBarWidget.cpp
+                         delegates/CompactItemDelegate.cpp
                          settings/FeatViewerSettingsWidget.cpp
                          settings/MatchViewerSettingsWidget.cpp
                          formats/raster/TiffFormatWidget.cpp
@@ -88,6 +89,7 @@ add_files_to_project(${PROJECT_NAME}
                          TabWidget.h
                          ProgressBarDialog.h
                          ProgressBarWidget.h
+                         delegates/CompactItemDelegate.h
                          formats/raster/TiffFormatWidget.h
                          settings/FeatViewerSettingsWidget.h
                          settings/MatchViewerSettingsWidget.h

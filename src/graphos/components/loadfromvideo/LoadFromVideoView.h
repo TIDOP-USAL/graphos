@@ -21,12 +21,10 @@
  *                                                                      *
  ************************************************************************/
 
-
-#ifndef GRAPHOS_LOADFROMVIDEO_VIEW_INTERFACE_H
-#define GRAPHOS_LOADFROMVIDEO_VIEW_INTERFACE_H
+#pragma once
 
 
-#include "graphos/core/task/TaskView.h"
+#include "graphos/framework/task/TaskView.h"
 
 namespace graphos
 {
@@ -59,6 +57,3 @@ signals:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_LOADFROMVIDEO_VIEW_INTERFACE_H

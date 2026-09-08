@@ -21,7 +21,10 @@
  *                                                                      *
  ************************************************************************/
 
-#include "CamerasView.h"
+#include "graphos/components/cameras/impl/CamerasView.h"
+#include "graphos/widgets/delegates/CompactItemDelegate.h"
+
+#include <tidop/core/app/Message.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -38,8 +41,6 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QTabWidget>
-
-#include <tidop/core/app/Message.h>
 
 namespace graphos
 {
@@ -219,6 +220,7 @@ void CamerasViewImp::initUI()
     mLabelImages = new QLabel(mTabInfo);
     tabInfoLayout->addWidget(mLabelImages);
     mListWidgetImages = new QListWidget(mTabInfo);
+    mListWidgetImages->setItemDelegate(new CompactItemDelegate(mListWidgetImages));
     tabInfoLayout->addWidget(mListWidgetImages);
 
     mTabWidget->addTab(mTabInfo, "");

@@ -23,23 +23,27 @@
 
 #include "ImportCamerasModel.h"
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 
 #include <tidop/core/app/Message.h>
+#include <tidop/core/base/Split.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geometry/primitives/Point.h>
-#include <tidop/math/math.h>
-#include <tidop/math/algebra/rotation_convert.h>
-#include <tidop/math/algebra/euler_angles.h>
+//#include <tidop/math/math.h>
+#include <tidop/math/algebra/rotations/EulerAngles.h>
 #include <tidop/math/algebra/rotations/Quaternion.h>
+//#include <tidop/math/algebra/euler_angles.h>
+//#include <tidop/math/algebra/rotations/Quaternion.h>
 
 ///TODO: Esto no deber�a estar aqui
-#include <colmap/base/database.h>
+//#include <colmap/scene/database.h>
 ///
 
 #include <QStandardItemModel>
 #include <QTextStream>
 #include <QFileInfo>
+
+#include <fstream>
 
 namespace graphos
 {
@@ -100,7 +104,6 @@ void ImportCamerasModelImp::previewImportCameras()
     QFile file(mCsvFile);
     if (file.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream stream(&file);
-        stream.setCodec("UTF-8");
         if (mIniLine) {
 
             for (size_t i = 0; i < static_cast<size_t>(mIniLine); i++)
@@ -250,7 +253,6 @@ void ImportCamerasModelImp::previewImportCamerasFormated()
         QFile file(mCsvFile);
         if (file.open(QFile::ReadOnly | QFile::Text)) {
             QTextStream stream(&file);
-            stream.setCodec("UTF-8");
             if (mIniLine) {
                 for (size_t i = 0; i < static_cast<size_t>(mIniLine); i++)
                     stream.readLine();
@@ -575,37 +577,38 @@ void ImportCamerasModelImp::setCrs(const QString &crs)
     mCrs = crs;
 }
 
-void ImportCamerasModelImp::writePriorPoses()
-{
-    colmap::Database database(mProject->database().toUtf8());
-
-    for (const auto &pair_image : mProject->images()) {
-
-        Image image = pair_image.second;
-
-        tl::Path image_path(image.path().toStdString());
-
-        for (auto image_colmap : database.ReadAllImages()) {
-
-            tl::Path image_path_colmap(image_colmap.Name());
-
-            if (image_path.equivalent(image_path_colmap)) {
-                //colmap::Image image_colmap = database.ReadImageWithName(image_path);
-                image_colmap.TvecPrior(0) = image.cameraPose().position().x;
-                image_colmap.TvecPrior(1) = image.cameraPose().position().y;
-                image_colmap.TvecPrior(2) = image.cameraPose().position().z;
-                image_colmap.QvecPrior(0) = image.cameraPose().quaternion().w;
-                image_colmap.QvecPrior(1) = image.cameraPose().quaternion().x;
-                image_colmap.QvecPrior(2) = image.cameraPose().quaternion().y;
-                image_colmap.QvecPrior(3) = image.cameraPose().quaternion().z;
-                database.UpdateImage(image_colmap);
-
-                break;
-            }
-        }
-
-    }
-}
+//TODO: esto ahora se hace en la detección de caracteristicas.
+//void ImportCamerasModelImp::writePriorPoses()
+//{
+//    colmap::Database database(mProject->database().toUtf8());
+//
+//    for (const auto &pair_image : mProject->images()) {
+//
+//        Image image = pair_image.second;
+//
+//        tl::Path image_path(image.path().toStdString());
+//
+//        for (auto image_colmap : database.ReadAllImages()) {
+//
+//            tl::Path image_path_colmap(image_colmap.Name());
+//
+//            if (image_path.equivalent(image_path_colmap)) {
+//                //colmap::Image image_colmap = database.ReadImageWithName(image_path);
+//                image_colmap.TvecPrior(0) = image.cameraPose().position().x;
+//                image_colmap.TvecPrior(1) = image.cameraPose().position().y;
+//                image_colmap.TvecPrior(2) = image.cameraPose().position().z;
+//                image_colmap.QvecPrior(0) = image.cameraPose().quaternion().w;
+//                image_colmap.QvecPrior(1) = image.cameraPose().quaternion().x;
+//                image_colmap.QvecPrior(2) = image.cameraPose().quaternion().y;
+//                image_colmap.QvecPrior(3) = image.cameraPose().quaternion().z;
+//                database.UpdateImage(image_colmap);
+//
+//                break;
+//            }
+//        }
+//
+//    }
+//}
 
 void ImportCamerasModelImp::importCameras()
 {
@@ -613,7 +616,6 @@ void ImportCamerasModelImp::importCameras()
     QFile file(mCsvFile);
     if (file.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream stream(&file);
-        stream.setCodec("UTF-8");
         if (mIniLine) {
             for (size_t i = 0; i < static_cast<size_t>(mIniLine); i++)
                 stream.readLine();
@@ -769,7 +771,7 @@ void ImportCamerasModelImp::importCameras()
             for (const auto &pair_image : mProject->images()) {
 
                 tl::Path image_path(image.toStdString());
-                tl::Path image_path2(pair_image.second.path().toStdString());
+                tl::Path image_path2(pair_image.second.path());
 
                 if (image_path.equivalent(image_path2)) {
 
@@ -799,26 +801,29 @@ void ImportCamerasModelImp::importCameras()
                         tl::EulerAngles<double> ypr(yaw.toDouble() * tl::consts::deg_to_rad<double>,
                                                     pitch.toDouble() * tl::consts::deg_to_rad<double>,
                                                     roll.toDouble() * tl::consts::deg_to_rad<double>);
-                        tl::RotationConverter<double>::convert(ypr, quaternion);
+                        //tl::RotationConverter<double>::convert(ypr, quaternion);
+                        quaternion = ypr;
                     } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
                         tl::EulerAngles<double> opk(omega.toDouble() * tl::consts::deg_to_rad<double>,
                                                     phi.toDouble() * tl::consts::deg_to_rad<double>,
                                                     kappa.toDouble() * tl::consts::deg_to_rad<double>);
-                        tl::RotationConverter<double>::convert(opk, quaternion);
+                        //tl::RotationConverter<double>::convert(opk, quaternion);
+                        quaternion = opk;
                     } else {
-                        quaternion.x = qx.toDouble();
-                        quaternion.y = qy.toDouble();
-                        quaternion.z = qz.toDouble();
-                        quaternion.w = qw.toDouble();
+                        quaternion.x() = qx.toDouble();
+                        quaternion.y() = qy.toDouble();
+                        quaternion.z() = qz.toDouble();
+                        quaternion.w() = qw.toDouble();
                     }
 
                     quaternion.normalize();
                     camera_pose.setQuaternion(quaternion);
 
                     Image image = pair_image.second;
-                    image.setCameraPose(camera_pose);
-                    mProject->updateImage(pair_image.first, image);
+                    image.cameraPose() = camera_pose;
                     tl::Message::info("Camera coordinates found for {} : [{},{},{}]", image.name().toStdString(), x.toDouble(), y.toDouble(), z.toDouble());
+                    mProject->images().update(pair_image.first, std::move(image));
+                    
                     break;
                 }
             }
@@ -827,9 +832,6 @@ void ImportCamerasModelImp::importCameras()
 
         file.close();
     }
-
-    writePriorPoses();
-
 }
 
 struct ImageData
@@ -912,9 +914,8 @@ void ImportCamerasModelImp::importCamerasFromMRK(const QString &file)
             sequence_pattern << "_" << std::setw(4) << std::setfill('0') << entry.sequence;
             std::string pattern = sequence_pattern.str();
 
-            for (const auto &image_pair : mProject->images()) {
+            for (const auto &[image_id, image] : mProject->images()) {
 
-                auto image = image_pair.second;
                 auto name = image.name().toStdString();
 
                 // Buscar si el índice aparece en el nombre del archivo
@@ -929,9 +930,10 @@ void ImportCamerasModelImp::importCamerasFromMRK(const QString &file)
                     camera_pose.setAccuracy({entry.std_dev_east, entry.std_dev_north, entry.std_dev_vertical});
                     camera_pose.setRtkFlag(entry.rtk_status);
 
-                    image.setCameraPose(camera_pose);
-                    mProject->updateImage(image_pair.first, image);
-                    tl::Message::info("Camera coordinates found for {} : [{},{},{}]", image.name().toStdString(), pt.x, pt.y, pt.z);
+                    Image updated_image = image;
+                    updated_image.cameraPose() = camera_pose;
+                    mProject->images().update(image_id, std::move(updated_image));
+                    tl::Message::info("Camera coordinates found for {} : [{},{},{}]", name, pt.x(), pt.y(), pt.z());
 
                     break;
                 }
@@ -940,7 +942,7 @@ void ImportCamerasModelImp::importCamerasFromMRK(const QString &file)
 
         stream.close();
 
-        writePriorPoses();
+        //writePriorPoses();
 
     } catch (...){
         TL_THROW_EXCEPTION_WITH_NESTED("Error reading mrk file");

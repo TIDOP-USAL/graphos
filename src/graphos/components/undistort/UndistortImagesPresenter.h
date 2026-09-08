@@ -21,11 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
+#pragma once
 
-#ifndef GRAPHOS_UNDISTORTIMAGES_PRESENTER_INTERFACE_H
-#define GRAPHOS_UNDISTORTIMAGES_PRESENTER_INTERFACE_H
-
-#include "graphos/core/task/TaskPresenter.h"
+#include "graphos/framework/task/TaskPresenter.h"
 
 namespace graphos
 {
@@ -44,6 +42,3 @@ public:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_UNDISTORTIMAGES_PRESENTER_INTERFACE_H

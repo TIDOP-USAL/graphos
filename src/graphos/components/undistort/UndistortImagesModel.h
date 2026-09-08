@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_UNDISTORTIMAGES_MODEL_INTERFACE_H
-#define GRAPHOS_UNDISTORTIMAGES_MODEL_INTERFACE_H
+#pragma once
 
 #include <unordered_map>
 
@@ -30,13 +29,13 @@
 
 #include <tidop/core/base/Path.h>
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 
 namespace graphos
 {
 
-class Camera;
-class Image;
+class CameraRepository;
+class ImageRepository;
 
 class UndistortImagesModel
   : public Model
@@ -46,16 +45,11 @@ class UndistortImagesModel
 
 public:
 
-    using Images = std::unordered_map<size_t, Image>;
-    using Cameras = std::map<int, Camera>;
-
-public:
-
     UndistortImagesModel(QObject *parent = nullptr) : Model(parent) {}
     ~UndistortImagesModel() override = default;
 
-    virtual auto images() const -> const Images& = 0;
-    virtual auto cameras() const -> const Cameras & = 0;
+    virtual auto images() const -> const ImageRepository & = 0;
+    virtual auto cameras() const -> const CameraRepository & = 0;
     virtual auto useCuda() const -> bool = 0;
     virtual auto projectFolder() const -> tl::Path = 0;
 
@@ -66,6 +60,3 @@ public slots:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_UNDISTORTIMAGES_MODEL_INTERFACE_H

@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
  
-#ifndef GRAPHOS_SETTINGS_PRESENTER_INTERFACE_H
-#define GRAPHOS_SETTINGS_PRESENTER_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Presenter.h"
 
 namespace graphos
 {
@@ -53,7 +52,4 @@ public slots:
 
 };
 
-
 } // namespace graphos
-
-#endif // GRAPHOS_SETTINGS_PRESENTER_INTERFACE_H

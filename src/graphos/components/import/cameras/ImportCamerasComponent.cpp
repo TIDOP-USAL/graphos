@@ -26,7 +26,6 @@
 #include "graphos/components/import/cameras/impl/ImportCamerasModel.h"
 #include "graphos/components/import/cameras/impl/ImportCamerasView.h"
 #include "graphos/components/import/cameras/impl/ImportCamerasPresenter.h"
-#include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

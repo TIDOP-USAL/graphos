@@ -196,16 +196,15 @@ void Project::setCameraPosesFile(tl::Path poses)
 
 auto Project::cameraPoses() const -> CameraPosesRepository &
 {
-    if (!mCameraPosesRepository) {
+    if (mPosesFile.exists()) {
         if (auto reader = CameraPosesReaderFactory::create("GRAPHOS")) {
             reader->read(mPosesFile);
             auto poses = reader->cameraPoses();
-            mCameraPosesRepository = std::make_unique<CameraPosesRepository>();
-            mCameraPosesRepository->populate(poses);
+            mCameraPosesRepository.populate(poses);
         }
     }
 
-    return *mCameraPosesRepository;
+    return mCameraPosesRepository;
 }
 
 void Project::clearOrientation()
@@ -213,7 +212,7 @@ void Project::clearOrientation()
     mSparseModel.clear();
     mGroundPoints.clear();
     mPosesFile.clear();
-    mCameraPosesRepository.reset();
+    mCameraPosesRepository.clear();
     mOrientationReport.clear();
     mOrientationConfig.reset();
     clearDensification();
@@ -409,7 +408,7 @@ void Project::clear()
     mSparseModel.clear();
     mGroundPoints.clear();
     mPosesFile.clear();
-    mCameraPosesRepository.reset();
+    mCameraPosesRepository.clear();
     mOrientationReport.clear();
     mOrientationConfig.reset();
     mDensificationConfig.reset();

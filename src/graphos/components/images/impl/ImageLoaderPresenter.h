@@ -34,7 +34,6 @@ class Image;
 class Camera;
 class ImageLoaderView;
 class ImageLoaderModel;
-//class LoadImagesTask;
 
 class ImageLoaderPresenterImp
   : public ImageLoaderPresenter
@@ -87,7 +86,6 @@ private:
     ImageLoaderModel *mModel;
     QStringList mImageFiles;
     std::vector<Image> mImages;
-    //LoadImagesTask *mTaskRef{nullptr};
 };
 
 } // namespace graphos

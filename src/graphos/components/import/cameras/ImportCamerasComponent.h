@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_IMPORT_CAMERAS_COMPONENT_H
-#define GRAPHOS_IMPORT_CAMERAS_COMPONENT_H
+#pragma once
 
-#include "graphos/core/Component.h"
+#include "graphos/framework/component/ComponentBase.h"
 
 
 namespace graphos
@@ -66,6 +65,3 @@ protected:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_IMPORT_CAMERAS_COMPONENT_H

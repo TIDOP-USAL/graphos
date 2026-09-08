@@ -204,7 +204,8 @@ void messageHandlerQt(QtMsgType type, const QMessageLogContext &context, const Q
 }
 
 #endif // DEBUG
-
+#include <QStyle>
+#include <QStyleFactory>
 
 int main(int argc, char *argv[])
 {

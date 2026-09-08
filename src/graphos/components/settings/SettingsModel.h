@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_SETTINGS_MODEL_INTERFACE_H
-#define GRAPHOS_SETTINGS_MODEL_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 
 
 namespace graphos
@@ -166,5 +165,3 @@ signals:
 
 
 } // namespace graphos
-
-#endif // GRAPHOS_SETTINGS_MODEL_INTERFACE_H

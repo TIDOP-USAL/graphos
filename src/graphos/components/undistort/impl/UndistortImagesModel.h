@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
  
-#ifndef GRAPHOS_UNDISTORTIMAGES_MODEL_H
-#define GRAPHOS_UNDISTORTIMAGES_MODEL_H
+#pragma once
 
 #include "graphos/components/undistort/UndistortImagesModel.h"
 
@@ -50,8 +49,8 @@ public:
 
 public:
 
-    auto images() const -> const Images& override;
-    auto cameras() const -> const Cameras& override;
+    auto images() const -> const ImageRepository & override;
+    auto cameras() const -> const CameraRepository & override;
     auto useCuda() const -> bool override;
     auto projectFolder() const -> tl::Path override;
 
@@ -78,5 +77,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_UNDISTORTIMAGES_MODEL_H

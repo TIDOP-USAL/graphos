@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_IMPORT_CAMERAS_MODEL_H
-#define GRAPHOS_IMPORT_CAMERAS_MODEL_H
+#pragma once
 
 #include "graphos/components/import/cameras/ImportCamerasModel.h"
 
@@ -79,7 +78,7 @@ public slots:
     void setPhiFieldId(int id) override;
     void setKappaFieldId(int id) override;
     void setCrs(const QString &crs) override;
-    void writePriorPoses();
+    //void writePriorPoses();
     void importCameras() override;
     void importCamerasFromMRK(const QString &file) override;
 
@@ -108,5 +107,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_IMPORT_CAMERAS_MODEL_H

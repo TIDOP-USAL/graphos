@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_SETTINGS_H
-#define GRAPHOS_CORE_SETTINGS_H
+#pragma once
 
 #include "graphos/graphos_global.h"
 
@@ -186,16 +185,13 @@ public:
     SettingsImp();
     ~SettingsImp() override;
 
-    // Settings interface
+// Settings interface
 
 public:
 
     QString language() const override;
     void setLanguage(const QString &language) override;
 
-    //QStringList history() const override;
-    //void addToHistory(const QString &project) override;
-    //void clearHistory() override;
     int historyMaxSize() const override;
     void setHistoryMaxSize(int maxSize) override;
 
@@ -245,7 +241,6 @@ protected:
 
     QString mLanguage;
     int mHistoyMaxSize;
-    //QStringList mHistory;
     QString mImageViewerBGcolor;
     QString mKeypointViewerBGColor;
     int mKeypointsViewerMarkerType;
@@ -286,7 +281,6 @@ public:
 
     void read(Settings &settings) override;
     void write(const Settings &settings) override;
-    //void writeHistory(const Settings &settings) override;
 
 protected:
 
@@ -294,7 +288,4 @@ protected:
 
 };
 
-
 } // namespace graphos
-
-#endif // GRAPHOS_CORE_SETTINGS_H

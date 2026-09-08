@@ -34,7 +34,7 @@ add_files_to_project(${PROJECT_NAME}
                          AppStatus.cpp
                          ColorTable.cpp
                          #Component.cpp
-                         settings.cpp
+                         Settings.cpp
                          Pdf.cpp
                          ply.cpp
                          utils.cpp
@@ -96,7 +96,7 @@ add_files_to_project(${PROJECT_NAME}
                          #mvp.h
                          Pdf.h
                          ply.h
-                         settings.h
+                         Settings.h
                          utils.h
                          base/Repository.h
                          camera/Calibration.h

@@ -21,9 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-
-#ifndef GRAPHOS_UNDISTORTIMAGES_VIEW_H
-#define GRAPHOS_UNDISTORTIMAGES_VIEW_H
+#pragma once
 
 #include "graphos/components/undistort/UndistortImagesView.h"
 
@@ -47,12 +45,22 @@ public slots:
 
     void setProjectDirectory(const QString &directory) override;
 
+// FileDialogView
+
 private:
 
-    void init();
+    void init() override;
+
+private slots:
+
+    void retranslate() override;
+
+// View
+
+public slots:
+
+    void clear() override;
 
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_UNDISTORTIMAGES_VIEW_H

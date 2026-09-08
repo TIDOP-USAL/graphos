@@ -21,18 +21,18 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_LOADFROMVIDEO_MODEL_INTERFACE_H
-#define GRAPHOS_LOADFROMVIDEO_MODEL_INTERFACE_H
+#pragma once
 
 #include <tidop/core/base/Path.h>
 
-#include "graphos/core/mvp.h"
-#include "graphos/core/camera/Camera.h"
+#include "graphos/framework/mvp/Model.h"
 
 namespace graphos
 {
 
 class Image;
+class Camera;
+class CameraRepository;
 
 class LoadFromVideoModel
   : public Model
@@ -45,17 +45,14 @@ public:
     LoadFromVideoModel(QObject *parent = nullptr) : Model(parent) {}
     ~LoadFromVideoModel() override = default;
 
-    virtual auto imagesPath() const -> tl::Path = 0;
     virtual void addImage(const Image &image) = 0;
-    virtual auto cameras() const -> const std::map<int, Camera>& = 0;
-    virtual auto addCamera(const Camera& camera) -> int = 0;
-    virtual auto cameraID(const Camera& camera) const -> int = 0;
-    virtual auto cameraID(const QString& make,
-                          const QString& model) const -> int = 0;
+    virtual auto imagesDirectory() const -> tl::Path = 0;
+    virtual auto cameras() const -> CameraRepository & = 0;
+    //virtual auto addCamera(const Camera &camera) -> int = 0;
+    virtual auto cameraID(const Camera &camera) const -> int = 0;
+    virtual auto cameraID(const QString &make,
+                          const QString &model) const -> int = 0;
 
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_LOADFROMVIDEO_MODEL_INTERFACE_H

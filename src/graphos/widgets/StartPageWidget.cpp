@@ -21,7 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#include "StartPageWidget.h"
+#include "graphos/widgets/StartPageWidget.h"
+#include "graphos/widgets/delegates/CompactItemDelegate.h"
 
 TL_DISABLE_WARNINGS
 #include <QGridLayout>
@@ -140,6 +141,7 @@ void StartPageWidget::initUI()
     mListWidgetRecentProjects = new QListWidget(layout_widget2);
     QFont font2;
     font2.setPointSize(11);
+    mListWidgetRecentProjects->setItemDelegate(new CompactItemDelegate(mListWidgetRecentProjects));
     mListWidgetRecentProjects->setFont(font2);
     mListWidgetRecentProjects->setFrameShape(QFrame::NoFrame);
     mListWidgetRecentProjects->setFrameShadow(QFrame::Sunken);

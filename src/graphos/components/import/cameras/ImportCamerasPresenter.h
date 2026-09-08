@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_IMPORT_CAMERAS_PRESENTER_INTERFACE_H
-#define GRAPHOS_IMPORT_CAMERAS_PRESENTER_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Presenter.h"
 
 namespace graphos
 {
@@ -47,5 +46,3 @@ signals:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_IMPORT_CAMERAS_PRESENTER_INTERFACE_H

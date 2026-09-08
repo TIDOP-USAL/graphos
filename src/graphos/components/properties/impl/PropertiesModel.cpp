@@ -28,11 +28,6 @@
 #include "graphos/components/properties/PropertiesParser.h"
 
 #include <tidop/rastertools/io/Reader.h>
-//#include <tidop/img/metadata.h>
-//
-//#include "graphos/core/dense/CmvsPmvs.h"
-//#include "graphos/core/dense/mvs.h"
-//#include "graphos/core/dense/Smvs.h"
 
 
 namespace graphos
@@ -65,6 +60,9 @@ auto PropertiesModelImp::exif(size_t imageId) const -> Properties
         }
 
         auto &camera_poses_repo = mProject->cameraPoses();
+        if (camera_poses_repo.empty())
+            return exif;
+
         if (auto camera_pose = camera_poses_repo.find(imageId)) {
 
             auto position = camera_pose->position();

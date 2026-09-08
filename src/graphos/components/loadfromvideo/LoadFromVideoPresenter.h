@@ -21,11 +21,10 @@
  *                                                                      *
  ************************************************************************/
 
+#pragma once
 
-#ifndef GRAPHOS_LOADFROMVIDEO_PRESENTER_INTERFACE_H
-#define GRAPHOS_LOADFROMVIDEO_PRESENTER_INTERFACE_H
 
-#include "graphos/core/task/TaskPresenter.h"
+#include "graphos/framework/task/TaskPresenter.h"
 
 namespace graphos
 {
@@ -51,6 +50,3 @@ signals:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_LOADFROMVIDEO_PRESENTER_INTERFACE_H

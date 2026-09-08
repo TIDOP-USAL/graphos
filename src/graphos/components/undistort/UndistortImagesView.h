@@ -21,24 +21,22 @@
  *                                                                      *
  ************************************************************************/
 
+#pragma once
 
-#ifndef GRAPHOS_UNDISTORTIMAGES_VIEW_INTERFACE_H
-#define GRAPHOS_UNDISTORTIMAGES_VIEW_INTERFACE_H
-
-#include <QFileDialog>
+#include "graphos/framework/mvp/FileDialogView.h"
 
 namespace graphos
 {
 
 class UndistortImagesView
-  : public QFileDialog
+  : public FileDialogView
 {
 
     Q_OBJECT
 
 public:
 
-    UndistortImagesView(QWidget *parent) : QFileDialog(parent) {}
+    UndistortImagesView(QWidget *parent) : FileDialogView(parent) {}
     ~UndistortImagesView() override = default;
 
 public slots:
@@ -49,5 +47,3 @@ public slots:
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_UNDISTORTIMAGES_VIEW_INTERFACE_H

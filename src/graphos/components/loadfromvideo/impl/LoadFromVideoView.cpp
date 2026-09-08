@@ -73,7 +73,7 @@ void LoadFromVideoViewImp::initUI()
     mActionStopVideo = new QAction(this);
     mActionStopVideo->setIcon(QIcon::fromTheme("stop"));
     tool_bar->addAction(mActionStopVideo);
-    grid_layout->setMargin(0);
+    grid_layout->setContentsMargins(0, 0, 0, 0);
     grid_layout->addWidget(tool_bar, 0, 1);
 
     auto grid_layout2 = new QGridLayout();
@@ -312,4 +312,3 @@ void LoadFromVideoViewImp::importFrame()
 }
 
 } // namespace graphos
-

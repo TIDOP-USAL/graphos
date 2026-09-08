@@ -23,11 +23,10 @@
 
 #include "UndistortImagesModel.h"
 
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 
-#include <QFile>
-#include <QTextStream>
 #include <QSettings>
+#include <QCoreApplication>
 
 namespace graphos
 {
@@ -52,12 +51,12 @@ UndistortImagesModelImp::~UndistortImagesModelImp()
     }
 }
 
-auto UndistortImagesModelImp::images() const -> const Images&
+auto UndistortImagesModelImp::images() const -> const ImageRepository &
 {
     return mProject->images();
 }
 
-auto UndistortImagesModelImp::cameras() const -> const Cameras&
+auto UndistortImagesModelImp::cameras() const -> const CameraRepository &
 {
     return mProject->cameras();
 }
@@ -69,7 +68,7 @@ auto UndistortImagesModelImp::useCuda() const -> bool
 
 auto UndistortImagesModelImp::projectFolder() const -> tl::Path
 {
-    return mProject->projectFolder();
+    return mProject->info().projectFolder();
 }
 
 void UndistortImagesModelImp::loadSettings()

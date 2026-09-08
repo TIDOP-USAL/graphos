@@ -21,10 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_IMPORT_CAMERAS_MODEL_INTERFACE_H
-#define GRAPHOS_IMPORT_CAMERAS_MODEL_INTERFACE_H
+#pragma once
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 
 class QStandardItemModel;
 
@@ -98,5 +97,3 @@ signals:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_GEOREFERENCE_MODEL_INTERFACE_H

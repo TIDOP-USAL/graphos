@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_LOADFROMVIDEO_PRESENTER_H
-#define GRAPHOS_LOADFROMVIDEO_PRESENTER_H
+#pragma once
 
 #include "graphos/components/loadfromvideo/LoadFromVideoPresenter.h"
 
@@ -55,8 +54,8 @@ protected slots:
 
 protected:
 
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
+    void onError(tl::TaskErrorEvent &event) override;
+    void onFinished(tl::TaskFinalizedEvent &event) override;
     auto createTask() -> std::unique_ptr<tl::Task> override;
 
 public slots:
@@ -78,9 +77,7 @@ private:
 
     LoadFromVideoView *mView;
     LoadFromVideoModel *mModel;
-    std::vector<Camera> mCameras;
+    //std::vector<Camera> mCameras;
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_LOADFROMVIDEO_PRESENTER_H

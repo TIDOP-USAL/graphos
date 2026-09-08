@@ -427,6 +427,7 @@ void ThumbnailsWidget::initUI()
     mListWidget->setDragDropMode(QAbstractItemView::NoDragDrop);
 
     mGridLayout->setContentsMargins(0, 0, 0, 0);
+    mGridLayout->setSpacing(0);
     mGridLayout->addWidget(toolBar);
     mGridLayout->addWidget(mListWidget);
 

@@ -38,21 +38,26 @@ UndistortImagesViewImp::~UndistortImagesViewImp() = default;
 
 void UndistortImagesViewImp::init()
 {
+    this->setFileMode(QFileDialog::Directory);
+    this->setOption(ShowDirsOnly, true);
+    this->setOption(DontResolveSymlinks, true);
 
-    QFileDialog::setWindowTitle(QCoreApplication::translate("UndistortImagesComponent", "Undistort images output path"));
-
-    QFileDialog::setFileMode(QFileDialog::Directory);
-    QFileDialog::setOption(ShowDirsOnly, true);
-    QFileDialog::setOption(DontResolveSymlinks, true);
-
+    retranslate();
 }
 
 void UndistortImagesViewImp::setProjectDirectory(const QString &directory)
 {
-    QFileDialog::setDirectory(directory);
+    this->setDirectory(directory);
 }
 
+void UndistortImagesViewImp::retranslate()
+{
+    this->setWindowTitle(QCoreApplication::translate("UndistortImagesComponent", "Undistort images output path", nullptr));
+}
 
+void UndistortImagesViewImp::clear()
+{
+}
 
 } // namespace graphos
 

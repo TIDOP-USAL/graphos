@@ -21,7 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#include "LogWidget.h"
+#include "graphos/widgets/LogWidget.h"
+#include "graphos/widgets/delegates/CompactItemDelegate.h"
 
 #include <tidop/core/base/Chrono.h>
 
@@ -198,8 +199,11 @@ void LogWidget::initUI()
     toolBar->addAction(mClearAction);
 
     mGridLayout->setContentsMargins(0, 0, 0, 0);
+    mGridLayout->setSpacing(0);
     mGridLayout->addWidget(toolBar);
+
     mListWidget = new QListWidget(this);
+    mListWidget->setItemDelegate(new CompactItemDelegate(mListWidget));
     mGridLayout->addWidget(mListWidget);
 
     LogWidget::update();

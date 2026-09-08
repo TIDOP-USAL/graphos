@@ -22,8 +22,7 @@
  ************************************************************************/
 
 
-#ifndef GRAPHOS_LOADFROMVIDEO_VIEW_H
-#define GRAPHOS_LOADFROMVIDEO_VIEW_H
+#pragma once
 
 #include "graphos/components/loadfromvideo/LoadFromVideoView.h"
 
@@ -131,5 +130,3 @@ protected:
 ALLOW_BITWISE_FLAG_OPERATIONS(LoadFromVideoViewImp::Flag)
 
 } // namespace graphos
-
-#endif // GRAPHOS_LOADFROMVIDEO_VIEW_H

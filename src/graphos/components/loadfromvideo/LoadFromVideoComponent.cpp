@@ -27,7 +27,6 @@
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoModel.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoView.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoPresenter.h"
-#include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

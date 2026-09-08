@@ -21,11 +21,10 @@
  *                                                                      *
  ************************************************************************/
  
-#ifndef GRAPHOS_LOADFROMVIDEO_MODEL_H
-#define GRAPHOS_LOADFROMVIDEO_MODEL_H
+#pragma once
 
 #include "graphos/components/loadfromvideo/LoadFromVideoModel.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 
 namespace graphos
 {
@@ -45,10 +44,10 @@ public:
 
 public:
 
-    auto imagesPath() const -> tl::Path override;
     void addImage(const Image &image) override;
-    auto cameras() const -> const std::map<int, Camera>& override;
-    auto addCamera(const Camera& camera) -> int override;
+    auto imagesDirectory() const -> tl::Path override;
+    auto cameras() const -> CameraRepository & override;
+    //auto addCamera(const Camera& camera) -> int override;
     auto cameraID(const Camera& camera) const -> int override;
     auto cameraID(const QString& make,
                   const QString& model) const -> int override;
@@ -69,5 +68,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_LOADFROMVIDEO_MODEL_H
