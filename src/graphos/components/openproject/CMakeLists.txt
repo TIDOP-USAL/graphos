@@ -42,7 +42,7 @@ if(BUILD_OPEN_PROJECT_COMPONENT AND BUILD_GUI)
                              impl/OpenProjectView.h
                              impl/OpenProjectPresenter.h)
             
-    add_library(${PROJECT_NAME} ${LIB_TYPE}
+    add_library(${PROJECT_NAME} ${GRAPHOS_LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
                 

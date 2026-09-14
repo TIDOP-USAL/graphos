@@ -49,7 +49,8 @@ add_files_to_project(${PROJECT_NAME}
                          OriTxtFormatWidget.cpp
                          GraphicItem.cpp
                          GraphicViewer.cpp
-                         #Viewer3d.cpp
+                         viewer3d/Easy3DViewer3D.cpp
+                         viewer3d/Viewer3DContextMenu.cpp
                          ImageMenu.cpp
                          TabWidget.cpp
                          ProgressBarDialog.cpp
@@ -84,7 +85,8 @@ add_files_to_project(${PROJECT_NAME}
                          OriTxtFormatWidget.h
                          GraphicItem.h
                          GraphicViewer.h
-                         #Viewer3d.h
+                         viewer3d/Easy3DViewer3D.h
+                         viewer3d/Viewer3DContextMenu.h
                          ImageMenu.h
                          TabWidget.h
                          ProgressBarDialog.h
@@ -112,7 +114,7 @@ add_files_to_project(${PROJECT_NAME}
 #    file(COPY ${filename} DESTINATION ${CMAKE_BINARY_DIR}/bin/Debug/shaders/EDL)
 #endforeach()
 
-add_library(${PROJECT_NAME} ${LIB_TYPE}
+add_library(${PROJECT_NAME} ${GRAPHOS_LIB_TYPE}
             ${PROJECT_SOURCE_FILES}
             ${PROJECT_HEADER_FILES})
 
@@ -128,7 +130,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Widgets>
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt6::OpenGLWidgets>
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Network>
-                      ${CloudCompare_LIBRARIES})
+                      $<$<BOOL:${HAVE_EASY3D}>:easy3d::renderer>
+                      $<$<BOOL:${HAVE_EASY3D}>:easy3d::fileio>)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES 
                       FOLDER "lib"

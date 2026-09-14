@@ -47,6 +47,11 @@ auto OrthophotoProperties::interpolation() const -> std::string
     return mProperties.getProperty<std::string>("Interpolation");
 }
 
+auto OrthophotoProperties::method() const -> std::string
+{
+    return mProperties.getProperty<std::string>("Method");
+}
+
 void OrthophotoProperties::setCrs(std::string crs)
 {
     mProperties.setProperty("Crs", std::move(crs));
@@ -62,11 +67,17 @@ void OrthophotoProperties::setInterpolation(std::string interpolation)
     mProperties.setProperty("Interpolation", std::move(interpolation));
 }
 
+void OrthophotoProperties::setMethod(std::string method)
+{
+    mProperties.setProperty("Method", std::move(method));
+}
+
 void OrthophotoProperties::clear()
 {
     mProperties.setProperty("Crs", std::string());
     mProperties.setProperty("Gsd", 0.0);
     mProperties.setProperty("Interpolation", std::string("BILINEAR"));
+    mProperties.setProperty("Method", std::string("Robust Local Blending"));
 }
 
 auto OrthophotoProperties::name() const -> std::string

@@ -62,7 +62,7 @@ if(BUILD_EXPORT_POINT_CLOUD_COMPONENT)
                              impl/ExportPointCloudPresenter.h)
  endif(BUILD_GUI)
 
-    add_library(${PROJECT_NAME} ${LIB_TYPE}
+    add_library(${PROJECT_NAME} ${GRAPHOS_LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
                 

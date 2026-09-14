@@ -114,11 +114,11 @@ add_definitions(-DUNICODE)
 OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
 
 # Por defecto se establece el tipo de librería estática
-set (LIB_TYPE STATIC)
+set (GRAPHOS_LIB_TYPE STATIC)
 
 if (BUILD_SHARED_LIBS)
-  # Se configura como libreria estática
-  set (LIB_TYPE SHARED)
+  # Se configura como libreria dinámica
+  set (GRAPHOS_LIB_TYPE SHARED)
   
   if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251")
@@ -497,7 +497,26 @@ if(BUILD_GUI)
 endif(BUILD_GUI)
 
 
-# VLD
+##########################################################################
+# Easy3D (REQUIRED) for 3D visualization                                 #
+##########################################################################
+
+if(BUILD_GUI)
+    set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
+    find_package(Easy3D COMPONENTS viewer)
+    set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
+
+    if(NOT Easy3D_FOUND)
+        set(HAVE_EASY3D NO)
+        message(STATUS "  Easy3D not found - 3D visualization will be disabled")
+    else()
+        set(HAVE_EASY3D YES)
+        message(STATUS "  Found Easy3D (version ${Easy3D_VERSION})")
+    endif()
+
+endif(BUILD_GUI)
+
+
 ##########################################################################
 # VLD (OPTIONAL)                                                         #
 ##########################################################################

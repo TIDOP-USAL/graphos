@@ -28,6 +28,8 @@
 #include "graphos/components/import/cameras/impl/ImportCamerasPresenter.h"
 #include "graphos/core/AppStatus.h"
 
+#include <tidop/core/base/Exception.h>
+
 #include <QAction>
 #include <QString>
 

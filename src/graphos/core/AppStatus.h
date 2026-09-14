@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_APP_STATUS_H
-#define GRAPHOS_APP_STATUS_H
+#pragma once
 
 #include "graphos/graphos_global.h"
 
@@ -215,6 +214,3 @@ private:
 ALLOW_BITWISE_FLAG_OPERATIONS(AppStatus::Flag)
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_APP_STATUS_H

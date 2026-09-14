@@ -49,7 +49,7 @@ OrthophotoViewImp::~OrthophotoViewImp()
 void OrthophotoViewImp::initUI()
 {
     this->setObjectName(QString("OrthophotoView"));
-    this->resize(380, 250);
+    this->resize(380, 300);
 
     auto grid_layout = new QGridLayout();
     this->setLayout(grid_layout);
@@ -82,10 +82,19 @@ void OrthophotoViewImp::initUI()
     mComboBoxInterpolation->setItemData(2, "BICUBIC");
     grid_layout->addWidget(mComboBoxInterpolation, 2, 1, 1, 2);
 
+    mLabelMethod = new QLabel(this);
+    grid_layout->addWidget(mLabelMethod, 3, 0, 1, 1);
+    mComboBoxMethod = new QComboBox(this);
+    mComboBoxMethod->addItem("");
+    mComboBoxMethod->addItem("");
+    mComboBoxMethod->setItemData(0, "Robust Local Blending");
+    mComboBoxMethod->setItemData(1, "Seam-based Blending");
+    grid_layout->addWidget(mComboBoxMethod, 3, 1, 1, 2);
+
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    grid_layout->addWidget(mButtonBox, 7, 0, 1, 3);
+    grid_layout->addWidget(mButtonBox, 8, 0, 1, 3);
 
     this->retranslate();
     this->clear();
@@ -114,6 +123,9 @@ void OrthophotoViewImp::retranslate()
     mComboBoxInterpolation->setItemText(0, QApplication::translate("OrthophotoComponent", "Nearest"));
     mComboBoxInterpolation->setItemText(1, QApplication::translate("OrthophotoComponent", "Bilinear"));
     mComboBoxInterpolation->setItemText(2, QApplication::translate("OrthophotoComponent", "Bicubic"));
+    mLabelMethod->setText(QApplication::translate("OrthophotoComponent", "Mosaic Method"));
+    mComboBoxMethod->setItemText(0, QApplication::translate("OrthophotoComponent", "Robust Local Blending"));
+    mComboBoxMethod->setItemText(1, QApplication::translate("OrthophotoComponent", "Seam-based Blending"));
 
     mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("OrthophotoComponent", "Cancel"));
     mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("OrthophotoComponent", "Run"));
@@ -127,6 +139,9 @@ void OrthophotoViewImp::clear()
 
     const QSignalBlocker blocker_crs(mLineEditCRS);
     mLineEditCRS->clear();
+
+    const QSignalBlocker blocker_method(mComboBoxMethod);
+    mComboBoxMethod->setCurrentIndex(0); // Default to "Robust Local Blending"
 }
 
 void OrthophotoViewImp::update()
@@ -147,6 +162,11 @@ auto OrthophotoViewImp::interpolation() const -> QString
     return mComboBoxInterpolation->currentData().toString();
 }
 
+auto OrthophotoViewImp::method() const -> QString
+{
+    return mComboBoxMethod->currentData().toString();
+}
+
 void OrthophotoViewImp::setGsd(double gsd)
 {
     const QSignalBlocker blocker(mDoubleSpinBoxGSD);
@@ -161,6 +181,11 @@ void OrthophotoViewImp::setCrs(const QString &crs)
 void OrthophotoViewImp::setInterpolation(const QString &interpolation)
 {
     mComboBoxInterpolation->setCurrentIndex(mComboBoxInterpolation->findData(interpolation));
+}
+
+void OrthophotoViewImp::setMethod(const QString &method)
+{
+    mComboBoxMethod->setCurrentIndex(mComboBoxMethod->findData(method));
 }
 
 

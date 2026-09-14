@@ -26,7 +26,7 @@
 
 #include "graphos/core/task/Progress.h"
 #include "graphos/core/Application.h"
-#include "graphos/widgets/Viewer3d.h"
+#include "graphos/widgets/viewer3d/Easy3DViewer3D.h"
 #include "graphos/components/scale/impl/ScaleModel.h"
 #include "graphos/components/scale/impl/ScaleView.h"
 #include "graphos/components/scale/impl/ScaleTask.h"

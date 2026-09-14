@@ -107,6 +107,12 @@ void OrthophotoPresenterImp::open()
 
     mView->setCrs(QString::fromStdString(mModel->crs()));
 
+    if (auto config = mModel->properties()) {
+        mView->setMethod(QString::fromStdString(config->method()));
+    } else {
+        mView->setMethod("Robust Local Blending");
+    }
+
     mView->exec();
 }
 
@@ -225,6 +231,7 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
     config->setCrs(mView->crs().toStdString());
     config->setGsd(mView->gsd());
     config->setInterpolation(mView->interpolation().toStdString());
+    config->setMethod(mView->method().toStdString());
     mModel->setProperties(config);
 
     auto ortho_task = std::make_unique<OrthophotoTask>(std::move(undistorted_images),
@@ -235,7 +242,8 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
                                                        mView->crs().toStdString(),
                                                        mView->interpolation().toStdString(),
                                                        mView->gsd(),
-                                                       mModel->useCuda());
+                                                       mModel->useCuda(),
+                                                       mView->method().toStdString());
 
     //ortho_task->subscribe([&, ortho_path](const tl::TaskFinalizedEvent *event) {
 

@@ -63,7 +63,8 @@ public:
                    std::string epsg,
                    std::string interpolation = "BILINEAR",
                    double resolution = -1.,
-                   bool cuda = false);
+                   bool cuda = false,
+                   std::string method = "Robust Local Blending");
 
     ~OrthophotoTask() override;
 

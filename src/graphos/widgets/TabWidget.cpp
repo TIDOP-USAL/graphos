@@ -23,9 +23,12 @@
 
 #include "TabWidget.h"
 
+#include "config_graphos.h"
 #include "graphos/widgets/ImageMenu.h"
 #include "graphos/widgets/GraphicViewer.h"
-//#include "graphos/widgets/Viewer3d.h"
+#ifdef HAVE_EASY3D
+#include "graphos/widgets/viewer3d/Easy3DViewer3D.h"
+#endif
 
 TL_DISABLE_WARNINGS
 #include <QMenu>
@@ -142,16 +145,20 @@ auto TabWidget::fileTab(const QString& file) const -> int
 void TabWidget::onTabChanged(int tabId)
 {
     GraphicViewer *graphic_viewer = dynamic_cast<GraphicViewer *>(this->widget(tabId));
-    //Viewer3D *viewer_3d = dynamic_cast<Viewer3D *>(this->widget(tabId));
+#ifdef HAVE_EASY3D
+    auto *viewer_3d = dynamic_cast<Easy3DViewer3D *>(this->widget(tabId));
+#else
+    Viewer3D *viewer_3d = nullptr;
+#endif
 
     if (graphic_viewer) {
         emit imageActive(true);
         emit model3dActive(false);
         emit model3dChange(nullptr);
-    //} else if (viewer_3d) {
-    //    emit model3dActive(true);
-    //    emit imageActive(false);
-    //    emit model3dChange(viewer_3d);
+    } else if (viewer_3d) {
+        emit model3dActive(true);
+        emit imageActive(false);
+        emit model3dChange(viewer_3d);
     } else {
         emit imageActive(false);
         emit model3dActive(false);

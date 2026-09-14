@@ -52,7 +52,7 @@ if(BUILD_SAVE_PROJECT_AS_COMPONENT AND BUILD_GUI)
                              impl/SaveProjectAsView.h
                              impl/SaveProjectAsPresenter.h)
             
-    add_library(${PROJECT_NAME} ${LIB_TYPE}
+    add_library(${PROJECT_NAME} ${GRAPHOS_LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
                 

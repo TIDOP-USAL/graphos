@@ -21,12 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_VIEWER_3D_H
-#define GRAPHOS_VIEWER_3D_H
+#pragma once
 
 #include "config_graphos.h"
-
-#include <memory>
 
 /* Qt */
 #include <QObject>
@@ -34,79 +31,29 @@
 #include <QVector3D>
 #include <QImage>
 
-//#include <tidop/core/defs.h>
-#include <tidop/graphic/color.h>
+/* Easy3D */
+#ifdef HAVE_EASY3D
+#include <easy3d/core/model.h>
+#include <easy3d/renderer/camera.h>
+#endif
 
-/* CloudCompare */
-//TL_DISABLE_WARNINGS
-//#include "ccGLWindow.h"
-//#include <ccCameraSensor.h>
-//TL_DEFAULT_WARNINGS
-
-#include "graphos/core/ColorTable.h"
-#include "graphos/core/Application.h"
+#include "graphos/framework/app/Application.h"
 #include "graphos/widgets/GraphosWidget.h"
+#include "graphos/widgets/viewer3d/Viewer3DContextMenu.h"
 
-class cc2DLabel;
-class cc2DViewportLabel;
-class RGBAColorsTableType;
-class ccGlFilter;
-
+namespace easy3d
+{
+class TrianglesDrawable;
+}
 
 namespace graphos
 {
 
 
-class Viewer3DContextMenu
-  : public GraphosContextMenu
-{
-    Q_OBJECT
+#ifdef HAVE_EASY3D
 
-public:
-
-    Viewer3DContextMenu(QWidget *parent = nullptr);
-    ~Viewer3DContextMenu() override = default;
-
-signals:
-
-    void globalZoom();
-    void viewFront();
-    void viewTop();
-    void viewLeft();
-    void viewRight();
-    void viewBack();
-    void viewBottom();
-    void filterEDL(bool);
-
-private:
-
-    void init();
-    void initSignalAndSlots();
-
-// GraphosContextMenu
-
-private slots:
-
-    void retranslate() override;
-
-private:
-
-    QAction *mActionGlobalZoom;
-    QAction *mActionViewFront;
-    QAction *mActionViewTop;
-    QAction *mActionViewLeft;
-    QAction *mActionViewRight;
-    QAction *mActionViewBack;
-    QAction *mActionViewBottom;
-    QAction *mActionEDLFilter;
-
-};
-
-
-/* Visor basado en CloudCompare */
-
-class CCViewer3D
-  : public ccGLWindow,
+class Easy3DViewer3D
+  : public QOpenGLWidget,
     public Viewer3D
 {
 
@@ -143,37 +90,24 @@ public:
 
 public:
 
-    explicit CCViewer3D(QWidget *parent = nullptr);
-    ~CCViewer3D() override;
+    explicit Easy3DViewer3D(QWidget *parent = nullptr);
+    ~Easy3DViewer3D() override;
 
     void clear() override;
-    void createGroup(const QString &group,
-                     const QString &parent = QString()) override;
     void deleteEntity(const QString &id) override;
 
+    // File loading is backend-specific and intentionally not part of Viewer3D.
     void loadFromFile(const QString &file,
-                      const QString &parent = QString()) override;
+                      const QString &parent = QString());
     void loadFromFiles(const QStringList &files,
-                       const QString &parent = QString()) override;
-
-    void setScale(double x, double y);
-
-    void addCamera(const QString &id,
-                   double x,
-                   double y,
-                   double z,
-                   const std::array<std::array<float, 3>, 3> &rot) override;
-    void drawLine(const std::string &name, 
-                  const tl::Point3d &point1, 
-                  const tl::Point3d &point2, 
-                  const tl::Color &color, int width) override;
-    void addPrimitive(ccGenericPrimitive *primitive) override;
+                       const QString &parent = QString());
 
     void activatePicker(PickingMode pickerMode);
     void deactivatePicker();
 
-    auto object() -> ccHObject*;
     auto captureModel() -> QImage override;
+
+    void update();
 
 signals:
 
@@ -195,63 +129,75 @@ public slots:
     void setIsoView2() override;
     void setGlobalZoom() override;
 
-    void setVisible(const QString &id, bool visible) override;
-    void showClassification(bool show = true) override;
-    void setColorTable(std::shared_ptr<ColorTable> colorTable) override;
     void enableEDL() override;
     void disableEDL() override;
 
+    void setBackgroundColor(const QColor &color) override;
+    void setPerspectiveProjection(bool enabled);
+    void setPointLighting(bool enabled);
+    void changePointSize();
+
 public:
 
-    bool isEDL() const override { return edl; }
+    bool isEDL() const override { return edl_enabled_; }
+    
+    auto backGroundColor() const -> QColor override;
 
 protected slots:
 
     /*!
      * \brief selecciona una entidad
      */
-    void selectEntity(ccHObject *entity);
-    void processPickedPoint(ccHObject *entity,
+    void selectEntity(easy3d::Model *entity);
+    void processPickedPoint(easy3d::Model *entity,
                             unsigned pointIndex,
                             int x,
                             int y,
-                            const CCVector3 &point,
-                            const CCVector3d &uvw);
+                            const easy3d::vec3 &point);
     void showContextMenu(const QPoint &position);
-    void mousePressEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event) override;
+
+protected:
+
+    void drawCornerAxes();
 
 private:
 
     void init();
     void initSignalsAndSlots();
+    void initializeGL() override;
+    void resizeGL(int width, int height) override;
+    void paintGL() override;
+    void preDraw();
+    void draw();
+    void postDraw();
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
-    void addToDB(ccHObject *entity);
+    void addModel(easy3d::Model *entity);
 
     /*!
      * \brief Función para buscar un objeto mediante su nombre
      */
-    auto findChild(const QString& name, ccHObject* parent = nullptr) -> ccHObject*;
+    auto findChild(const QString& name, easy3d::Model *parent = nullptr) -> easy3d::Model*;
 
 private:
 
-    ccHObject *mSelectedObject;
-    double mScaleX;
-    double mScaleY;
-    std::map<QString, ccCameraSensor *> mCameras;
-    ccHObject *mOrderedLabelsContainer;
+    easy3d::Model *mSelectedObject;
+    easy3d::Camera *mCamera;
+    std::vector<easy3d::Model *> mModels;
     PickingMode mPickingMode;
-    cc2DLabel *mLabel;
-    cc2DViewportLabel *mRect2DLabel;
     Viewer3DContextMenu *mContextMenu;
-    QPoint mMousePress;
-    RGBAColorsTableType *mRGBAColors;
-    std::shared_ptr<ColorTable> mColorTable;
-    bool mShowClassification;
-    bool edl;
-    ccGlFilter *filter;
+    QPoint mMousePressed;
+    QPoint mMousePrevious;
+    Qt::MouseButton mPressedButton;
+    QColor mBackgroundColor;
+    bool edl_enabled_;
+    easy3d::TrianglesDrawable *mDrawableAxes;
+
 };
 
+#endif // HAVE_EASY3D
 
 }
-
-#endif // GRAPHOS_VIEWER_3D_H

@@ -55,10 +55,13 @@ public:
     auto gsd() const -> double;
     [[nodiscard]]
     auto interpolation() const -> std::string;
+    [[nodiscard]]
+    auto method() const -> std::string;
 
     void setCrs(std::string crs);
     void setGsd(double gsd);
     void setInterpolation(std::string interpolation);
+    void setMethod(std::string method);
 
     void clear();
 

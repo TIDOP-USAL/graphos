@@ -29,8 +29,10 @@
 #include "graphos/widgets/StartPageWidget.h"
 #include "graphos/widgets/TabWidget.h"
 #include "graphos/widgets/GraphicViewer.h"
+#ifdef HAVE_EASY3D
+#include "graphos/widgets/viewer3d/Easy3DViewer3D.h"
+#endif
 #include "graphos/widgets/mapviewer/MapViewer.h"
-//#include "graphos/widgets/Viewer3d.h"
 #include "graphos/gui/MainWindowView.h"
 #include "graphos/gui/MainWindowModel.h"
 
@@ -474,121 +476,42 @@ void MainWindowPresenter::openImageMatches(const QString &sessionName, const QSt
 void MainWindowPresenter::open3DModel(const QString &model3D,
                                       bool loadCameras)
 {
-    //try {
+#ifdef HAVE_EASY3D
+    Q_UNUSED(loadCameras);
 
-    //    QFileInfo fileInfo(model3D);
-    //    TL_ASSERT(fileInfo.exists(), "File not found");
+    try {
+        QFileInfo fileInfo(model3D);
+        TL_ASSERT(fileInfo.exists(), "File not found");
 
-    //    auto tab_widget = mView->tabWidget();
-    //    int tab_id = tab_widget->fileTab(model3D);
+        auto tab_widget = mView->tabWidget();
+        int tab_id = tab_widget->fileTab(model3D);
 
-    //    if (tab_id != -1) {
-    //        tab_widget->setCurrentIndex(tab_id);
-    //    } else {
-    //        CCViewer3D *viewer3D = new CCViewer3D();
-    //        viewer3D->loadFromFile(model3D);
-    //        tab_id = tab_widget->addTab(dynamic_cast<QWidget *>(viewer3D), fileInfo.fileName());
-    //        tab_widget->setCurrentIndex(tab_id);
-    //        tab_widget->setTabToolTip(tab_id, model3D);
+        if (tab_id != -1) {
+            tab_widget->setCurrentIndex(tab_id);
+            return;
+        }
 
-    //        auto transform = mModel->transform();
-    //        if (transform != tl::Matrix<double, 4, 4>::identity()) {
+        auto *viewer3D = new Easy3DViewer3D(mView);
+        tab_id = tab_widget->addTab(viewer3D, fileInfo.fileName());
+        tab_widget->setCurrentIndex(tab_id);
+        tab_widget->setTabToolTip(tab_id, model3D);
 
-    //            ccHObject *root = viewer3D->object();
-    //            ccHObject::Container clouds;
-    //            root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
-    //            ccHObject *model = nullptr;
-    //            if (clouds.size() == 1) {
-    //                model = clouds.at(0);
+        // Let Qt paint the new tab before the synchronous file read starts.
+        QApplication::processEvents();
+        viewer3D->loadFromFile(model3D);
+        viewer3D->setGlobalZoom();
+        viewer3D->setBackgroundColor(QColor(50, 50, 50));
 
-    //                bool lockedVertices;
-    //                ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(model, &lockedVertices);
-    //                
-    //                ccGLMatrix cc_rot;
-    //                float *mat = cc_rot.data();
-
-    //                mat[0] = transform[0][0];
-    //                mat[1] = transform[1][0];
-    //                mat[2] = transform[2][0];
-
-    //                mat[4] = transform[0][1];
-    //                mat[5] = transform[1][1];
-    //                mat[6] = transform[2][1];
-
-    //                mat[8] = transform[0][2];
-    //                mat[9] = transform[1][2];
-    //                mat[10] = transform[2][2];
-    //   
-    //                CCVector3 t(static_cast<PointCoordinateType>(transform[0][3]),
-    //                            static_cast<PointCoordinateType>(transform[1][3]),
-    //                            static_cast<PointCoordinateType>(transform[2][3]));
-
-    //                cc_rot.setTranslation(t);
-
-    //                cloud->applyRigidTransformation(cc_rot);
-    //                model->prepareDisplayForRefresh_recursive();
-    //            }
-
-
-    //        }
-
-    //        viewer3D->setGlobalZoom();
-
-    //        if (loadCameras) {
-
-    //            //tl::Matrix4x4d transform = mModel->transform();
-    //            tl::Affine<double, 3> affine(transform.block(0, 2, 0, 3));
-    //            auto rotation = affine.rotation();
-
-    //            for (const auto &pose : mModel->poses()) {
-    //                size_t image_id = pose.first;
-    //                CameraPose camera_pose = pose.second;
-
-    //                std::array<double, 3> position;
-    //                tl::RotationMatrix<double> rot;
-
-    //                
-    //                if (transform != tl::Matrix<double, 4, 4>::identity()) {
-
-    //                    auto point = affine.transform(camera_pose.position());
-    //                    position[0] = point.x;
-    //                    position[1] = point.y;
-    //                    position[2] = point.z;
-    //                    rot = camera_pose.rotationMatrix() * rotation.inverse().toMatrix();
-
-    //                } else {
-
-    //                    position[0] = camera_pose.position().x;
-    //                    position[1] = camera_pose.position().y;
-    //                    position[2] = camera_pose.position().z;
-    //                    rot = camera_pose.rotationMatrix();
-
-    //                }
-
-    //                std::array<std::array<float, 3>, 3> cameraRotationMatrix;
-    //                cameraRotationMatrix[0][0] = static_cast<float>(rot.at(0, 0));
-    //                cameraRotationMatrix[0][1] = static_cast<float>(rot.at(0, 1));
-    //                cameraRotationMatrix[0][2] = static_cast<float>(rot.at(0, 2));
-    //                cameraRotationMatrix[1][0] = static_cast<float>(rot.at(1, 0));
-    //                cameraRotationMatrix[1][1] = static_cast<float>(rot.at(1, 1));
-    //                cameraRotationMatrix[1][2] = static_cast<float>(rot.at(1, 2));
-    //                cameraRotationMatrix[2][0] = static_cast<float>(rot.at(2, 0));
-    //                cameraRotationMatrix[2][1] = static_cast<float>(rot.at(2, 1));
-    //                cameraRotationMatrix[2][2] = static_cast<float>(rot.at(2, 2));
-
-    //                viewer3D->addCamera(mModel->image(image_id).name(), position[0], position[1], position[2], cameraRotationMatrix);
-    //            }
-
-    //        }
-    //    }
-
-    //    AppStatus *status = Application::instance().status();
-    //    status->activeFlag(AppStatus::Flag::tab_image_active, false);
-    //    status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, true);
-
-    //} catch (std::exception &e) {
-    //    tl::printException(e);
-    //}
+        AppStatus *status = Application::instance().status();
+        status->activeFlag(AppStatus::Flag::tab_image_active, false);
+        status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, true);
+    } catch (const std::exception &e) {
+        tl::printException(e);
+    }
+#else
+    Q_UNUSED(model3D);
+    Q_UNUSED(loadCameras);
+#endif
 }
 
 void MainWindowPresenter::openDtm()

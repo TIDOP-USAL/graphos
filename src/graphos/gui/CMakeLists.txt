@@ -190,7 +190,6 @@ target_link_libraries(${PROJECT_NAME}
                       ${PROJ4_LIBRARY}
                       ${Boost_PROGRAM_OPTIONS_LIBRARY}
                       ${QGeoView_LIBRARIES}
-                      #$<$<BOOL:${GRAPHOS_GUI}>:${CLOUDCOMPARE_LIBRARIES}>
                       $<$<BOOL:${HAVE_VLD}>:${VLD_LIBRARY}>)
 
 if(ENABLE_SOLUTION_FOLDERS)

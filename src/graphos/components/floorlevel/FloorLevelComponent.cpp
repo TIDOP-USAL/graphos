@@ -26,7 +26,7 @@
 
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
-#include "graphos/widgets/Viewer3d.h"
+#include "graphos/widgets/viewer3d/Easy3DViewer3D.h"
 
 TL_DISABLE_WARNINGS
 #include <ccPointCloud.h>

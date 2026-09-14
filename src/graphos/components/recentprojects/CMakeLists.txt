@@ -52,7 +52,7 @@ if(BUILD_RECENT_PROJECTS_COMPONENT AND BUILD_GUI)
                              impl/RecentProjectsView.h
                              impl/RecentProjectsPresenter.h)
             
-    add_library(${PROJECT_NAME} ${LIB_TYPE}
+    add_library(${PROJECT_NAME} ${GRAPHOS_LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
                 

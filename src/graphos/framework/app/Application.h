@@ -25,22 +25,13 @@
 
 #include "graphos/graphos_global.h"
 
-#include <memory>
-#include <mutex>
-
 /* Qt */
 #include <QApplication>
 #include <QImage>
 
-/* TidopLib */
-#include <tidop/core/app/Message.h>
-#include <tidop/core/console/Console.h>
 #include <tidop/core/base/Path.h>
-#include <tidop/geometry/primitives/Point.h>
-#include <tidop/graphic/color.h>
 
 class QMainWindow;
-class ccGenericPrimitive;
 
 namespace tl
 {
@@ -71,14 +62,8 @@ public:
     virtual ~Viewer3D() = default;
 
     virtual void clear() = 0;
-    virtual void createGroup(const QString &group,
-                             const QString &parent = QString()) = 0;
     virtual void deleteEntity(const QString &id) = 0;
     virtual void deleteSelectEntity() = 0;
-    virtual void loadFromFile(const QString &file,
-                              const QString &parent = QString()) = 0;
-    virtual void loadFromFiles(const QStringList &files,
-                               const QString &parent = QString()) = 0;
 
     /* Vistas por defecto */
     virtual void setFrontView() = 0;
@@ -91,22 +76,13 @@ public:
     virtual void setIsoView2() = 0;
     virtual void setGlobalZoom() = 0;
 
-    virtual void setVisible(const QString &id, bool visible) = 0;
-    virtual void showClassification(bool show) = 0;
-    virtual void setColorTable(std::shared_ptr<ColorTable> colorTable) = 0;
     virtual void enableEDL() = 0;
     virtual void disableEDL() = 0;
-    virtual void addCamera(const QString &id,
-                           double x,
-                           double y,
-                           double z,
-                           const std::array<std::array<float, 3>, 3> &rot) = 0;
-    virtual void drawLine(const std::string &name, 
-                          const tl::Point3d &point1, 
-                          const tl::Point3d &point2, 
-                          const tl::Color &color, int width) = 0;
-    virtual void addPrimitive(ccGenericPrimitive *primitive) = 0;
     virtual bool isEDL() const = 0;
+
+    virtual auto backGroundColor() const -> QColor = 0;
+    virtual void setBackgroundColor(const QColor &color) = 0;
+
     virtual QImage captureModel() = 0;
 
 };

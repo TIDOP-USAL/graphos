@@ -52,12 +52,14 @@ public:
     auto gsd() const -> double override;
     auto crs() const -> QString override;
     auto interpolation() const -> QString override;
+    auto method() const -> QString override;
 
 public slots:
 
     void setGsd(double gsd) override;
     void setCrs(const QString &crs) override;
     void setInterpolation(const QString &interpolation) override;
+    void setMethod(const QString &method) override;
 
 // DialogView
 
@@ -84,6 +86,8 @@ protected:
     QDoubleSpinBox *mDoubleSpinBoxGSD;
     QLabel *mLabelInterpolation;
     QComboBox *mComboBoxInterpolation;
+    QLabel *mLabelMethod;
+    QComboBox *mComboBoxMethod;
     QDialogButtonBox *mButtonBox;
 
 };

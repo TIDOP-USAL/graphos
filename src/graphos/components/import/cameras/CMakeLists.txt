@@ -53,7 +53,7 @@ if(BUILD_IMPORT_CAMERAS_COMPONENT AND BUILD_GUI)
                              impl/ImportCamerasView.h
                              impl/ImportCamerasPresenter.h)
             
-    add_library(${PROJECT_NAME} ${LIB_TYPE}
+    add_library(${PROJECT_NAME} ${GRAPHOS_LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
                 

@@ -157,13 +157,12 @@ add_files_to_project(${PROJECT_NAME}
                          #task/TaskView.h)
 
 	
-add_library(${PROJECT_NAME} ${LIB_TYPE}
+add_library(${PROJECT_NAME} ${GRAPHOS_LIB_TYPE}
             ${PROJECT_SOURCE_FILES}
             ${PROJECT_HEADER_FILES})
             
 add_library(Graphos::${PROJECT_NAME} 
             ALIAS ${PROJECT_NAME})
-
 
 target_include_directories(${PROJECT_NAME} PUBLIC
                            $<BUILD_INTERFACE:${GRAPHOS_SOURCE_DIR}/src>

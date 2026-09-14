@@ -52,7 +52,7 @@ if(BUILD_SETTINGS_COMPONENT AND BUILD_GUI)
                              impl/SettingsView.h
                              impl/SettingsPresenter.h)
             
-    add_library(${PROJECT_NAME} ${LIB_TYPE}
+    add_library(${PROJECT_NAME} ${GRAPHOS_LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
                 

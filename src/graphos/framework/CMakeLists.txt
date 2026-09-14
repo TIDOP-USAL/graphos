@@ -56,7 +56,7 @@ add_files_to_project(${PROJECT_NAME}
                          task/TaskView.h)
 
 	
-add_library(${PROJECT_NAME} ${LIB_TYPE}
+add_library(${PROJECT_NAME} ${GRAPHOS_LIB_TYPE}
             ${PROJECT_SOURCE_FILES}
             ${PROJECT_HEADER_FILES})
             
@@ -72,7 +72,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
                            ${GDAL_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
-                      TidopLib::Core
+                      Graphos::Core
                       Qt6::Core
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Widgets>
                       ${GDAL_LIBRARY} 

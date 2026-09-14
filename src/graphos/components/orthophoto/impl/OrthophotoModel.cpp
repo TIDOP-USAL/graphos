@@ -72,7 +72,6 @@ void OrthophotoModelImp::loadSettings()
         mParameters->setPropertyName(mSettings->value("ORTHOPHOTO/PropertyName", mParameters->propertyName()).toInt());
 
         */
-
     }
 }
 
@@ -87,7 +86,6 @@ void OrthophotoModelImp::saveSettings()
         mSettings->setValue("ORTHOPHOTO/PropertyName", mParameters->propertyName());
 
         */
-
     }
 }
 

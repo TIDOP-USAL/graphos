@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
  *                                                                      *
  *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
  *                                                                      *
@@ -85,424 +85,459 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
                         tl::Path &ortho_path,
                         double res_ortho,
                         const std::string &epsg,
-                        std::vector<std::vector<tl::BoundingBox2d>> &grid)
+                        std::vector<std::vector<tl::BoundingBox2d>> &grid,
+                        tl::DataType dataType,
+                        int channels)
 {
-    tl::BoundingBox2d window_all;
-    std::vector<std::string> compensated_orthos;
-    std::vector<std::string> ortho_seams;
-
-    tl::Message::info("Exposure compensator");
-
-    // Usar GAIN_BLOCKS que funciona mejor para mosaicos
-    int type = cv::detail::ExposureCompensator::GAIN_BLOCKS;
-    cv::Ptr<cv::detail::ExposureCompensator> compensator = cv::detail::ExposureCompensator::createDefault(type);
-
-    tl::VectorReader vector_reader(optimal_footprint_path);
-
-    if (!vector_reader.isOpen()) {
-        tl::Message::error("Cannot open vector reader");
-        return;
-    }
-
-    if (vector_reader.layersCount() < 1) {
-        tl::Message::error("No layers found in footprint");
-        vector_reader.close();
-        return;
-    }
-
-    std::shared_ptr<tl::GLayer> layer = vector_reader.read(0);
-
-    // Primera pasada: calcular ventana global completa
-    for (const auto &entity : *layer) {
-        if (entity->type() != tl::GraphicEntity::Type::polygon_2d) {
-            continue;
-        }
-        auto polygon = dynamic_cast<tl::GPolygon *>(entity.get());
-        window_all = tl::merge(window_all, polygon->window());
-    }
-
-    tl::Message::info("Global window: [{}, {}] - [{}, {}]",
-        window_all.min().x(), window_all.min().y(),
-        window_all.max().x(), window_all.max().y());
-
-    // Segunda pasada: procesar todas las imágenes
-    std::vector<std::string> all_orthos;
-    std::vector<tl::BoundingBox2d> all_windows;
-    std::vector<cv::Point> all_corners;
-    std::vector<cv::UMat> all_images_comp;
-    std::vector<cv::UMat> all_masks_comp;
-
-    for (const auto &entity : *layer) {
-        if (entity->type() != tl::GraphicEntity::Type::polygon_2d) continue;
-
-        auto polygon = dynamic_cast<tl::GPolygon *>(entity.get());
-        tl::TableRegister data = polygon->attributes();
-        std::string ortho_path_str = data.value(0);
-
-        try {
-            tl::RasterReader image_reader(ortho_path_str);
-            if (!image_reader.isOpen()) {
-                tl::Message::warning("Cannot open ortho image: {}", ortho_path_str);
-                continue;
-            }
-
-            // Leer imagen a escala reducida para compensación
-            cv::Mat image = image_reader.read(exposure_compensator_factor, exposure_compensator_factor);
-            if (image.empty()) {
-                tl::Message::warning("Empty image: {}", ortho_path_str);
-                image_reader.close();
-                continue;
-            }
-
-            // relleno de huecos (pocos pixeles)
-            cv::Mat blackPixelMask = createBlackPixelMask(image, 32);
-            cv::inpaint(image, blackPixelMask, image, 3, cv::INPAINT_TELEA);
-
-            double scale = image_reader.georeference().scale().x();
-            tl::BoundingBox2d window = polygon->window();
-
-            // Calcular esquina en coordenadas de la ventana global (CORREGIDO)
-            cv::Point corner;
-            corner.x = tl::roundToInteger((window.min().x() - window_all.min().x()) * exposure_compensator_factor / scale);
-            corner.y = tl::roundToInteger((window_all.max().y() - window.max().y()) * exposure_compensator_factor / scale);
-            tl::Message::info("Image {} corner: ({}, {})", ortho_path_str, corner.x, corner.y);
-
-            // Crear máscara
-            cv::Mat mask;
-            if (image.channels() == 1) {
-                cv::threshold(image, mask, 1, 255, cv::THRESH_BINARY);
-            } else {
-                cv::Mat gray;
-                cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-                cv::threshold(gray, mask, 1, 255, cv::THRESH_BINARY);
-            }
-
-            // Eliminar pequeños artefactos de la máscara
-            //cv::morphologyEx(mask, mask, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3)));
-            //cv::morphologyEx(mask, mask, cv::MORPH_ERODE, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(6, 6)));
-
-            cv::UMat umat_img, umat_mask;
-            image.copyTo(umat_img);
-            mask.copyTo(umat_mask);
-
-            all_orthos.push_back(ortho_path_str);
-            all_windows.push_back(window);
-            all_corners.push_back(corner);
-            all_images_comp.push_back(umat_img);
-            all_masks_comp.push_back(umat_mask);
-
-            image_reader.close();
-
-        } catch (std::exception &e) {
-            tl::Message::warning("Error processing {}: {}", ortho_path_str, e.what());
-            continue;
-        }
-    }
-
-    if (all_orthos.empty()) {
-        tl::Message::error("No valid orthos found");
-        vector_reader.close();
-        return;
-    }
-
-    // Aplicar compensación radiométrica
-    tl::Message::info("Applying exposure compensation to {} images", all_orthos.size());
-    compensator->feed(all_corners, all_images_comp, all_masks_comp);
-
-    // Preparar imágenes y mascaras para seam finding
-    std::vector<cv::UMat> all_images_seam;
-    for (size_t i = 0; i < all_images_comp.size(); ++i) {
-        cv::UMat img32f;
-        all_images_comp[i].convertTo(img32f, CV_32F, 1.0 / 255.0);
-        all_images_seam.push_back(img32f);
-
-        cv::morphologyEx(all_masks_comp[i], all_masks_comp[i], cv::MORPH_ERODE, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3)));
-    }
-
-    // Encontrar líneas de costura
-    tl::Message::info("Seam finding");
-    cv::Ptr<cv::detail::SeamFinder> seam_finder;
-
     try {
-        seam_finder = cv::makePtr<cv::detail::GraphCutSeamFinder>(cv::detail::GraphCutSeamFinder::COST_COLOR_GRAD);
-        seam_finder->find(all_images_seam, all_corners, all_masks_comp);
-    } catch (const cv::Exception &e) {
-        tl::Message::warning("GraphCut failed, using Voronoi: {}", e.what());
-        seam_finder = cv::makePtr<cv::detail::VoronoiSeamFinder>();
-        seam_finder->find(all_images_seam, all_corners, all_masks_comp);
-    }
+        tl::Message::info("Starting orthoMosaic function");
+        tl::Message::info("Input parameters - dataType: {}, channels: {}, res_ortho: {}", static_cast<int>(dataType), channels, res_ortho);
+        tl::Message::info("Optimal footprint path: {}", optimal_footprint_path.toString());
+        tl::Message::info("Grid size: {}x{}", grid.size(), grid.empty() ? 0 : grid[0].size());
 
-    // Aplicar compensación y guardar imágenes procesadas
-    for (size_t i = 0; i < all_orthos.size(); ++i) {
-        try {
-            tl::RasterReader image_reader_full(all_orthos[i]);
-            if (!image_reader_full.isOpen()) continue;
+        tl::BoundingBox2d window_all;
+        std::vector<std::string> compensated_orthos;
+        std::vector<std::string> ortho_seams;
 
-            cv::Mat full_img = image_reader_full.read();
-            if (full_img.empty()) {
-                image_reader_full.close();
+        tl::Message::info("Step 1: Exposure compensator initialization");
+
+        // Usar GAIN_BLOCKS que funciona mejor para mosaicos
+        int type = cv::detail::ExposureCompensator::GAIN_BLOCKS;
+        cv::Ptr<cv::detail::ExposureCompensator> compensator = cv::detail::ExposureCompensator::createDefault(type);
+
+        tl::Message::info("Step 2: Opening vector reader");
+        tl::VectorReader vector_reader(optimal_footprint_path);
+
+        if (!vector_reader.isOpen()) {
+            tl::Message::error("Cannot open vector reader");
+            return;
+        }
+
+        if (vector_reader.layersCount() < 1) {
+            tl::Message::error("No layers found in footprint");
+            vector_reader.close();
+            return;
+        }
+
+        tl::Message::info("Step 3: Reading layer");
+        std::shared_ptr<tl::GLayer> layer = vector_reader.read(0);
+        tl::Message::info("Layer read successfully, entities: {}", layer->size());
+
+        // Primera pasada: calcular ventana global completa
+        for (const auto &entity : *layer) {
+            if (entity->type() != tl::GraphicEntity::Type::polygon_2d) {
                 continue;
             }
-
-            // Calcular corner para resolución completa (CORREGIDO)
-            double scale_full = image_reader_full.georeference().scale().x();
-            //cv::Point corner_full;
-            //corner_full.x = tl::roundToInteger((all_windows[i].pt1.x - window_all.pt1.x) / scale_full);
-            //corner_full.y = tl::roundToInteger((window_all.pt2.y - all_windows[i].pt2.y) / scale_full);
-            cv::Point corner_full = all_corners[0] / exposure_compensator_factor;
-            tl::Message::info("Full res corner for {}: ({}, {})", all_orthos[i], corner_full.x, corner_full.y);
-
-            // Crear máscara para imagen completa
-            cv::Mat mask_full;
-            if (full_img.channels() == 1) {
-                cv::threshold(full_img, mask_full, 1, 255, cv::THRESH_BINARY);
-            } else {
-                cv::Mat gray;
-                cv::cvtColor(full_img, gray, cv::COLOR_BGR2GRAY);
-                cv::threshold(gray, mask_full, 1, 255, cv::THRESH_BINARY);
-            }
-
-            // Limpiar la máscara
-            //cv::morphologyEx(mask_full, mask_full, cv::MORPH_CLOSE,
-            //                 cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3)));
-
-
-
-            // Aplicar compensación
-            compensator->apply(static_cast<int>(i), corner_full, full_img, mask_full);
-
-            // Redimensionar máscara de seam a resolución completa
-            cv::Mat seam_mask_full;
-            if (!all_masks_comp[i].empty()) {
-                //cv::resize(all_masks_comp[i], seam_mask_full, full_img.size(), 0, 0, cv::INTER_NEAREST);
-                cv::resize(all_masks_comp[i], seam_mask_full, full_img.size(), 0, 0, cv::INTER_LINEAR);
-                cv::threshold(seam_mask_full, seam_mask_full, 1, 255, cv::THRESH_BINARY);
-                cv::morphologyEx(mask_full, mask_full, cv::MORPH_DILATE,
-                                 cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(6, 6))); // De 6 a 9 no mejora mucho
-            } else {
-                seam_mask_full = mask_full.clone();
-            }
-            //cv::Mat seam_mask_full;
-            //if (!all_masks_comp[i].empty()) {
-            //    cv::resize(all_masks_comp[i], seam_mask_full, full_img.size(), 0, 0, cv::INTER_NEAREST);
-
-            //    // Suavizar los bordes de la máscara de seam para evitar líneas duras
-            //    cv::Mat seam_mask_float;
-            //    seam_mask_full.convertTo(seam_mask_float, CV_32F, 1.0 / 255.0);
-
-            //    // Aplicar un pequeño blur para suavizar transiciones
-            //    cv::GaussianBlur(seam_mask_float, seam_mask_float, cv::Size(3, 3), 0.5);
-
-            //    // Volver a binario pero con transiciones suaves
-            //    seam_mask_float.convertTo(seam_mask_full, CV_8U, 255.0);
-            //} else {
-            //    seam_mask_full = mask_full.clone();
-            //}
-
-            // Combinar máscaras
-            cv::Mat final_mask = seam_mask_full & mask_full;
-
-            // Verificar que la imagen compensada no esté toda negra
-            double min_val, max_val;
-            cv::minMaxLoc(full_img, &min_val, &max_val);
-            if (max_val < 1.0) {
-                tl::Message::warning("Compensated image {} appears too dark (max value: {})", all_orthos[i], max_val);
-            }
-
-            // Guardar imagen compensada
-            tl::Path ortho_comp(all_orthos[i]);
-            std::string comp_name = ortho_comp.baseName().toString() + "_compensated.tif";
-            ortho_comp.replaceFileName(comp_name);
-
-            tl::RasterWriter writer_comp(ortho_comp);
-            if (writer_comp.isOpen()) {
-                writer_comp.create(image_reader_full.rows(), image_reader_full.cols(),
-                                   image_reader_full.channels(), image_reader_full.dataType());
-                writer_comp.setCRS(image_reader_full.crsWkt());
-                writer_comp.setGeoreference(image_reader_full.georeference());
-                writer_comp.write(full_img);
-                writer_comp.close();
-                compensated_orthos.push_back(ortho_comp.toString());
-                tl::Message::info("Saved compensated: {}", ortho_comp.toString());
-            }
-
-            // Guardar máscara
-            tl::Path seam_path(all_orthos[i]);
-            std::string seam_name = seam_path.baseName().toString() + "_seam.tif";
-            seam_path.replaceFileName(seam_name);
-
-            tl::RasterWriter writer_seam(seam_path.toString());
-            if (writer_seam.isOpen()) {
-                writer_seam.create(image_reader_full.rows(), image_reader_full.cols(), 1, tl::DataType::TL_8U);
-                writer_seam.setCRS(image_reader_full.crsWkt());
-                writer_seam.setGeoreference(image_reader_full.georeference());
-                writer_seam.write(final_mask);
-                writer_seam.close();
-                ortho_seams.push_back(seam_path.toString());
-                tl::Message::info("Saved seam mask: {}", seam_path.toString());
-            }
-
-            image_reader_full.close();
-
-        } catch (std::exception &e) {
-            tl::Message::warning("Error processing full resolution {}: {}", all_orthos[i], e.what());
+            auto polygon = dynamic_cast<tl::GPolygon *>(entity.get());
+            window_all = tl::merge(window_all, polygon->window());
         }
-    }
 
-    vector_reader.close();
+        tl::Message::info("Global window: [{}, {}] - [{}, {}]",
+            window_all.min().x(), window_all.min().y(),
+            window_all.max().x(), window_all.max().y());
 
-    // --- BLENDING MEJORADO ---
-    tl::Message::info("Starting blending with {} images", compensated_orthos.size());
+        // Segunda pasada: procesar todas las imágenes
+        std::vector<std::string> all_orthos;
+        std::vector<tl::BoundingBox2d> all_windows;
+        std::vector<cv::Point> all_corners;
+        std::vector<cv::UMat> all_images_comp;
+        std::vector<cv::UMat> all_masks_comp;
 
-    bool try_cuda = false;
-    int blender_type = cv::detail::Blender::FEATHER;
-    float blend_strength = 2.0f; // Aumentado para mejor transición
+        for (const auto &entity : *layer) {
+            if (entity->type() != tl::GraphicEntity::Type::polygon_2d) continue;
 
-    tl::RasterWriter image_writer(ortho_path);
+            auto polygon = dynamic_cast<tl::GPolygon *>(entity.get());
+            tl::TableRegister data = polygon->attributes();
+            std::string ortho_path_str = data.value(0);
 
-    int cols = static_cast<int>(std::round(window_all.width() / res_ortho));
-    int rows = static_cast<int>(std::round(window_all.height() / res_ortho));
-
-    if (image_writer.isOpen()) {
-        image_writer.create(rows, cols, 3, tl::DataType::TL_8U);
-        tl::Crs crs(epsg);
-        image_writer.setCRS(crs.toWktFormat());
-        tl::Affine<double, 2> affine_ortho(res_ortho, -res_ortho, window_all.min().x(), window_all.max().y(), 0.0);
-        image_writer.setGeoreference(affine_ortho);
-
-        for (size_t r = 0; r < grid.size(); ++r) {
-            for (size_t c = 0; c < grid[r].size(); ++c) {
-                tl::Message::info("Processing grid cell [{}, {}]", r, c);
-
-                cv::Ptr<cv::detail::Blender> blender = cv::detail::Blender::createDefault(blender_type, try_cuda);
-
-                int cols_grid = static_cast<int>(std::round(grid[r][c].width() / res_ortho));
-                int rows_grid = static_cast<int>(std::round(grid[r][c].height() / res_ortho));
-                cv::Rect rect(0, 0, cols_grid, rows_grid);
-
-                float blend_width = sqrt(static_cast<float>(rect.area())) * blend_strength / 100.f;
-
-                if (blend_width < 1.f) {
-                    blender = cv::detail::Blender::createDefault(cv::detail::Blender::NO, try_cuda);
-                } else if (blender_type == cv::detail::Blender::MULTI_BAND) {
-                    cv::detail::MultiBandBlender *multi_band_blender = dynamic_cast<cv::detail::MultiBandBlender *>(blender.get());
-                    //int num_bands = static_cast<int>(ceil(log(blend_width) / log(2.)) - 1.);
-                    //num_bands = std::max(1, std::min(5, num_bands)); // Limitar entre 1-5 bandas
-                    //multi_band_blender->setNumBands(num_bands);
-                    int num_bands = static_cast<int>(ceil(log(blend_width) / log(2.)) - 1.);
-                    tl::Message::info("Multi-band blender with {} bands", num_bands);
-                    multi_band_blender->setNumBands(num_bands);
-                } else if (blender_type == cv::detail::Blender::FEATHER) {
-                    cv::detail::FeatherBlender *feather_blender = dynamic_cast<cv::detail::FeatherBlender *>(blender.get());
-                    feather_blender->setSharpness(1.f / blend_width);
-                    // Reducir sharpness para transiciones más suaves
-                    //float sharpness = 1.f / (blend_width * 2.0f); // Más suave
-                    //feather_blender->setSharpness(sharpness);
+            try {
+                tl::RasterReader image_reader(ortho_path_str);
+                if (!image_reader.isOpen()) {
+                    tl::Message::warning("Cannot open ortho image: {}", ortho_path_str);
+                    continue;
                 }
 
-                blender->prepare(rect);
-
-                // Procesar todas las imágenes que intersectan con esta celda
-                for (size_t j = 0; j < compensated_orthos.size(); j++) {
-                    try {
-                        tl::RasterReader image_reader(compensated_orthos[j]);
-                        tl::RasterReader image_reader_seam(ortho_seams[j]);
-
-                        if (!image_reader.isOpen() || !image_reader_seam.isOpen()) {
-                            image_reader.close();
-                            image_reader_seam.close();
-                            continue;
-                        }
-
-                        if (!tl::intersects(image_reader.window(), grid[r][c])) {
-                            image_reader.close();
-                            image_reader_seam.close();
-                            continue;
-                        }
-
-                        auto georef = image_reader.georeference();
-                        double read_scale_x = georef.scale().x() / res_ortho;
-                        double read_scale_y = georef.scale().y() / res_ortho;
-
-                        // Leer imagen compensada
-                        tl::Affine<double, 2> affine;
-                        cv::Mat compensate_image = image_reader.read(grid[r][c], read_scale_x, read_scale_y, &affine);
-                        cv::Mat seam_image = image_reader_seam.read(grid[r][c], read_scale_x, read_scale_y);
-
-                        if (compensate_image.empty() || seam_image.empty()) {
-                            image_reader.close();
-                            image_reader_seam.close();
-                            continue;
-                        }
-
-                        // Asegurar que las máscaras sean binarias
-                        //cv::Mat seam_mask_binary;
-                        //cv::threshold(seam_image, seam_mask_binary, 128, 255, cv::THRESH_BINARY);
-
-                        // Convertir a 16S para el blender
-                        cv::Mat compensate_image_16s;
-                        compensate_image.convertTo(compensate_image_16s, CV_16S);
-                        compensate_image.release();
-
-                        cv::Rect rct = cv::Rect(tl::roundToInteger(affine.translation().x()),
-                                                tl::roundToInteger(affine.translation().y()),
-                                                compensate_image_16s.cols,
-                                                compensate_image_16s.rows);
-
-                        blender->feed(compensate_image_16s, seam_image, rct.tl());
-
-                        // Calcular posición en el mosaico
-                        //tl::Point2d cell_origin = grid[r][c].pt1;
-                        //tl::Point2d image_origin = image_reader->window().pt1;
-
-                        //int offset_x = static_cast<int>((image_origin.x - cell_origin.x) / res_ortho);
-                        //int offset_y = static_cast<int>((cell_origin.y - image_origin.y) / res_ortho);
-
-                        //cv::Rect rct(std::max(0, offset_x), std::max(0, offset_y),
-                        //    compensate_image_16s.cols, compensate_image_16s.rows);
-
-                        //if (rct.x < cols_grid && rct.y < rows_grid &&
-                        //    rct.width > 0 && rct.height > 0) {
-                        //    blender->feed(compensate_image_16s, seam_mask_binary, rct.tl());
-                        //}
-
-                        image_reader.close();
-                        image_reader_seam.close();
-
-                    } catch (std::exception &e) {
-                        tl::Message::warning("Error in blending for image {}: {}", compensated_orthos[j], e.what());
-                        continue;
-                    }
+                // Leer imagen a escala reducida para compensación
+                cv::Mat image = image_reader.read(exposure_compensator_factor, exposure_compensator_factor);
+                if (image.empty()) {
+                    tl::Message::warning("Empty image: {}", ortho_path_str);
+                    image_reader.close();
+                    continue;
                 }
 
-                // Realizar blending
-                cv::Mat ortho_blend, mask_blend;
-                blender->blend(ortho_blend, mask_blend);
+                // relleno de huecos (pocos pixeles)
+                cv::Mat blackPixelMask = createBlackPixelMask(image, 32);
+                cv::inpaint(image, blackPixelMask, image, 3, cv::INPAINT_TELEA);
 
-                if (!ortho_blend.empty()) {
-                    ortho_blend.convertTo(ortho_blend, CV_8U);
+                double scale = image_reader.georeference().scale().x();
+                tl::BoundingBox2d window = polygon->window();
 
-                    // Escribir en el mosaico final
-                    auto affine_ortho_inverse = affine_ortho.inverse();
-                    tl::Point2d pp1 = affine_ortho_inverse.transform(grid[r][c].min());
-                    tl::Point2d pp2 = affine_ortho_inverse.transform(grid[r][c].max());
-                    tl::BoundingBox2i window_to_write(static_cast<tl::Point2i>(pp1), static_cast<tl::Point2i>(pp2));
-                    window_to_write.normalized();
+                // Calcular esquina en coordenadas de la ventana global (CORREGIDO)
+                cv::Point corner;
+                corner.x = tl::roundToInteger((window.min().x() - window_all.min().x()) * exposure_compensator_factor / scale);
+                corner.y = tl::roundToInteger((window_all.max().y() - window.max().y()) * exposure_compensator_factor / scale);
+                tl::Message::info("Image {} corner: ({}, {})", ortho_path_str, corner.x, corner.y);
 
-                    if (window_to_write.isValid()) {
-
-                        cv::Mat blackPixelMask = createBlackPixelMask(ortho_blend, 1024);
-                        cv::inpaint(ortho_blend, blackPixelMask, ortho_blend, 3, cv::INPAINT_TELEA);
-
-                        image_writer.write(ortho_blend, window_to_write);
-                    }
+                // Crear máscara
+                cv::Mat mask;
+                if (image.channels() == 1) {
+                    cv::threshold(image, mask, 1, 255, cv::THRESH_BINARY);
+                } else {
+                    cv::Mat gray;
+                    cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+                    cv::threshold(gray, mask, 1, 255, cv::THRESH_BINARY);
                 }
 
+                // Eliminar pequeños artefactos de la máscara
+                //cv::morphologyEx(mask, mask, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3)));
+                //cv::morphologyEx(mask, mask, cv::MORPH_ERODE, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(6, 6)));
+
+                cv::UMat umat_img, umat_mask;
+                image.copyTo(umat_img);
+                mask.copyTo(umat_mask);
+
+                all_orthos.push_back(ortho_path_str);
+                all_windows.push_back(window);
+                all_corners.push_back(corner);
+                all_images_comp.push_back(umat_img);
+                all_masks_comp.push_back(umat_mask);
+
+                image_reader.close();
+
+            } catch (std::exception &e) {
+                tl::Message::warning("Error processing {}: {}", ortho_path_str, e.what());
+                continue;
             }
         }
 
-        image_writer.close();
-        tl::Message::info("Mosaic completed: {}", ortho_path.toString());
+        if (all_orthos.empty()) {
+            tl::Message::error("No valid orthos found");
+            vector_reader.close();
+            return;
+        }
+
+        // Aplicar compensación radiométrica
+        tl::Message::info("Applying exposure compensation to {} images", all_orthos.size());
+        compensator->feed(all_corners, all_images_comp, all_masks_comp);
+
+        // Preparar imágenes y mascaras para seam finding
+        std::vector<cv::UMat> all_images_seam;
+        for (size_t i = 0; i < all_images_comp.size(); ++i) {
+            cv::UMat img32f;
+            all_images_comp[i].convertTo(img32f, CV_32F, 1.0 / 255.0);
+            all_images_seam.push_back(img32f);
+
+            cv::morphologyEx(all_masks_comp[i], all_masks_comp[i], cv::MORPH_ERODE, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3)));
+        }
+
+        // Encontrar líneas de costura
+        tl::Message::info("Seam finding");
+        cv::Ptr<cv::detail::SeamFinder> seam_finder;
+
+        try {
+            seam_finder = cv::makePtr<cv::detail::GraphCutSeamFinder>(cv::detail::GraphCutSeamFinder::COST_COLOR_GRAD);
+            // Lo he cambiado a lo sigueinte para probar pero sigue sacando un mal resultado así que no tiene que ver:
+            //seam_finder = cv::makePtr<cv::detail::DpSeamFinder>(cv::detail::DpSeamFinder::COLOR_GRAD);
+            seam_finder->find(all_images_seam, all_corners, all_masks_comp);
+        } catch (const cv::Exception &e) {
+            tl::Message::warning("GraphCut failed, using Voronoi: {}", e.what());
+            seam_finder = cv::makePtr<cv::detail::VoronoiSeamFinder>();
+            seam_finder->find(all_images_seam, all_corners, all_masks_comp);
+        }
+
+        // Aplicar compensación y guardar imágenes procesadas
+        for (size_t i = 0; i < all_orthos.size(); ++i) {
+            try {
+                tl::RasterReader image_reader_full(all_orthos[i]);
+                if (!image_reader_full.isOpen()) continue;
+
+                cv::Mat full_img = image_reader_full.read();
+                if (full_img.empty()) {
+                    image_reader_full.close();
+                    continue;
+                }
+
+                // Calcular corner para resolución completa (CORREGIDO)
+                double scale_full = image_reader_full.georeference().scale().x();
+                //cv::Point corner_full;
+                //corner_full.x = tl::roundToInteger((all_windows[i].pt1.x - window_all.pt1.x) / scale_full);
+                //corner_full.y = tl::roundToInteger((window_all.pt2.y - all_windows[i].pt2.y) / scale_full);
+                cv::Point corner_full = all_corners[0] / exposure_compensator_factor;
+                tl::Message::info("Full res corner for {}: ({}, {})", all_orthos[i], corner_full.x, corner_full.y);
+
+                // Crear máscara para imagen completa
+                cv::Mat mask_full;
+                if (full_img.channels() == 1) {
+                    cv::threshold(full_img, mask_full, 1, 255, cv::THRESH_BINARY);
+                } else {
+                    cv::Mat gray;
+                    cv::cvtColor(full_img, gray, cv::COLOR_BGR2GRAY);
+                    cv::threshold(gray, mask_full, 1, 255, cv::THRESH_BINARY);
+                }
+
+                // Limpiar la máscara
+                //cv::morphologyEx(mask_full, mask_full, cv::MORPH_CLOSE,
+                //                 cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3)));
+
+
+
+                // Aplicar compensación
+                compensator->apply(static_cast<int>(i), corner_full, full_img, mask_full);
+
+                // Redimensionar máscara de seam a resolución completa
+                cv::Mat seam_mask_full;
+                if (!all_masks_comp[i].empty()) {
+                    //cv::resize(all_masks_comp[i], seam_mask_full, full_img.size(), 0, 0, cv::INTER_NEAREST);
+                    cv::resize(all_masks_comp[i], seam_mask_full, full_img.size(), 0, 0, cv::INTER_LINEAR);
+                    cv::threshold(seam_mask_full, seam_mask_full, 1, 255, cv::THRESH_BINARY);
+                    cv::morphologyEx(mask_full, mask_full, cv::MORPH_DILATE,
+                    cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(6, 6))); // De 6 a 9 no mejora mucho
+                } else {
+                    seam_mask_full = mask_full.clone();
+                }
+                //cv::Mat seam_mask_full;
+                //if (!all_masks_comp[i].empty()) {
+                //    cv::resize(all_masks_comp[i], seam_mask_full, full_img.size(), 0, 0, cv::INTER_NEAREST);
+
+                //    // Suavizar los bordes de la máscara de seam para evitar líneas duras
+                //    cv::Mat seam_mask_float;
+                //    seam_mask_full.convertTo(seam_mask_float, CV_32F, 1.0 / 255.0);
+
+                //    // Aplicar un pequeño blur para suavizar transiciones
+                //    cv::GaussianBlur(seam_mask_float, seam_mask_float, cv::Size(3, 3), 0.5);
+
+                //    // Volver a binario pero con transiciones suaves
+                //    seam_mask_float.convertTo(seam_mask_full, CV_8U, 255.0);
+                //} else {
+                //    seam_mask_full = mask_full.clone();
+                //}
+
+                // Combinar máscaras
+                cv::Mat final_mask = seam_mask_full & mask_full;
+
+                // Verificar que la imagen compensada no esté toda negra
+                double min_val, max_val;
+                cv::minMaxLoc(full_img, &min_val, &max_val);
+                if (max_val < 1.0) {
+                    tl::Message::warning("Compensated image {} appears too dark (max value: {})", all_orthos[i], max_val);
+                }
+
+                // Guardar imagen compensada
+                tl::Path ortho_comp(all_orthos[i]);
+                std::string comp_name = ortho_comp.baseName().toString() + "_compensated.tif";
+                ortho_comp.replaceFileName(comp_name);
+
+                tl::RasterWriter writer_comp(ortho_comp);
+                if (writer_comp.isOpen()) {
+                    writer_comp.create(image_reader_full.rows(), image_reader_full.cols(),
+                        image_reader_full.channels(), image_reader_full.dataType());
+                    writer_comp.setCRS(image_reader_full.crsWkt());
+                    writer_comp.setGeoreference(image_reader_full.georeference());
+                    writer_comp.write(full_img);
+                    writer_comp.close();
+                    compensated_orthos.push_back(ortho_comp.toString());
+                    tl::Message::info("Saved compensated: {}", ortho_comp.toString());
+                }
+
+                // Guardar máscara
+                tl::Path seam_path(all_orthos[i]);
+                std::string seam_name = seam_path.baseName().toString() + "_seam.tif";
+                seam_path.replaceFileName(seam_name);
+
+                tl::RasterWriter writer_seam(seam_path.toString());
+                if (writer_seam.isOpen()) {
+                    writer_seam.create(image_reader_full.rows(), image_reader_full.cols(), 1, tl::DataType::TL_8U);
+                    writer_seam.setCRS(image_reader_full.crsWkt());
+                    writer_seam.setGeoreference(image_reader_full.georeference());
+                    writer_seam.write(final_mask);
+                    writer_seam.close();
+                    ortho_seams.push_back(seam_path.toString());
+                    tl::Message::info("Saved seam mask: {}", seam_path.toString());
+                }
+
+                image_reader_full.close();
+
+            } catch (std::exception &e) {
+                tl::Message::warning("Error processing full resolution {}: {}", all_orthos[i], e.what());
+            }
+        }
+
+        vector_reader.close();
+
+        // --- BLENDING MEJORADO ---
+        tl::Message::info("Starting blending with {} images", compensated_orthos.size());
+
+        bool try_cuda = false;
+        // Esta dando error y no se si es por usar FEATHER
+        int blender_type = cv::detail::Blender::MULTI_BAND; //cv::detail::Blender::FEATHER;
+        float blend_strength = 5.f; // 2.0f; // Aumentado para mejor transición
+
+        tl::RasterWriter image_writer(ortho_path);
+
+        int cols = static_cast<int>(std::round(window_all.width() / res_ortho));
+        int rows = static_cast<int>(std::round(window_all.height() / res_ortho));
+
+        if (image_writer.isOpen()) {
+            image_writer.create(rows, cols, channels, dataType);
+            tl::Crs crs(epsg);
+            image_writer.setCRS(crs.toWktFormat());
+            tl::Affine<double, 2> affine_ortho(res_ortho, -res_ortho, window_all.min().x(), window_all.max().y(), 0.0);
+            image_writer.setGeoreference(affine_ortho);
+
+            for (size_t r = 0; r < grid.size(); ++r) {
+                for (size_t c = 0; c < grid[r].size(); ++c) {
+                    tl::Message::info("Processing grid cell [{}, {}]", r, c);
+
+                    cv::Ptr<cv::detail::Blender> blender = cv::detail::Blender::createDefault(blender_type, try_cuda);
+
+                    int cols_grid = static_cast<int>(std::round(grid[r][c].width() / res_ortho));
+                    int rows_grid = static_cast<int>(std::round(grid[r][c].height() / res_ortho));
+                    cv::Rect rect(0, 0, cols_grid, rows_grid);
+
+                    float blend_width = sqrt(static_cast<float>(rect.area())) * blend_strength / 100.f;
+
+                    if (blend_width < 1.f) {
+                        blender = cv::detail::Blender::createDefault(cv::detail::Blender::NO, try_cuda);
+                    } else if (blender_type == cv::detail::Blender::MULTI_BAND) {
+                        cv::detail::MultiBandBlender *multi_band_blender = dynamic_cast<cv::detail::MultiBandBlender *>(blender.get());
+                        int num_bands = static_cast<int>(ceil(log(blend_width) / log(2.)) - 1.);
+                        num_bands = std::max(1, std::min(5, num_bands)); // Limitar entre 1-5 bandas
+                        tl::Message::info("Multi-band blender with {} bands", num_bands);
+                        multi_band_blender->setNumBands(4/*num_bands*/);
+                    } else if (blender_type == cv::detail::Blender::FEATHER) {
+                        cv::detail::FeatherBlender *feather_blender = dynamic_cast<cv::detail::FeatherBlender *>(blender.get());
+                        feather_blender->setSharpness(1.f / blend_width);
+                        // Reducir sharpness para transiciones más suaves
+                        //float sharpness = 1.f / (blend_width * 2.0f); // Más suave
+                        //feather_blender->setSharpness(sharpness);
+                    }
+
+                    blender->prepare(rect);
+
+                    // Procesar todas las imágenes que intersectan con esta celda
+                    for (size_t j = 0; j < compensated_orthos.size(); j++) {
+                        try {
+                            tl::RasterReader image_reader(compensated_orthos[j]);
+                            tl::RasterReader image_reader_seam(ortho_seams[j]);
+
+                            if (!image_reader.isOpen() || !image_reader_seam.isOpen()) {
+                                //image_reader.close();
+                                //image_reader_seam.close();
+                                continue;
+                            }
+
+                            if (!tl::intersects(image_reader.window(), grid[r][c])) {
+                                //image_reader.close();
+                                //image_reader_seam.close();
+                                continue;
+                            }
+
+                            auto georef = image_reader.georeference();
+                            double read_scale_x = georef.scale().x() / res_ortho;
+                            double read_scale_y = georef.scale().y() / res_ortho;
+
+                            // Leer imagen compensada
+                            tl::Affine<double, 2> affine;
+                            cv::Mat compensate_image = image_reader.read(grid[r][c], read_scale_x, read_scale_y, &affine);
+                            cv::Mat seam_image = image_reader_seam.read(grid[r][c], read_scale_x, read_scale_y);
+
+                            if (compensate_image.empty() || seam_image.empty()) {
+                                image_reader.close();
+                                image_reader_seam.close();
+                                continue;
+                            }
+
+                            // Asegurar que las máscaras sean binarias
+                            //cv::Mat seam_mask_binary;
+                            //cv::threshold(seam_image, seam_mask_binary, 128, 255, cv::THRESH_BINARY);
+
+                            // Convertir a 16S para el blender (OpenCV blender requiere CV_16S)
+                            cv::Mat compensate_image_16s;
+                            if (compensate_image.depth() == CV_8U) {
+                                compensate_image.convertTo(compensate_image_16s, CV_16S);
+                            } else if (compensate_image.depth() == CV_16U) {
+                                compensate_image.convertTo(compensate_image_16s, CV_16S);
+                            } else if (compensate_image.depth() == CV_32F) {
+                                compensate_image.convertTo(compensate_image_16s, CV_16S, 255.0);
+                            } else {
+                                compensate_image.convertTo(compensate_image_16s, CV_16S);
+                            }
+                            compensate_image.release();
+
+                            cv::Rect rct = cv::Rect(tl::roundToInteger(affine.translation().x()),
+                                tl::roundToInteger(affine.translation().y()),
+                                compensate_image_16s.cols,
+                                compensate_image_16s.rows);
+
+                            blender->feed(compensate_image_16s, seam_image, rct.tl());
+
+                            // Calcular posición en el mosaico
+                            //tl::Point2d cell_origin = grid[r][c].pt1;
+                            //tl::Point2d image_origin = image_reader->window().pt1;
+
+                            //int offset_x = static_cast<int>((image_origin.x - cell_origin.x) / res_ortho);
+                            //int offset_y = static_cast<int>((cell_origin.y - image_origin.y) / res_ortho);
+
+                            //cv::Rect rct(std::max(0, offset_x), std::max(0, offset_y),
+                            //    compensate_image_16s.cols, compensate_image_16s.rows);
+
+                            //if (rct.x < cols_grid && rct.y < rows_grid &&
+                            //    rct.width > 0 && rct.height > 0) {
+                            //    blender->feed(compensate_image_16s, seam_mask_binary, rct.tl());
+                            //}
+
+                            image_reader.close();
+                            image_reader_seam.close();
+
+                        } catch (std::exception &e) {
+                            tl::Message::warning("Error in blending for image {}: {}", compensated_orthos[j], e.what());
+                            continue;
+                        }
+                    }
+
+                    // Realizar blending
+                    cv::Mat ortho_blend, mask_blend;
+                    blender->blend(ortho_blend, mask_blend);
+
+                    if (!ortho_blend.empty()) {
+                        // Convertir al tipo de datos correcto
+                        cv::Mat ortho_blend_output;
+                        if (dataType == tl::DataType::TL_8U) {
+                            ortho_blend.convertTo(ortho_blend_output, CV_8U);
+                        } else if (dataType == tl::DataType::TL_16U) {
+                            ortho_blend.convertTo(ortho_blend_output, CV_16U, 255.0);
+                        } else if (dataType == tl::DataType::TL_32F) {
+                            ortho_blend.convertTo(ortho_blend_output, CV_32F, 1.0 / 255.0);
+                        } else {
+                            ortho_blend.convertTo(ortho_blend_output, CV_8U);
+                        }
+
+                        // Escribir en el mosaico final
+                        auto affine_ortho_inverse = affine_ortho.inverse();
+                        tl::Point2d pp1 = affine_ortho_inverse.transform(grid[r][c].min());
+                        tl::Point2d pp2 = affine_ortho_inverse.transform(grid[r][c].max());
+                        tl::BoundingBox2i window_to_write(static_cast<tl::Point2i>(pp1), static_cast<tl::Point2i>(pp2));
+                        window_to_write.normalized();
+
+                        if (window_to_write.isValid()) {
+
+                            cv::Mat blackPixelMask = createBlackPixelMask(ortho_blend_output, 1024);
+                            cv::inpaint(ortho_blend_output, blackPixelMask, ortho_blend_output, 3, cv::INPAINT_TELEA);
+
+                            image_writer.write(ortho_blend_output, window_to_write);
+                        }
+                    }
+
+                }
+            }
+
+            image_writer.close();
+            tl::Message::info("Mosaic completed: {}", ortho_path.toString());
+        }
+    } catch (std::exception &e) {
+        tl::Message::error("Error in orthoMosaic: {}", e.what());
+        tl::printException(e);
+        throw;
     }
 }
 
@@ -776,6 +811,7 @@ static float ciede2000(const cv::Vec3f &lab1, const cv::Vec3f &lab2)
     return std::sqrt(val);
 }
 
+//TODO: Permitir trabajar con distintos espacios de color para comparar los resultados y ver cuál es más eficiente y preciso para la combinación de imágenes.
 static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
                                   const std::vector<cv::Point2f> &centers,
                                   float weight_color = 0.3f,
@@ -1061,6 +1097,14 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
     return final_img;
 }
 
+auto robustLocalBlendigRGB(const std::vector<cv::Mat> &images,
+                           const std::vector<cv::Point2f> &centers,
+                           float weight_color = 0.3f,
+                           float weight_distance = 0.7f) -> cv::Mat
+{
+    return cv::Mat();
+}
+
 static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images_,
                                       //const std::vector<double> &distances,
                                       const std::vector<cv::Point2f> &centers,
@@ -1344,7 +1388,8 @@ OrthophotoTask::OrthophotoTask(std::unordered_map<size_t, Image> images,
                                std::string epsg, 
                                std::string interpolation, 
                                double resolution, 
-                               bool cuda)
+                               bool cuda,
+                               std::string method)
   : tl::Task(),
     mImages(std::move(images)),
     mCameras(std::move(cameras)),
@@ -1357,7 +1402,7 @@ OrthophotoTask::OrthophotoTask(std::unordered_map<size_t, Image> images,
     bCuda(cuda),
     mDataType(tl::DataType::TL_8U),
     mChannels(3),
-    mMethod("Robust Local Blending")
+    mMethod(std::move(method))
 {
 }
 
@@ -1495,12 +1540,14 @@ void OrthophotoTask::execute(tl::Progress *progressBar, std::stop_token stopToke
 //#endif
         
         if (mMethod == "Robust Local Blending") {
+            tl::Message::info("Generating orthophoto tiles with Robust Local Blending method");
             auto orthos = searchTiles(graph_orthos, grid/*, 10*/);
 
             generateTiles(grid, orthos, progressBar);
             writeOrthomosaic(grid);
         } else {
-            orthoMosaic(graph_orthos, mOrthoPath, mGSD, mEpsg, grid);
+            tl::Message::info("Generating orthophoto tiles with Mosaic method");
+            orthoMosaic(graph_orthos, mOrthoPath, mGSD, mEpsg, grid, mDataType, mChannels);
         }
 
         tl::Path::removeDirectory(temp_path);

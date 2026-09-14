@@ -28,6 +28,10 @@
 #include "graphos/components/settings/impl/SettingsPresenter.h"
 #include "graphos/widgets/settings/FeatViewerSettingsWidget.h"
 #include "graphos/widgets/settings/MatchViewerSettingsWidget.h"
+#include "graphos/core/AppStatus.h"
+#include "graphos/framework/app/Application.h"
+
+#include <tidop/core/base/Exception.h>
 
 #include <QAction>
 #include <QString>

@@ -47,6 +47,7 @@ public:
 
     virtual auto crs() const -> QString = 0;
     virtual auto interpolation() const -> QString = 0;
+    virtual auto method() const -> QString = 0;
 
 public slots:
 
@@ -58,6 +59,7 @@ public slots:
 
     virtual void setCrs(const QString &crs) = 0;
     virtual void setInterpolation(const QString &interpolation) = 0;
+    virtual void setMethod(const QString &method) = 0;
 
 signals:
 
