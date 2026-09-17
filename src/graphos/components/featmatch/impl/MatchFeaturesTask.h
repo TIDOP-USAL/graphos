@@ -49,7 +49,7 @@ public:
 
     MatchFeaturesTask(tl::Path database,
                       bool cuda,
-                      const std::shared_ptr<MatchingProperties> &featureMatching);
+                      std::shared_ptr<MatchingProperties> featureMatching);
     ~MatchFeaturesTask() override;
 
 public:

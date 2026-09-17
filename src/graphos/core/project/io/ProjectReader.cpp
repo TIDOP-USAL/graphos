@@ -59,6 +59,10 @@ auto streamToStdString(QXmlStreamReader &stream) -> std::string
     return stream.readElementText().toStdString();
 }
 
+auto streamToPath(QXmlStreamReader &stream) -> tl::Path
+{
+    return tl::Path(stream.readElementText().toStdString());
+}
 
 void readPriorCalibration(QXmlStreamReader &stream, Camera &camera)
 {
@@ -496,7 +500,7 @@ void ProjectReader::readImages(QXmlStreamReader &stream, ImageRepository &imageR
                 auto tag = stream.name();
 
                 if (tag == "File") {
-                    img.setPath(streamToStdString(stream));
+                    img.setPath(streamToPath(stream));
                 } else if (tag == "CameraId") {
                     img.setCameraId(streamToInt(stream));
                 } else if (tag == "CameraPosition") {
@@ -593,11 +597,11 @@ void ProjectReader::readOrientation(QXmlStreamReader &stream, Project &project)
             project.setOrientationConfig(config);
 
         } else if (stream.name() == "SparseModel") {
-            project.setSparseModel(streamToStdString(stream));
+            project.setSparseModel(streamToPath(stream));
         } else if (stream.name() == "GroundPoints") {
-            project.setGroundPoints(streamToStdString(stream));
+            project.setGroundPoints(streamToPath(stream));
         } else if (stream.name() == "CameraPoses") {
-            project.setCameraPosesFile(streamToStdString(stream));
+            project.setCameraPosesFile(streamToPath(stream));
         } else if (stream.name() == "Report") {
 
             OrientationReport report;
@@ -655,7 +659,7 @@ void ProjectReader::readDensification(QXmlStreamReader &stream, Project &project
             project.setDensificationConfig(config);
 
         } else if (stream.name() == "DenseModel") {
-            project.setDenseModel(streamToStdString(stream));
+            project.setDenseModel(streamToPath(stream));
         } else if (stream.name() == "Report") {
 
             DensificationReport report;
@@ -698,7 +702,7 @@ void ProjectReader::readMesh(QXmlStreamReader &stream, Project &project)
             project.setMeshConfig(config);
 
         } else if (stream.name() == "MeshModel") {
-            project.setMeshModel(streamToStdString(stream));
+            project.setMeshModel(streamToPath(stream));
         } else if (stream.name() == "Report") {
 
             MeshReport report;
@@ -735,11 +739,11 @@ void ProjectReader::readDem(QXmlStreamReader &stream, Project &project)
             project.setDemConfig(config);
 
         } else if (stream.name() == "Dtm") {
-            project.setDtm(streamToStdString(stream));
+            project.setDtm(streamToPath(stream));
         } else if (stream.name() == "Dsm") {
-            project.setDsm(streamToStdString(stream));
+            project.setDsm(streamToPath(stream));
         } else if (stream.name() == "DsmEnu") {
-            project.setDsmEnu(streamToStdString(stream));
+            project.setDsmEnu(streamToPath(stream));
         } else if (stream.name() == "Report") {
 
             DemReport report;
@@ -784,7 +788,7 @@ void ProjectReader::readOrtho(QXmlStreamReader &stream, Project &project)
             project.setOrthoConfig(config);
 
         } else if (stream.name() == "Path") {
-            project.setOrthophoto(streamToStdString(stream));
+            project.setOrthophoto(streamToPath(stream));
         } else if (stream.name() == "Report") {
 
             OrthophotoReport report;

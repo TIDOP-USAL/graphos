@@ -39,8 +39,8 @@ UndistortImagesCommand::UndistortImagesCommand()
   : Command("undistort", "Undistort images"),
     mDisableCuda(false)
 {
-    this->addArgument<std::string>("prj", 'p', "Project file");
-    this->addArgument<std::string>("output_path", 'o', "Output directory for undistorted images.");
+    this->addArgument<tl::Path>("prj", 'p', "Project file");
+    this->addArgument<tl::Path>("output_path", 'o', "Output directory for undistorted images.");
 
 #ifdef HAVE_CUDA
     tl::Message::pauseMessages();
@@ -68,14 +68,14 @@ bool UndistortImagesCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<std::string>("prj");
-        tl::Path output_path = this->value<std::string>("output_path");
+        tl::Path project_path = this->value<tl::Path>("prj");
+        tl::Path output_path = this->value<tl::Path>("output_path");
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
-        log.open(log_path.toString());
+        log.open(log_path);
 
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");

@@ -66,7 +66,7 @@ void OpenProjectPresenterImp::setProjectFile(const QString &file)
         }
 
         mModel->clear();
-        mModel->loadProject(file.toStdWString());
+        mModel->loadProject(tl::Path(file.toStdWString()));
 
         emit project_loaded();
     }

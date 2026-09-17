@@ -29,6 +29,8 @@
 #include "graphos/core/camera/CameraRepository.h"
 #include "graphos/core/orientation/CameraPose.h"
 
+#include <unordered_set>
+
 #include <QImage>
 
 class QSettings;
@@ -59,6 +61,7 @@ public:
     auto features() const -> const FeaturesRepository &;
     auto matches() const -> const MatchingRepository &;
     auto imagePairs(size_t imageId) const -> std::vector<size_t>;
+    auto imageIdsWithPairs() const -> std::unordered_set<size_t>;
 
     auto sparseModel() const -> tl::Path;
     auto isAbsoluteOrientation() const -> bool;

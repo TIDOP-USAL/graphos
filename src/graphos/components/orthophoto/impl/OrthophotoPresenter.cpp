@@ -205,7 +205,7 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
     //}
 
 
-
+    TL_TODO("Mover a la tarea. Con muchas imágenes tarda mucho y parece que se ha colgado el programa")
     auto undistorted_cameras = undistortedCameras(cameras);
     auto undistorted_images = undistortedImages(images, undistort_path);
 

@@ -43,11 +43,11 @@ namespace graphos
 
 
 MatchFeaturesTask::MatchFeaturesTask(tl::Path database,
-                                         bool cuda,
-                                         const std::shared_ptr<MatchingProperties> &featureMatching)
+                                     bool cuda,
+                                     std::shared_ptr<MatchingProperties> featureMatching)
   : mDatabase(std::move(database)),
     bUseCuda(cuda),
-    mFeatureMatching(featureMatching)
+    mFeatureMatching(std::move(featureMatching))
 {
 }
 

@@ -126,7 +126,9 @@ EstimatePosesTask::EstimatePosesTask(tl::Path database,
         auto adjusted_calibration = camera.calibration();
         auto prior_calibration = camera.priorCalibration();
 
-        if (adjusted_calibration == nullptr && prior_calibration == nullptr) {
+        if (adjusted_calibration == nullptr && 
+            prior_calibration == nullptr &&
+            camera.focal() <= 0.) {
             continue;
         }
 
@@ -165,6 +167,7 @@ EstimatePosesTask::EstimatePosesTask(tl::Path database,
                 focal_lenght = 1.2 * std::max(width, height);
                 camera_colmap.has_prior_focal_length = false;
             }
+
             camera_colmap.SetFocalLength(focal_lenght);
             camera_colmap.width = width;
             camera_colmap.height = height;
@@ -248,6 +251,10 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
             tl::Message::info("Starting Global SfM Pipeline...");
 
             colmap::GlobalPipelineOptions options;
+            options.mapper.bundle_adjustment.refine_focal_length = !mOptions.isEnabled(Options::fix_calibration);
+            options.mapper.bundle_adjustment.refine_principal_point = false;
+            options.mapper.bundle_adjustment.refine_extra_params = !mOptions.isEnabled(Options::fix_calibration);
+
             mMapper = new colmap::GlobalPipeline(options, database, reconstruction_manager);
 
         } else {
@@ -361,6 +368,7 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
         std::shared_ptr<colmap::Reconstruction> reconstruction = reconstruction_manager->Get(0);
         const std::vector<colmap::image_t> &reg_image_ids = reconstruction->RegImageIds();
 
+        TL_ASSERT(reconstruction->IsValid(), "Invalid reconstruction");
         TL_ASSERT(reg_image_ids.size() >= 2, "Need at least two registered views.");
 
         // Limpieza básica de observaciones inválidas

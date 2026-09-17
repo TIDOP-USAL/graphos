@@ -166,6 +166,58 @@ auto MatchingRepository::imagePairs(const std::string &imageName) const -> std::
     return pairedImageNames;
 }
 
+auto MatchingRepository::hasImagePairs(const std::string &imageName) const -> bool
+{
+    if (mDbPath.empty() || !mDbPath.exists()) return false;
+
+    auto database = colmap::Database::Open(mDbPath.toUtf8());
+    const auto image = database->ReadImageWithName(imageName);
+    if (!image) return false;
+
+    const colmap::image_t imageId = image->ImageId();
+    for (const auto &[pairId, numInliers] : database->ReadTwoViewGeometryNumInliers()) {
+        if (numInliers <= 0) continue;
+
+        const auto [imageId1, imageId2] = colmap::PairIdToImagePair(pairId);
+        if (imageId1 == imageId || imageId2 == imageId) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+auto MatchingRepository::imageNamesWithPairs() const -> std::unordered_set<std::string>
+{
+    std::unordered_set<std::string> imageNames;
+
+    if (mDbPath.empty() || !mDbPath.exists()) return imageNames;
+
+    auto database = colmap::Database::Open(mDbPath.toUtf8());
+    const auto images = database->ReadAllImages();
+    const auto geometries = database->ReadTwoViewGeometryNumInliers();
+
+    std::unordered_map<colmap::image_t, std::string> imageNamesById;
+    imageNamesById.reserve(images.size());
+    for (const auto &image : images) {
+        imageNamesById.emplace(image.ImageId(), image.Name());
+    }
+
+    for (const auto &[pairId, numInliers] : geometries) {
+        if (numInliers <= 0) continue;
+
+        const auto [imageId1, imageId2] = colmap::PairIdToImagePair(pairId);
+        if (const auto image = imageNamesById.find(imageId1); image != imageNamesById.end()) {
+            imageNames.insert(image->second);
+        }
+        if (const auto image = imageNamesById.find(imageId2); image != imageNamesById.end()) {
+            imageNames.insert(image->second);
+        }
+    }
+
+    return imageNames;
+}
+
 void MatchingRepository::clear()
 {
     mDbPath.clear();

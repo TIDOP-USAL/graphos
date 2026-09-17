@@ -52,11 +52,6 @@
 #include <QApplication>
 #include <QSettings>
 
-//#include <CCGeom.h>
-//#include <ccHObjectCaster.h>
-//#include <ccPointCloud.h>
-//#include <ccGenericMesh.h>
-
 namespace graphos
 {
 
@@ -287,12 +282,12 @@ void MainWindowPresenter::updateMatches()
     Application &app = Application::instance();
 
     app.status()->activeFlag(AppStatus::Flag::feature_matching, mModel->matches().hasMatches());
+    const auto image_ids_with_pairs = mModel->imageIdsWithPairs();
 
     for (const auto &image : mModel->images()) {
 
         size_t image_left_id = image.first;
-        std::vector<size_t> pairs = mModel->imagePairs(image_left_id);
-        if (!pairs.empty()) {
+        if (image_ids_with_pairs.find(image_left_id) != image_ids_with_pairs.end()) {
             mView->addMatches(image_left_id);
         } else {
             mView->deleteMatches(image_left_id);
@@ -500,7 +495,6 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
         QApplication::processEvents();
         viewer3D->loadFromFile(model3D);
         viewer3D->setGlobalZoom();
-        viewer3D->setBackgroundColor(QColor(50, 50, 50));
 
         AppStatus *status = Application::instance().status();
         status->activeFlag(AppStatus::Flag::tab_image_active, false);

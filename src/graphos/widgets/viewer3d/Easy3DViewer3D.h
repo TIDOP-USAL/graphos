@@ -44,6 +44,7 @@
 namespace easy3d
 {
 class TrianglesDrawable;
+class LinesDrawable;
 }
 
 namespace graphos
@@ -194,7 +195,10 @@ private:
     Qt::MouseButton mPressedButton;
     QColor mBackgroundColor;
     bool edl_enabled_;
+
     easy3d::TrianglesDrawable *mDrawableAxes;
+    easy3d::LinesDrawable *mDrawableManipSphere;
+    bool mShowManipSphere;
 
 };
 

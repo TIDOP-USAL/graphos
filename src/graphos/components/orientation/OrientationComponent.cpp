@@ -98,7 +98,8 @@ void OrientationComponent::update()
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
     bool oriented_active = app_status->isEnabled(AppStatus::Flag::project_exists) &&
-                           app_status->isEnabled(AppStatus::Flag::feature_matching) &&
+                           (app_status->isEnabled(AppStatus::Flag::feature_matching) ||
+                            app_status->isEnabled(AppStatus::Flag::oriented)) &&
                           !app_status->isEnabled(AppStatus::Flag::processing);
 
     action()->setEnabled(oriented_active);

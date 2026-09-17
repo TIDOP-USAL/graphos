@@ -181,6 +181,20 @@ auto MainWindowModel::imagePairs(size_t imageId) const -> std::vector<size_t>
     return pairs;
 }
 
+auto MainWindowModel::imageIdsWithPairs() const -> std::unordered_set<size_t>
+{
+    std::unordered_set<size_t> imageIds;
+    const auto imageNames = mProject->matches().imageNamesWithPairs();
+
+    for (const auto &[imageId, image] : mProject->images()) {
+        if (imageNames.find(image.path().toString()) != imageNames.end()) {
+            imageIds.insert(imageId);
+        }
+    }
+
+    return imageIds;
+}
+
 auto MainWindowModel::sparseModel() const -> tl::Path
 {
     return mProject->sparseModel();
@@ -293,6 +307,4 @@ void MainWindowModel::clear()
 
 
 } // namespace graphos
-
-
 

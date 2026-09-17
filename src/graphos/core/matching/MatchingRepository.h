@@ -25,6 +25,8 @@
 
 #include "graphos/graphos_global.h"
 
+#include <unordered_set>
+
 #include <tidop/core/base/Path.h>
 
 #include "graphos/core/image/Image.h"
@@ -77,6 +79,12 @@ public:
 
     [[nodiscard]]
     auto imagePairs(const std::string &imageName) const->std::vector<std::string>;
+
+    [[nodiscard]]
+    auto hasImagePairs(const std::string &imageName) const -> bool;
+
+    [[nodiscard]]
+    auto imageNamesWithPairs() const -> std::unordered_set<std::string>;
 
     void clear();
 

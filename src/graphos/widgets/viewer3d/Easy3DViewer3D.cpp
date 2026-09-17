@@ -45,10 +45,13 @@ Easy3DViewer3D::Easy3DViewer3D(QWidget *parent)
     mSelectedObject(nullptr),
     mCamera(new easy3d::Camera),
     mContextMenu(new Viewer3DContextMenu(this)),
+    mBackgroundColor(50, 50, 50),
     mPressedButton(Qt::NoButton),
     edl_enabled_(false),
     mPickingMode(PickingMode::point_info),
-    mDrawableAxes(nullptr)
+    mDrawableAxes(nullptr),
+    mDrawableManipSphere(nullptr),
+    mShowManipSphere(false)
 {
     mCamera->setType(easy3d::Camera::PERSPECTIVE);
     mCamera->setUpVector(easy3d::vec3(0, 0, 1));
@@ -65,6 +68,8 @@ Easy3DViewer3D::~Easy3DViewer3D()
     for (auto model : mModels)
         delete model;
     mModels.clear();
+    delete mDrawableManipSphere;
+    delete mDrawableAxes;
     delete mCamera;
     doneCurrent();
 }
@@ -233,6 +238,7 @@ void Easy3DViewer3D::setGlobalZoom()
         }
         mCamera->setSceneBoundingBox(box.min_point(), box.max_point());
         mCamera->showEntireScene();
+        mCamera->setPivotPoint(mCamera->sceneCenter());
         easy3d::ClippingPlane::instance()->fit_scene(mCamera->sceneCenter(), mCamera->sceneRadius());
         update();
     }
@@ -356,6 +362,11 @@ void Easy3DViewer3D::mousePressEvent(QMouseEvent *event)
     mMousePrevious = event->pos();
     mMousePressed = event->pos();
 
+    if ((event->button() == Qt::LeftButton || event->button() == Qt::RightButton) &&
+        event->modifiers() == Qt::NoModifier) {
+        mShowManipSphere = true;
+    }
+
     mCamera->frame()->action_start();
     QOpenGLWidget::mousePressEvent(event);
     update();
@@ -404,6 +415,8 @@ void Easy3DViewer3D::mouseReleaseEvent(QMouseEvent *event)
     } else
         mCamera->frame()->action_end();
 
+    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton)
+        mShowManipSphere = false;
     mPressedButton = Qt::NoButton;
     //mMousePressed = QPoint(0, 0);
 
@@ -447,11 +460,11 @@ void Easy3DViewer3D::drawCornerAxes()
         return;
 
     // The viewport is changed to fit the lower left corner.
-    std::array<int,4> viewport;
+    std::array<int, 4> viewport{};
     auto *functions = context()->functions();
     functions->glGetIntegerv(GL_VIEWPORT, viewport.data());
 
-    static const int corner_frame_size = static_cast<int>(100 * 3/*dpiScaling()*/); //No lo estoy guardando
+    const int corner_frame_size = static_cast<int>(100.0 * devicePixelRatioF());
     functions->glViewport(0, 0, corner_frame_size, corner_frame_size);
     functions->glDepthRangef(0, 0.01f);
 
@@ -651,38 +664,19 @@ void Easy3DViewer3D::draw()
 
 void Easy3DViewer3D::postDraw()
 {
-    bool show_pivot_point_ = true;
-    if (show_pivot_point_) {
-        easy3d::ShaderProgram *program = easy3d::ShaderManager::get_program("lines/lines_plain_color");
-        if (!program) {
-            std::vector<easy3d::ShaderProgram::Attribute> attributes;
-            attributes.emplace_back(easy3d::ShaderProgram::Attribute(easy3d::ShaderProgram::POSITION, "vtx_position"));
-            attributes.emplace_back(easy3d::ShaderProgram::Attribute(easy3d::ShaderProgram::COLOR, "vtx_color"));
-            program = easy3d::ShaderManager::create_program_from_files("lines/lines_plain_color", attributes);
-        }
-        if (!program)
-            return;
+    if (mShowManipSphere) {
+        if (!mDrawableManipSphere)
+            mDrawableManipSphere = new easy3d::LinesDrawable("manipulation_sphere");
 
-        const float size = 10;
-        easy3d::LinesDrawable drawable("pivot_point");
-        const easy3d::vec3 &pivot = mCamera->projectedCoordinatesOf(mCamera->pivotPoint());
-        std::vector<easy3d::vec3> points = {
-                easy3d::vec3(pivot.x - size, pivot.y, 0.5f), easy3d::vec3(pivot.x + size, pivot.y, 0.5f),
-                easy3d::vec3(pivot.x, pivot.y - size, 0.5f), easy3d::vec3(pivot.x, pivot.y + size, 0.5f)
-        };
-        drawable.update_vertex_buffer(points);
-
-        const easy3d::mat4 &proj = easy3d::transform::ortho(0.0f, static_cast<float>(width()), static_cast<float>(height()), 0.0f,
-            0.0f,
-            -1.0f);
-        glDisable(GL_DEPTH_TEST);   // always on top
-        program->bind();
-        program->set_uniform("MVP", proj);
-        program->set_uniform("per_vertex_color", false);
-        program->set_uniform("default_color", easy3d::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-        drawable.gl_draw();
-        program->release();
-        glEnable(GL_DEPTH_TEST);   // restore
+        const int radius = 150;
+        const float ratio = mCamera->pixelGLRatio(mCamera->pivotPoint());
+        const easy3d::mat4 manipulation =
+            easy3d::mat4::translation(mCamera->pivotPoint()) *
+            easy3d::mat4::scale(radius * ratio);
+        easy3d::shape::draw_sphere_big_circles(
+            mDrawableManipSphere,
+            mCamera->modelViewProjectionMatrix(),
+            manipulation);
     }
 
     drawCornerAxes();
