@@ -6,10 +6,15 @@
 #include <QMouseEvent>
 #include <QOpenGLFunctions>
 #include <QWheelEvent>
+#include <QFutureWatcher>
+#include <QtConcurrent/QtConcurrent>
 
+#include <algorithm>
+#include <initializer_list>
 #include <memory>
 
 #include <easy3d/core/point_cloud.h>
+#include <easy3d/core/surface_mesh.h>
 #include <easy3d/core/poly_mesh.h>
 #include <easy3d/algo/point_cloud_normals.h>
 #include <easy3d/fileio/point_cloud_io.h>
@@ -29,6 +34,7 @@
 #include <easy3d/renderer/shader_manager.h>
 #include <easy3d/renderer/shape.h>
 #include <easy3d/renderer/transform.h>
+#include <easy3d/renderer/read_pixel.h>
 #include <easy3d/util/signal.h>
 #include <easy3d/util/setting.h>
 
@@ -40,15 +46,56 @@ namespace graphos
 
 #ifdef HAVE_EASY3D
 
+namespace
+{
+
+auto readModels(const QString &file) -> std::vector<easy3d::Model *>
+{
+    const auto extension = QFileInfo(file).suffix().toLower();
+    std::vector<easy3d::Model *> models;
+
+    bool is_ply_mesh = false;
+    if (extension == "ply")
+        is_ply_mesh = easy3d::io::PlyReader::num_instances(file.toStdString(), "face") > 0;
+
+    easy3d::Model *model = nullptr;
+    if ((extension == "ply" && is_ply_mesh) ||
+        extension == "obj" || extension == "off" ||
+        extension == "stl" || extension == "sm" ||
+        extension == "geojson" || extension == "trilist") {
+        model = easy3d::SurfaceMeshIO::load(file.toStdString());
+    } else if (extension == "ply" &&
+               easy3d::io::PlyReader::num_instances(file.toStdString(), "edge") > 0) {
+        model = easy3d::SurfaceMeshIO::load(file.toStdString());
+    } else if (extension == "plm" || extension == "pm" || extension == "mesh") {
+        model = easy3d::PolyMeshIO::load(file.toStdString());
+    } else if (extension == "ptx") {
+        easy3d::io::PointCloudIO_ptx serializer(file.toStdString());
+        while (auto cloud = serializer.load_next())
+            models.push_back(cloud);
+        return models;
+    } else {
+        model = easy3d::PointCloudIO::load(file.toStdString());
+    }
+
+    if (model)
+        models.push_back(model);
+
+    return models;
+}
+
+}
+
 Easy3DViewer3D::Easy3DViewer3D(QWidget *parent)
   : QOpenGLWidget(parent),
     mSelectedObject(nullptr),
     mCamera(new easy3d::Camera),
+    mEdl(std::make_unique<easy3d::EyeDomeLighting>(mCamera)),
     mContextMenu(new Viewer3DContextMenu(this)),
     mBackgroundColor(50, 50, 50),
     mPressedButton(Qt::NoButton),
-    edl_enabled_(false),
-    mPickingMode(PickingMode::point_info),
+    mEdlEnabled(false),
+    //mPickingMode(PickingMode::point_info),
     mDrawableAxes(nullptr),
     mDrawableManipSphere(nullptr),
     mShowManipSphere(false)
@@ -65,11 +112,14 @@ Easy3DViewer3D::Easy3DViewer3D(QWidget *parent)
 Easy3DViewer3D::~Easy3DViewer3D()
 {
     makeCurrent();
+
     for (auto model : mModels)
         delete model;
+
     mModels.clear();
     delete mDrawableManipSphere;
     delete mDrawableAxes;
+    mEdl.reset();
     delete mCamera;
     doneCurrent();
 }
@@ -77,8 +127,10 @@ Easy3DViewer3D::~Easy3DViewer3D()
 void Easy3DViewer3D::clear()
 {
     makeCurrent();
+
     for (auto model : mModels)
         delete model;
+
     mModels.clear();
     mSelectedObject = nullptr;
     doneCurrent();
@@ -103,47 +155,41 @@ void Easy3DViewer3D::deleteEntity(const QString &id)
 void Easy3DViewer3D::loadFromFile(const QString &file, const QString &)
 {
     try {
-        const auto extension = QFileInfo(file).suffix().toLower();
-        
-
-        bool is_ply_mesh = false;
-        if (extension == "ply")
-            is_ply_mesh = (easy3d::io::PlyReader::num_instances(file.toStdString(), "face") > 0);
-
-        easy3d::Model *model = nullptr;
-        if ((extension == "ply" && is_ply_mesh) || 
-            extension == "obj" || extension == "off" || 
-            extension == "stl" || extension == "sm" || 
-            extension == "geojson" || extension == "trilist") {
-            model = easy3d::SurfaceMeshIO::load(file.toStdString());
-        } else if (extension == "ply" && easy3d::io::PlyReader::num_instances(file.toStdString(), "edge") > 0){
-            model = easy3d::SurfaceMeshIO::load(file.toStdString());
-        } else if (extension == "plm" || extension == "pm" || extension == "mesh") {
-            model = easy3d::PolyMeshIO::load(file.toStdString());
-        } else {
-            if (extension == "ptx") {
-                easy3d::io::PointCloudIO_ptx serializer(file.toStdString());
-                while (auto cloud = serializer.load_next()) {
-                    //viewer_->addModel(cloud);
-                    addModel(cloud);
-                    update();
-                }
-                return;
-            } else
-                model = easy3d::PointCloudIO::load(file.toStdString());
-        }
-
-        if (model) {
+        for (auto *model : readModels(file)) {
             model->set_name(file.toStdString());
             addModel(model);
-            //setGlobalZoom();
-            update();
-        } else {
-            tl::Message::error("[Load] Failed to load file: {}", file.toStdString());
         }
+        update();
     } catch (const std::exception &e) {
         tl::printException(e);
     }
+}
+
+void Easy3DViewer3D::loadFromFileAsync(const QString &file,
+                                       std::function<void(bool)> finished)
+{
+    auto *watcher = new QFutureWatcher<std::vector<easy3d::Model *>>(this);
+    connect(watcher, &QFutureWatcher<std::vector<easy3d::Model *>>::finished,
+            this, [this, watcher, finished = std::move(finished), file]() mutable {
+        bool success = false;
+        try {
+                auto models = watcher->result();
+                for (auto *model : models) {
+                    model->set_name(file.toStdString());
+                    addModel(model);
+                }
+                update();
+                success = !models.empty();
+        } catch (const std::exception &e) {
+            tl::printException(e);
+        }
+        watcher->deleteLater();
+        if (finished)
+            finished(success);
+    });
+    watcher->setFuture(QtConcurrent::run([file] {
+        return readModels(file);
+    }));
 }
 
 void Easy3DViewer3D::loadFromFiles(const QStringList &files, const QString &parent)
@@ -152,17 +198,96 @@ void Easy3DViewer3D::loadFromFiles(const QStringList &files, const QString &pare
         loadFromFile(file, parent);
 }
 
-void Easy3DViewer3D::activatePicker(PickingMode pickerMode)
-{ 
-    mPickingMode = pickerMode;
-}
-
-void Easy3DViewer3D::deactivatePicker()
+void Easy3DViewer3D::addCamera(const QString &id,
+                               double x,
+                               double y,
+                               double z,
+                               const tl::RotationMatrix<double> &rotation)
 {
-    mPickingMode = PickingMode::point_info;
+    float scene_radius = 0.f;
+    for (const auto *model : mModels)
+        scene_radius = std::max(scene_radius, model->bounding_box(true).radius());
+
+    const float scale = scene_radius > 0.f ? scene_radius * 0.04f : 1.f;
+    const float half_width = scale;
+    const float half_height = scale * 0.7f;
+    const float depth = scale * 1.4f;
+
+    const auto transform = [&rotation, x, y, z](const easy3d::vec3 &point) {
+        return easy3d::vec3(
+            static_cast<float>(x + rotation.at(0, 0) * point.x +
+                               rotation.at(0, 1) * point.y +
+                               rotation.at(0, 2) * point.z),
+            static_cast<float>(y + rotation.at(1, 0) * point.x +
+                               rotation.at(1, 1) * point.y +
+                               rotation.at(1, 2) * point.z),
+            static_cast<float>(z + rotation.at(2, 0) * point.x +
+                               rotation.at(2, 1) * point.y +
+                               rotation.at(2, 2) * point.z));
+    };
+
+    auto *camera = new easy3d::SurfaceMesh();
+    //camera->read(id.toStdString());
+    const auto center = camera->add_vertex(transform(easy3d::vec3(0.f, 0.f, 0.f)));
+    const auto top_left = camera->add_vertex(transform(easy3d::vec3(-half_width, half_height, depth)));
+    const auto top_right = camera->add_vertex(transform(easy3d::vec3(half_width, half_height, depth)));
+    const auto bottom_right = camera->add_vertex(transform(easy3d::vec3(half_width, -half_height, depth)));
+    const auto bottom_left = camera->add_vertex(transform(easy3d::vec3(-half_width, -half_height, depth)));
+
+    const auto add_face = [camera](std::initializer_list<easy3d::SurfaceMesh::Vertex> vertices) {
+        camera->add_face(std::vector<easy3d::SurfaceMesh::Vertex>(vertices));
+    };
+
+    add_face({center, top_left, top_right});
+    add_face({center, top_right, bottom_right});
+    add_face({center, bottom_right, bottom_left});
+    add_face({center, bottom_left, top_left});
+    add_face({top_left, bottom_left, bottom_right});
+    add_face({top_left, bottom_right, top_right});
+
+    addModel(camera);
+
+    auto *faces = camera->renderer()->get_triangles_drawable("faces", false);
+    if (faces)
+        faces->set_visible(false);
+
+    auto *edges = camera->renderer()->get_lines_drawable("edges", false);
+    if (edges) {
+        edges->set_visible(true);
+        edges->set_line_width(2.f);
+        edges->state().set_uniform_coloring(easy3d::vec4(0.1f, 0.8f, 1.f, 1.f));
+        edges->state().set_lighting(false);
+    }
+
+    auto *base = new easy3d::SurfaceMesh(/*id.toStdString() + "_base"*/);
+    const auto base_top_left = base->add_vertex(transform(easy3d::vec3(-half_width, half_height, depth)));
+    const auto base_top_right = base->add_vertex(transform(easy3d::vec3(half_width, half_height, depth)));
+    const auto base_bottom_right = base->add_vertex(transform(easy3d::vec3(half_width, -half_height, depth)));
+    const auto base_bottom_left = base->add_vertex(transform(easy3d::vec3(-half_width, -half_height, depth)));
+    base->add_face(std::vector<easy3d::SurfaceMesh::Vertex>{base_top_left, base_bottom_left, base_bottom_right});
+    base->add_face(std::vector<easy3d::SurfaceMesh::Vertex>{base_top_left, base_bottom_right, base_top_right});
+
+    addModel(base);
+
+    if (auto *base_faces = base->renderer()->get_triangles_drawable("faces", false)) {
+        base_faces->state().set_uniform_coloring(easy3d::vec4(0.05f, 0.35f, 0.55f, 1.f));
+        base_faces->state().set_lighting(false);
+    }
+    if (auto *base_edges = base->renderer()->get_lines_drawable("edges", false))
+        base_edges->set_visible(false);
 }
 
-QImage Easy3DViewer3D::captureModel() 
+//void Easy3DViewer3D::activatePicker(PickingMode pickerMode)
+//{ 
+//    mPickingMode = pickerMode;
+//}
+//
+//void Easy3DViewer3D::deactivatePicker()
+//{
+//    mPickingMode = PickingMode::point_info;
+//}
+
+auto Easy3DViewer3D::captureModel() -> QImage
 { 
     return grabFramebuffer(); 
 }
@@ -180,79 +305,78 @@ void Easy3DViewer3D::deleteSelectEntity()
 
 void Easy3DViewer3D::setFrontView()
 {
-    mCamera->setViewDirection(easy3d::vec3(0, 0, -1)); 
-    update();
+    setStandardView(easy3d::vec3(0, 1, 0), easy3d::vec3(0, 0, 1));
 }
 
 void Easy3DViewer3D::setBottomView()
 {
-    mCamera->setViewDirection(easy3d::vec3(0, -1, 0)); 
-    update();
+    setStandardView(easy3d::vec3(0, 0, 1), easy3d::vec3(0, 1, 0));
 }
 
 void Easy3DViewer3D::setTopView()
 {
-    mCamera->setViewDirection(easy3d::vec3(0, 1, 0));
-    update();
+    setStandardView(easy3d::vec3(0, 0, -1), easy3d::vec3(0, 1, 0));
 }
 
 void Easy3DViewer3D::setBackView()
 {
-    mCamera->setViewDirection(easy3d::vec3(0, 0, 1)); 
-    update();
+    setStandardView(easy3d::vec3(0, -1, 0), easy3d::vec3(0, 0, 1));
 }
 
 void Easy3DViewer3D::setLeftView()
 {
-    mCamera->setViewDirection(easy3d::vec3(-1, 0, 0));
-    update();
+    setStandardView(easy3d::vec3(1, 0, 0), easy3d::vec3(0, 0, 1));
 }
 
 void Easy3DViewer3D::setRightView()
 {
-    mCamera->setViewDirection(easy3d::vec3(1, 0, 0));
-    update();
+    setStandardView(easy3d::vec3(-1, 0, 0), easy3d::vec3(0, 0, 1));
 }
 
-void Easy3DViewer3D::setIsoView1()
+void Easy3DViewer3D::setIsoView()
 {
-    mCamera->setViewDirection(easy3d::vec3(1, 1, 1).normalize());
-    update();
+    setStandardView(easy3d::vec3(1, 1, -1).normalize(), easy3d::vec3(1, 1, 1));
 }
 
-void Easy3DViewer3D::setIsoView2()
+void Easy3DViewer3D::setStandardView(const easy3d::vec3 &direction,
+                                     const easy3d::vec3 &up)
 {
-    mCamera->setViewDirection(easy3d::vec3(-1, 1, 1).normalize());
-    update();
+    if (mModels.empty())
+        return;
+
+    mCamera->setUpVector(up);
+    mCamera->setViewDirection(direction);
+    setGlobalZoom();
 }
 
 void Easy3DViewer3D::setGlobalZoom()
 {
     if (!mModels.empty()) {
+
         easy3d::Box3 box;
         for (auto model : mModels) {
-            //const auto &modelBox = model->bounding_box(true);
-            //box.grow(modelBox.min_point());
-            //box.grow(modelBox.max_point());
             box.grow(model->bounding_box());
         }
+
         mCamera->setSceneBoundingBox(box.min_point(), box.max_point());
         mCamera->showEntireScene();
         mCamera->setPivotPoint(mCamera->sceneCenter());
         easy3d::ClippingPlane::instance()->fit_scene(mCamera->sceneCenter(), mCamera->sceneRadius());
+
         update();
     }
 }
 
 void Easy3DViewer3D::enableEDL()
 {
-    edl_enabled_ = true;
+    mEdlEnabled = true;
     update();
 }
 
 void Easy3DViewer3D::disableEDL()
 {
-    edl_enabled_ = false; update();
+    mEdlEnabled = false;
+    update();
 }
 
 void Easy3DViewer3D::setPerspectiveProjection(bool enabled)
@@ -279,6 +403,17 @@ void Easy3DViewer3D::setPointLighting(bool enabled)
     update();
 }
 
+void Easy3DViewer3D::setPointSize(int size)
+{
+    for (auto model : mModels) {
+        if (!model->renderer())
+            continue;
+        for (const auto &drawable : model->renderer()->points_drawables())
+            drawable->set_point_size(static_cast<float>(size));
+    }
+    update();
+}
+
 void Easy3DViewer3D::changePointSize()
 {
     float currentSize = 1.f;
@@ -293,13 +428,14 @@ void Easy3DViewer3D::changePointSize()
     const double size = QInputDialog::getDouble(this, tr("Point Size"), tr("Size:"),
                                                 currentSize, 1.0, 100.0, 1, &accepted);
     if (accepted) {
-        for (auto model : mModels) {
-            if (!model->renderer())
-                continue;
-            for (const auto &drawable : model->renderer()->points_drawables())
-                drawable->set_point_size(static_cast<float>(size));
-        }
-        update();
+        //for (auto model : mModels) {
+        //    if (!model->renderer())
+        //        continue;
+        //    for (const auto &drawable : model->renderer()->points_drawables())
+        //        drawable->set_point_size(static_cast<float>(size));
+        //}
+        //update();
+        setPointSize(size);
     }
 }
 
@@ -328,12 +464,12 @@ void Easy3DViewer3D::selectEntity(easy3d::Model *entity)
     update();
 }
 
-void Easy3DViewer3D::processPickedPoint(easy3d::Model *entity, unsigned, int, int,
-                                        const easy3d::vec3 &point)
-{
-    if (entity)
-        emit mouseClicked(QVector3D(point.x, point.y, point.z));
-}
+//void Easy3DViewer3D::processPickedPoint(easy3d::Model *entity, unsigned, int, int,
+//                                        const easy3d::vec3 &point)
+//{
+//    if (entity)
+//        emit mouseClicked(QVector3D(point.x, point.y, point.z));
+//}
 
 void Easy3DViewer3D::showContextMenu(const QPoint &position)
 {
@@ -354,74 +490,6 @@ void Easy3DViewer3D::showContextMenu(const QPoint &position)
     mContextMenu->setPointLighting(pointLighting);
     if (mMousePressed == position)
         mContextMenu->exec(mapToGlobal(position));
-}
-
-void Easy3DViewer3D::mousePressEvent(QMouseEvent *event)
-{
-    mPressedButton = event->button();
-    mMousePrevious = event->pos();
-    mMousePressed = event->pos();
-
-    if ((event->button() == Qt::LeftButton || event->button() == Qt::RightButton) &&
-        event->modifiers() == Qt::NoModifier) {
-        mShowManipSphere = true;
-    }
-
-    mCamera->frame()->action_start();
-    QOpenGLWidget::mousePressEvent(event);
-    update();
-}
-
-void Easy3DViewer3D::mouseMoveEvent(QMouseEvent *event)
-{
-    const QPoint position = event->pos();
-
-    if (position.x() < 0 || position.y() < 0 || position.x() >= width() || position.y() >= height()) {
-        event->ignore();
-        return;
-    }
-
-    if (mPressedButton != Qt::NoButton) {
-        if (event->modifiers() == Qt::NoModifier) {
-
-            const int dx = position.x() - mMousePrevious.x();
-            const int dy = position.y() - mMousePrevious.y();
-
-            if (mPressedButton == Qt::LeftButton) {
-                mCamera->frame()->action_rotate(position.x(), position.y(), dx, dy,
-                                                mCamera, easy3d::ManipulatedFrame::NONE);
-            } else if (mPressedButton == Qt::RightButton) {
-                mCamera->frame()->action_translate(position.x(), position.y(), dx, dy,
-                                                   mCamera, easy3d::ManipulatedFrame::NONE);
-            } else if (mPressedButton == Qt::MiddleButton && dy != 0) {
-                mCamera->frame()->action_zoom(dy > 0 ? 1 : -1, mCamera);
-            }
-        }
-    }
-
-    mMousePrevious = position;
-    QOpenGLWidget::mouseMoveEvent(event);
-    update();
-}
-
-void Easy3DViewer3D::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
-        int xmin = std::min(mMousePressed.x(), event->pos().x());
-        int xmax = std::max(mMousePressed.x(), event->pos().x());
-        int ymin = std::min(mMousePressed.y(), event->pos().y());
-        int ymax = std::max(mMousePressed.y(), event->pos().y());
-        mCamera->fitScreenRegion(xmin, ymin, xmax, ymax);
-    } else
-        mCamera->frame()->action_end();
-
-    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton)
-        mShowManipSphere = false;
-    mPressedButton = Qt::NoButton;
-    //mMousePressed = QPoint(0, 0);
-
-    QOpenGLWidget::mouseReleaseEvent(event);
-    update();
 }
 
 void Easy3DViewer3D::drawCornerAxes()
@@ -474,8 +542,6 @@ void Easy3DViewer3D::drawCornerAxes()
 
     // camera position is defined in world coordinate system.
     const easy3d::vec3 &wCamPos = mCamera->position();
-    // it can also be computed as follows:
-    //const vec3& wCamPos = invMV * vec4(0, 0, 0, 1);
     const easy3d::mat4 &MV = mCamera->modelViewMatrix();
     const easy3d::vec4 &wLightPos = inverse(MV) * easy3d::setting::light_position;
 
@@ -507,13 +573,39 @@ void Easy3DViewer3D::drawCornerAxes()
     functions->glDepthRangef(0.0f, 1.0f);
 }
 
-void Easy3DViewer3D::wheelEvent(QWheelEvent *event)
+auto Easy3DViewer3D::pointUnderPixel(const QPoint &position, bool &found) const -> easy3d::vec3
 {
-    if (mCamera)
-        mCamera->frame()->action_zoom(event->angleDelta().y() > 0 ? 1 : -1, mCamera);
+    const_cast<Easy3DViewer3D *>(this)->makeCurrent();
 
-    QOpenGLWidget::wheelEvent(event);
-    update();
+    int glx = position.x();
+    int gly = height() - 1 - position.y();
+
+    float device_pixel_ratio = devicePixelRatioF();
+
+    glx = static_cast<int>(static_cast<float>(glx) * device_pixel_ratio);
+    gly = static_cast<int>(static_cast<float>(gly) * device_pixel_ratio);
+
+    int samples = 0;
+    context()->functions()->glGetIntegerv(GL_SAMPLES, &samples);
+
+        float depth = 1.0f;
+    if (samples > 0) {
+        easy3d::opengl::read_depth_ms(depth, glx, gly);
+    } else {
+        easy3d::opengl::read_depth(depth, glx, gly);
+    }
+
+    const_cast<Easy3DViewer3D *>(this)->doneCurrent();
+
+    found = depth < 1.0f;
+    if (found) {
+        // The input to unprojectedCoordinatesOf() is defined in the screen coordinate system
+        easy3d::vec3 point(static_cast<float>(position.x()), static_cast<float>(position.y()), depth);
+        point = mCamera->unprojectedCoordinatesOf(point);
+        return point;
+    }
+
+    return {};
 }
 
 void Easy3DViewer3D::init()
@@ -569,7 +661,7 @@ void Easy3DViewer3D::addModel(easy3d::Model *entity)
     mModels.push_back(entity);
 }
 
-easy3d::Model *Easy3DViewer3D::findChild(const QString &name, easy3d::Model *)
+auto Easy3DViewer3D::findChild(const QString &name, easy3d::Model *) -> easy3d::Model *
 {
     for (auto model : mModels)
         if (QString::fromStdString(model->name()) == name)
@@ -577,10 +669,68 @@ easy3d::Model *Easy3DViewer3D::findChild(const QString &name, easy3d::Model *)
     return nullptr;
 }
 
+void Easy3DViewer3D::preDraw()
+{
+    context()->functions()->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+void Easy3DViewer3D::draw()
+{
+    if (mEdlEnabled)
+        mEdl->begin();
+
+    for (auto model : mModels) {
+
+        if (!model->renderer() || !model->renderer()->is_visible())
+            continue;
+
+        glDepthRange(0.001, 1.0);
+        for (const auto &drawable : model->renderer()->triangles_drawables()) {
+            if (drawable->is_visible()) 
+                drawable->draw(mCamera);
+        }
+
+        glDepthRange(0.0, 1.0);
+        for (const auto &drawable : model->renderer()->lines_drawables()) {
+            if (drawable->is_visible()) 
+                drawable->draw(mCamera);
+        }
+
+        for (const auto &drawable : model->renderer()->points_drawables()) {
+            if (drawable->is_visible()) 
+                drawable->draw(mCamera);
+        }
+    }
+
+    if (mEdlEnabled)
+        mEdl->end();
+}
+
+void Easy3DViewer3D::postDraw()
+{
+    if (mShowManipSphere) {
+        if (!mDrawableManipSphere)
+            mDrawableManipSphere = new easy3d::LinesDrawable("manipulation_sphere");
+
+        const int radius = 150;
+        const float ratio = mCamera->pixelGLRatio(mCamera->pivotPoint());
+        const easy3d::mat4 manipulation =
+            easy3d::mat4::translation(mCamera->pivotPoint()) *
+            easy3d::mat4::scale(radius * ratio);
+        easy3d::shape::draw_sphere_big_circles(
+            mDrawableManipSphere,
+            mCamera->modelViewProjectionMatrix(),
+            manipulation);
+    }
+
+    drawCornerAxes();
+}
+
+
 void Easy3DViewer3D::initializeGL()
 {
     QOpenGLWidget::initializeGL();
-   
+
     auto *functions = context()->functions();
     functions->initializeOpenGLFunctions();
     functions->glEnable(GL_DEPTH_TEST);
@@ -592,7 +742,6 @@ void Easy3DViewer3D::initializeGL()
 
     functions->glEnable(GL_DEPTH_TEST);
     functions->glClearDepthf(1.0f);
-    //functions->glClearColor(0.f, 0.f, 0.f, 1.f);
     functions->glClearColor(mBackgroundColor.redF(), mBackgroundColor.greenF(), mBackgroundColor.blueF(), 1.f);
 
     int major = 0;
@@ -631,55 +780,134 @@ void Easy3DViewer3D::paintGL()
     postDraw();
 }
 
-void Easy3DViewer3D::preDraw()
+void Easy3DViewer3D::mousePressEvent(QMouseEvent *event)
 {
-    context()->functions()->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-}
+    mPressedButton = event->button();
+    mMousePrevious = event->pos();
+    mMousePressed = event->pos();
 
-void Easy3DViewer3D::draw()
-{
-    for (auto model : mModels) {
+    mCamera->frame()->action_start();
 
-        if (!model->renderer() || !model->renderer()->is_visible())
-            continue;
+    if ((event->button() == Qt::LeftButton || event->button() == Qt::RightButton) &&
+        event->modifiers() == Qt::NoModifier) {
+        mShowManipSphere = true;
+    }
+    
+    if (event->modifiers() == Qt::ShiftModifier) {
+        if (event->button() == Qt::LeftButton) {
+            bool found = false;
+            const easy3d::vec3 &p = pointUnderPixel(event->pos(), found);
+            if (found) {
+                mCamera->interpolateToLookAt(p);
+                mCamera->setPivotPoint(p);
 
-        glDepthRange(0.001, 1.0);
-        for (const auto &drawable : model->renderer()->triangles_drawables()) {
-            if (drawable->is_visible()) 
-                drawable->draw(mCamera);
-        }
-
-        glDepthRange(0.0, 1.0);
-        for (const auto &drawable : model->renderer()->lines_drawables()) {
-            if (drawable->is_visible()) 
-                drawable->draw(mCamera);
-        }
-
-        for (const auto &drawable : model->renderer()->points_drawables()) {
-            if (drawable->is_visible()) 
-                drawable->draw(mCamera);
+                // show, but hide the visual hint of pivot point after \p delay milliseconds.
+                //show_pivot_point_ = true;
+                //Timer<>::single_shot(10000, [&]() {
+                //    show_pivot_point_ = false;
+                //    update();
+                //    });
+            } else {
+                mCamera->setPivotPoint(mCamera->sceneCenter());
+                //show_pivot_point_ = false;
+            }
+        } else if (event->button() == Qt::RightButton) {
+            //TODO: Ocultar menú contextual en este caso
+            mCamera->interpolateToFitScene();
+            mCamera->setPivotPoint(mCamera->sceneCenter());
+            //show_pivot_point_ = false;
+            
         }
     }
+
+    QOpenGLWidget::mousePressEvent(event);
+    update();
 }
 
-void Easy3DViewer3D::postDraw()
+void Easy3DViewer3D::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (mShowManipSphere) {
-        if (!mDrawableManipSphere)
-            mDrawableManipSphere = new easy3d::LinesDrawable("manipulation_sphere");
+    if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
+        int xmin = std::min(mMousePressed.x(), event->pos().x());
+        int xmax = std::max(mMousePressed.x(), event->pos().x());
+        int ymin = std::min(mMousePressed.y(), event->pos().y());
+        int ymax = std::max(mMousePressed.y(), event->pos().y());
+        mCamera->fitScreenRegion(xmin, ymin, xmax, ymax);
+    } else
+        mCamera->frame()->action_end();
 
-        const int radius = 150;
-        const float ratio = mCamera->pixelGLRatio(mCamera->pivotPoint());
-        const easy3d::mat4 manipulation =
-            easy3d::mat4::translation(mCamera->pivotPoint()) *
-            easy3d::mat4::scale(radius * ratio);
-        easy3d::shape::draw_sphere_big_circles(
-            mDrawableManipSphere,
-            mCamera->modelViewProjectionMatrix(),
-            manipulation);
+    if (event->button() == Qt::LeftButton ||
+        event->button() == Qt::RightButton)
+        mShowManipSphere = false;
+
+    mPressedButton = Qt::NoButton;
+
+    QOpenGLWidget::mouseReleaseEvent(event);
+    update();
+}
+
+void Easy3DViewer3D::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    QPoint position = event->pos();
+
+    bool found = false;
+    const easy3d::vec3 &point = pointUnderPixel(position, found);
+    if (found) {
+        mCamera->setPivotPoint(point);
+    } else {
+        mCamera->setPivotPoint(mCamera->sceneCenter());
     }
 
-    drawCornerAxes();
+    QOpenGLWidget::mouseDoubleClickEvent(event);
+}
+
+void Easy3DViewer3D::mouseMoveEvent(QMouseEvent *event)
+{
+    QPoint position = event->pos();
+
+    if (position.x() < 0 || position.y() < 0 || position.x() >= width() || position.y() >= height()) {
+        event->ignore();
+        return;
+    }
+
+    if (mPressedButton != Qt::NoButton) {
+        if (event->modifiers() == Qt::NoModifier) {
+
+            int dx = position.x() - mMousePrevious.x();
+            int dy = position.y() - mMousePrevious.y();
+
+            if (mPressedButton == Qt::LeftButton) {
+                mCamera->frame()->action_rotate(position.x(), position.y(), dx, dy,
+                                                mCamera, easy3d::ManipulatedFrame::NONE);
+            } else if (mPressedButton == Qt::RightButton) {
+                mCamera->frame()->action_translate(position.x(), position.y(), dx, dy,
+                                                   mCamera, easy3d::ManipulatedFrame::NONE);
+            } else if (mPressedButton == Qt::MiddleButton && dy != 0) {
+                mCamera->frame()->action_zoom(dy > 0 ? 1 : -1, mCamera);
+            }
+        }
+    }
+
+    mMousePrevious = position;
+    QOpenGLWidget::mouseMoveEvent(event);
+    update();
+}
+
+void Easy3DViewer3D::wheelEvent(QWheelEvent *event)
+{
+    QPoint position = event->position().toPoint();
+
+    bool found = false;
+    const easy3d::vec3 &point = pointUnderPixel(position, found);
+    if (found) {
+        mCamera->setPivotPoint(point);
+    } else {
+        mCamera->setPivotPoint(mCamera->sceneCenter());
+    }
+
+    mCamera->frame()->action_zoom(event->angleDelta().y() > 0 ? 1 : -1, mCamera);
+
+    QOpenGLWidget::wheelEvent(event);
+    update();
 }
 
 #endif

@@ -31,10 +31,18 @@
 #include <QVector3D>
 #include <QImage>
 
+#include <memory>
+#include <functional>
+
+/* TidopLib */
+#include <tidop/geometry/primitives/Point.h>
+#include <tidop/math/algebra/rotations/RotationMatrix.h>
+
 /* Easy3D */
 #ifdef HAVE_EASY3D
 #include <easy3d/core/model.h>
 #include <easy3d/renderer/camera.h>
+#include <easy3d/renderer/eye_dome_lighting.h>
 #endif
 
 #include "graphos/framework/app/Application.h"
@@ -65,22 +73,22 @@ public:
     /*!
      * \brief Picking mode
      */
-    enum class PickingMode
-    {
-        point_info,
-        distance,
-        angle,
-        rect_zone,
-        point_list,
-        level_points
-    };
+    //enum class PickingMode
+    //{
+    //    point_info,
+    //    distance,
+    //    angle,
+    //    rect_zone,
+    //    point_list,
+    //    level_points
+    //};
 
-    enum class Perspective
-    {
-        ortho_view,
-        centered_perspective,
-        view_perspective
-    };
+    //enum class Perspective
+    //{
+    //    ortho_view,
+    //    centered_perspective,
+    //    view_perspective
+    //};
 
     enum class Rotation
     {
@@ -100,11 +108,18 @@ public:
     // File loading is backend-specific and intentionally not part of Viewer3D.
     void loadFromFile(const QString &file,
                       const QString &parent = QString());
+    void loadFromFileAsync(const QString &file,
+                           std::function<void(bool)> finished);
     void loadFromFiles(const QStringList &files,
                        const QString &parent = QString());
+    void addCamera(const QString &id,
+                   double x,
+                   double y,
+                   double z,
+                   const tl::RotationMatrix<double> &rotation);
 
-    void activatePicker(PickingMode pickerMode);
-    void deactivatePicker();
+    //void activatePicker(PickingMode pickerMode);
+    //void deactivatePicker();
 
     auto captureModel() -> QImage override;
 
@@ -126,8 +141,7 @@ public slots:
     void setBackView() override;
     void setLeftView() override;
     void setRightView() override;
-    void setIsoView1() override;
-    void setIsoView2() override;
+    void setIsoView() override;
     void setGlobalZoom() override;
 
     void enableEDL() override;
@@ -136,12 +150,12 @@ public slots:
     void setBackgroundColor(const QColor &color) override;
     void setPerspectiveProjection(bool enabled);
     void setPointLighting(bool enabled);
+    void setPointSize(int size);
     void changePointSize();
 
 public:
 
-    bool isEDL() const override { return edl_enabled_; }
-    
+    auto isEDL() const -> bool override { return mEdlEnabled; }
     auto backGroundColor() const -> QColor override;
 
 protected slots:
@@ -150,51 +164,65 @@ protected slots:
      * \brief selecciona una entidad
      */
     void selectEntity(easy3d::Model *entity);
-    void processPickedPoint(easy3d::Model *entity,
-                            unsigned pointIndex,
-                            int x,
-                            int y,
-                            const easy3d::vec3 &point);
+    //void processPickedPoint(easy3d::Model *entity,
+    //                        unsigned pointIndex,
+    //                        int x,
+    //                        int y,
+    //                        const easy3d::vec3 &point);
     void showContextMenu(const QPoint &position);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event) override;
 
 protected:
 
     void drawCornerAxes();
+    auto pointUnderPixel(const QPoint &position, bool &found) const -> easy3d::vec3;
 
 private:
 
     void init();
     void initSignalsAndSlots();
-    void initializeGL() override;
-    void resizeGL(int width, int height) override;
-    void paintGL() override;
     void preDraw();
     void draw();
     void postDraw();
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void wheelEvent(QWheelEvent *event) override;
+    
+    void setStandardView(const easy3d::vec3 &direction,
+                         const easy3d::vec3 &up);
 
     void addModel(easy3d::Model *entity);
-
-    /*!
-     * \brief Función para buscar un objeto mediante su nombre
-     */
     auto findChild(const QString& name, easy3d::Model *parent = nullptr) -> easy3d::Model*;
+
+// QOpenGLWidget
+
+protected:
+
+    void initializeGL() override;
+    void resizeGL(int width, int height) override;
+    void paintGL() override;
+
+// QWidget
+
+protected:
+
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+#if QT_CONFIG(wheelevent)
+    void wheelEvent(QWheelEvent *event) override;
+#endif
 
 private:
 
     easy3d::Model *mSelectedObject;
     easy3d::Camera *mCamera;
+    std::unique_ptr<easy3d::EyeDomeLighting> mEdl;
     std::vector<easy3d::Model *> mModels;
-    PickingMode mPickingMode;
+    //PickingMode mPickingMode;
     Viewer3DContextMenu *mContextMenu;
     QPoint mMousePressed;
     QPoint mMousePrevious;
     Qt::MouseButton mPressedButton;
     QColor mBackgroundColor;
-    bool edl_enabled_;
+    bool mEdlEnabled;
 
     easy3d::TrianglesDrawable *mDrawableAxes;
     easy3d::LinesDrawable *mDrawableManipSphere;

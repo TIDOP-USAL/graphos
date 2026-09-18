@@ -77,7 +77,7 @@ void CreateProjectPresenterImp::init()
 void CreateProjectPresenterImp::initSignalAndSlots()
 {
     connect(mView, &CreateProjectView::project_name_changed,
-            this, &CreateProjectPresenterImp::checkProjectName);
+            this, &CreateProjectPresenterImp::checkProjectPath);
 
     connect(mView, &QDialog::accepted,
             this, &CreateProjectPresenterImp::saveProject);
@@ -136,7 +136,7 @@ void CreateProjectPresenterImp::discartProject()
     mView->clear();
 }
 
-void CreateProjectPresenterImp::checkProjectName() const
+void CreateProjectPresenterImp::checkProjectPath() const
 {
     tl::Path project_path = projectPath(this->projectFolder());
     mView->setExistingProject(project_path.exists());

@@ -1463,47 +1463,47 @@ void MainWindowView::initSignalAndSlots()
         }
     });
 
-    //connect(mActionGlobalZoom, &QAction::triggered, [&]() {
-    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-    //        model3D->setGlobalZoom();
-    //    }
-    //});
+    connect(mActionGlobalZoom, &QAction::triggered, [&]() {
+        if (auto *model3D = dynamic_cast<Viewer3D *>(mTabWidget->currentWidget())) {
+            model3D->setGlobalZoom();
+        }
+    });
 
-    //connect(mActionViewFront, &QAction::triggered, [&]() {
-    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-    //        model3D->setFrontView();
-    //    }
-    //});
+    connect(mActionViewFront, &QAction::triggered, [&]() {
+        if (auto *model3D = dynamic_cast<Viewer3D *>(mTabWidget->currentWidget())) {
+            model3D->setFrontView();
+        }
+    });
 
-    //connect(mActionViewBack, &QAction::triggered, [&]() {
-    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-    //        model3D->setBackView();
-    //    }
-    //});
+    connect(mActionViewBack, &QAction::triggered, [&]() {
+        if (auto *model3D = dynamic_cast<Viewer3D *>(mTabWidget->currentWidget())) {
+            model3D->setBackView();
+        }
+    });
 
-    //connect(mActionViewTop, &QAction::triggered, [&]() {
-    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-    //        model3D->setTopView();
-    //    }
-    //});
+    connect(mActionViewTop, &QAction::triggered, [&]() {
+        if (auto *model3D = dynamic_cast<Viewer3D *>(mTabWidget->currentWidget())) {
+            model3D->setTopView();
+        }
+    });
 
-    //connect(mActionViewBottom, &QAction::triggered, [&]() {
-    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-    //        model3D->setBottomView();
-    //    }
-    //});
+    connect(mActionViewBottom, &QAction::triggered, [&]() {
+        if (auto *model3D = dynamic_cast<Viewer3D *>(mTabWidget->currentWidget())) {
+            model3D->setBottomView();
+        }
+    });
 
-    //connect(mActionViewLeft, &QAction::triggered, [&]() {
-    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-    //        model3D->setLeftView();
-    //    }
-    //});
+    connect(mActionViewLeft, &QAction::triggered, [&]() {
+        if (auto *model3D = dynamic_cast<Viewer3D *>(mTabWidget->currentWidget())) {
+            model3D->setLeftView();
+        }
+    });
 
-    //connect(mActionViewRight, &QAction::triggered, [&]() {
-    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-    //        model3D->setRightView();
-    //    }
-    //});
+    connect(mActionViewRight, &QAction::triggered, [&]() {
+        if (auto *model3D = dynamic_cast<Viewer3D *>(mTabWidget->currentWidget())) {
+            model3D->setRightView();
+        }
+    });
 
     //connect(mActionPointMeasuse, &QAction::toggled, [&](bool checked) {
 

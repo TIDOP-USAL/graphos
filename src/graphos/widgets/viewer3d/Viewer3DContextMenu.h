@@ -30,11 +30,13 @@ class QAction;
 namespace graphos
 {
 
-class Viewer3DContextMenu : public GraphosContextMenu
+class Viewer3DContextMenu
+  : public GraphosContextMenu
 {
     Q_OBJECT
 
 public:
+
     explicit Viewer3DContextMenu(QWidget *parent = nullptr);
     ~Viewer3DContextMenu() override = default;
 
@@ -43,6 +45,7 @@ public:
     void setPointLightingAvailable(bool available);
 
 signals:
+
     void globalZoom();
     void viewFront();
     void viewTop();
@@ -56,13 +59,16 @@ signals:
     void pointSize();
 
 private:
+
     void init();
     void initSignalAndSlots();
 
 private slots:
+
     void retranslate() override;
 
 private:
+
     QAction *mActionGlobalZoom;
     QAction *mActionViewFront;
     QAction *mActionViewTop;

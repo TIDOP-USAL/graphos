@@ -254,6 +254,9 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
             options.mapper.bundle_adjustment.refine_focal_length = !mOptions.isEnabled(Options::fix_calibration);
             options.mapper.bundle_adjustment.refine_principal_point = false;
             options.mapper.bundle_adjustment.refine_extra_params = !mOptions.isEnabled(Options::fix_calibration);
+            // No mejora
+            //options.mapper.ba_num_iterations = 5;
+            //options.mapper.global_positioning.loss_function_scale = 1.0;
 
             mMapper = new colmap::GlobalPipeline(options, database, reconstruction_manager);
 

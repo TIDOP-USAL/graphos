@@ -97,6 +97,7 @@ void CreateProjectViewImp::initSignalAndSlots()
     connect(mLineEditProjectName, &QLineEdit::textChanged, this, &CreateProjectViewImp::update);
     connect(mLineEditProjectName, &QLineEdit::textChanged, this, &CreateProjectView::project_name_changed);
     connect(mLineEditProjectPath, &QLineEdit::textChanged, this, &CreateProjectViewImp::update);
+    connect(mLineEditProjectPath, &QLineEdit::textChanged, this, &CreateProjectView::project_name_changed);
     connect(mCheckBoxProjectFolder, &QCheckBox::checkStateChanged, this, &CreateProjectViewImp::update);
     connect(mCheckBoxProjectFolder, &QCheckBox::checkStateChanged, this, &CreateProjectView::project_name_changed);
     connect(mPushButtonProjectPath, &QAbstractButton::clicked, this, &CreateProjectViewImp::onClickButtonSelectPath);
@@ -118,7 +119,8 @@ void CreateProjectViewImp::clear()
 void CreateProjectViewImp::update()
 {
     bool bSave = !mLineEditProjectName->text().isEmpty() &&
-        !mLineEditProjectPath->text().isEmpty();
+                 !mLineEditProjectPath->text().isEmpty();
+
     mButtonBox->button(QDialogButtonBox::Save)->setEnabled(bSave && !mProjectExist);
 
     if (bSave) {

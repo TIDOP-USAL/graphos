@@ -64,7 +64,7 @@ protected slots:
     /*!
      * \brief Check if a project with the same name already exists
      */
-    virtual void checkProjectName() const = 0;
+    virtual void checkProjectPath() const = 0;
 
 };
 

@@ -29,6 +29,7 @@
 #include "graphos/widgets/StartPageWidget.h"
 #include "graphos/widgets/TabWidget.h"
 #include "graphos/widgets/GraphicViewer.h"
+#include "graphos/widgets/ProgressBarDialog.h"
 #ifdef HAVE_EASY3D
 #include "graphos/widgets/viewer3d/Easy3DViewer3D.h"
 #endif
@@ -472,9 +473,8 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
                                       bool loadCameras)
 {
 #ifdef HAVE_EASY3D
-    Q_UNUSED(loadCameras);
-
     try {
+
         QFileInfo fileInfo(model3D);
         TL_ASSERT(fileInfo.exists(), "File not found");
 
@@ -493,12 +493,59 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
 
         // Let Qt paint the new tab before the synchronous file read starts.
         QApplication::processEvents();
-        viewer3D->loadFromFile(model3D);
-        viewer3D->setGlobalZoom();
 
-        AppStatus *status = Application::instance().status();
-        status->activeFlag(AppStatus::Flag::tab_image_active, false);
-        status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, true);
+        auto *progress_dialog = new ProgressBarDialog(mView);
+        progress_dialog->setWindowTitle(QApplication::translate("MainWindowPresenter", "Loading 3D model"));
+        progress_dialog->setRange(0, 0);
+        progress_dialog->setStatusText(QApplication::translate("MainWindowPresenter", "Loading point cloud..."));
+        progress_dialog->setCloseAuto(true);
+        progress_dialog->setInitialized();
+        QApplication::processEvents();
+
+        viewer3D->loadFromFileAsync(model3D, [=](bool success) {
+            progress_dialog->setFinished();
+            if (!success) {
+                progress_dialog->deleteLater();
+                return;
+            }
+
+            viewer3D->setPointLighting(false);
+            viewer3D->setTopView();
+
+            if (loadCameras) {
+                const auto transform = mModel->transform();
+                tl::Affine<double, 3> affine(transform.block(0, 0, 3, 4));
+                const auto rotation = affine.rotation();
+                const bool has_transform = transform != tl::Matrix<double, 4, 4>::identity();
+
+                for (const auto &[image_id, pose] : mModel->poses()) {
+                    const auto *image = mModel->images().find(image_id);
+                    if (!image)
+                        continue;
+
+                    tl::Point3d position = pose.position();
+                    auto camera_rotation = pose.rotationMatrix();
+                    if (has_transform) {
+                        position = affine.transform(position);
+                        camera_rotation = camera_rotation * rotation.inverse().toMatrix();
+                    }
+
+                    viewer3D->addCamera(image->name(),
+                        position.x(),
+                        position.y(),
+                        position.z(),
+                        camera_rotation);
+                }
+            }
+
+            viewer3D->setGlobalZoom();
+
+            AppStatus *status = Application::instance().status();
+            status->activeFlag(AppStatus::Flag::tab_image_active, false);
+            status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, true);
+            progress_dialog->deleteLater();
+        });
+
     } catch (const std::exception &e) {
         tl::printException(e);
     }

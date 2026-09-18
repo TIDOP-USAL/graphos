@@ -72,8 +72,7 @@ public:
     virtual void setBackView() = 0;
     virtual void setLeftView() = 0;
     virtual void setRightView() = 0;
-    virtual void setIsoView1() = 0;
-    virtual void setIsoView2() = 0;
+    virtual void setIsoView() = 0;
     virtual void setGlobalZoom() = 0;
 
     virtual void enableEDL() = 0;

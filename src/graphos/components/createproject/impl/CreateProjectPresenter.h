@@ -57,7 +57,7 @@ protected slots:
 
     void saveProject() override;
     void discartProject() override;
-    void checkProjectName() const override;
+    void checkProjectPath() const override;
 
 // Presenter interface
 

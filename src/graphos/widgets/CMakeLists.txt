@@ -129,6 +129,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       TidopLib::RasterTools
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Widgets>
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt6::OpenGLWidgets>
+                      $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Concurrent>
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt6::Network>
                       $<$<BOOL:${HAVE_EASY3D}>:easy3d::renderer>
                       $<$<BOOL:${HAVE_EASY3D}>:easy3d::fileio>)
