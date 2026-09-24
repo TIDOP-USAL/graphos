@@ -146,6 +146,8 @@ private:
     //std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
     tl::GeoTools *mGeoTools;
     std::unordered_map<size_t, double> mCameraPosesErrors;
+    //std::unordered_map<uint32_t, size_t> mImageIdsColmapToGraphos;
+    std::unordered_map<size_t, uint32_t> mImageIdsGraphosToColmap;
     OrientationReport mOrientationReport;
     std::string mEnuCrs;
 };

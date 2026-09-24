@@ -553,22 +553,14 @@ void ExtractFeaturesTask::setupDatabaseAndMappings()
                     pose_prior.gravity = q_eigen.conjugate() * Eigen::Vector3d(0.0, 0.0, 1.0);
                 }
 
-                auto acc = image.cameraPose().accuracy();
-                Eigen::Vector3d accuracy(acc.x(), acc.y(), acc.z());
-                //auto rtk_flag = image.cameraPose().rtkFlag();
-                //if (rtk_flag == 50) { // RTK Fix
-                //    accuracy = Eigen::Vector3d(0.01, 0.01, 0.03);
-                //} else if (rtk_flag == 34) { // RTK Float
-                //    accuracy = Eigen::Vector3d(0.2, 0.2, 0.5);
-                //} else if (rtk_flag == 16) { // Single/Standalone GPS
-                //    accuracy = Eigen::Vector3d(10.0, 10.0, 10.0);
-                //}
+                //auto acc = image.cameraPose().accuracy();
+                //Eigen::Vector3d accuracy(acc.x(), acc.y(), acc.z());
 
-                Eigen::Matrix3d cov = Eigen::Matrix3d::Zero();
-                cov(0, 0) = accuracy.x() * accuracy.x(); // sigma_x^2
-                cov(1, 1) = accuracy.y() * accuracy.y(); // sigma_y^2
-                cov(2, 2) = accuracy.z() * accuracy.z(); // sigma_z^2
-                pose_prior.position_covariance = cov;
+                //Eigen::Matrix3d cov = Eigen::Matrix3d::Zero();
+                //cov(0, 0) = accuracy.x() * accuracy.x(); // sigma_x^2
+                //cov(1, 1) = accuracy.y() * accuracy.y(); // sigma_y^2
+                //cov(2, 2) = accuracy.z() * accuracy.z(); // sigma_z^2
+                //pose_prior.position_covariance = cov;
 
                 database->WritePosePrior(pose_prior);
             }

@@ -246,6 +246,59 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
 
         auto database = colmap::Database::Open(mDatabase.toUtf8());
 
+        std::unordered_map<size_t, Eigen::Vector3d> poses_prior_enu;
+
+
+        if (mOptions.isEnabled(Options::absolute_orientation)) {
+
+            for (const auto &[image_id, image] : mImageRepo) {
+
+                if (image.cameraPose().isEmpty()) continue;
+
+                if (auto colmap_image = database->ReadImageWithName(image.path().toString())) {
+
+                    colmap::image_t colmap_image_id = colmap_image->ImageId();
+                    mImageIdsGraphosToColmap[image_id] = colmap_image_id;
+
+                    colmap::camera_t camera_id = static_cast<colmap::camera_t>(image.cameraId());
+
+                    auto corr_data_id = colmap::data_t(colmap::sensor_t(colmap::SensorType::CAMERA, camera_id), colmap_image_id);
+
+                    for (auto pose_prior : database->ReadAllPosePriors()) {
+
+                        if (pose_prior.corr_data_id == corr_data_id) {
+
+                            poses_prior_enu[image_id] = pose_prior.position;
+
+                            auto acc = image.cameraPose().accuracy();
+                            Eigen::Vector3d accuracy(acc.x(), acc.y(), acc.z());
+                            if (mOptions.isDisabled(Options::use_rtk_positioning_accuracy)) {
+                                auto rtk_flag = image.cameraPose().rtkFlag();
+                                if (rtk_flag == 50) { // RTK Fix
+                                    accuracy = Eigen::Vector3d(0.01, 0.01, 0.03);
+                                } else if (rtk_flag == 34) { // RTK Float
+                                    accuracy = Eigen::Vector3d(0.2, 0.2, 0.5);
+                                } else if (rtk_flag == 16) { // Single/Standalone GPS
+                                    accuracy = Eigen::Vector3d(10.0, 10.0, 10.0);
+                                }
+                            }
+
+                            Eigen::Matrix3d cov = Eigen::Matrix3d::Zero();
+                            cov(0, 0) = accuracy.x() * accuracy.x(); // sigma_x^2
+                            cov(1, 1) = accuracy.y() * accuracy.y(); // sigma_y^2
+                            cov(2, 2) = accuracy.z() * accuracy.z(); // sigma_z^2
+                            pose_prior.position_covariance = cov;
+
+                            database->UpdatePosePrior(pose_prior);
+                            break;
+                        }
+                    }
+
+                }
+            }
+
+        }
+
         if (mOptions.isEnabled(Options::orientation_global)) {
 
             tl::Message::info("Starting Global SfM Pipeline...");
@@ -275,58 +328,6 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
                 options->use_robust_loss_on_prior_position = true;
                 options->prior_position_loss_scale = 1.0;
 
-                if (mOptions.isDisabled(Options::use_rtk_positioning_accuracy)) {
-
-                    /// TODO: modificar PosePrior
-
-                //    auto database = colmap::Database::Open(mDatabase.toUtf8());
-                //    colmap::DatabaseTransaction transaction(database.get());
-
-                //    for (const auto &[image_id, image] : mImageRepo) {
-
-                //        if (image.cameraPose().isEmpty()) continue;
-
-                //        std::string image_path = image.path().toString();
-                //        colmap::image_t colmap_image_id{};
-
-                //        if (database->ExistsImageWithName(image_path)) {
-
-                //            auto colmap_image = database->ReadImageWithName(image_path);
-                //            if (colmap_image) {
-
-                //                auto colmap_image_id = colmap_image->ImageId();
-
-
-                //        if (database->ExistsPosePrior(colmap_id)) {
-                //            auto prior = database.ReadPosePrior(colmap_id);
-
-                //            // Determinar desviación estándar (std) según el rtkFlag individual
-                //            Eigen::Vector3d accuracy{10.0, 10.0, 10.0}; // Por defecto: Single / Standalone GPS
-
-                //            switch (image.cameraPose().rtkFlag()) {
-                //            case 50: // RTK Fix
-                //                accuracy = Eigen::Vector3d(0.01, 0.01, 0.03);
-                //                break;
-                //            case 34: // RTK Float
-                //                accuracy = Eigen::Vector3d(0.2, 0.2, 0.5);
-                //                break;
-                //            case 16: // Single GPS
-                //            default:
-                //                accuracy = Eigen::Vector3d(10.0, 10.0, 10.0);
-                //                break;
-                //            }
-
-                //            // Construir la nueva matriz de covarianza
-                //            Eigen::Matrix3d cov = Eigen::Matrix3d::Zero();
-                //            cov(0, 0) = accuracy.x() * accuracy.x();
-                //            cov(1, 1) = accuracy.y() * accuracy.y();
-                //            cov(2, 2) = accuracy.z() * accuracy.z();
-
-                //            prior.position_covariance = cov;
-                //            database->UpdatePosePrior(prior);
-                //        }
-                //    }
-                }
             }
 
             mMapper = new colmap::IncrementalPipeline(options, database, reconstruction_manager);
@@ -367,7 +368,7 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
 
         TL_ASSERT(reconstruction_manager->Size() > 0, "Reconstruction failed: No models were generated");
 
-        // 6. Obtención del modelo principal reconstruido
+        // Obtención del modelo principal reconstruido
         std::shared_ptr<colmap::Reconstruction> reconstruction = reconstruction_manager->Get(0);
         const std::vector<colmap::image_t> &reg_image_ids = reconstruction->RegImageIds();
 
@@ -378,7 +379,7 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
         //reconstruction->FilterObservationsWithNegativeDepth();
         // Ver RunPointFiltering
 
-        // 7. Ajuste de Haces Final (Global Bundle Adjustment)
+        // Global Bundle Adjustment
         colmap::OptionManager option_manager;
         option_manager.bundle_adjustment->refine_focal_length = !mOptions.isEnabled(Options::fix_calibration);
         option_manager.bundle_adjustment->refine_principal_point = !mOptions.isEnabled(Options::fix_calibration);
@@ -446,12 +447,78 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
 
         TL_ASSERT(summary->termination_type == colmap::BundleAdjustmentTerminationType::CONVERGENCE, "Bundle adjustment failed to converge");
 
-        //tl::Message::success("Relative orientation finished in {:.2f} minutes", mOrientationReport.time / 60.0);
-
-        // 8. Exportación y Generación de informes
         if (mOptions.isEnabled(Options::orientation_global)) {
             reconstruction->ExtractColorsForAllImages("");
         }
+
+        // Calculo de errores
+
+        if (mOptions.isEnabled(Options::use_poses)) {
+
+            size_t size = mImageRepo.size();
+            std::vector<double> errors;
+            errors.reserve(size);
+            std::vector<double> errors_x;
+            std::vector<double> errors_y;
+            std::vector<double> errors_z;
+            errors_x.reserve(size);
+            errors_y.reserve(size);
+            errors_z.reserve(size);
+
+            for (const auto &[graphos_image_id, image] : mImageRepo) {
+
+                if (reconstruction->ExistsImage(mImageIdsGraphosToColmap[graphos_image_id])) {
+
+                    const colmap::Image &colmap_image = reconstruction->Image(mImageIdsGraphosToColmap[graphos_image_id]);
+                    //tl::Point3d position = image.cameraPose().position();
+                    Eigen::Vector3d pos_ini;
+
+                    //auto prior_position = image.cameraPose().position();
+                    if (auto pose = poses_prior_enu.find(graphos_image_id); pose != poses_prior_enu.end()){
+                    
+                        pos_ini = pose->second;
+                        //std::string accuracy;
+                        //if (mOptions.isDisabled(Options::use_rtk_positioning_accuracy)) {
+                        //    accuracy = "10.";
+                        //} else {
+                        //    accuracy = std::to_string(image.cameraPose().accuracy().x())
+                        //        .append(" ")
+                        //        .append(std::to_string(image.cameraPose().accuracy().y()))
+                        //        .append(" ")
+                        //        .append(std::to_string(image.cameraPose().accuracy().z()));
+                        //}
+                        auto pos_final = colmap_image.ProjectionCenter();
+                        auto error_xyz = pos_final - pos_ini;
+                        double error = (error_xyz).norm();
+                        double error_x = std::abs(error_xyz.x());
+                        double error_y = std::abs(error_xyz.y());
+                        double error_z = std::abs(error_xyz.z());
+                        //tl::Message::info("Camera pose error: {} -> Error:{}", image.name().toStdString(), error);
+
+                        //std::cout << std::fixed << std::setprecision(6)
+                        //    << image.name().toStdString() << "\t"
+                        //    << pos_ini.x() << "\t" << pos_ini.y() << "\t" << pos_ini.z() << "\t"
+                        //    << accuracy << "\t" << error << "\t"
+                        //    << error_xyz.x() << "\t" << error_xyz.y() << "\t" << error_xyz.z() << "\t"
+                        //    << pos_final.x() << "\t" << pos_final.y() << "\t" << pos_final.z()
+                        //    << std::endl;
+
+                        errors.push_back(error);
+                        errors_x.push_back(error_x);
+                        errors_y.push_back(error_y);
+                        errors_z.push_back(error_z);
+                    }
+                }
+            }
+
+            mOrientationReport.alignmentErrorMean = colmap::Mean(errors);
+            mOrientationReport.alignmentErrorMedian = colmap::Median(errors);
+
+            tl::Message::info("Alignment error: {} (mean), {} (median)", mOrientationReport.alignmentErrorMean, mOrientationReport.alignmentErrorMedian);
+
+            std::cout << std::fixed << "Error x,y,z: [" << colmap::Median(errors_x) << ", " << colmap::Median(errors_y) << ", " << colmap::Median(errors_z) << "]" << std::endl;
+        }
+
 
         ColmapReconstructionConvert convert(reconstruction.get(), mImageRepo.all());
 
