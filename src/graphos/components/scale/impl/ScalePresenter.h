@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_SCALE_PRESENTER_H
-#define GRAPHOS_SCALE_PRESENTER_H
+#pragma once
 
 #include "graphos/components/scale/ScalePresenter.h"
 
@@ -71,8 +70,8 @@ protected:
 
 protected slots:
 
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
+    void onError(tl::TaskErrorEvent &event) override;
+    void onFinished(tl::TaskFinalizedEvent &event) override;
 
 public slots:
 
@@ -86,5 +85,3 @@ private:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_SCALE_PRESENTER_H

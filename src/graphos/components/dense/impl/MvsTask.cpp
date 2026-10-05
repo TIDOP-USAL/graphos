@@ -587,7 +587,7 @@ void MvsTask::copyUndistortedImages() const
 
             if (image_reader.depth() == 8 /*&& mFormat == graphos::UndistortImages::Format::tiff*/) {
                // Solo copia
-                tl::Path::copy(image_path, image_out_path);
+                tl::Path::copy(image_path, image_out_path, tl::Path::CopyOptions::update_existing);
             } else {
 
                 cv::Mat mat = image_reader.read();

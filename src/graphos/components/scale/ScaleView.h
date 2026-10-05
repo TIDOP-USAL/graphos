@@ -21,12 +21,10 @@
  *                                                                      *
  ************************************************************************/
 
-
-#ifndef GRAPHOS_SCALE_VIEW_INTERFACE_H
-#define GRAPHOS_SCALE_VIEW_INTERFACE_H
+#pragma once
 
 
-#include "graphos/core/task/TaskView.h"
+#include "graphos/framework/task/TaskView.h"
 
 namespace graphos
 {
@@ -56,6 +54,3 @@ signals:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_SCALE_VIEW_INTERFACE_H

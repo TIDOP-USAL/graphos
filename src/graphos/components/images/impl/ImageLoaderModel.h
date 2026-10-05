@@ -52,7 +52,7 @@ public:
     auto cameraRepository() -> CameraRepository & override;
     auto imagesRepository() -> ImageRepository & override;
     auto enuCrs() const -> std::string override;
-    void setEnuCrs(const std::string &crs) override;
+    void setEnuCrs(std::string crs) override;
 
 // Model interface
 

@@ -27,6 +27,8 @@
 #include "graphos/core/orientation/GroundPoint.h"
 #include "graphos/core/orientation/GroundControlPoint.h"
 #include "graphos/core/orientation/io/CameraPosesReader.h"
+#include "graphos/core/orientation/io/GCPsReader.h"
+#include "graphos/core/orientation/io/GCPsWriter.h"
 #include "graphos/core/project/Project.h"
 #include "graphos/core/project/io/ProjectReader.h"
 

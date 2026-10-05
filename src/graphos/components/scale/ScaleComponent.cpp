@@ -27,7 +27,7 @@
 #include "graphos/components/scale/impl/ScaleModel.h"
 #include "graphos/components/scale/impl/ScaleView.h"
 #include "graphos/components/scale/impl/ScalePresenter.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QAction>

@@ -21,14 +21,12 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_SCALE_TASK_H
-#define GRAPHOS_SCALE_TASK_H
+#pragma once
 
 #include <tidop/core/task/Task.h>
 #include <tidop/math/algebra/matrix/Matrix.h>
 
-class ccHObject;
-
+//class ccHObject;
 
 namespace graphos
 {
@@ -36,12 +34,12 @@ namespace graphos
 class ScaleAlgorithm;
 
 class ScaleTask
-  : public tl::TaskBase
+  : public tl::Task
 {
 
 public:
 
-    ScaleTask(double scale, ccHObject *model);
+    ScaleTask(double scale/*, ccHObject *model*/);
     ~ScaleTask() override;
 
 public:
@@ -53,15 +51,13 @@ public:
 
 protected:
 
-    void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
 private:
 
     double mScale;
-    ccHObject *mModel;
+    //ccHObject *mModel;
     tl::Matrix<double, 4, 4> mTransform;
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_SCALE_TASK_H

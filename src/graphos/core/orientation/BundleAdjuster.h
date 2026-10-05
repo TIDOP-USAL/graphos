@@ -26,9 +26,9 @@
 
 #include "graphos/graphos_global.h"
 
-#include <colmap/base/reconstruction.h>
-#include <colmap/base/cost_functions.h>
-#include <colmap/optim/bundle_adjustment.h>
+#include <colmap/scene/reconstruction.h>
+#include <colmap/estimators/cost_functions/reprojection_error.h>
+#include <colmap/estimators/bundle_adjustment.h>
 
 #include "groundpoint.h"
 
@@ -78,7 +78,7 @@ public:
     auto graphosId(uint32_t graphosId) const -> size_t;
 
     void setRobustFittingError(double robustFittingError);
-    auto robustFittingError() const;;
+    auto robustFittingError() const;
 };
 
 

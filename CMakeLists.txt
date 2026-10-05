@@ -187,7 +187,7 @@ option(BUILD_FEATMATCH_COMPONENT "Build Feature Match Component"  ON)
 option(BUILD_FEATVIEWER_COMPONENT "Build Feature Viewer Component"  ON)
 option(BUILD_GCPS_COMPONENT "Build Ground Control Points Component"  ON)
 option(BUILD_SCALE_COMPONENT "Build Scale Component"  ON)
-option(BUILD_FLOOR_LEVEL_COMPONENT "Build Floor Level Component"  ON)
+option(BUILD_FLOOR_LEVEL_COMPONENT "Build Floor Level Component"  OFF)
 option(BUILD_IMAGE_LOAD_COMPONENT "Build Image Load Component"  ON)
 option(BUILD_IMPORT_CAMERAS_COMPONENT "Build Import Cameras Component"  ON)
 option(BUILD_EXPORT_CAMERA_POSES_COMPONENT "Build Export Camera Poses"  ON)
@@ -361,6 +361,49 @@ endif()
 
 enable_language(C) # OpenMP
 
+# Ceres expects the target names exported by SuiteSparse's Find module,
+# while the SuiteSparse package used by the Windows dependencies exports
+# the same targets in lowercase.
+find_package(SuiteSparse 7.5.1 CONFIG QUIET)
+if(SuiteSparse_FOUND)
+    foreach(SUITESPARSE_COMPONENT CHOLMOD SPQR)
+        string(TOLOWER "${SUITESPARSE_COMPONENT}" SUITESPARSE_COMPONENT_LOWER)
+        if(TARGET SuiteSparse::${SUITESPARSE_COMPONENT_LOWER}
+           AND NOT TARGET SuiteSparse::${SUITESPARSE_COMPONENT})
+            add_library(SuiteSparse::${SUITESPARSE_COMPONENT}
+                        ALIAS SuiteSparse::${SUITESPARSE_COMPONENT_LOWER})
+        endif()
+    endforeach()
+endif()
+
+# COLMAP's FindMetis.cmake looks for the unnamespaced `metis` target,
+# while the Windows METIS package exports `METIS::metis`.
+find_package(metis CONFIG QUIET)
+if(TARGET METIS::metis AND NOT TARGET metis)
+    add_library(metis ALIAS METIS::metis)
+endif()
+if(NOT TARGET metis AND metis_DIR)
+    get_filename_component(METIS_ROOT "${metis_DIR}/.." ABSOLUTE)
+    set(METIS_INCLUDE_DIR_HINTS "${METIS_ROOT}/include" CACHE PATH
+        "METIS include directory hint" FORCE)
+    set(METIS_LIBRARY_DIR_HINTS "${METIS_ROOT}/lib" CACHE PATH
+        "METIS library directory hint" FORCE)
+    unset(METIS_INCLUDE_DIRS CACHE)
+    unset(METIS_LIBRARIES CACHE)
+endif()
+
+if(GLEW_INCLUDE_DIR)
+    get_filename_component(GLEW_ROOT "${GLEW_INCLUDE_DIR}/.." ABSOLUTE)
+    set(GLEW_INCLUDE_DIR_HINTS "${GLEW_ROOT}/include" CACHE PATH
+        "GLEW include directory hint" FORCE)
+    set(GLEW_LIBRARY_DIR_HINTS "${GLEW_ROOT}/lib" CACHE PATH
+        "GLEW library directory hint" FORCE)
+    unset(GLEW_INCLUDE_DIRS CACHE)
+    unset(GLEW_LIBRARIES CACHE)
+endif()
+set(GLEW_USE_STATIC_LIBS OFF CACHE BOOL
+    "Use the shared GLEW library" FORCE)
+
 set(CMAKE_MESSAGE_LOG_LEVEL "ERROR")
 find_package(COLMAP REQUIRED)
 set(CMAKE_MESSAGE_LOG_LEVEL "STATUS")
@@ -389,7 +432,18 @@ endif()
 # GLEW (REQUIRED)                                                        #
 ##########################################################################   
 
-find_package(GLEW REQUIRED)
+if(GLEW_INCLUDE_DIR AND GLEW_SHARED_LIBRARY_RELEASE)
+    set(GLEW_INCLUDE_DIRS "${GLEW_INCLUDE_DIR}" CACHE PATH
+        "GLEW include directory" FORCE)
+    set(GLEW_LIBRARIES "${GLEW_SHARED_LIBRARY_RELEASE}" CACHE FILEPATH
+        "GLEW library" FORCE)
+endif()
+if(NOT TARGET GLEW::GLEW)
+    find_package(GLEW REQUIRED)
+endif()
+if(TARGET GLEW::GLEW AND NOT TARGET GLEW::glew)
+    add_library(GLEW::glew ALIAS GLEW::GLEW)
+endif()
 
 
 ##########################################################################

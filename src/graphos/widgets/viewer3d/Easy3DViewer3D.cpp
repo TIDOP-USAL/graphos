@@ -900,9 +900,9 @@ void Easy3DViewer3D::wheelEvent(QWheelEvent *event)
     const easy3d::vec3 &point = pointUnderPixel(position, found);
     if (found) {
         mCamera->setPivotPoint(point);
-    } else {
+    } /*else {
         mCamera->setPivotPoint(mCamera->sceneCenter());
-    }
+    }*/
 
     mCamera->frame()->action_zoom(event->angleDelta().y() > 0 ? 1 : -1, mCamera);
 

@@ -24,17 +24,17 @@
 
 #include "ScalePresenter.h"
 
-#include "graphos/core/task/Progress.h"
-#include "graphos/core/Application.h"
+#include "graphos/framework/task/ProgressHandler.h"
+#include "graphos/framework/app/Application.h"
 #include "graphos/widgets/viewer3d/Easy3DViewer3D.h"
 #include "graphos/components/scale/impl/ScaleModel.h"
 #include "graphos/components/scale/impl/ScaleView.h"
 #include "graphos/components/scale/impl/ScaleTask.h"
 #include "graphos/core/utils.h"
 
-#include <ccPointCloud.h>
+//#include <ccPointCloud.h>
 
-#include <tidop/core/defs.h>
+//#include <tidop/core/defs.h>
 
 #include <QMessageBox>
 #include <QMainWindow>
@@ -60,32 +60,32 @@ ScalePresenterImp::~ScalePresenterImp()
 
 void ScalePresenterImp::measure(bool active)
 {
-    if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
+    //if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
 
-        if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
-            const QSignalBlocker blocker2(ccviewer);
-            if (active) {
-                dynamic_cast<Application *>(qApp)->mainWindow()->activateWindow();
-                connect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
-                ccviewer->activatePicker(CCViewer3D::PickingMode::distance);
-            } else {
-                disconnect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
-                ccviewer->deactivatePicker();
-            }
-        }
+    //    if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
+    //        const QSignalBlocker blocker2(ccviewer);
+    //        if (active) {
+    //            dynamic_cast<Application *>(qApp)->mainWindow()->activateWindow();
+    //            connect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
+    //            ccviewer->activatePicker(CCViewer3D::PickingMode::distance);
+    //        } else {
+    //            disconnect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
+    //            ccviewer->deactivatePicker();
+    //        }
+    //    }
 
-    } else if (active) {
-        QMessageBox msg_box(QMessageBox::Warning,
-                           QApplication::translate("ScaleComponent", "A 3D model is required for the measurement"),
-                           QApplication::translate("ScaleComponent", "Do you want to open the 3D model??"),
-                           QMessageBox::Yes | QMessageBox::No, mView);
-        msg_box.setDefaultButton(QMessageBox::Yes);
-        int ret = msg_box.exec();
-        if (ret == QMessageBox::Yes) {
-            emit open_3d_model();
-        }
+    //} else if (active) {
+    //    QMessageBox msg_box(QMessageBox::Warning,
+    //                       QApplication::translate("ScaleComponent", "A 3D model is required for the measurement"),
+    //                       QApplication::translate("ScaleComponent", "Do you want to open the 3D model??"),
+    //                       QMessageBox::Yes | QMessageBox::No, mView);
+    //    msg_box.setDefaultButton(QMessageBox::Yes);
+    //    int ret = msg_box.exec();
+    //    if (ret == QMessageBox::Yes) {
+    //        emit open_3d_model();
+    //    }
 
-    }
+    //}
 }
 
 void ScalePresenterImp::pointClicked(const QVector3D &point)
@@ -125,7 +125,7 @@ void ScalePresenterImp::initSignalAndSlots()
         });
 }
 
-void ScalePresenterImp::onError(tl::TaskErrorEvent *event)
+void ScalePresenterImp::onError(tl::TaskErrorEvent &event)
 {
     TaskPresenter::onError(event);
 
@@ -134,7 +134,7 @@ void ScalePresenterImp::onError(tl::TaskErrorEvent *event)
     }
 }
 
-void ScalePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void ScalePresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
     TaskPresenter::onFinished(event);
 
@@ -145,43 +145,43 @@ void ScalePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 auto ScalePresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
-    ccHObject *model = nullptr;
+    //ccHObject *model = nullptr;
 
-    if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
+    //if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
 
-        if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
-            ccHObject *root = ccviewer->object();
-            ccHObject::Container clouds;
-            // Nubes de puntos o malla
-            root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+    //    if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
+    //        ccHObject *root = ccviewer->object();
+    //        ccHObject::Container clouds;
+    //        // Nubes de puntos o malla
+    //        root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
 
-            /// Sólo se permite una nube de puntos en el visor
-            //TL_ASSERT(clouds.size() == 1, "Error");
+    //        /// Sólo se permite una nube de puntos en el visor
+    //        //TL_ASSERT(clouds.size() == 1, "Error");
 
-            model = clouds.at(0);
-        }
-    }
+    //        model = clouds.at(0);
+    //    }
+    //}
 
     double scale = mView->distanceReal() / mView->distance();
 
-    std::unique_ptr<tl::Task> task = std::make_unique<ScaleTask>(scale, model);
+    std::unique_ptr<tl::Task> task = std::make_unique<ScaleTask>(scale/*, model*/);
 
-    task->subscribe([&](const tl::TaskFinalizedEvent *event) {
+    task->subscribe([&](const tl::TaskFinalizedEvent &event) {
 
-        try {
+        //try {
 
-            if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
-                if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
-                    ccviewer->redraw();
-                }
-            }
+        //    if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
+        //        if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
+        //            ccviewer->redraw();
+        //        }
+        //    }
 
-            auto transform = dynamic_cast<ScaleTask const *>(event->task())->transform();
-            mModel->setTransform(transform);
+        //    auto transform = dynamic_cast<ScaleTask const *>(event->task())->transform();
+        //    mModel->setTransform(transform);
 
-        } catch (const std::exception &e) {
-            tl::printException(e);
-        }
+        //} catch (const std::exception &e) {
+        //    tl::printException(e);
+        //}
 
     });
 

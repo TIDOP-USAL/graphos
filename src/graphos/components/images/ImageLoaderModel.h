@@ -52,7 +52,7 @@ public:
     virtual auto cameraRepository() -> CameraRepository & = 0;
     virtual auto imagesRepository() -> ImageRepository & = 0;
     virtual auto enuCrs() const -> std::string = 0;
-    virtual void setEnuCrs(const std::string &crs) = 0;
+    virtual void setEnuCrs(std::string crs) = 0;
 
 };
 

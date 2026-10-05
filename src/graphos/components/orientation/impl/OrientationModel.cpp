@@ -29,6 +29,8 @@
 #include "graphos/core/orientation/CameraPosesRepository.h"
 
 #include <QFileInfo>
+#include <QSettings>
+#include <QCoreApplication>
 
 namespace graphos
 {
@@ -36,7 +38,11 @@ namespace graphos
 OrientationModelImp::OrientationModelImp(Project *project,
                                          QObject *parent)
   : OrientationModel(parent),
-    mProject(project)
+    mProject(project),
+    mSettings(new QSettings(QSettings::IniFormat,
+                            QSettings::UserScope,
+                            QCoreApplication::organizationName(),
+                            QCoreApplication::applicationName()))
 {
     OrientationModelImp::init();
 }
@@ -78,24 +84,29 @@ bool OrientationModelImp::hasAdjustedCalibration() const
     return calibrated;
 }
 
-void OrientationModelImp::setSparseModel(const tl::Path &sparseModel)
+void OrientationModelImp::setSparseModel(tl::Path sparseModel)
 {
-    mProject->setSparseModel(sparseModel);
+    mProject->setSparseModel(std::move(sparseModel));
 }
 
-void OrientationModelImp::setEnuCrs(const QString &enuCrs)
+auto OrientationModelImp::enuCrs() const -> std::string
 {
-    mProject->info().setEnuCrs(enuCrs.toStdString());
+    return mProject->info().enuCrs();
 }
 
-void OrientationModelImp::setGroundPoints(const tl::Path &groundPoints)
+void OrientationModelImp::setEnuCrs(std::string enuCrs)
 {
-    mProject->setGroundPoints(groundPoints);
+    mProject->info().setEnuCrs(std::move(enuCrs));
 }
 
-void OrientationModelImp::setCameraPosesFile(const tl::Path &cameraPosesFile)
+void OrientationModelImp::setGroundPoints(tl::Path groundPoints)
 {
-    mProject->setCameraPosesFile(cameraPosesFile);
+    mProject->setGroundPoints(std::move(groundPoints));
+}
+
+void OrientationModelImp::setCameraPosesFile(tl::Path cameraPosesFile)
+{
+    mProject->setCameraPosesFile(std::move(cameraPosesFile));
 }
 
 auto OrientationModelImp::isPhotoOriented(size_t imageId) const -> bool
@@ -215,6 +226,11 @@ void OrientationModelImp::setOrientationReport(const OrientationReport &orientat
 void OrientationModelImp::setOrientationConfig(std::shared_ptr<OrientationProperties> config)
 {
     mProject->setOrientationConfig(config);
+}
+
+auto OrientationModelImp::useCuda() const -> bool 
+{
+    return mSettings->value("UseCuda", true).toBool();
 }
 
 } // namespace graphos

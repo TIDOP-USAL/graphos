@@ -27,8 +27,12 @@
 #include "graphos/core/camera/CameraRepository.h"
 #include "graphos/core/image/ImageRepository.h"
 #include "graphos/core/orientation/ColmapReconstructionConvert.h"
+//#include "graphos/core/orientation/BundleAdjuster.h"
 #include "graphos/core/orientation/io/CameraPosesWriter.h"
 #include "graphos/core/orientation/io/OrientationExport.h"
+#include "graphos/core/orientation/GroundControlPoint.h"
+#include "graphos/core/orientation/io/GCPsReader.h"
+#include "graphos/core/orientation/io/GCPsWriter.h"
 
 #include <tidop/core/base/Exception.h>
 #include <tidop/core/task/Progress.h>
@@ -41,6 +45,8 @@
 #include <colmap/controllers/option_manager.h>
 #include <colmap/estimators/bundle_adjustment.h>
 #include <colmap/estimators/bundle_adjustment_ceres.h>
+#include <colmap/estimators/triangulation.h>
+#include <colmap/estimators/solvers/similarity_transform.h>
 
 #include <ceres/ceres.h>
 
@@ -60,19 +66,20 @@ EstimatePosesTask::EstimatePosesTask(tl::Path database,
                                      const ImageRepository &imageRepo,
                                      CameraRepository &cameraRepo,
                                      Options options,
+                                     std::string enuCRS,
                                      tl::Path groundControlPoints)
   : mDatabase(std::move(database)),
     mOutputPath(std::move(outputPath)),
     mImageRepo(imageRepo),
     mCameraRepo(cameraRepo),
     mOptions(options),
+    mEnuCrs(enuCRS),
     mGroundControlPoints(std::move(groundControlPoints)),
     mMinCommonImages(absolute_orientation_min_common_images),
     mRobustAlignment(absolute_orientation_robust_alignment),
     mRobustAlignmentMaxError(absolute_orientation_robust_alignment_max_error),
     mMapper(nullptr),
-    mGeoTools(tl::GeoTools::getInstance()),
-    mEnuCrs("")
+    mGeoTools(tl::GeoTools::getInstance())
 {
     if (mOptions.isEnabled(Options::absolute_orientation)) {
 
@@ -81,11 +88,11 @@ EstimatePosesTask::EstimatePosesTask(tl::Path database,
                 tl::Message::warning("'Options::use_gcp' is active but there are no GCPs. 'Options::use_gcp' is deactivated.");
                 mOptions.disable(Options::use_gcp);
             }
-        } else {
+        } /*else {
             ///TODO: Hay problemas al combinar puntos de control y posiciones de las camaras
             ///      Da mas prioridad a las posiciones de las cámaras
             mOptions.disable(Options::use_poses);
-        }
+        }*/
 
         if (mOptions.isEnabled(Options::use_poses)) {
 
@@ -197,6 +204,11 @@ auto EstimatePosesTask::report() const -> OrientationReport
     return mOrientationReport;
 }
 
+auto EstimatePosesTask::enuCrs() const -> std::string
+{
+    return mEnuCrs;
+}
+
 void EstimatePosesTask::setMinCommonImages(int minCommonImages)
 {
     mMinCommonImages = minCommonImages;
@@ -253,12 +265,13 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
 
             for (const auto &[image_id, image] : mImageRepo) {
 
-                if (image.cameraPose().isEmpty()) continue;
+                /*if (image.cameraPose().isEmpty()) continue;*/
 
                 if (auto colmap_image = database->ReadImageWithName(image.path().toString())) {
 
                     colmap::image_t colmap_image_id = colmap_image->ImageId();
                     mImageIdsGraphosToColmap[image_id] = colmap_image_id;
+                    mImageIdsColmapToGraphos[colmap_image_id] = image_id;
 
                     colmap::camera_t camera_id = static_cast<colmap::camera_t>(image.cameraId());
 
@@ -321,6 +334,7 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
             options->ba_refine_focal_length = !mOptions.isEnabled(Options::fix_calibration);
             options->ba_refine_principal_point = false;
             options->ba_refine_extra_params = !mOptions.isEnabled(Options::fix_calibration);
+            options->ba_use_gpu = !mOptions.isEnabled(Options::use_cuda);
 
             if (mOptions.isEnabled(Options::use_poses)) {
 
@@ -447,13 +461,287 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
 
         TL_ASSERT(summary->termination_type == colmap::BundleAdjustmentTerminationType::CONVERGENCE, "Bundle adjustment failed to converge");
 
-        if (mOptions.isEnabled(Options::orientation_global)) {
-            reconstruction->ExtractColorsForAllImages("");
-        }
+        // Ground Control Points Bundle Adjustment (custom implementation)
+        if (mOptions.isEnabled(Options::absolute_orientation) && mOptions.isEnabled(Options::use_gcp)) {
 
-        // Calculo de errores
+            tl::Message::info("Starting Ground Control Points Bundle Adjustment...");
 
-        if (mOptions.isEnabled(Options::use_poses)) {
+            // Read ground control points
+            //std::vector<GCP> control_points_enu;
+            std::vector<GroundControlPoint> ground_control_points;
+            std::string ground_control_points_crs;
+
+            tl::Path gcp_file = mOutputPath;
+            gcp_file.append("georef.xml");
+            
+            if (gcp_file.exists()) {
+
+                auto gcp_reader = GCPsReaderFactory::create("GRAPHOS");
+                gcp_reader->read(gcp_file);
+                ground_control_points = gcp_reader->gcps();
+                ground_control_points_crs = gcp_reader->epsgCode();
+
+                TL_ASSERT(!ground_control_points_crs.empty(), "Unknown CRS for ground control points");
+
+                // Calculate ENU CRS if not already set
+                if (mEnuCrs.empty()) {
+                    tl::Point3d geographic_center;
+                    for (const auto &gcp : ground_control_points) {
+                        tl::Point3d coordinates = gcp;
+
+                        if (ground_control_points_crs != "EPSG:4326")
+                            coordinates = mGeoTools->ptrCRSsTools()->crsOperation(ground_control_points_crs, "EPSG:4326", gcp);
+
+                        geographic_center += coordinates.vector() / static_cast<double>(ground_control_points.size());
+                    }
+
+                    mEnuCrs = mGeoTools->ptrCRSsTools()->getCRSEnu("EPSG:4326", geographic_center.x(), geographic_center.y(), geographic_center.z());
+                }
+
+
+                std::vector<Eigen::Vector3d> src;
+                std::vector<Eigen::Vector3d> dst;
+                //std::vector<std::string> gcp_name;
+
+                colmap::IncrementalTriangulator::Options options;
+
+                // Setup estimation options.
+                colmap::EstimateTriangulationOptions tri_options;
+                tri_options.min_tri_angle = colmap::DegToRad(options.min_angle);
+                tri_options.residual_type = colmap::TriangulationEstimator::ResidualType::REPROJECTION_ERROR;
+                tri_options.ransac_options.max_error = options.complete_max_reproj_error;
+                tri_options.ransac_options.confidence = 0.9999;
+                tri_options.ransac_options.min_inlier_ratio = 0.02;
+                tri_options.ransac_options.max_num_trials = 10000;
+
+                for (auto &ground_control_point : ground_control_points) {
+
+                    std::vector<Eigen::Vector2d> points;
+                    std::vector<colmap::Rigid3d> cams_from_world;
+                    std::vector<const colmap::Camera *> cameras;
+
+
+                    for (const auto &[image_id, image] : reconstruction->Images()) {
+
+
+                        auto &track = ground_control_point.track();
+
+                        auto image_graphos_id = mImageIdsColmapToGraphos[image_id];
+
+                        if (track.existPoint(image_graphos_id)) {
+
+                            tl::Point2d point = track.point(image_graphos_id);
+
+                            points.emplace_back(point.x(), point.y());
+                            cams_from_world.push_back(image.CamFromWorld());
+
+                            const auto &camera = reconstruction->Camera(image.CameraId());
+                            cameras.push_back(&camera);
+                        }
+
+                    }
+
+                    tl::Message::info("GCP '{}': {} observations", ground_control_point.name(), points.size());
+
+                    if (points.size() < 2) continue;
+
+                    Eigen::Vector3d xyz;
+                    std::vector<char> inlier_mask;
+
+                    if (points.size() <= 15) {
+                        tri_options.ransac_options.min_num_trials = colmap::NChooseK(points.size(), 2);
+                    }
+
+                    bool success = colmap::EstimateTriangulation(tri_options, points, cams_from_world, cameras, &inlier_mask, &xyz);
+
+                    tl::Message::info("GCP '{}': triangulation {}", ground_control_point.name(), success ? "succeeded" : "failed");
+
+                    if (success) {
+
+                        src.push_back(xyz);
+
+                        auto gcps_enu = ground_control_point;
+                        if (ground_control_points_crs != "EPSG:4326")
+                            mGeoTools->ptrCRSsTools()->crsOperation(ground_control_points_crs, mEnuCrs, gcps_enu.x(), gcps_enu.y(), gcps_enu.z());
+
+                        //GCP _gcp;
+                        //_gcp.point = gcps_enu.vector();
+                        //_gcp.track = ground_control_point.track();
+                        //_gcp.name = ground_control_point.name();
+                        //control_points_enu.push_back(_gcp);
+
+                        dst.emplace_back(gcps_enu.x(), gcps_enu.y(), gcps_enu.z());
+                        //gcp_name.push_back(ground_control_point.name());
+                    }
+                }
+
+                if (mOptions.isDisabled(Options::use_poses)) {
+
+                    tl::Message::info("Ground control points available for similarity transformation: {}", src.size());
+
+                    TL_ASSERT(src.size() >= 3, "Similarity transformation: Insufficient number of points");
+
+                    colmap::Sim3d similarity_transform;
+                    TL_ASSERT(colmap::EstimateSim3d(src, dst, similarity_transform), "Similarity transformation: Estimation failed");
+
+                    reconstruction->Transform(similarity_transform);
+
+                    std::vector<double> errors;
+                    errors.reserve(dst.size());
+
+                    for (size_t i = 0; i < dst.size(); ++i) {
+                        //similarity_transform.TransformPoint(&src.at(i));
+                        const Eigen::Vector3d transformed = similarity_transform * src[i];
+                        errors.push_back((transformed - dst[i]).norm());
+                    }
+
+                    //robust_fitting_error = colmap::Median(errors);
+
+                    tl::Message::info("Similarity transformation error: {} (mean), {} (median)", colmap::Mean(errors), colmap::Median(errors));
+
+                }
+
+                //if (control_points_enu.size() > 3) {
+                //    // Configure custom bundle adjustment for GCPs
+                //    colmap::BundleAdjustmentOptions gcp_ba_options;// = *option_manager.bundle_adjustment;
+                //    gcp_ba_options.print_summary = false;
+                //    //gcp_ba_options.refine_focal_length = !mOptions.isEnabled(Options::fix_calibration);
+                //    //gcp_ba_options.refine_principal_point = false; // Never refine principal point to avoid corruption
+                //    //gcp_ba_options.refine_extra_params = !mOptions.isEnabled(Options::fix_calibration);
+
+                //    BundleAdjustmentConfig gcp_ba_config;
+                //    gcp_ba_config.setRobustFittingError(4.0); // Antes por defecto usaba 2
+                //    gcp_ba_config.setGroundControlPoints(control_points_enu);
+                //    gcp_ba_config.setImageIdsGraphosToColmap(mImageIdsGraphosToColmap);
+                //    gcp_ba_config.setImageIdsColmapToGraphos(mImageIdsColmapToGraphos);
+                //    for (const colmap::image_t image_id : reg_image_ids) {
+                //        ba_config.AddImage(image_id);
+                //    }
+
+                //    // Run custom bundle adjustment with GCPs
+                //    for (int i = 0; i < 5; ++i) {
+                //        ba_terminate = false;
+
+                //        BundleAdjuster gcp_bundle_adjuster(gcp_ba_options, gcp_ba_config);
+                //        bool success = gcp_bundle_adjuster.solve(reconstruction.get());
+
+                //        if (status() == Status::stopping || stopToken.stop_requested()) return;
+
+                //        ba_terminate = true;
+
+                //        if (success) break;
+                //    }
+
+                //    // Calculate GCP errors using direct projection (avoiding re-triangulation after BA)
+
+                //    {
+                //        std::vector<double> gcp_errors;
+                //        std::vector<std::string> gcp_name;
+                //        std::vector<size_t> valid_gcp_indices;
+
+                //        for (size_t i = 0; i < control_points_enu.size(); ++i) {
+
+                //            std::vector<double> reprojection_errors;
+                //            int observation_count = 0;
+
+                //            tl::Message::info("Ground Control Point {}: [{}, {}, {}]",
+                //                control_points_enu[i].name,
+                //                control_points_enu[i].point.x(),
+                //                control_points_enu[i].point.y(),
+                //                control_points_enu[i].point.z());
+
+                //            Eigen::Vector3d gcp(control_points_enu[i].point.x(), control_points_enu[i].point.y(), control_points_enu[i].point.z());
+
+                //            for (const auto &[image_id, image] : reconstruction->Images()) {
+
+                //                auto &track = control_points_enu[i].track;
+                //                size_t graphos_image_id = mImageIdsColmapToGraphos[image_id];
+
+                //                if (track.existPoint(graphos_image_id)) {
+
+                //                    tl::Point2d point = track.point(graphos_image_id);
+                //                    auto cam_from_world = image.CamFromWorld();
+
+                //                    if (cam_from_world.translation().norm() == 0.0) {
+                //                        tl::Message::warning("Cámara {} tiene traslación nula/no registrada", image_id);
+                //                        continue;
+                //                    }
+
+                //                    const auto &camera = reconstruction->Camera(image.CameraId());
+
+                //                    if (i == 0 && observation_count == 0) {
+                //                        tl::Message::info("Cam ID Colmap: {}, Graphos ID: {}", image_id, graphos_image_id);
+                //                        tl::Message::info("Punto en Track 2D: [{}, {}]", point.x(), point.y());
+                //                        tl::Message::info("Dimensiones Cámara: {} x {}", camera.width, camera.height);
+                //                        tl::Message::info("Punto Principal (cx, cy): [{}, {}]", camera.PrincipalPointX(), camera.PrincipalPointY());
+                //                    }
+
+                //                    // Project known GCP 3D position into image
+                //                    Eigen::Vector3d rotated_point = cam_from_world.rotation() * gcp + cam_from_world.translation();
+                //                    auto proj = camera.ImgFromCam(rotated_point);
+                //                    if (proj.has_value()) {
+                //                        Eigen::Vector2d residual = *proj - Eigen::Vector2d(point.x(), point.y());
+                //                        double reprojection_error = residual.norm();
+                //                        reprojection_errors.push_back(reprojection_error);
+                //                        
+                //                        // Store reprojection error in track
+                //                        ground_control_points[i].addErrorToTrack(graphos_image_id, {residual.x(), residual.y()});
+                //                        
+                //                        observation_count++;
+                //                    }
+                //                }
+                //            }
+
+                //            tl::Message::info("GCP '{}': {} valid image observations found", control_points_enu[i].name, observation_count);
+
+                //            if (observation_count < 2) {
+                //                tl::Message::warning("GCP '{}' skipped: Insufficient observations (< 2)", control_points_enu[i].name);
+                //                continue;
+                //            }
+
+                //            // Calculate 3D error as median of reprojection errors
+                //            if (!reprojection_errors.empty()) {
+                //                double error_3d = colmap::Median(reprojection_errors);
+                //                ground_control_points[i].setError(error_3d);
+                //                gcp_errors.push_back(error_3d);
+                //                gcp_name.push_back(control_points_enu[i].name);
+                //                valid_gcp_indices.push_back(i);
+
+                //                tl::Message::info("Ground Control Point {}: Error -> {} (median of {} reprojection errors)", 
+                //                    control_points_enu[i].name, error_3d, reprojection_errors.size());
+                //            }
+                //        }
+
+                //        tl::Path gcp_file = mOutputPath;
+                //        gcp_file.append("georef.xml");
+                //        auto gcp_writer = GCPsWriterFactory::create("GRAPHOS");
+                //        gcp_writer->setEPSGCode(ground_control_points_crs);
+                //        gcp_writer->setGCPs(ground_control_points);
+                //        gcp_writer->write(gcp_file);
+
+                //        // Write updated GCP errors
+                //        if (!gcp_errors.empty()) {
+
+                //            mOrientationReport.alignmentErrorMean = colmap::Mean(gcp_errors);
+                //            mOrientationReport.alignmentErrorMedian = colmap::Median(gcp_errors);
+
+                //            tl::Message::info("Ground Control Points error: {} (mean), {} (median)",
+                //                mOrientationReport.alignmentErrorMean,
+                //                mOrientationReport.alignmentErrorMedian);
+                //        } else {
+                //            tl::Message::warning("No valid GCP errors were computed.");
+                //        }
+                //    }
+                //    
+                //} else {
+                //    tl::Message::warning("Insufficient ground control points (need at least 3)");
+                //}
+
+            } else {
+                tl::Message::warning("Ground control points file not found: {}", gcp_file.toString());
+            }
+
+        } else if (mOptions.isEnabled(Options::use_poses)) {
 
             size_t size = mImageRepo.size();
             std::vector<double> errors;
@@ -470,38 +758,18 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
                 if (reconstruction->ExistsImage(mImageIdsGraphosToColmap[graphos_image_id])) {
 
                     const colmap::Image &colmap_image = reconstruction->Image(mImageIdsGraphosToColmap[graphos_image_id]);
-                    //tl::Point3d position = image.cameraPose().position();
                     Eigen::Vector3d pos_ini;
 
-                    //auto prior_position = image.cameraPose().position();
-                    if (auto pose = poses_prior_enu.find(graphos_image_id); pose != poses_prior_enu.end()){
-                    
+                    if (auto pose = poses_prior_enu.find(graphos_image_id); pose != poses_prior_enu.end()) {
+
                         pos_ini = pose->second;
-                        //std::string accuracy;
-                        //if (mOptions.isDisabled(Options::use_rtk_positioning_accuracy)) {
-                        //    accuracy = "10.";
-                        //} else {
-                        //    accuracy = std::to_string(image.cameraPose().accuracy().x())
-                        //        .append(" ")
-                        //        .append(std::to_string(image.cameraPose().accuracy().y()))
-                        //        .append(" ")
-                        //        .append(std::to_string(image.cameraPose().accuracy().z()));
-                        //}
+
                         auto pos_final = colmap_image.ProjectionCenter();
                         auto error_xyz = pos_final - pos_ini;
                         double error = (error_xyz).norm();
                         double error_x = std::abs(error_xyz.x());
                         double error_y = std::abs(error_xyz.y());
                         double error_z = std::abs(error_xyz.z());
-                        //tl::Message::info("Camera pose error: {} -> Error:{}", image.name().toStdString(), error);
-
-                        //std::cout << std::fixed << std::setprecision(6)
-                        //    << image.name().toStdString() << "\t"
-                        //    << pos_ini.x() << "\t" << pos_ini.y() << "\t" << pos_ini.z() << "\t"
-                        //    << accuracy << "\t" << error << "\t"
-                        //    << error_xyz.x() << "\t" << error_xyz.y() << "\t" << error_xyz.z() << "\t"
-                        //    << pos_final.x() << "\t" << pos_final.y() << "\t" << pos_final.z()
-                        //    << std::endl;
 
                         errors.push_back(error);
                         errors_x.push_back(error_x);
@@ -519,6 +787,9 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
             std::cout << std::fixed << "Error x,y,z: [" << colmap::Median(errors_x) << ", " << colmap::Median(errors_y) << ", " << colmap::Median(errors_z) << "]" << std::endl;
         }
 
+        if (mOptions.isEnabled(Options::orientation_global)) {
+            reconstruction->ExtractColorsForAllImages("");
+        }
 
         ColmapReconstructionConvert convert(reconstruction.get(), mImageRepo.all());
 

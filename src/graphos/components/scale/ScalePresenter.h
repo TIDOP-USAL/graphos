@@ -21,11 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
+#pragma once
 
-#ifndef GRAPHOS_SCALE_PRESENTER_INTERFACE_H
-#define GRAPHOS_SCALE_PRESENTER_INTERFACE_H
-
-#include "graphos/core/task/TaskPresenter.h"
+#include "graphos/framework/task/TaskPresenter.h"
 
 namespace graphos
 {
@@ -47,6 +45,3 @@ signals:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_SCALE_PRESENTER_INTERFACE_H

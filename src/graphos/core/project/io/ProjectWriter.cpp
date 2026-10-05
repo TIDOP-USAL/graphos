@@ -27,6 +27,7 @@
 #include "graphos/core/matching/MatchingProperties.h"
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/core/orientation/GroundControlPoint.h"
+#include "graphos/core/orientation/io/GCPsReader.h"
 
 #include <QFile>
 #include <QFileInfo>

@@ -26,6 +26,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QSettings>
+#include <QCoreApplication>
 
 namespace graphos
 {

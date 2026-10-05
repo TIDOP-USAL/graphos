@@ -51,10 +51,11 @@ public:
     virtual auto orientationMethod() const -> std::string = 0;
     virtual auto hasPriorCalibration() const -> bool = 0;
     virtual auto hasAdjustedCalibration() const -> bool = 0;
-    virtual void setSparseModel(const tl::Path &sparseModel) = 0;
-    virtual void setEnuCrs(const QString &enuCrs) = 0;
-    virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
-    virtual void setCameraPosesFile(const tl::Path &cameraPosesFile) = 0;
+    virtual void setSparseModel(tl::Path sparseModel) = 0;
+    virtual auto enuCrs() const -> std::string = 0;
+    virtual void setEnuCrs(std::string crs) = 0;
+    virtual void setGroundPoints(tl::Path groundPoints) = 0;
+    virtual void setCameraPosesFile(tl::Path cameraPosesFile) = 0;
     virtual auto isPhotoOriented(size_t imageId) const -> bool = 0;
     virtual auto photoOrientation(size_t imageId) const -> CameraPose = 0;
     virtual void addPhotoOrientation(size_t imageId, const CameraPose &orientation) = 0;
@@ -72,6 +73,7 @@ public:
     virtual auto orientationReport() const -> OrientationReport = 0;
     virtual void setOrientationReport(const OrientationReport &orientationReport) = 0;
     virtual void setOrientationConfig(std::shared_ptr<OrientationProperties> config) = 0;
+    virtual auto useCuda() const -> bool = 0;
 };
 
 } // namespace graphos

@@ -21,9 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-
-#ifndef GRAPHOS_SCALE_VIEW_H
-#define GRAPHOS_SCALE_VIEW_H
+#pragma once
 
 #include "graphos/components/scale/ScaleView.h"
 
@@ -87,5 +85,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_SCALE_VIEW_H

@@ -25,6 +25,8 @@
 
 #include "graphos/components/orientation/OrientationModel.h"
 
+class QSettings;
+
 namespace graphos
 {
 
@@ -47,10 +49,11 @@ public:
     auto orientationMethod() const -> std::string override;
     auto hasPriorCalibration() const -> bool override;
     auto hasAdjustedCalibration() const -> bool override;
-    void setSparseModel(const tl::Path &sparseModel) override;
-    void setEnuCrs(const QString &enuCrs) override;
-    void setGroundPoints(const tl::Path &groundPoints) override;
-    void setCameraPosesFile(const tl::Path &cameraPosesFile) override;
+    void setSparseModel(tl::Path sparseModel) override;
+    auto enuCrs() const -> std::string override;
+    void setEnuCrs(std::string crs) override;
+    void setGroundPoints(tl::Path groundPoints) override;
+    void setCameraPosesFile(tl::Path cameraPosesFile) override;
     auto isPhotoOriented(size_t imageId) const -> bool override;
     auto photoOrientation(size_t imageId) const -> CameraPose override;
     void addPhotoOrientation(size_t imageId,
@@ -69,6 +72,7 @@ public:
     auto orientationReport() const -> OrientationReport override;
     void setOrientationReport(const OrientationReport &orientationReport) override;
     void setOrientationConfig(std::shared_ptr<OrientationProperties> config) override;
+    auto useCuda() const -> bool override;
 
 // Model interface
 
@@ -83,7 +87,7 @@ public slots:
 protected:
 
     Project *mProject;
-
+    QSettings *mSettings;
 };
 
 } // namespace graphos

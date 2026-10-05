@@ -21,12 +21,11 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_SCALE_MODEL_INTERFACE_H
-#define GRAPHOS_SCALE_MODEL_INTERFACE_H
+#pragma once
 
 #include <tidop/math/algebra/matrix/Matrix.h>
 
-#include "graphos/core/mvp.h"
+#include "graphos/framework/mvp/Model.h"
 
 namespace graphos
 {
@@ -51,6 +50,3 @@ public slots:
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_SCALE_MODEL_INTERFACE_H

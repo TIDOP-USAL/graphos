@@ -77,9 +77,9 @@ auto ImageLoaderModelImp::enuCrs() const -> std::string
     return mProject->info().enuCrs();
 }
 
-void ImageLoaderModelImp::setEnuCrs(const std::string &crs)
+void ImageLoaderModelImp::setEnuCrs(std::string crs)
 {
-    mProject->info().setEnuCrs(crs);
+    mProject->info().setEnuCrs(std::move(crs));
 }
 
 void ImageLoaderModelImp::init()

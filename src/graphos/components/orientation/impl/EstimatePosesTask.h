@@ -68,7 +68,8 @@ public:
         absolute_orientation = (1 << 10),
         use_rtk_positioning_accuracy = (1 << 11),
         use_poses = (1 << 12),
-        use_gcp = (1 << 13)
+        use_gcp = (1 << 13),
+        use_cuda = (1 << 14)
     };
 
 public:
@@ -92,6 +93,7 @@ public:
                       const ImageRepository &imageRepo,
                       CameraRepository &cameraRepo,
                       Options options,
+                      std::string enuCRS = std::string(),
                       tl::Path groundControlPoints = tl::Path());
 
     ~EstimatePosesTask() override;
@@ -112,8 +114,7 @@ public:
      */
     auto report() const -> OrientationReport;
 
-    //TODO: Esto es si se utilizan los puntos de control para la orientación absoluta, habría que pasarlo al proyecto y guardarlo en el fichero de configuración
-    //auto enuCrs() const -> std::string;
+    auto enuCrs() const -> std::string;
 
     void setMinCommonImages(int minCommonImages);
     void setRobustAlignment(bool robustAlignment);
@@ -138,6 +139,7 @@ private:
     const ImageRepository &mImageRepo;
     CameraRepository &mCameraRepo;
     tl::EnumFlags<Options> mOptions;
+    std::string mEnuCrs;
     tl::Path mGroundControlPoints;
     int mMinCommonImages;
     bool mRobustAlignment;
@@ -146,10 +148,9 @@ private:
     //std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
     tl::GeoTools *mGeoTools;
     std::unordered_map<size_t, double> mCameraPosesErrors;
-    //std::unordered_map<uint32_t, size_t> mImageIdsColmapToGraphos;
+    std::unordered_map<uint32_t, size_t> mImageIdsColmapToGraphos;
     std::unordered_map<size_t, uint32_t> mImageIdsGraphosToColmap;
     OrientationReport mOrientationReport;
-    std::string mEnuCrs;
 };
 ALLOW_BITWISE_FLAG_OPERATIONS(EstimatePosesTask::Options)
 

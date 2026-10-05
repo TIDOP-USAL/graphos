@@ -307,7 +307,7 @@ int LoadImagesTask::loadCamera(const tl::RasterReader &imageReader)
             for (auto &[id, camera] : mCameraRepo) {
                 if (camera.make() == "Unknown camera") {
                     if (camera.width() == width && camera.height() == height) {
-                        return counter;
+                        return id;
                     }
                     counter++;
                 }

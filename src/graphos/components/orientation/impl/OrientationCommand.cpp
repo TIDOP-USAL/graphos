@@ -140,6 +140,7 @@ bool OrientationCommand::run()
                                          project.images(),
                                          project.cameras(),
                                          options,
+                                         project.info().enuCrs(),
                                          gcp_file);
 
         reconstruction.run();
@@ -166,9 +167,9 @@ bool OrientationCommand::run()
         project.setSparseModel(sparse_model_path);
         project.setGroundPoints(ground_points_path);
         project.setCameraPosesFile(poses_path);
-        //if (absolute_orientation) {
-        //    project.setEnuCrs(QString::fromStdString(reconstruction.enuCrs()));
-        //}
+        if (absolute_orientation) {
+            project.info().setEnuCrs(reconstruction.enuCrs());
+        }
 
         //TODO: Tendría que poder obtenerse el tamaño sin tener que cargar todo el fichero
         auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");

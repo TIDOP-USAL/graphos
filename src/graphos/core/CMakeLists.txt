@@ -69,6 +69,7 @@ add_files_to_project(${PROJECT_NAME}
                          matching/MatchingRepository.cpp
                          mesh/PoissonReconProperties.cpp
                          multispectral/Vignetting.cpp
+                         #orientation/BundleAdjuster.cpp
                          orientation/CameraPose.cpp
                          orientation/CameraPosesRepository.cpp
                          orientation/ColmapReconstructionConvert.cpp
@@ -78,6 +79,8 @@ add_files_to_project(${PROJECT_NAME}
                          orientation/Track.cpp
                          orientation/io/CameraPosesReader.cpp
                          orientation/io/CameraPosesWriter.cpp
+                         orientation/io/GCPsReader.cpp
+                         orientation/io/GCPsWriter.cpp
                          orientation/io/OrientationExport.cpp
                          ortho/OrthophotoProperties.cpp
                          project/Project.cpp
@@ -135,6 +138,7 @@ add_files_to_project(${PROJECT_NAME}
                          mesh/MeshReport.h
                          mesh/PoissonReconProperties.h
                          multispectral/Vignetting.h
+                         #orientation/BundleAdjuster.h
                          orientation/CameraPose.h
                          orientation/CameraPosesRepository.h
                          orientation/ColmapReconstructionConvert.h
@@ -145,6 +149,8 @@ add_files_to_project(${PROJECT_NAME}
                          orientation/Track.h
                          orientation/io/CameraPosesReader.h
                          orientation/io/CameraPosesWriter.h
+                         orientation/io/GCPsReader.h
+                         orientation/io/GCPsWriter.h
                          orientation/io/OrientationExport.h
                          ortho/OrthophotoProperties.h
                          ortho/OrthophotoReport.h

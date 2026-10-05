@@ -120,7 +120,7 @@ void SiftWidget::clear()
     const QSignalBlocker blocker_contrast_threshold(mContrastThreshold);
     const QSignalBlocker blocker_edge_threshold(mEdgeThreshold);
 
-    mFeaturesNumber->setValue(5000);
+    mFeaturesNumber->setValue(8000);
     mOctaveLayers->setValue(3);
     mContrastThresholdAuto->setChecked(true);
     mContrastThreshold->setValue(0.02 / 3.);

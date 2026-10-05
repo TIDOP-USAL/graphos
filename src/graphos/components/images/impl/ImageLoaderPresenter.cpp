@@ -93,9 +93,12 @@ void ImageLoaderPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
     TaskPresenter::onFinished(event);
 
     if (auto *load_images_task = dynamic_cast<const LoadImagesTask *>(event.task())) {
-        std::string enu_str = load_images_task->enuCrs();
-        mModel->setEnuCrs(enu_str);
-        tl::Message::info("Calculated Local ENU Reference System: {}", enu_str);
+
+        if (mModel->enuCrs().empty() && !load_images_task->enuCrs().empty()) {
+            std::string enu_str = load_images_task->enuCrs();
+            mModel->setEnuCrs(enu_str);
+            tl::Message::info("Calculated Local ENU Reference System: {}", enu_str);
+        }
     }
 
     if (progressHandler()) {

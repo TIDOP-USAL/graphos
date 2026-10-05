@@ -21,12 +21,11 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FLOOR_LEVEL_COMPONENT_H
-#define GRAPHOS_FLOOR_LEVEL_COMPONENT_H
+#pragma once
 
-#include "graphos/core/Component.h"
+#include "graphos/framework/component/Component.h"
 
-class ccPointCloud;
+//class ccPointCloud;
 
 namespace graphos
 {
@@ -82,18 +81,15 @@ private:
     QString mToolbar;
     QString mName;
     QAction *mAction;
-    Model *mModel;
-    View *mView;
-    Presenter *mPresenter;
-    std::shared_ptr<Command> mCommand;
-    Application *mApplication;
+    //Model *mModel;
+    //View *mView;
+    //Presenter *mPresenter;
+    //std::shared_ptr<Command> mCommand;
+    //Application *mApplication;
     bool mDeleteView;
-    ccPointCloud *mLevelMarkersCloud;
+    //ccPointCloud *mLevelMarkersCloud;
     std::vector<QVector3D> mPoints;
 
 };
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_FLOOR_LEVEL_COMPONENT_H

@@ -25,6 +25,8 @@
 
 #include "graphos/core/project/Project.h"
 #include "graphos/core/orientation/GroundControlPoint.h"
+#include "graphos/core/orientation/io/GCPsReader.h"
+#include "graphos/core/orientation/io/GCPsWriter.h"
 
 #include <QStandardItemModel>
 #include <QFile>

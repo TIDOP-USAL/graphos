@@ -138,6 +138,10 @@ void OrientationPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
             mModel->setGroundPoints(ground_points_path);
             mModel->setCameraPosesFile(poses_path);
 
+            auto enu_crs = task->enuCrs();
+            if (!enu_crs.empty())
+                mModel->setEnuCrs(task->enuCrs());
+
             auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
             poses_reader->read(poses_path);
             auto poses = poses_reader->cameraPoses();
@@ -222,6 +226,7 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
                                                            mModel->images(),
                                                            mModel->cameras(),
                                                            reconstructionOptions(),
+                                                           mModel->enuCrs(),
                                                            mModel->groundControlPointsFile());
 
     if (progressHandler()) {
@@ -270,6 +275,10 @@ EstimatePosesTask::Options OrientationPresenterImp::reconstructionOptions() cons
 
     if (mView->fixCalibration()) {
         options |= EstimatePosesTask::Options::fix_calibration;
+    }
+
+    if (mModel->useCuda()) {
+        options |= EstimatePosesTask::Options::use_cuda;
     }
 
     return options;

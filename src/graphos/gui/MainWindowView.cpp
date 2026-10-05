@@ -325,8 +325,15 @@ void MainWindowView::addImages(const std::unordered_map<size_t, Image> &images,
             itemPhotogram->setData(0, Qt::UserRole + 1, static_cast<qulonglong>(image_id));
             itemImages->addChild(itemPhotogram);
 
-            const auto &camera = cameras.find(image.second.cameraId());
-            mThumbnailsWidget->addThumbnail(image.second, QSize(camera->second.width(), camera->second.height()));
+            const auto camera = cameras.find(image.second.cameraId());
+            if (camera != cameras.end()) {
+                mThumbnailsWidget->addThumbnail(image.second, QSize(camera->second.width(), camera->second.height()));
+            } else {
+                tl::Message::warning("Camera with ID {} not found for image {}",
+                                     image.second.cameraId(),
+                                     image.second.path().toUtf8());
+                mThumbnailsWidget->addThumbnail(image.second, QSize(200, 200));
+            }
         }
 
         itemImages->setText(0, QApplication::translate("MainWindowView", "Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));

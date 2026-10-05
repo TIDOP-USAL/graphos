@@ -21,11 +21,10 @@
  *                                                                      *
  ************************************************************************/
  
-#ifndef GRAPHOS_SCALE_MODEL_H
-#define GRAPHOS_SCALE_MODEL_H
+#pragma once
 
 #include "graphos/components/scale/ScaleModel.h"
-#include "graphos/core/project.h"
+#include "graphos/core/project/Project.h"
 
 class QSettings;
 
@@ -73,5 +72,3 @@ protected:
 };
 
 } // namespace graphos
-
-#endif // GRAPHOS_SCALE_MODEL_H

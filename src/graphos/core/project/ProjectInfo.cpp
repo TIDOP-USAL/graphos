@@ -68,7 +68,7 @@ auto ProjectInfo::enuCrs() const -> std::string
 
 void ProjectInfo::setEnuCrs(std::string enuCrs)
 {
-    mEnuCrs = enuCrs;
+    mEnuCrs = std::move(enuCrs);
 }
 
 auto ProjectInfo::projectFolder() const -> tl::Path

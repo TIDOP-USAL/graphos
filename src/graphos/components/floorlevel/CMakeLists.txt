@@ -55,7 +55,9 @@ if(BUILD_FLOOR_LEVEL_COMPONENT AND BUILD_GUI)
                           #Graphos::Widgets
                           Eigen3::Eigen
                           glog::glog
-                          Ceres::ceres)
+                          Ceres::ceres
+                          $<$<BOOL:${HAVE_EASY3D}>:easy3d::renderer>
+                          $<$<BOOL:${HAVE_EASY3D}>:easy3d::fileio>)
     
     set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
     
