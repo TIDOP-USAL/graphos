@@ -81,6 +81,7 @@ public:
     void setFocal(const QString &focal) override;
     void setType(const QString &type) override;
     void setImages(const QStringList &images) override;
+    void clearCalibration() override;
     void setPriorCalibCx(double cx) override;
     void setPriorCalibCy(double cy) override;
     void setPriorCalibF(double f) override;

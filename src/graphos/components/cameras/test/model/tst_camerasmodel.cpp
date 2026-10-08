@@ -26,6 +26,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "graphos/core/project.h"
+#include "graphos/core/camera/Calibration.h"
 #include "graphos/components/cameras/impl/CamerasModel.h"
 
 using namespace graphos;
@@ -83,6 +84,29 @@ BOOST_FIXTURE_TEST_CASE(clear, TestCamerasModel)
   camerasModel->clear();
   
   BOOST_CHECK_EQUAL(false, camerasModel->modified());
+}
+
+BOOST_FIXTURE_TEST_CASE(change_camera_type_preserves_and_updates_prior_calibration, TestCamerasModel)
+{
+  auto *camera = project->cameras().find(1);
+  BOOST_REQUIRE(camera != nullptr);
+
+  auto prior_calibration = CalibrationFactory::create("OpenCV 1");
+  prior_calibration->setParameter(Calibration::Parameters::k1, 0.125);
+  camera->setPriorCalibration(prior_calibration);
+
+  camerasModel->clear();
+  camerasModel->camera(1);
+  camerasModel->updateCurrentCameraType("OpenCV 2");
+  camerasModel->updateCurrentCameraCalibK3(0.25);
+  camerasModel->save();
+
+  camera = project->cameras().find(1);
+  BOOST_REQUIRE(camera != nullptr);
+  BOOST_REQUIRE(camera->priorCalibration() != nullptr);
+  BOOST_CHECK(camera->priorCalibration()->existParameter(Calibration::Parameters::k3));
+  BOOST_CHECK_CLOSE(0.125, camera->priorCalibration()->parameter(Calibration::Parameters::k1), 0.001);
+  BOOST_CHECK_CLOSE(0.25, camera->priorCalibration()->parameter(Calibration::Parameters::k3), 0.001);
 }
 
 // Hay que tener la base de datos de un proyecto...

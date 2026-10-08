@@ -37,6 +37,7 @@
 #include <QListWidget>
 #include <QSpinBox>
 #include <QPushButton>
+#include <QSignalBlocker>
 #include <QToolBar>
 #include <QFileDialog>
 #include <QStandardPaths>
@@ -44,6 +45,18 @@
 
 namespace graphos
 {
+
+namespace
+{
+
+template<typename SpinBox>
+void setSpinBoxValueWithoutSignal(SpinBox *spinBox, double value)
+{
+    const QSignalBlocker blocker(spinBox);
+    spinBox->setValue(value);
+}
+
+}
 
 
 CamerasViewImp::CamerasViewImp(QWidget *parent)
@@ -570,19 +583,6 @@ void CamerasViewImp::clear()
     const QSignalBlocker blocker6(mLineEditFocal);
     const QSignalBlocker blocker7(mSpinBoxWidth);
     const QSignalBlocker blocker8(mSpinBoxHeight);
-    const QSignalBlocker blocker9(mDoubleSpinBoxPriorCx);
-    const QSignalBlocker blocker10(mDoubleSpinBoxPriorCy);
-    const QSignalBlocker blocker11(mDoubleSpinBoxPriorF);
-    const QSignalBlocker blocker12(mDoubleSpinBoxPriorFx);
-    const QSignalBlocker blocker13(mDoubleSpinBoxPriorFy);
-    const QSignalBlocker blocker14(mDoubleSpinBoxPriorK1);
-    const QSignalBlocker blocker15(mDoubleSpinBoxPriorK2);
-    const QSignalBlocker blocker16(mDoubleSpinBoxPriorK3);
-    const QSignalBlocker blocker17(mDoubleSpinBoxPriorK4);
-    const QSignalBlocker blocker18(mDoubleSpinBoxPriorK5);
-    const QSignalBlocker blocker19(mDoubleSpinBoxPriorK6);
-    const QSignalBlocker blocker20(mDoubleSpinBoxPriorP1);
-    const QSignalBlocker blocker21(mDoubleSpinBoxPriorP2);
 
     mListWidgetCameras->clear();
     mListWidgetImages->clear();
@@ -596,33 +596,7 @@ void CamerasViewImp::clear()
     mSpinBoxWidth->setEnabled(false);
     mSpinBoxHeight->setEnabled(false);
     this->enableCameraEdition(false);
-    mDoubleSpinBoxPriorCx->setValue(0.);
-    mDoubleSpinBoxPriorCy->setValue(0.);
-    mDoubleSpinBoxPriorF->setValue(0.);
-    mDoubleSpinBoxPriorFx->setValue(0.);
-    mDoubleSpinBoxPriorFy->setValue(0.);
-    mDoubleSpinBoxPriorK1->setValue(0.);
-    mDoubleSpinBoxPriorK2->setValue(0.);
-    mDoubleSpinBoxPriorK3->setValue(0.);
-    mDoubleSpinBoxPriorK4->setValue(0.);
-    mDoubleSpinBoxPriorK5->setValue(0.);
-    mDoubleSpinBoxPriorK6->setValue(0.);
-    mDoubleSpinBoxPriorP1->setValue(0.);
-    mDoubleSpinBoxPriorP2->setValue(0.);
-
-    mDoubleSpinBoxAdjustCx->setValue(0.);
-    mDoubleSpinBoxAdjustCy->setValue(0.);
-    mDoubleSpinBoxAdjustF->setValue(0.);
-    mDoubleSpinBoxAdjustFx->setValue(0.);
-    mDoubleSpinBoxAdjustFy->setValue(0.);
-    mDoubleSpinBoxAdjustK1->setValue(0.);
-    mDoubleSpinBoxAdjustK2->setValue(0.);
-    mDoubleSpinBoxAdjustK3->setValue(0.);
-    mDoubleSpinBoxAdjustK4->setValue(0.);
-    mDoubleSpinBoxAdjustK5->setValue(0.);
-    mDoubleSpinBoxAdjustK6->setValue(0.);
-    mDoubleSpinBoxAdjustP1->setValue(0.);
-    mDoubleSpinBoxAdjustP2->setValue(0.);
+    clearCalibration();
 }
 
 void CamerasViewImp::update()
@@ -843,134 +817,164 @@ void CamerasViewImp::setImages(const QStringList &images)
     mListWidgetImages->addItems(images);
 }
 
+void CamerasViewImp::clearCalibration()
+{
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorCx, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorCy, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorF, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorFx, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorFy, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorK1, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorK2, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorK3, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorK4, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorK5, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorK6, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorP1, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorP2, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustCx, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustCy, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustF, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustFx, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustFy, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustK1, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustK2, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustK3, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustK4, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustK5, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustK6, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustP1, 0.);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustP2, 0.);
+}
+
 void CamerasViewImp::setPriorCalibCx(double cx)
 {
-    mDoubleSpinBoxPriorCx->setValue(cx);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorCx, cx);
 }
 
 void CamerasViewImp::setPriorCalibCy(double cy)
 {
-    mDoubleSpinBoxPriorCy->setValue(cy);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorCy, cy);
 }
 
 void CamerasViewImp::setPriorCalibF(double f)
 {
-    mDoubleSpinBoxPriorF->setValue(f);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorF, f);
 }
 
 void CamerasViewImp::setPriorCalibFx(double fx)
 {
-    mDoubleSpinBoxPriorFx->setValue(fx);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorFx, fx);
 }
 
 void CamerasViewImp::setPriorCalibFy(double fy)
 {
-    mDoubleSpinBoxPriorFy->setValue(fy);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorFy, fy);
 }
 
 void CamerasViewImp::setPriorCalibK1(double k1)
 {
-    mDoubleSpinBoxPriorK1->setValue(k1);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorK1, k1);
 }
 
 void CamerasViewImp::setPriorCalibK2(double k2)
 {
-    mDoubleSpinBoxPriorK2->setValue(k2);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorK2, k2);
 }
 
 void CamerasViewImp::setPriorCalibK3(double k3)
 {
-    mDoubleSpinBoxPriorK3->setValue(k3);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorK3, k3);
 }
 
 void CamerasViewImp::setPriorCalibK4(double k4)
 {
-    mDoubleSpinBoxPriorK4->setValue(k4);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorK4, k4);
 }
 
 void CamerasViewImp::setPriorCalibK5(double k5)
 {
-    mDoubleSpinBoxPriorK5->setValue(k5);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorK5, k5);
 }
 
 void CamerasViewImp::setPriorCalibK6(double k6)
 {
-    mDoubleSpinBoxPriorK6->setValue(k6);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorK6, k6);
 }
 
 void CamerasViewImp::setPriorCalibP1(double p1)
 {
-    mDoubleSpinBoxPriorP1->setValue(p1);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorP1, p1);
 }
 
 void CamerasViewImp::setPriorCalibP2(double p2)
 {
-    mDoubleSpinBoxPriorP2->setValue(p2);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxPriorP2, p2);
 }
 
 void CamerasViewImp::setAdjustCalibCx(double cx)
 {
-    mDoubleSpinBoxAdjustCx->setValue(cx);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustCx, cx);
 }
 
 void CamerasViewImp::setAdjustCalibCy(double cy)
 {
-    mDoubleSpinBoxAdjustCy->setValue(cy);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustCy, cy);
 }
 
 void CamerasViewImp::setAdjustCalibF(double f)
 {
-    mDoubleSpinBoxAdjustF->setValue(f);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustF, f);
 }
 
 void CamerasViewImp::setAdjustCalibFx(double fx)
 {
-    mDoubleSpinBoxAdjustFx->setValue(fx);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustFx, fx);
 }
 
 void CamerasViewImp::setAdjustCalibFy(double fy)
 {
-    mDoubleSpinBoxAdjustFy->setValue(fy);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustFy, fy);
 }
 
 void CamerasViewImp::setAdjustCalibK1(double k1)
 {
-    mDoubleSpinBoxAdjustK1->setValue(k1);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustK1, k1);
 }
 
 void CamerasViewImp::setAdjustCalibK2(double k2)
 {
-    mDoubleSpinBoxAdjustK2->setValue(k2);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustK2, k2);
 }
 
 void CamerasViewImp::setAdjustCalibK3(double k3)
 {
-    mDoubleSpinBoxAdjustK3->setValue(k3);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustK3, k3);
 }
 
 void CamerasViewImp::setAdjustCalibK4(double k4)
 {
-    mDoubleSpinBoxAdjustK4->setValue(k4);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustK4, k4);
 }
 
 void CamerasViewImp::setAdjustCalibK5(double k5)
 {
-    mDoubleSpinBoxAdjustK5->setValue(k5);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustK5, k5);
 }
 
 void CamerasViewImp::setAdjustCalibK6(double k6)
 {
-    mDoubleSpinBoxAdjustK6->setValue(k6);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustK6, k6);
 }
 
 void CamerasViewImp::setAdjustCalibP1(double p1)
 {
-    mDoubleSpinBoxAdjustP1->setValue(p1);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustP1, p1);
 }
 
 void CamerasViewImp::setAdjustCalibP2(double p2)
 {
-    mDoubleSpinBoxAdjustP2->setValue(p2);
+    setSpinBoxValueWithoutSignal(mDoubleSpinBoxAdjustP2, p2);
 }
 
 void CamerasViewImp::onSelectionChanged()

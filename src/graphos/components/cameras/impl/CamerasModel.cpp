@@ -224,25 +224,37 @@ void CamerasModelImp::updateCurrentCameraType(const QString &type)
             camera->setType(type.toStdString());
             mModifiedProject = true;
 
-            if (auto calibration_old = camera->calibration()) {
+            const auto convertCalibration = [&type](const std::shared_ptr<Calibration> &oldCalibration) {
+                if (!oldCalibration) {
+                    return std::shared_ptr<Calibration>{};
+                }
+
                 auto calibration = CalibrationFactory::create(type.toStdString());
-
-                for (const auto &param : *calibration) {
-                    Calibration::Parameters param_name = param.first;
-
-                    if (param_name == Calibration::Parameters::focal && !calibration_old->existParameter(param_name)) {
-                        double focal = calibration_old->parameter(Calibration::Parameters::focalx) +
-                                       calibration_old->parameter(Calibration::Parameters::focaly) / 2.;
-                        calibration->setParameter(param_name, focal);
-                    } else if ((param_name == Calibration::Parameters::focalx || param_name == Calibration::Parameters::focaly) &&
-                                calibration_old->existParameter(Calibration::Parameters::focal)) {
-                        calibration->setParameter(param_name, calibration_old->parameter(Calibration::Parameters::focal));
-                    } else if (calibration_old->existParameter(param_name)) {
-                        calibration->setParameter(param_name, calibration_old->parameter(param_name));
+                for (const auto &[parameter, value] : *calibration) {
+                    if (parameter == Calibration::Parameters::focal &&
+                        !oldCalibration->existParameter(parameter) &&
+                        oldCalibration->existParameter(Calibration::Parameters::focalx) &&
+                        oldCalibration->existParameter(Calibration::Parameters::focaly)) {
+                        const double focal = (oldCalibration->parameter(Calibration::Parameters::focalx) +
+                                              oldCalibration->parameter(Calibration::Parameters::focaly)) / 2.;
+                        calibration->setParameter(parameter, focal);
+                    } else if ((parameter == Calibration::Parameters::focalx ||
+                                parameter == Calibration::Parameters::focaly) &&
+                               oldCalibration->existParameter(Calibration::Parameters::focal)) {
+                        calibration->setParameter(parameter, oldCalibration->parameter(Calibration::Parameters::focal));
+                    } else if (oldCalibration->existParameter(parameter)) {
+                        calibration->setParameter(parameter, oldCalibration->parameter(parameter));
                     }
                 }
 
-                camera->setCalibration(calibration);
+                return calibration;
+            };
+
+            if (auto calibration = camera->calibration()) {
+                camera->setCalibration(convertCalibration(calibration));
+            }
+            if (auto priorCalibration = camera->priorCalibration()) {
+                camera->setPriorCalibration(convertCalibration(priorCalibration));
             }
         }
 
@@ -460,5 +472,4 @@ void CamerasModelImp::clear()
 }
 
 } // namespace graphos
-
 

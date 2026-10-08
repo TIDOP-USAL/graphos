@@ -146,6 +146,11 @@ public:
      */
     virtual void setImages(const QStringList &images) = 0;
 
+    /*!
+     * \brief Clears the calibration values shown for the active camera.
+     */
+    virtual void clearCalibration() = 0;
+
     // Calibration parameters setters
     virtual void setPriorCalibCx(double cx) = 0;
     virtual void setPriorCalibCy(double cy) = 0;

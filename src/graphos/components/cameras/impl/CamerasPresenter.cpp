@@ -98,6 +98,7 @@ void CamerasPresenterImp::activeCamera(int id)
         mView->setActiveCamera(id);
 
         Camera camera = mModel->camera(id);
+        mView->clearCalibration();
 
         mView->setMake(camera.make().c_str());
         mView->setModel(camera.model().c_str());

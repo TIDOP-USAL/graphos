@@ -139,7 +139,8 @@ void Project::clearMatches()
 {
     mMatchingConfig.reset();
     mMatchingReport.clear();
-    mMatchingRepository.clear();
+    mMatchingRepository.setDatabase(mProjectInfo.database());
+    mMatchingRepository.removeMatches();
     clearOrientation();
 }
 

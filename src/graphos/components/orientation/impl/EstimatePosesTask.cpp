@@ -316,17 +316,35 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
 
             tl::Message::info("Starting Global SfM Pipeline...");
 
-            colmap::GlobalPipelineOptions options;
-            options.mapper.bundle_adjustment.refine_focal_length = !mOptions.isEnabled(Options::fix_calibration);
-            options.mapper.bundle_adjustment.refine_principal_point = false;
-            options.mapper.bundle_adjustment.refine_extra_params = !mOptions.isEnabled(Options::fix_calibration);
-            // No mejora
-            //options.mapper.ba_num_iterations = 5;
-            //options.mapper.global_positioning.loss_function_scale = 1.0;
+            try {
 
-            mMapper = new colmap::GlobalPipeline(options, database, reconstruction_manager);
+                colmap::GlobalPipelineOptions options;
+                options.mapper.bundle_adjustment.refine_focal_length = !mOptions.isEnabled(Options::fix_calibration);
+                options.mapper.bundle_adjustment.refine_principal_point = false;
+                options.mapper.bundle_adjustment.refine_extra_params = !mOptions.isEnabled(Options::fix_calibration);
+                options.mapper.global_positioning.use_gpu = false;// mOptions.isEnabled(Options::use_cuda);
+                options.mapper.bundle_adjustment.ceres->use_gpu = false; //= mOptions.isEnabled(Options::use_cuda);
+                // No mejora
+                //options.mapper.ba_num_iterations = 5;
+                //options.mapper.global_positioning.loss_function_scale = 1.0;
 
-        } else {
+                mMapper = new colmap::GlobalPipeline(options, database, reconstruction_manager);
+
+                mMapper->Run();
+
+                if (status() == Status::stopping || stopToken.stop_requested()) {
+                    return;
+                }
+
+                TL_ASSERT(reconstruction_manager->Size() > 0, "Reconstruction failed: No models were generated");
+
+            } catch (std::exception &e) {
+                tl::printException(e);
+                mOptions.disable(Options::orientation_global);
+            }
+        } 
+        
+        if (mOptions.isDisabled(Options::orientation_global)) {
 
             tl::Message::info("Starting Incremental SfM Pipeline...");
 
@@ -334,7 +352,7 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
             options->ba_refine_focal_length = !mOptions.isEnabled(Options::fix_calibration);
             options->ba_refine_principal_point = false;
             options->ba_refine_extra_params = !mOptions.isEnabled(Options::fix_calibration);
-            options->ba_use_gpu = !mOptions.isEnabled(Options::use_cuda);
+            //options->ba_use_gpu = mOptions.isEnabled(Options::use_cuda);
 
             if (mOptions.isEnabled(Options::use_poses)) {
 
@@ -372,15 +390,15 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
                 //if (progressBar) (*progressBar)();
                 //msgInfo("-----");
             });
+
+            mMapper->Run();
+
+            if (status() == Status::stopping || stopToken.stop_requested()) {
+                return;
+            }
+
+            TL_ASSERT(reconstruction_manager->Size() > 0, "Reconstruction failed: No models were generated");
         }
-
-        mMapper->Run();
-
-        if (status() == Status::stopping || stopToken.stop_requested()) {
-            return;
-        }
-
-        TL_ASSERT(reconstruction_manager->Size() > 0, "Reconstruction failed: No models were generated");
 
         // Obtención del modelo principal reconstruido
         std::shared_ptr<colmap::Reconstruction> reconstruction = reconstruction_manager->Get(0);
@@ -398,9 +416,13 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
         option_manager.bundle_adjustment->refine_focal_length = !mOptions.isEnabled(Options::fix_calibration);
         option_manager.bundle_adjustment->refine_principal_point = !mOptions.isEnabled(Options::fix_calibration);
         option_manager.bundle_adjustment->refine_extra_params = !mOptions.isEnabled(Options::fix_calibration);
+        //option_manager.bundle_adjustment->ceres->use_gpu = mOptions.isEnabled(Options::use_cuda);
+        // Valor por defecto: SPARSE_NORMAL_CHOLESKY
+        //option_manager.bundle_adjustment->ceres->solver_options.linear_solver_type = ceres::SPARSE_SCHUR;
 
         colmap::BundleAdjustmentOptions ba_options = *option_manager.bundle_adjustment;
-        ba_options.print_summary = false;
+        //ba_options.print_summary = false;
+        //ba_options.ceres->solver_options.max_num_iterations = 100;
 
         colmap::BundleAdjustmentConfig ba_config;
         for (const colmap::image_t image_id : reg_image_ids) {
@@ -435,7 +457,10 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
 
             ba_terminate = true;
 
-            if (summary && summary->IsSolutionUsable()) break;
+            if (summary && /*summary->IsSolutionUsable() &&*/ summary->termination_type == colmap::BundleAdjustmentTerminationType::CONVERGENCE) {
+                tl::Message::info("Iterations of bundle adjustment: {}", i);
+                break;
+            }
         }
 
         if (summary && summary->IsSolutionUsable()) {
@@ -459,7 +484,8 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
         }
         mOrientationReport.time = this->time();
 
-        TL_ASSERT(summary->termination_type == colmap::BundleAdjustmentTerminationType::CONVERGENCE, "Bundle adjustment failed to converge");
+        //TL_ASSERT(summary->termination_type == colmap::BundleAdjustmentTerminationType::CONVERGENCE, "Bundle adjustment failed to converge");
+        TL_ASSERT(summary &&summary->IsSolutionUsable(), "Bundle adjustment solution is not usable");
 
         // Ground Control Points Bundle Adjustment (custom implementation)
         if (mOptions.isEnabled(Options::absolute_orientation) && mOptions.isEnabled(Options::use_gcp)) {
