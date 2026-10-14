@@ -83,26 +83,6 @@ auto DemModelImp::crs() const -> std::string
     return epsg_code;
 }
 
-//auto DemModelImp::gsd() const -> double
-//{
-//    return mProject->dem().gsd;
-//}
-//
-//void DemModelImp::setGsd(double gsd)
-//{
-//    mProject->dem().gsd = gsd;
-//}
-
-//auto DemModelImp::dtmPath() const -> tl::Path
-//{
-//    return mProject->dtm();
-//}
-//
-//auto DemModelImp::dsmPath() const -> tl::Path
-//{
-//    return mProject->dsm();
-//}
-
 void DemModelImp::cleanProject()
 {
     mProject->clearDem();
@@ -127,11 +107,6 @@ void DemModelImp::setDsmEnuPath(tl::Path dsmPath)
 {
     mProject->setDsmEnu(std::move(dsmPath));
 }
-
-//void DemModelImp::setCrs(const QString &crs)
-//{
-//    mProject->dem().epsgCode = crs;
-//}
 
 void DemModelImp::setReport(DemReport report)
 {

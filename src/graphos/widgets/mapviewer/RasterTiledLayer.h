@@ -26,10 +26,17 @@
 
 
 #include <QGeoView/QGVLayerTiles.h>
+#include <QImage>
+#include <QMap>
+#include <QThreadPool>
 
 #include <tidop/geometry/transform/Affine.h>
 
 #include <opencv2/core.hpp>
+
+#include <atomic>
+#include <memory>
+#include <mutex>
 
 namespace tl
 {
@@ -63,15 +70,34 @@ protected:
 
 private:
 
+    struct TileRequest
+    {
+        quint64 id;
+        std::shared_ptr<std::atomic_bool> cancelled;
+    };
+
+    auto renderTile(const QGV::GeoTilePos &tilePos, const QRectF &tileProjRect) -> QImage;
+    void finishTile(const QGV::GeoTilePos &tilePos, quint64 requestId, QImage image);
+
     QRect mTileGridBounds;
     QGV::GeoRect mGeoExtent;
+    QRectF mProjectedExtent;
     std::unique_ptr<tl::RasterReader> reader;
+    QThreadPool mThreadPool;
+    QMap<QGV::GeoTilePos, TileRequest> mRequests;
+    std::mutex mReaderMutex;
     tl::Affine<double, 2> mAffineImageToWorld;
-    double mGSD;
-    bool mCrsTransform;
+    quint64 mNextRequestId{0};
+    int mRasterRows{0};
+    int mRasterCols{0};
+    double mNoDataValue{0.};
+    double mCellSize{1.};
+    bool mHasNoDataValue{false};
+    double mGSD{0.};
+    bool mCrsTransform{false};
     std::string mEpsgSource;
-    std::pair<double, double> mMinMax;
-    bool mDEM;
+    std::pair<double, double> mMinMax{0., 0.};
+    bool mDEM{false};
 
 };
 

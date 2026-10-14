@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <memory>
+#include <string>
+
 #include <QObject>
 
 #include <tidop/core/task/Task.h>
@@ -58,10 +61,16 @@ public:
      *
      * \return A 'DemReport' containing information about the DEM task.
      */
+    [[nodiscard]]
     auto report() const -> DemReport;
 
+    [[nodiscard]]
     auto dsmPath() const -> tl::Path;
+
+    [[nodiscard]]
     auto dtmPath() const -> tl::Path;
+
+    [[nodiscard]]
     auto dsmEnuPath() const -> tl::Path;
 
 // tl::TaskBase interface

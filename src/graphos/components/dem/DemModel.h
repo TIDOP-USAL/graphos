@@ -57,7 +57,6 @@ public:
 
     virtual auto config() const -> std::shared_ptr<DemProperties> = 0;
 
-
     /*!
      * \brief Retrieves the ENU CRS.
      * \return The ENU CRS.
@@ -82,33 +81,7 @@ public:
      */
     virtual auto crs() const -> std::string = 0;
 
-    ///*!
-    // * \brief Retrieves the Ground Sample Distance (GSD).
-    // * \return The GSD value.
-    // */
-    //virtual auto gsd() const -> double = 0;
-
-    /*!
-     * \brief Retrieves the path to the Digital Terrain Model (DTM) file.
-     * \return The path to the DTM file.
-     */
-    //virtual auto dtmPath() const -> tl::Path = 0;
-
-    /*!
-     * \brief Retrieves the path to the Digital Surface Model (DSM) file.
-     * \return The path to the DSM file.
-     */
-    //virtual auto dsmPath() const -> tl::Path = 0;
-
     virtual void cleanProject() = 0;
-
-    ///*!
-    // * \brief Sets the Ground Sample Distance (GSD).
-    // * \param[in] gsd The GSD value to set.
-    // */
-    //virtual void setGsd(double gsd) = 0;
-
-    //virtual void setCrs(const QString &crs) = 0;
 
     virtual void setConfig(std::shared_ptr<DemProperties> config) = 0;
 

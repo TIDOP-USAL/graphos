@@ -90,6 +90,7 @@ void ProjectInfo::clear()
 {
     mProjectPath.clear();
     mDescription = "";
+    mEnuCrs = "";
 }
 
 } // end namespace graphos

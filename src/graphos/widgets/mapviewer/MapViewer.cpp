@@ -38,7 +38,6 @@
 
 /* Qt */
 #include <QVBoxLayout>
-#include <QDir>
 #include <QNetworkAccessManager>
 #include <QNetworkDiskCache>
 
@@ -259,7 +258,6 @@ void MapViewer::init()
     qDebug() << "Build:" << QSslSocket::sslLibraryBuildVersionString();
     qDebug() << "Runtime:" << QSslSocket::sslLibraryVersionString();
 
-    QDir("cacheDir").removeRecursively();
     auto cache = new QNetworkDiskCache(this);
     cache->setCacheDirectory("cacheDir");
     auto manager = new QNetworkAccessManager(this);

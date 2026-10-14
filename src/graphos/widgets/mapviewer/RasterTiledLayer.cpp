@@ -26,8 +26,6 @@
 
 /* TidopLib */
 #include <tidop/rastertools/io/Reader.h>
-#include <tidop/geotools/CRSsTools.h>
-#include <tidop/geotools/GeoTools.h>
 #include <tidop/geometry/algorithms/measurement/Distance.h>
 #include <tidop/geometry/algorithms/spatial/Intersection.h>
 #include <tidop/geometry/transform/Affine.h>
@@ -40,11 +38,57 @@
 #include <gdal.h>
 #include <gdal_priv.h>
 #include <gdalwarper.h>
+#include <ogr_spatialref.h>
+
+#include <algorithm>
+#include <cstdint>
+#include <stdexcept>
+#include <vector>
 
 
 
 namespace graphos
 {
+
+namespace
+{
+
+void copyMatToImage(const cv::Mat &source, QImage &destination, int offsetX, int offsetY)
+{
+    const int channels = source.channels();
+    if (source.depth() != CV_8U || (channels != 1 && channels != 3 && channels != 4)) {
+        throw std::runtime_error("Unsupported raster tile pixel format");
+    }
+
+    const int sourceX = std::max(0, -offsetX);
+    const int sourceY = std::max(0, -offsetY);
+    const int endX = std::min(source.cols, destination.width() - offsetX);
+    const int endY = std::min(source.rows, destination.height() - offsetY);
+
+    for (int y = sourceY; y < endY; ++y) {
+        const auto *sourceRow = source.ptr<uint8_t>(y);
+        auto *destinationRow = destination.scanLine(offsetY + y);
+        for (int x = sourceX; x < endX; ++x) {
+            const auto *pixel = sourceRow + x * channels;
+            const uint8_t blue = pixel[0];
+            const uint8_t green = channels == 1 ? pixel[0] : pixel[1];
+            const uint8_t red = channels == 1 ? pixel[0] : pixel[2];
+            uint8_t alpha = channels == 4 ? pixel[3] : 255;
+
+            if (red == 0 && green == 0 && blue == 0) {
+                alpha = 0;
+            }
+
+            auto *rgba = destinationRow + (offsetX + x) * 4;
+            rgba[0] = red;
+            rgba[1] = green;
+            rgba[2] = blue;
+            rgba[3] = alpha;
+        }
+    }
+}
+
+} // namespace
 
 RasterTiledLayer::RasterTiledLayer(const QString &tifPath, bool dem)
   : mDEM(dem)
@@ -53,11 +97,16 @@ RasterTiledLayer::RasterTiledLayer(const QString &tifPath, bool dem)
 
     reader = std::make_unique<tl::RasterReader>(tifPath.toStdString());
     if (!reader->isOpen()) {
-        tl::Message::warning("The GeoTIFF file could not be opened: {}", tifPath.toStdString());
+        throw std::runtime_error("The GeoTIFF file could not be opened: " + tifPath.toStdString());
     }
     auto georeference = reader->georeference();
     mAffineImageToWorld = georeference.inverse();
     auto window = reader->window();
+    mRasterRows = reader->rows();
+    mRasterCols = reader->cols();
+    mNoDataValue = reader->noDataValue(&mHasNoDataValue);
+    mCellSize = std::abs(georeference.scale().x());
+    mThreadPool.setMaxThreadCount(std::max(1, std::min(2, QThread::idealThreadCount())));
 
     OGRCoordinateTransformation *transform = nullptr;
 
@@ -65,26 +114,74 @@ RasterTiledLayer::RasterTiledLayer(const QString &tifPath, bool dem)
     //const OGRSpatialReference *sourceRef = mDataset->GetSpatialRef();
     OGRSpatialReference sourceRef;
     sourceRef.importFromWkt(reader->crsWkt().c_str());
+    if (sourceRef.IsEmpty()) {
+        throw std::runtime_error("GeoTIFF has no usable CRS");
+    }
+
     OGRSpatialReference targetRef;
     targetRef.importFromEPSG(4326);
 
     if (!sourceRef.IsEmpty() && !sourceRef.IsSame(&targetRef)) {
         transform = OGRCreateCoordinateTransformation(&sourceRef, &targetRef);
+        if (!transform) {
+            throw std::runtime_error("Could not create raster CRS transformation");
+        }
 
-        transform->Transform(1, &window.min().x(), &window.min().y());
-        transform->Transform(1, &window.max().x(), &window.max().y());
+        constexpr int edgeSamples = 32;
+        const double minX = window.min().x();
+        const double minY = window.min().y();
+        const double maxX = window.max().x();
+        const double maxY = window.max().y();
+        std::vector<double> xCoordinates;
+        std::vector<double> yCoordinates;
+        xCoordinates.reserve((edgeSamples + 1) * 4);
+        yCoordinates.reserve((edgeSamples + 1) * 4);
+
+        for (int i = 0; i <= edgeSamples; ++i) {
+            const double t = static_cast<double>(i) / edgeSamples;
+            const double x = minX + t * (maxX - minX);
+            const double y = minY + t * (maxY - minY);
+            xCoordinates.push_back(x);
+            yCoordinates.push_back(minY);
+            xCoordinates.push_back(x);
+            yCoordinates.push_back(maxY);
+            xCoordinates.push_back(minX);
+            yCoordinates.push_back(y);
+            xCoordinates.push_back(maxX);
+            yCoordinates.push_back(y);
+        }
+
+        const bool transformed = transform->Transform(static_cast<int>(xCoordinates.size()),
+                                                       xCoordinates.data(), yCoordinates.data());
 
         OCTDestroyCoordinateTransformation(transform);
-
-        const char *auth_name = sourceRef.GetAuthorityName(nullptr);
-        const char *auth_code = sourceRef.GetAuthorityCode(nullptr);
-        if (auth_name && std::string(auth_name) == "EPSG" && auth_code) {
-            mEpsgSource = std::string(auth_name).append(":").append(auth_code);
-            mCrsTransform = true;
+        transform = nullptr;
+        if (!transformed) {
+            throw std::runtime_error("Could not transform raster bounds to EPSG:4326");
         }
+
+        const auto bounds = std::minmax_element(xCoordinates.begin(), xCoordinates.end());
+        const auto yBounds = std::minmax_element(yCoordinates.begin(), yCoordinates.end());
+        window.min().x() = *bounds.first;
+        window.min().y() = *yBounds.first;
+        window.max().x() = *bounds.second;
+        window.max().y() = *yBounds.second;
     }
 
-    mGeoExtent = QGV::GeoRect(window.min().x(), window.min().y(), window.max().x(), window.max().y());
+    mGeoExtent = sourceRef.IsSame(&targetRef)
+        ? QGV::GeoRect(window.min().y(), window.min().x(), window.max().y(), window.max().x())
+        : QGV::GeoRect(window.min().x(), window.min().y(), window.max().x(), window.max().y());
+
+    const char *auth_name = sourceRef.GetAuthorityName(nullptr);
+    const char *auth_code = sourceRef.GetAuthorityCode(nullptr);
+    if (auth_name && std::string(auth_name) == "EPSG" && auth_code) {
+        mEpsgSource = std::string(auth_name).append(":").append(auth_code);
+        OGRSpatialReference webMercatorRef;
+        webMercatorRef.importFromEPSG(3857);
+        mCrsTransform = !sourceRef.IsSame(&webMercatorRef);
+    } else {
+        throw std::runtime_error("Raster display currently requires an EPSG-authorized CRS");
+    }
     
     // Calculo de la escala máxima
     {
@@ -115,6 +212,11 @@ RasterTiledLayer::RasterTiledLayer(const QString &tifPath, bool dem)
 
 RasterTiledLayer::~RasterTiledLayer()
 {
+    for (auto it = mRequests.begin(); it != mRequests.end(); ++it) {
+        it->cancelled->store(true);
+    }
+    mRequests.clear();
+    mThreadPool.waitForDone();
     reader->close();
 }
 
@@ -136,6 +238,7 @@ int RasterTiledLayer::maxZoomlevel() const
 void RasterTiledLayer::onProjection(QGVMap *geoMap)
 {
     QGVLayerTiles::onProjection(geoMap);
+    mProjectedExtent = geoMap->getProjection()->geoToProj(mGeoExtent);
 
     // Limitar área activa a donde hay datos
     mTileGridBounds = QRect(QGV::GeoTilePos::geoToTilePos(minZoomlevel(), mGeoExtent.topLeft()).pos(),
@@ -146,27 +249,74 @@ void RasterTiledLayer::onProjection(QGVMap *geoMap)
 
 void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
 {
+    auto tilePosParent = tilePos.parent(minZoomlevel()).pos();
+    if (!mTileGridBounds.contains(tilePosParent)) {
+        return;
+    }
+
+    const QGV::GeoRect tileGeoRect = tilePos.toGeoRect();
+    if (!mGeoExtent.intersects(tileGeoRect) || mRequests.contains(tilePos)) {
+        return;
+    }
+
+    const QRectF tileProjRect = getMap()->getProjection()->geoToProj(tileGeoRect);
+    const quint64 requestId = ++mNextRequestId;
+    auto cancelled = std::make_shared<std::atomic_bool>(false);
+    mRequests.insert(tilePos, {requestId, cancelled});
+
+    mThreadPool.start(QRunnable::create(
+        [this, tilePos, tileProjRect, requestId, cancelled]() {
+            if (cancelled->load()) {
+                return;
+            }
+
+            QImage image = renderTile(tilePos, tileProjRect);
+            if (cancelled->load()) {
+                return;
+            }
+
+            QMetaObject::invokeMethod(this,
+                [this, tilePos, requestId, image = std::move(image)]() mutable {
+                    finishTile(tilePos, requestId, std::move(image));
+                },
+                Qt::QueuedConnection);
+        }));
+}
+
+void RasterTiledLayer::finishTile(const QGV::GeoTilePos &tilePos, quint64 requestId, QImage image)
+{
+    const auto requestIt = mRequests.find(tilePos);
+    if (requestIt == mRequests.end() || requestIt->id != requestId) {
+        return;
+    }
+    mRequests.erase(requestIt);
+
+    if (image.isNull()) {
+        return;
+    }
+
+    auto *tile = new QGVImage();
+    tile->setGeometry(tilePos.toGeoRect());
+    tile->loadImage(image);
+    tile->setSelectable(false);
+    onTile(tilePos, tile);
+}
+
+void RasterTiledLayer::cancel(const QGV::GeoTilePos &tilePos)
+{
+    auto requestIt = mRequests.find(tilePos);
+    if (requestIt == mRequests.end()) {
+        return;
+    }
+    requestIt->cancelled->store(true);
+    mRequests.erase(requestIt);
+}
+
+QImage RasterTiledLayer::renderTile(const QGV::GeoTilePos &tilePos, const QRectF &tile_proj_rect)
+{
     try {
 
-        if (!reader->isOpen()) return;
-
-        auto tilePosParent = tilePos.parent(minZoomlevel()).pos();
-        if (!mTileGridBounds.contains(tilePosParent)) {
-            return;
-        }
-
-        // Obtener rectángulo geográfico del tile
-        QGV::GeoRect tileGeoRect = tilePos.toGeoRect();
-
-        if (!mGeoExtent.intersects(tileGeoRect)) return;
-
-        // Rectangulo del tile en coordenadas proyectadas
-        QRectF tile_proj_rect = getMap()->getProjection()->geoToProj(tileGeoRect);
-
-        // Rectangulo de la imagen en coordenadas proyectadas
-        QRectF rect_image_epsg_3857 = getMap()->getProjection()->geoToProj(mGeoExtent);
-
-        tl::GeoTools *ptrGeoTools = tl::GeoTools::getInstance();
+        const QRectF rect_image_epsg_3857 = mProjectedExtent;
 
         // Establezco tamaño al doble porque se ve muy mal en el nivel de zoom remuestreado
         int tileSize = 512;// 256; // Tamaño del tile en píxeles
@@ -219,14 +369,38 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             tl::Point2i offset = window_image_to_read_3857.min();
             int width = window_image_to_read_3857.width()/* - offset.x*/;
             int height = window_image_to_read_3857.height()/* - offset.y*/;
+            if (width <= 0 || height <= 0) return {};
 
             //5 - Calcular ventana a leer en coordenadas origen.
 
-            std::vector<tl::Point3d> points_source(4);
-            points_source[0] = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", mEpsgSource, tl::Point3d(window_read_3857.min().x(), window_read_3857.max().y(), 0));
-            points_source[1] = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", mEpsgSource, tl::Point3d(window_read_3857.max().x(), window_read_3857.max().y(), 0));
-            points_source[2] = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", mEpsgSource, tl::Point3d(window_read_3857.max().x(), window_read_3857.min().y(), 0));
-            points_source[3] = ptrGeoTools->ptrCRSsTools()->crsOperation("EPSG:3857", mEpsgSource, tl::Point3d(window_read_3857.min().x(), window_read_3857.min().y(), 0));
+            std::vector<double> sourceX{
+                window_read_3857.min().x(), window_read_3857.max().x(),
+                window_read_3857.max().x(), window_read_3857.min().x()
+            };
+            std::vector<double> sourceY{
+                window_read_3857.max().y(), window_read_3857.max().y(),
+                window_read_3857.min().y(), window_read_3857.min().y()
+            };
+            OGRSpatialReference mapCrs;
+            OGRSpatialReference rasterCrs;
+            if (mapCrs.importFromEPSG(3857) != OGRERR_NONE ||
+                rasterCrs.SetFromUserInput(mEpsgSource.c_str()) != OGRERR_NONE) {
+                throw std::runtime_error("Could not initialize raster tile CRS transformation");
+            }
+            mapCrs.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+            rasterCrs.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+            std::unique_ptr<OGRCoordinateTransformation, decltype(&OCTDestroyCoordinateTransformation)> transform(
+                OGRCreateCoordinateTransformation(&mapCrs, &rasterCrs),
+                &OCTDestroyCoordinateTransformation);
+            if (!transform || !transform->Transform(4, sourceX.data(), sourceY.data())) {
+                throw std::runtime_error("Could not transform raster tile bounds");
+            }
+
+            std::vector<tl::Point3d> points_source;
+            points_source.reserve(sourceX.size());
+            for (size_t i = 0; i < sourceX.size(); ++i) {
+                points_source.emplace_back(sourceX[i], sourceY[i], 0.);
+            }
 
             // Aqui hay que calcular la distancia entre los puntos para que este bien la escala
             double scale_src = 1.0;
@@ -251,26 +425,28 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             double xSize = rect_src.width();
             double ySize = rect_src.height();
 
-            tl::Rect<int> rect_full_image(0, 0, reader->cols(), reader->rows());
+            tl::Rect<int> rect_full_image(0, 0, mRasterCols, mRasterRows);
             tl::Rect<int> rect_to_read = tl::intersect(rect_full_image, rect_src);
 
-            if (rect_to_read.width() == 0 || rect_to_read.height() == 0) return;
+            if (rect_to_read.width() <= 0 || rect_to_read.height() <= 0) return {};
 
-            cv::Mat mat_source = reader->read(scale_src, scale_src, rect_to_read);
+            cv::Mat mat_source;
+            {
+                std::lock_guard<std::mutex> lock(mReaderMutex);
+                mat_source = reader->read(scale_src, scale_src, rect_to_read);
+            }
 
-            if (mat_source.empty()) return;
+            if (mat_source.empty()) return {};
 
             cv::Mat gray;
             if (mat_source.channels() == 3) {
                 cv::cvtColor(mat_source, gray, cv::COLOR_BGR2GRAY);
             } else {
-                gray = mat_source.clone();
+                gray = mat_source;
             }
 
             // Cuenta cuántos píxeles son distintos de 0
-            int nonZeroCount = cv::countNonZero(gray);
-            gray.release();
-            if (nonZeroCount == 0) return;
+            if (cv::countNonZero(gray) == 0) return {};
             
             if (mDEM) {
 
@@ -279,12 +455,13 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
             } else if (mat_source.channels() == 1) {
 
                 cv::Mat temp;
-                bool exist_nodata = false;
-                double nodata_value = reader->noDataValue(&exist_nodata);
-                if (!exist_nodata) nodata_value = tl::NoData<float>;
                 cv::Mat mask;
-                cv::inRange(mat_source, cv::Scalar::all(nodata_value), cv::Scalar::all(nodata_value), mask);
-                cv::bitwise_not(mask, mask);
+                if (mHasNoDataValue) {
+                    cv::inRange(mat_source, cv::Scalar::all(mNoDataValue), cv::Scalar::all(mNoDataValue), mask);
+                    cv::bitwise_not(mask, mask);
+                } else {
+                    mask = cv::Mat(mat_source.size(), CV_8U, cv::Scalar(255));
+                }
 
                 if (mMinMax.second > mMinMax.first) {
 
@@ -344,18 +521,7 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
                                 cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
 
             // Establecer transparencia en píxeles negros (r,g,b == 0)
-            for (int y = 0; y < tileMat.rows; ++y) {
-                for (int x = 0; x < tileMat.cols; ++x) {
-                    int i = y * tileMat.cols + x;
-                    uint8_t b = tileMat.data[i * 3 + 0];
-                    uint8_t g = tileMat.data[i * 3 + 1];
-                    uint8_t r = tileMat.data[i * 3 + 2];
-                    int alpha = 255;
-                    if (r == 0 && g == 0 && b == 0)
-                        alpha = 0;
-                    tileImage.setPixelColor(x + offset.x(), y + offset.y(), QColor(r, g, b, alpha));
-                }
-            }
+            copyMatToImage(tileMat, tileImage, offset.x(), offset.y());
 
         } else {
 
@@ -374,8 +540,8 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
 
             int tile_offset_x = 0;
             int tile_offset_y = 0;
-            auto rows = reader->rows();
-            auto cols = reader->cols();
+            auto rows = mRasterRows;
+            auto cols = mRasterCols;
             if (xOffset < 0) {
                 xSize = xSize + xOffset;
                 xOffset = 0;
@@ -401,41 +567,27 @@ void RasterTiledLayer::request(const QGV::GeoTilePos &tilePos)
 
             tl::Rect<int> rect_to_read(xOffset, yOffset, xSize, ySize);
             tl::Size<int> size_to_read(tile_size_x_dst, tile_size_y_dst);
-            cv::Mat mat_src = reader->read(rect_to_read, size_to_read);
+            cv::Mat mat_src;
+            {
+                std::lock_guard<std::mutex> lock(mReaderMutex);
+                mat_src = reader->read(rect_to_read, size_to_read);
+            }
 
-            if (mat_src.empty()) return;
+            if (mat_src.empty()) return {};
 
             // Calcular tamaño en píxeles del tile
 
-            for (int y = 0; y < tile_size_y_dst; ++y) {
-                for (int x = 0; x < tile_size_x_dst; ++x) {
-                    int i = y * tile_size_x_dst + x;
-                    uint8_t r = mat_src.data[i * 3 + 0];
-                    uint8_t g = mat_src.data[i * 3 + 1];
-                    uint8_t b = mat_src.data[i * 3 + 2];
-                    int alpha = 255;
-                    if (r == 0 && g == 0 && b == 0)
-                        alpha = 0;
-                    tileImage.setPixelColor(tile_offset_x + x, tile_offset_y + y, QColor(r, g, b, alpha));
-                }
-            }
+            copyMatToImage(mat_src, tileImage, tile_offset_x, tile_offset_y);
 
         }
 
 
-        if (!tileImage.isNull()) {
-
-            tileImage.setDevicePixelRatio(2.);
-
-            auto tile = new QGVImage();
-            tile->setGeometry(tilePos.toGeoRect());
-            tile->loadImage(tileImage);
-            tile->setSelectable(false);
-            onTile(tilePos, tile);
-        }
+        tileImage.setDevicePixelRatio(2.);
+        return tileImage;
 
     } catch (const std::exception &e) {
-        tl::printException(e);
+        qWarning() << "Failed to render raster tile" << tilePos.pos() << e.what();
+        return {};
     }
 }
 
@@ -454,7 +606,7 @@ void RasterTiledLayer::buildDEM(cv::Mat &mat_source)
     mat_source.convertTo(dem64, CV_64F);
 
     // Tamaño de pixel (en metros/pixel). Usa valor absoluto por si la Y viene negativa.
-    const double cellSize = std::abs(reader->georeference().scale().x());
+    const double cellSize = mCellSize;
 
     // Gradientes (Sobel 3x3) y normalización por el tamaño de pixel:
     cv::Mat dzdx, dzdy;
@@ -523,20 +675,18 @@ void RasterTiledLayer::buildDEM(cv::Mat &mat_source)
     }
 
     // Devolver al buffer original     
-    bool exist_nodata = false;
-    double nodata_value = reader->noDataValue(&exist_nodata);
-    if (!exist_nodata) nodata_value = tl::NoData<float>;
     cv::Mat mask;
-    cv::inRange(mat_source, cv::Scalar::all(nodata_value), cv::Scalar::all(nodata_value), mask);
-    cv::bitwise_not(mask, mask);
+    if (mHasNoDataValue) {
+        cv::inRange(mat_source, cv::Scalar::all(mNoDataValue), cv::Scalar::all(mNoDataValue), mask);
+        cv::bitwise_not(mask, mask);
+    } else {
+        mask = cv::Mat(mat_source.size(), CV_8U, cv::Scalar(255));
+    }
 
     output.copyTo(mat_source, mask);
 }
 
-void RasterTiledLayer::cancel(const QGV::GeoTilePos &/*tilePos*/)
-{
-    qt_noop();
-}
+
 
 
 

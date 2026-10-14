@@ -146,6 +146,7 @@ target_link_libraries(${PROJECT_NAME}
                       Qt6::PrintSupport
                       Qt6::OpenGL
                       Graphos::Core
+                      Graphos::Framework
                       $<$<BOOL:${GRAPHOS_GUI}>:Graphos::Widgets>
                       $<$<BOOL:${GRAPHOS_HAVE_ABOUT}>:Graphos::About>
                       $<$<BOOL:${GRAPHOS_HAVE_CAMERAS}>:Graphos::Cameras>

@@ -81,14 +81,6 @@ void DemPresenterImp::onError(tl::TaskErrorEvent &event)
 
 void DemPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
-    //dtm_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
-
-    //    auto task = dynamic_cast<DemTask const *>(event->task());
-
-    //    auto report = task->report();
-    //    mModel->setReport(report);
-
-    //    });
     if (auto *task = dynamic_cast<const DemTask *>(event.task())) {
         try {
 
@@ -107,28 +99,10 @@ void DemPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
     if (progressHandler()) {
         progressHandler()->setDescription(QApplication::translate("DemComponent", "Task finished"));
     }
-
-    //tl::Path dsm_file = mModel->projectPath();
-    //dsm_file.append("dem").append("dsm.tif");
-    //if (mView->isDsmEnable() && dsm_file.exists()) {
-    //    mModel->setDsmPath(dsm_file);
-    //}
-
-    //tl::Path dtm_file = dsm_file;
-    //dtm_file.replaceBaseName("dtm");
-    //if (mView->isDsmEnable() && dtm_file.exists()) {
-    //    mModel->setDtmPath(dtm_file);
-    //}
-
-    //mModel->setGsd(mView->gsd());
-    //mModel->setCrs(mView->crs());
 }
 
 auto DemPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
-    //TODO: Limpiar resultados previos si existen y preguntar al usuario si desea continuar
-    //mModel->cleanProject();
-
     tl::Path dem_path = mModel->projectPath();
     dem_path.append("dem");
 
@@ -142,21 +116,7 @@ auto DemPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     auto dtm_task = std::make_unique<DemTask>(mModel->denseModel(),
                                               dem_path,
                                               mModel->enuCrs(),
-                                              config
-                                              /*mView->crs().toStdString(),
-                                              mView->gsd(),
-                                              mView->isDsmEnable(),
-                                              mView->isDtmEnable()*/);
-
-
-    //dtm_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
-
-    //    auto task = dynamic_cast<DemTask const *>(event->task());
-
-    //    auto report = task->report();
-    //    mModel->setReport(report);
-
-    //});
+                                              config);
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 100);

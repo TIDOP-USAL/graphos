@@ -29,6 +29,8 @@
 #include <QtPlugin>
 #include <QString>
 
+#include <graphos/graphos_global.h>
+
 namespace graphos
 {
 

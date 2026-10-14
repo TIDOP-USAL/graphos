@@ -422,8 +422,10 @@ void MvsTask::exportToMvs() const
         input_path.append("temp").append("export");
         tl::Path output_path = outputPath();
         output_path.append("temp").append("model.mvs");
-        tl::Path images_path = input_path;
-        images_path.append("images");
+        //tl::Path images_path = input_path;
+        //images_path.append("images");
+        tl::Path images_path(outputPath().parentPath().parentPath());
+        images_path.append("undistorted");
 
         std::string cmd_mvs("\"");
         cmd_mvs.append(app_path.toUtf8());
@@ -528,7 +530,8 @@ void MvsTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
         if (status() == Status::stopping) return;
 
         this->undistort(QString::fromStdWString(undistort_path.toWString()));
-        this->copyUndistortedImages();
+        // Elimino la copia y añado la ruta undistorted directamente
+        //this->copyUndistortedImages();
 
         if (status() == Status::stopping) return;
 
