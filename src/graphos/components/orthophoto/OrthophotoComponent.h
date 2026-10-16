@@ -23,8 +23,11 @@
 
 #pragma once
 
-#include "graphos/framework/component/TaskComponent.h"
+/* TidopLib */
+#include <tidop/core/base/flags.h>
 
+/* GRAPHOS */
+#include "graphos/framework/component/TaskComponent.h"
 
 namespace graphos
 {
@@ -37,8 +40,42 @@ class OrthophotoComponent
 
 public:
 
+    /*!
+     * \brief Different densification methods.
+     */
+    enum class Method
+    {
+        rlb = (1 << 0),  // Robust Local Blending
+        sbb = (1 << 1)   // Seam-based Blending
+    };
+
+public:
+
     OrthophotoComponent(Application *application);
     ~OrthophotoComponent() override;
+
+#ifdef GRAPHOS_GUI
+
+    /*!
+     * \brief Enables a orthomosaic method.
+     * \param[in] method The method to enable.
+     */
+    void enableMethod(Method method);
+
+    /*!
+     * \brief Disables a orthomosaic method.
+     * \param[in] method The method to disable.
+     */
+    void disableMethod(Method method);
+
+    /*!
+     * \brief Checks if a orthomosaic method is enabled.
+     * \param[in] method The method to check.
+     * \return True if the method is enabled, otherwise false.
+     */
+    bool isEnabled(Method method) const;
+
+#endif // GRAPHOS_GUI
 
 public slots:
 
@@ -71,6 +108,10 @@ protected slots:
     void onFinished() override;
     void onFailed() override;
 
+private:
+
+    tl::EnumFlags<Method> mMethod;
 };
+ALLOW_BITWISE_FLAG_OPERATIONS(OrthophotoComponent::Method)
 
 } // namespace graphos

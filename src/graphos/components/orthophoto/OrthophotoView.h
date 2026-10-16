@@ -47,7 +47,7 @@ public:
 
     virtual auto crs() const -> QString = 0;
     virtual auto interpolation() const -> QString = 0;
-    virtual auto method() const -> QString = 0;
+    virtual auto orthomosaicMethod() const -> QString = 0;
 
 public slots:
 
@@ -59,13 +59,16 @@ public slots:
 
     virtual void setCrs(const QString &crs) = 0;
     virtual void setInterpolation(const QString &interpolation) = 0;
-    virtual void setMethod(const QString &method) = 0;
+    virtual void setOrthomosaicMethod(const QString &method) = 0;
+
+    virtual void addOrthomosaicMethodWidget(QWidget *orthomosaic) = 0;
 
 signals:
 
     void resolutionChanged(double);
     void crs_change();
     void select_crs();
+    void orthomosaicMethodChanged(QString);
 
 };
 

@@ -97,34 +97,6 @@ auto OrthophotoModelImp::properties() const -> std::shared_ptr<OrthophotoPropert
 auto OrthophotoModelImp::images() const -> const ImageRepository &
 {
     return mProject->images();
-    //Images images;
-
-    //for(const auto &image : mProject->images()) {
-
-    //    Image photo(image.second);
-    //    size_t image_id = image.first;
-
-    //    if(mProject->isPhotoOriented(image_id)) {
-    //        CameraPose photoOrientation = mProject->photoOrientation(image_id);
-    //        auto rotation_matrix = photoOrientation.rotationMatrix();
-    //        rotation_matrix.at(1, 0) = -photoOrientation.rotationMatrix().at(1, 0);
-    //        rotation_matrix.at(1, 1) = -photoOrientation.rotationMatrix().at(1, 1);
-    //        rotation_matrix.at(1, 2) = -photoOrientation.rotationMatrix().at(1, 2);
-    //        rotation_matrix.at(2, 0) = -photoOrientation.rotationMatrix().at(2, 0);
-    //        rotation_matrix.at(2, 1) = -photoOrientation.rotationMatrix().at(2, 1);
-    //        rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
-    //        photoOrientation.setRotationMatrix(rotation_matrix);
-
-    //        photoOrientation.setPosition(photoOrientation.position());
-
-    //        photo.setCameraPose(photoOrientation);
-
-    //        images.push_back(photo);
-    //    }
-
-    //}
-
-    //return images;
 }
 
 auto OrthophotoModelImp::cameras() const -> const CameraRepository &

@@ -30,6 +30,8 @@ class QLabel;
 class QDoubleSpinBox;
 class QComboBox;
 class QLineEdit;
+class QGroupBox;
+class QGridLayout;
 
 namespace graphos
 {
@@ -52,14 +54,15 @@ public:
     auto gsd() const -> double override;
     auto crs() const -> QString override;
     auto interpolation() const -> QString override;
-    auto method() const -> QString override;
+    auto orthomosaicMethod() const -> QString override;
 
 public slots:
 
     void setGsd(double gsd) override;
     void setCrs(const QString &crs) override;
     void setInterpolation(const QString &interpolation) override;
-    void setMethod(const QString &method) override;
+    void setOrthomosaicMethod(const QString &method) override;
+    void addOrthomosaicMethodWidget(QWidget *orthomosaic) override;
 
 // DialogView
 
@@ -82,10 +85,13 @@ protected:
     QLabel *mLabelCRS;
     QLineEdit *mLineEditCRS;
     QPushButton *mPushButtonCRS;
+    QGroupBox *mGroupOrthoimages;
     QLabel *mLabelGSD;
     QDoubleSpinBox *mDoubleSpinBoxGSD;
     QLabel *mLabelInterpolation;
     QComboBox *mComboBoxInterpolation;
+    QGroupBox *mGroupOrthomosaic;
+    QGridLayout *mGridLayoutOrthomosaicWidget;
     QLabel *mLabelMethod;
     QComboBox *mComboBoxMethod;
     QDialogButtonBox *mButtonBox;

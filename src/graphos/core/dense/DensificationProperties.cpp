@@ -52,7 +52,7 @@ auto DensificationPropertiesFactory::create(const std::string &type) -> std::sha
         return std::make_shared<SmvsProperties>();
     }
 
-    tl::Message::warning("Unknown FeatureExtractor type: {}", type);
+    tl::Message::warning("Unknown Densification type: {}", type);
     return nullptr;
 }
 

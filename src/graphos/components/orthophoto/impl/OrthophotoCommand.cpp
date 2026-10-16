@@ -30,6 +30,8 @@
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/components/orthophoto/impl/OrthophotoTask.h"
 #include "graphos/core/orientation/io/CameraPosesReader.h"
+#include "graphos/core/ortho/OrthomosaicProperties.h"
+#include "graphos/core/ortho/SbbProperties.h"
 
 #include <tidop/core/app/Message.h>
 #include <tidop/core/app/Logger.h>
@@ -60,6 +62,20 @@ OrthophotoCommand::OrthophotoCommand()
     arg_interpolation->setValidator(std::make_shared<ValuesValidator<std::string>>(interpolation_methods));
     this->addArgument(arg_interpolation);
 
+    auto arg_mosaic_method = Argument::make<std::string>("mosaic_method", 'm', "Mosaic Method", "RLB");
+    std::vector<std::string> mosaic_methods{"RLB", "SBB"};
+    arg_mosaic_method->setValidator(std::make_shared<ValuesValidator<std::string>>(mosaic_methods));
+    this->addArgument(arg_mosaic_method);
+    auto arg_sbb_exposure_compensator = Argument::make<std::string>("sbb:exposure_compensator", "SBB Exposure Compensator", "GAIN");
+    std::vector<std::string> sbb_exposure_compensator{"NO", "GAIN", "GAIN_BLOCKS", "CHANNELS", "CHANNELS_BLOCKS"};
+    arg_sbb_exposure_compensator->setValidator(std::make_shared<ValuesValidator<std::string>>(sbb_exposure_compensator));
+    auto arg_sbb_seam_finder = Argument::make<std::string>("sbb:seam_finder", "SBB Seam Finder", "GRAPH_CUT");
+    std::vector<std::string> sbb_seam_finder{"GRAPH_CUT", "VORONOI"};
+    arg_sbb_seam_finder->setValidator(std::make_shared<ValuesValidator<std::string>>(sbb_seam_finder));
+    auto arg_sbb_blender_type = Argument::make<std::string>("sbb:blender_type", "SBB Blender Type", "FEATHER");
+    std::vector<std::string> sbb_blender_type{"NO", "FEATHER", "MULTI_BAND"};
+    arg_sbb_blender_type->setValidator(std::make_shared<ValuesValidator<std::string>>(sbb_blender_type));
+
 #ifdef HAVE_CUDA
     tl::Message::pauseMessages();
     bool cuda_enabled = cudaEnabled(10.0, 3.0);
@@ -88,6 +104,10 @@ bool OrthophotoCommand::run()
         auto gsd =  this->value<double>("gsd");
         auto crs =  this->value<std::string>("crs");
         auto interpolation =  this->value<std::string>("interpolation");
+        auto mosaic_method =  this->value<std::string>("mosaic_method");
+        auto sbb_exposure_compensator = this->value<std::string>("sbb:exposure_compensator");
+        auto sbb_seam_finder = this->value<std::string>("sbb:seam_finder");
+        auto sbb_blender_type = this->value<std::string>("sbb:blender_type");
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
 
@@ -153,14 +173,32 @@ bool OrthophotoCommand::run()
         ortho_path.append("ortho");
         ortho_path.append("orthomosaic.tif");
 
-        OrthophotoTask orthophoto_task(std::move(undistorted_images),
+        auto config = std::make_shared<OrthophotoProperties>();
+        config->setCrs(crs);
+        config->setGsd(gsd);
+        config->setInterpolation(interpolation);
+        auto ortho_config = OrthomosaicPropertiesFactory::create(mosaic_method);
+        if (mosaic_method == "RLB") {
+            //auto rlb_config = std::dynamic_pointer_cast<RobustLocalBlendingProperties>(ortho_config);
+            //rlb_config->setInterpolation(interpolation);
+            //rlb_config->setGsd(gsd);
+        } else if (mosaic_method == "SBB") {
+            auto sbb_config = std::dynamic_pointer_cast<SbbProperties>(ortho_config);
+            sbb_config->setExposureCompensator(sbb_exposure_compensator);
+            sbb_config->setSeamFinder(sbb_seam_finder);
+            sbb_config->setBlenderType(sbb_blender_type);
+        }
+        config->setOrthomosaicProperties(ortho_config);
+
+        OrthophotoTask orthophoto_task(config,
+                                       std::move(undistorted_images),
                                        std::move(undistorted_cameras),
                                        ortho_path,
                                        dsm_path,
                                        enu_crs,
-                                       crs,
+                                       /*crs,
                                        interpolation,
-                                       gsd, 
+                                       gsd,*/ 
                                        !mDisableCuda);
         orthophoto_task.run();
 

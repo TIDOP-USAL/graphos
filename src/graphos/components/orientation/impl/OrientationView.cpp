@@ -53,7 +53,6 @@ OrientationViewImp::OrientationViewImp(QWidget *parent)
 void OrientationViewImp::initUI()
 {
     this->setObjectName(QString("OrientationView"));
-    //this->resize(380, 280);
 
     auto grid_layout = new QGridLayout();
     this->setLayout(grid_layout);
@@ -72,17 +71,22 @@ void OrientationViewImp::initUI()
 
     grid_layout->addWidget(mGroupCalibration, 0, 0, 1, 2);
 
+    mGroupOrientation = new QGroupBox(this);
+    auto orientation_layout = new QGridLayout(mGroupOrientation);
+
     mComboOrientationMethod->addItem("");
     mComboOrientationMethod->addItem("");
 
-    grid_layout->addWidget(mLabelOrientationMethod, 1, 0);
-    grid_layout->addWidget(mComboOrientationMethod, 1, 1);
-    grid_layout->addWidget(mCheckBoxAbsoluteOrientation, 2, 0, 1, 2);
-    grid_layout->addWidget(mCheckBoxRtkPositioningAccuracy, 3, 0, 1, 2);
+    orientation_layout->addWidget(mLabelOrientationMethod, 0, 0);
+    orientation_layout->addWidget(mComboOrientationMethod, 0, 1);
+    orientation_layout->addWidget(mCheckBoxAbsoluteOrientation, 1, 0, 1, 2);
+    orientation_layout->addWidget(mCheckBoxRtkPositioningAccuracy, 2, 0, 1, 2);
+
+    grid_layout->addWidget(mGroupOrientation, 1, 0, 1, 2);
 
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    grid_layout->addWidget(mButtonBox, 4, 0, 1, 2);
+    grid_layout->addWidget(mButtonBox, 2, 0, 1, 2);
 
     this->retranslate();
     this->clear();
@@ -134,10 +138,11 @@ void OrientationViewImp::retranslate()
     mComboCalibration->setItemText(0, QApplication::translate("OrientationComponent", "None", nullptr));
     mComboCalibration->setItemText(1, QApplication::translate("OrientationComponent", "Prior calibration", nullptr));
     mComboCalibration->setItemText(2, QApplication::translate("OrientationComponent", "Adjusted calibration", nullptr));
-    mLabelOrientationMethod->setText(QApplication::translate("OrientationComponent", "Orientation method:", nullptr));
+    mCheckBoxFixCalibration->setText(QApplication::translate("OrientationComponent", "Fix Calibration (do not recalculate)", nullptr));
+    mGroupOrientation->setTitle(QApplication::translate("OrientationComponent", "Orientation", nullptr));
+    mLabelOrientationMethod->setText(QApplication::translate("OrientationComponent", "Method:", nullptr));
     mComboOrientationMethod->setItemText(0, QApplication::translate("OrientationComponent", "Sequential", nullptr));
     mComboOrientationMethod->setItemText(1, QApplication::translate("OrientationComponent", "Global", nullptr));
-    mCheckBoxFixCalibration->setText(QApplication::translate("OrientationComponent", "Fix Calibration (do not recalculate)", nullptr));
     mCheckBoxRtkPositioningAccuracy->setText(QApplication::translate("OrientationComponent", "Use GNSS positioning accuracy from EXIF", nullptr));
     mCheckBoxAbsoluteOrientation->setText(QApplication::translate("OrientationComponent", "Absolute Orientation", nullptr));
     mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("OrientationComponent", "Cancel"));

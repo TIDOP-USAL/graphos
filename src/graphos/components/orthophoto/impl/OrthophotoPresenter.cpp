@@ -27,11 +27,14 @@
 #include "graphos/components/orthophoto/impl/OrthophotoModel.h"
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"
 #include "graphos/components/orthophoto/impl/OrthophotoTask.h"
+#include "graphos/widgets/SeamBasedBlendingMosaicWidget.h"
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/core/camera/CameraRepository.h"
 #include "graphos/core/image/ImageRepository.h"
+#include "graphos/core/ortho/OrthophotoProperties.h"
+#include "graphos/core/ortho/OrthomosaicProperties.h"
+#include "graphos/core/ortho/SbbProperties.h"
 
-//#include <tidop/rastertools/io/Reader.h>
 #include <tidop/core/task/TaskList.h>
 
 #include <QFileInfo>
@@ -64,41 +67,19 @@ auto OrthophotoPresenterImp::undistortedCameras(const CameraRepository &cameraRe
 
         Undistort undistort(camera);
         Camera undistort_camera = undistort.undistortCamera();
-
-        //if (camera.hasCalibratedHMatrix()) {
-
-        //    auto calibrated_h_matrix = camera.calibratedHMatrix();
-        //    cv::Mat H = cv::Mat::eye(3, 3, CV_32F);
-        //    H.at<float>(0, 0) = calibrated_h_matrix(0, 0);
-        //    H.at<float>(0, 1) = calibrated_h_matrix(0, 1);
-        //    H.at<float>(0, 2) = calibrated_h_matrix(0, 2);
-        //    H.at<float>(1, 0) = calibrated_h_matrix(1, 0);
-        //    H.at<float>(1, 1) = calibrated_h_matrix(1, 1);
-        //    H.at<float>(1, 2) = calibrated_h_matrix(1, 2);
-        //    H.at<float>(2, 0) = calibrated_h_matrix(2, 0);
-        //    H.at<float>(2, 1) = calibrated_h_matrix(2, 1);
-        //    H.at<float>(2, 2) = calibrated_h_matrix(2, 2);
-
-        //    auto &calibration = camera.calibration() ? camera.calibration() : camera.priorCalibration();
-        //    float cx = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
-        //    float cy = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
-
-        //    std::vector<cv::Point2f> srcPoints = {{cx, cy}};
-        //    std::vector<cv::Point2f> dstPoints;
-
-        //    cv::perspectiveTransform(srcPoints, dstPoints, H);
-
-        //    auto &calibration2 = undistort_camera.calibration() ? undistort_camera.calibration() : undistort_camera.priorCalibration();
-        //    calibration2->setParameter(Calibration::Parameters::cx, static_cast<double>(dstPoints[0].x));
-        //    calibration2->setParameter(Calibration::Parameters::cy, static_cast<double>(dstPoints[0].y));
-
-        //}
-
         undistorted_cameras[camera_id] = undistort_camera;
 
     }
 
     return undistorted_cameras;
+}
+
+void OrthophotoPresenterImp::setSeamBasedBlendingMosaicWidget(std::shared_ptr<SeamBasedBlendingMosaicWidget> sbb)
+{
+    mSbb = sbb;
+
+    mView->addOrthomosaicMethodWidget(mSbb.get());
+    mView->setOrthomosaicMethod(mSbb->objectName());
 }
 
 void OrthophotoPresenterImp::open()
@@ -107,11 +88,25 @@ void OrthophotoPresenterImp::open()
 
     mView->setCrs(QString::fromStdString(mModel->crs()));
 
+    QString orthomosaic_method = "RLB";
     if (auto config = mModel->properties()) {
-        mView->setMethod(QString::fromStdString(config->method()));
-    } else {
-        mView->setMethod("Robust Local Blending");
-    }
+        if (auto orthomosaic_properties = config->orthomosaicProperties()) {
+
+            orthomosaic_method = QString::fromStdString(orthomosaic_properties->name());
+
+            if (orthomosaic_method == "SBB") {
+                auto sbb_properties = dynamic_cast<SbbProperties *>(orthomosaic_properties.get());
+                mSbb->setExposureCompensator(QString::fromStdString(sbb_properties->exposureCompensator()));
+                mSbb->setSeamFinder(QString::fromStdString(sbb_properties->seamFinder()));
+                mSbb->setBlenderType(QString::fromStdString(sbb_properties->blenderType()));
+            } else if (orthomosaic_method == "RLB") {
+
+            }
+
+        }
+    } 
+
+    mView->setOrthomosaicMethod(orthomosaic_method);
 
     mView->exec();
 }
@@ -123,6 +118,10 @@ void OrthophotoPresenterImp::init()
 
 void OrthophotoPresenterImp::initSignalAndSlots()
 {
+    connect(mView, &OrthophotoView::orthomosaicMethodChanged, [&](QString method) {
+        mView->setOrthomosaicMethod(method);
+        });
+
     connect(mView, &TaskView::run, this, &TaskPresenter::run);
     connect(mView, &DialogView::help, [&]() {
         emit help("orthophoto.html");
@@ -231,43 +230,35 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
     config->setCrs(mView->crs().toStdString());
     config->setGsd(mView->gsd());
     config->setInterpolation(mView->interpolation().toStdString());
-    config->setMethod(mView->method().toStdString());
+
+    auto orthomosaic_method = mView->orthomosaicMethod().toStdString();
+    if (orthomosaic_method == "RLB") {
+
+    } else if (orthomosaic_method == "SBB") {
+        if (mSbb) {
+            auto orthomosaic_properties = OrthomosaicPropertiesFactory::create(orthomosaic_method);
+            orthomosaic_properties->setProperty("ExposureCompensator", mSbb->exposureCompensator().toStdString());
+            orthomosaic_properties->setProperty("SeamFinder", mSbb->seamFinder().toStdString());
+            orthomosaic_properties->setProperty("BlenderType", mSbb->blenderType().toStdString());
+            config->setOrthomosaicProperties(orthomosaic_properties);
+        } /*else if (mRlb) {
+
+        }*/
+    }
+
     mModel->setProperties(config);
 
-    auto ortho_task = std::make_unique<OrthophotoTask>(std::move(undistorted_images),
+    auto ortho_task = std::make_unique<OrthophotoTask>(config,
+                                                       std::move(undistorted_images),
                                                        std::move(undistorted_cameras),
                                                        ortho_path,
                                                        mModel->dtmPath(),
                                                        mModel->enuCrs(),
-                                                       mView->crs().toStdString(),
-                                                       mView->interpolation().toStdString(),
-                                                       mView->gsd(),
-                                                       mModel->useCuda(),
-                                                       mView->method().toStdString());
-
-    //ortho_task->subscribe([&, ortho_path](const tl::TaskFinalizedEvent *event) {
-
-    //    try {
-
-    //        auto task = dynamic_cast<OrthophotoTask const *>(event->task());
-    //        if (task) {
-    //            auto report = task->report();
-    //            OrthophotoData ortho_data;
-    //            ortho_data.path = ortho_path;
-    //            ortho_data.epsgCode = mView->crs();
-    //            ortho_data.gsd = mView->gsd();
-    //            ortho_data.interpolation = mView->interpolation();
-    //            ortho_data.report = report;
-    //            mModel->addOrthophoto(ortho_data);
-    //        }
-
-    //    } catch (std::exception &e) {
-    //        tl::printException(e);
-    //    }
-
-    //});
-
-    //task_list->push_back(ortho_task);
+                                                       //mView->crs().toStdString(),
+                                                       //mView->interpolation().toStdString(),
+                                                       //mView->gsd(),
+                                                       mModel->useCuda()
+                                                       /*mView->orthomosaicMethod().toStdString()*/);
 
     if(progressHandler()) {
         progressHandler()->setRange(0, mModel->images().size()*4);

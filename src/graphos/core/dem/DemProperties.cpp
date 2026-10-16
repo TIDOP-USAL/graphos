@@ -27,7 +27,7 @@ namespace graphos
 {
 
 DemProperties::DemProperties()
-  : mProperties("PoissonRecon")
+  : mProperties("DEM")
 {
     clear();
 }

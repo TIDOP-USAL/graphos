@@ -27,11 +27,6 @@
 
 #include "graphos/core/dense/DensificationProperties.h"
 
-namespace colmap
-{
-struct FeatureKeypoint;
-}
-
 namespace graphos
 {
 

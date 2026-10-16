@@ -24,8 +24,6 @@
 #include "DensificationModel.h"
 
 #include "graphos/core/project/Project.h"
-//#include "graphos/core/dense/dense.h"
-//#include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/orientation/GroundPoint.h"
 
 #include <tidop/core/console/Console.h>

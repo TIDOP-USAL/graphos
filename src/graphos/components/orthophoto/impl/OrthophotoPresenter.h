@@ -53,6 +53,12 @@ public:
 
     auto undistortedCameras(const CameraRepository &cameras) const -> std::map<int, Camera>;
 
+// OrthophotoPresenter interface
+
+public:
+
+    void setSeamBasedBlendingMosaicWidget(std::shared_ptr<SeamBasedBlendingMosaicWidget> sbb) override;
+
 // Presenter interface
 
 public slots:
@@ -83,7 +89,7 @@ private:
 
     OrthophotoView *mView;
     OrthophotoModel *mModel;
-
+    std::shared_ptr<SeamBasedBlendingMosaicWidget> mSbb;
 };
 
 } // namespace graphos

@@ -28,6 +28,7 @@
 #include "graphos/components/orthophoto/impl/OrthophotoModel.h"
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"
 #include "graphos/components/orthophoto/impl/OrthophotoPresenter.h"
+#include "graphos/widgets/SeamBasedBlendingMosaicWidget.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/orthophoto/impl//OrthophotoCommand.h"
 #include "graphos/core/project/Project.h"
@@ -47,11 +48,45 @@ OrthophotoComponent::OrthophotoComponent(Application *application)
 
 OrthophotoComponent::~OrthophotoComponent() = default;
 
+#ifdef GRAPHOS_GUI
+
+void OrthophotoComponent::enableMethod(Method method)
+{
+    if (method == Method::rlb && mMethod.isDisabled(method)) {
+        //mMethod.enable(method);
+        //dynamic_cast<OrthophotoPresenter *>(presenter())->setRlbWidget(std::make_unique<RlbWidget>());
+    } else if (method == Method::sbb && mMethod.isDisabled(method)) {
+        mMethod.enable(method);
+        dynamic_cast<OrthophotoPresenter *>(presenter())->setSeamBasedBlendingMosaicWidget(std::make_unique<SeamBasedBlendingMosaicWidget>());
+    }
+}
+
+void OrthophotoComponent::disableMethod(Method method)
+{
+    if (method == Method::rlb && mMethod.isEnabled(method)) {
+        //mMethod.disable(method);
+        //dynamic_cast<OrthophotoPresenter *>(presenter())->setRlbWidget(nullptr);
+    } else if (method == Method::sbb && mMethod.isEnabled(method)) {
+        mMethod.disable(method);
+        //dynamic_cast<OrthophotoPresenter *>(presenter())->setCmvsPmvsWidget(nullptr);
+    }
+}
+
+bool OrthophotoComponent::isEnabled(Method method) const
+{
+    return mMethod.isEnabled(method);
+}
+
+#endif // GRAPHOS_GUI
+
 void OrthophotoComponent::init()
 {
     setName(QApplication::translate("OrthophotoComponent", "Orthophoto"));
     setMenu("workflow");
     //setIcon(QIcon::fromTheme("ortho"));
+
+    mMethod.enable(Method::sbb);
+
     createCommand();
 }
 
@@ -77,6 +112,9 @@ void OrthophotoComponent::createPresenter()
 #ifdef GRAPHOS_GUI
     setPresenter(new OrthophotoPresenterImp(dynamic_cast<OrthophotoView *>(view()),
                                             dynamic_cast<OrthophotoModel *>(model())));
+    if (mMethod.isEnabled(Method::sbb))
+        dynamic_cast<OrthophotoPresenter *>(presenter())->setSeamBasedBlendingMosaicWidget(std::make_unique<SeamBasedBlendingMosaicWidget>());
+
     connect(dynamic_cast<OrthophotoPresenter *>(presenter()), &OrthophotoPresenter::ortho_deleted,
             this, &OrthophotoComponent::ortho_deleted);
 #endif // GRAPHOS_GUI

@@ -48,10 +48,7 @@ namespace graphos
 DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
                                                      DensificationModel *model)
   : mView(view),
-    mModel(model)/*,
-    mCmvsPmvs(new CmvsPmvsWidget),
-    mSmvs(new SmvsWidget),
-    mMVS(new MvsWidget)*/
+    mModel(model)
 {
     DensificationPresenterImp::init();
     DensificationPresenterImp::initSignalAndSlots();
@@ -231,14 +228,6 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
 
     mModel->cleanProject();
     emit densification_deleted();
-
-    //std::unordered_map<size_t, Image> images;
-    //for (auto &image : mModel->images()) {
-    //    auto it = mModel->poses().find(image.first);
-    //    if (it != mModel->poses().end()) {
-    //        images[image.first] = image.second;
-    //    }
-    //}
 
     QString densification_method = mView->currentDensificationMethod();
 

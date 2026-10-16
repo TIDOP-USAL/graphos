@@ -59,7 +59,6 @@ public:
 
     auto densificationConfig() const -> std::shared_ptr<DensificationProperties> override;
     auto projectFolder() const -> tl::Path override;
-    //auto reconstructionPath() const -> tl::Path override;
     auto database() const -> tl::Path override;
     auto useCuda() const -> bool override;
     auto existDenseModel() const -> bool override;

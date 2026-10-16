@@ -82,7 +82,10 @@ add_files_to_project(${PROJECT_NAME}
                          orientation/io/GCPsReader.cpp
                          orientation/io/GCPsWriter.cpp
                          orientation/io/OrientationExport.cpp
+                         ortho/OrthomosaicProperties.cpp
                          ortho/OrthophotoProperties.cpp
+                         ortho/RlbProperties.cpp
+                         ortho/SbbProperties.cpp
                          project/Project.cpp
                          project/ProjectInfo.cpp
                          project/io/ProjectReader.cpp
@@ -152,8 +155,11 @@ add_files_to_project(${PROJECT_NAME}
                          orientation/io/GCPsReader.h
                          orientation/io/GCPsWriter.h
                          orientation/io/OrientationExport.h
+                         ortho/OrthomosaicProperties.h
                          ortho/OrthophotoProperties.h
                          ortho/OrthophotoReport.h
+                         ortho/RlbProperties.h
+                         ortho/SbbProperties.h
                          project/Project.h
                          project/ProjectInfo.h
                          project/io/ProjectReader.h

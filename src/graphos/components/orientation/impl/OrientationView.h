@@ -89,9 +89,10 @@ protected:
     QGroupBox *mGroupCalibration;
     QLabel *mLabelCalibrationSource;
     QComboBox *mComboCalibration;
+    QCheckBox *mCheckBoxFixCalibration;
+    QGroupBox *mGroupOrientation;
     QLabel *mLabelOrientationMethod;
     QComboBox *mComboOrientationMethod;
-    QCheckBox *mCheckBoxFixCalibration;
     QCheckBox *mCheckBoxAbsoluteOrientation;
     QCheckBox *mCheckBoxRtkPositioningAccuracy;
     QDialogButtonBox *mButtonBox;

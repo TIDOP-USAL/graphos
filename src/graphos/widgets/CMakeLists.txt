@@ -55,6 +55,7 @@ add_files_to_project(${PROJECT_NAME}
                          TabWidget.cpp
                          ProgressBarDialog.cpp
                          ProgressBarWidget.cpp
+                         SeamBasedBlendingMosaicWidget.cpp
                          delegates/CompactItemDelegate.cpp
                          settings/FeatViewerSettingsWidget.cpp
                          settings/MatchViewerSettingsWidget.cpp
@@ -91,6 +92,7 @@ add_files_to_project(${PROJECT_NAME}
                          TabWidget.h
                          ProgressBarDialog.h
                          ProgressBarWidget.h
+                         SeamBasedBlendingMosaicWidget.h
                          delegates/CompactItemDelegate.h
                          formats/raster/TiffFormatWidget.h
                          settings/FeatViewerSettingsWidget.h

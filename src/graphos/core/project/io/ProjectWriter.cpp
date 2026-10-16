@@ -28,6 +28,7 @@
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/core/orientation/GroundControlPoint.h"
 #include "graphos/core/orientation/io/GCPsReader.h"
+#include "graphos/core/ortho/OrthomosaicProperties.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -201,7 +202,7 @@ void writeDemConfig(QXmlStreamWriter &stream, const DemProperties *config)
 {
     if (config) {
         stream.writeStartElement("Config");
-        stream.writeAttribute("method", config->name());
+        //stream.writeAttribute("method", config->name());
         for (auto &[key, value] : *config) {
             stream.writeTextElement(key, value->toString());
         }
@@ -226,10 +227,19 @@ void writeOrthoConfig(QXmlStreamWriter &stream, const OrthophotoProperties *conf
 {
     if (config) {
         stream.writeStartElement("Config");
-        //stream.writeAttribute("method", config->name());
         for (auto &[key, value] : *config) {
             stream.writeTextElement(key, value->toString());
         }
+
+        if (auto orthomosaic_properties = config->orthomosaicProperties()) {
+            stream.writeStartElement("Mosaic");
+            stream.writeAttribute("method", orthomosaic_properties->name());
+            for (auto &[mosaic_key, mosaic_value] : *orthomosaic_properties) {
+                stream.writeTextElement(mosaic_key, mosaic_value->toString());
+            }
+            stream.writeEndElement(); // Mosaic
+        }
+
         stream.writeEndElement();
     }
 }

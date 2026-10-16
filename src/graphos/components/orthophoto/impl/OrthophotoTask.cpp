@@ -27,6 +27,7 @@
 #include "graphos/components/orthophoto/impl/Orthoimage.h"
 #include "graphos/core/image/Image.h"
 #include "graphos/core/utils.h"
+#include "graphos/core/ortho/SbbProperties.h"
 #include "graphos/components/orthophoto/impl/OrthoimageTask.h"
 
 /* TidopLib */
@@ -77,6 +78,7 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
                         std::vector<std::vector<tl::BoundingBox2d>> &grid,
                         tl::DataType dataType,
                         int channels,
+                        const SbbProperties *sbbConfig = nullptr,
                         bool try_cuda = false)
 {
     try {
@@ -93,7 +95,21 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
 
         // Usar GAIN_BLOCKS que funciona mejor para mosaicos
         //int type = cv::detail::ExposureCompensator::GAIN_BLOCKS;
-        int type = cv::detail::ExposureCompensator::GAIN;
+        int type = cv::detail::ExposureCompensator::GAIN_BLOCKS;
+        if (sbbConfig) {
+            std::string exposure_compensator = sbbConfig->exposureCompensator();
+            if (exposure_compensator == "GAIN") 
+                type = cv::detail::ExposureCompensator::GAIN;
+            else if (exposure_compensator == "GAIN_BLOCKS") 
+                type = cv::detail::ExposureCompensator::GAIN_BLOCKS;
+            else if (exposure_compensator == "NO") 
+                type = cv::detail::ExposureCompensator::NO;
+            else if (exposure_compensator == "CHANNELS") 
+                type = cv::detail::ExposureCompensator::CHANNELS;
+            else if (exposure_compensator == "CHANNELS_BLOCKS") 
+                type = cv::detail::ExposureCompensator::CHANNELS_BLOCKS;
+        }
+
         cv::Ptr<cv::detail::ExposureCompensator> compensator = cv::detail::ExposureCompensator::createDefault(type);
 
         tl::Message::info("Step 2: Opening vector reader");
@@ -238,30 +254,28 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
 
         try {
             
-            //if (bCuda)
-            //    seam_finder = cv::makePtr<cv::detail::GraphCutSeamFinderGpu>(cv::detail::GraphCutSeamFinderGpu::COST_COLOR_GRAD);
-            //else 
-                seam_finder = cv::makePtr<cv::detail::GraphCutSeamFinder>(cv::detail::GraphCutSeamFinder::COST_COLOR_GRAD);
-                //seam_finder = cv::makePtr<cv::detail::GraphCutSeamFinder>(cv::detail::GraphCutSeamFinder::COST_COLOR);
+            
 
-            // Lo he cambiado a lo siguiente para probar pero sigue sacando un mal resultado así que no tiene que ver:
-            //seam_finder = cv::makePtr<cv::detail::DpSeamFinder>(cv::detail::DpSeamFinder::COLOR);
-            //seam_finder = cv::makePtr<cv::detail::DpSeamFinder>(cv::detail::DpSeamFinder::COLOR_GRAD);
+            if (sbbConfig) {
+
+                auto seam_finder_type = sbbConfig->seamFinder();
+                if (seam_finder_type == "GRAPH_CUT") {
+                    seam_finder = cv::makePtr<cv::detail::GraphCutSeamFinder>(cv::detail::GraphCutSeamFinder::COST_COLOR_GRAD);
+                } else {
+                    seam_finder = cv::makePtr<cv::detail::VoronoiSeamFinder>();
+                }
+
+            } else {
+                seam_finder = cv::makePtr<cv::detail::GraphCutSeamFinder>(cv::detail::GraphCutSeamFinder::COST_COLOR_GRAD);
+            }
+
             seam_finder->find(all_images_seam, all_corners, all_masks_comp);
+
         } catch (const cv::Exception &e) {
             tl::Message::warning("GraphCut failed, using Voronoi: {}", e.what());
             seam_finder = cv::makePtr<cv::detail::VoronoiSeamFinder>();
             seam_finder->find(all_images_seam, all_corners, all_masks_comp);
         }
-
-        //for (size_t i = 0; i < all_masks_comp.size(); ++i) {
-        //    cv::Mat seam_mask = all_masks_comp[i].getMat(cv::ACCESS_READ);
-        //    const int retained_pixels = cv::countNonZero(seam_mask);
-        //    const int total_pixels = seam_mask.rows * seam_mask.cols;
-        //    tl::Message::info("Seam mask {} retains {}/{} pixels ({:.1f}%)",
-        //        all_orthos[i], retained_pixels, total_pixels,
-        //        total_pixels > 0 ? 100.0 * retained_pixels / total_pixels : 0.0);
-        //}
 
         // Aplicar compensación y guardar imágenes procesadas
         for (size_t i = 0; i < all_orthos.size(); ++i) {
@@ -280,7 +294,6 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
                 cv::Point corner_full;
                 corner_full.x = tl::roundToInteger((all_windows[i].min().x() - window_all.min().x()) / scale_full);
                 corner_full.y = tl::roundToInteger((window_all.max().y() - all_windows[i].max().y()) / scale_full);
-                tl::Message::info("Full res corner for {}: ({}, {})", all_orthos[i], corner_full.x, corner_full.y);
 
                 // Rellenar huecos negros en la imagen completa antes de la compensación
                 cv::Mat blackPixelMask = createBlackPixelMask(full_img, 32);
@@ -307,7 +320,7 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
                     cv::resize(all_masks_comp[i], seam_mask_full, full_img.size(), 0, 0, cv::INTER_NEAREST);
 
                     // DILATACIÓN: Evita líneas negras en las costuras disjuntas
-                    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)); // Probar con un tamaño mayor si es necesario
+                    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(9, 9)); // Probar con un tamaño mayor si es necesario
                     cv::dilate(seam_mask_full, seam_mask_full, element);
                 } else {
                     seam_mask_full = mask_full.clone();
@@ -360,15 +373,25 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
 
         vector_reader.close();
 
-        // --- BLENDING MEJORADO ---
+        // BLENDING
 
         TL_ASSERT(!compensated_orthos.empty(), "No compensated orthos were written");
 
         tl::Message::info("Starting blending with {} images", compensated_orthos.size());
 
         int blender_type = cv::detail::Blender::FEATHER;
-        //int blender_type = cv::detail::Blender::MULTI_BAND;
-        float blend_strength = 2.f; // 5.f; // 2.0f; // Aumentado para mejor transición
+        float blend_strength = 2.f;
+        if (sbbConfig) {
+            auto blender = sbbConfig->blenderType();
+            if (blender == "NO") {
+                blender_type = cv::detail::Blender::NO;
+            } else if (blender == "FEATHER") {
+                blender_type = cv::detail::Blender::FEATHER;
+            } else if (blender == "MULTI_BAND") {
+                //blend_strength = 5.f;
+                blender_type = cv::detail::Blender::MULTI_BAND;
+            }
+        }
 
         tl::RasterWriter image_writer(ortho_path);
 
@@ -401,12 +424,12 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
 
                 float blend_width = sqrt(static_cast<float>(rect.area())) * blend_strength / 100.f;
 
-                if (blend_width < 1.f) {
+                if (blend_width < 1.f || blender_type == cv::detail::Blender::NO) {
                     blender = cv::detail::Blender::createDefault(cv::detail::Blender::NO, try_cuda);
                 } else if (blender_type == cv::detail::Blender::MULTI_BAND) {
                     cv::detail::MultiBandBlender *multi_band_blender = dynamic_cast<cv::detail::MultiBandBlender *>(blender.get());
                     int num_bands = static_cast<int>(ceil(log(blend_width) / log(2.)) - 1.);
-                    num_bands = std::max(1, std::min(5, num_bands)); // Limitar entre 1-5 bandas
+                    num_bands = std::min(5, num_bands);
                     tl::Message::info("Multi-band blender with {} bands", num_bands);
                     multi_band_blender->setNumBands(num_bands);
                     //multi_band_blender->setNumBands(4);
@@ -1390,29 +1413,31 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images_,
     return result;
 }
 
-OrthophotoTask::OrthophotoTask(std::unordered_map<size_t, Image> images,
+OrthophotoTask::OrthophotoTask(const std::shared_ptr<OrthophotoProperties> &properties, 
+                               std::unordered_map<size_t, Image> images,
                                std::map<int, Camera> cameras,
                                tl::Path orthoPath, 
                                tl::Path mdt, 
                                std::string enuCrs, 
-                               std::string epsg, 
+/*                               std::string epsg, 
                                std::string interpolation, 
-                               double resolution, 
-                               bool cuda,
-                               std::string method)
+                               double resolution,*/ 
+                               bool cuda/*,
+                               std::string method*/)
   : tl::Task(),
+    mProperties(properties),
     mImages(std::move(images)),
     mCameras(std::move(cameras)),
     mOrthoPath(std::move(orthoPath)),
     mMdt(std::move(mdt)),
     mEnuCrs(std::move(enuCrs)),
-    mEpsg(std::move(epsg)),
-    mInterpolation(std::move(interpolation)),
-    mGSD(resolution),
+    //mEpsg(std::move(epsg)),
+    //mInterpolation(std::move(interpolation)),
+    //mGSD(resolution),
     bCuda(cuda),
     mDataType(tl::DataType::TL_8U),
-    mChannels(3),
-    mMethod(std::move(method))
+    mChannels(3)/*,
+    mMethod(std::move(method))*/
 {
 }
 
@@ -1436,8 +1461,8 @@ std::vector<std::vector<tl::BoundingBox2d>> OrthophotoTask::findGrid(int gridSiz
     std::vector<std::vector<tl::BoundingBox2d>> grid;
 
     try {
-
-        int grid_size = mGSD * gridSize;
+        
+        int grid_size = mProperties->gsd() * gridSize;
 
         tl::RasterReader reader(mMdt);
         TL_ASSERT(reader.isOpen(), "Can not open the MDT");
@@ -1514,9 +1539,11 @@ void OrthophotoTask::execute(tl::Progress *progressBar, std::stop_token stopToke
         mWindowAll.max().x() = grid.back().back().max().x();
         mWindowAll.max().y() = grid[0][0].max().y();
 
-        // Transformación afín ortomosaico, 
-        // Usar cuando se escriba la orto
-        tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, mWindowAll.min().x(), mWindowAll.max().y(), 0.0);
+        auto gsd = mProperties->gsd();
+        auto crs = mProperties->crs();
+        auto interpolation = mProperties->interpolation();
+
+        tl::Affine<double, 2> affine_ortho(gsd, -gsd, mWindowAll.min().x(), mWindowAll.max().y(), 0.0);
 
         OrthoimageTask orthoimage_task(mImages,
                                        mCameras,
@@ -1524,11 +1551,11 @@ void OrthophotoTask::execute(tl::Progress *progressBar, std::stop_token stopToke
                                        temp_path,
                                        graph_orthos,
                                        mEnuCrs,
-                                       mEpsg,
+                                       crs,
                                        affine_ortho,
                                        footprint_file,
-                                       mGSD,
-                                       mInterpolation,
+                                       gsd,
+                                       interpolation,
                                        1.0,
                                        bCuda);
 
@@ -1540,16 +1567,23 @@ void OrthophotoTask::execute(tl::Progress *progressBar, std::stop_token stopToke
 
         if (status() == Status::stopping)  return;
       
-        
-        if (mMethod == "Robust Local Blending") {
+        std::string mosaic_method = "RLB";
+        auto orthomosaic_properties = mProperties->orthomosaicProperties();
+        if (orthomosaic_properties) {
+            mosaic_method = orthomosaic_properties->name();
+        }
+
+        if (mosaic_method == "RLB") {
             tl::Message::info("Generating orthophoto tiles with Robust Local Blending method");
             auto orthos = searchTiles(graph_orthos, grid/*, 10*/);
 
             generateTiles(grid, orthos, progressBar);
             writeOrthomosaic(grid);
         } else {
-            tl::Message::info("Generating orthophoto tiles with Mosaic method");
-            orthoMosaic(graph_orthos, mOrthoPath, mGSD, mEpsg, grid, mDataType, mChannels, bCuda);
+            tl::Message::info("Generating orthophoto tiles with Seam-based Blending method");
+
+            auto sbb_config = dynamic_cast<SbbProperties *>(orthomosaic_properties.get());
+            orthoMosaic(graph_orthos, mOrthoPath, gsd, crs, grid, mDataType, mChannels, sbb_config, bCuda);
         }
 
         tl::Path::removeDirectory(temp_path);
@@ -1557,10 +1591,10 @@ void OrthophotoTask::execute(tl::Progress *progressBar, std::stop_token stopToke
         if (progressBar) (*progressBar)();
 
         mOrthophotoReport.time = this->time();
-        mOrthophotoReport.gsd = mGSD;
-        mOrthophotoReport.epsg = mEpsg;
-        mOrthophotoReport.cols = static_cast<int>(std::round(mWindowAll.width() / mGSD));
-        mOrthophotoReport.rows = static_cast<int>(std::round(mWindowAll.height() / mGSD));
+        mOrthophotoReport.gsd = gsd;
+        mOrthophotoReport.epsg = crs;
+        mOrthophotoReport.cols = static_cast<int>(std::round(mWindowAll.width() / gsd));
+        mOrthophotoReport.rows = static_cast<int>(std::round(mWindowAll.height() / gsd));
         mOrthophotoReport.channels = mChannels;
 
         tl::Message::success("Orthophoto task finished in {:.2} minutes", mOrthophotoReport.time / 60.);
@@ -1630,6 +1664,9 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::BoundingBox
 {
     try {
 
+        auto gsd = mProperties->gsd();
+        auto epsg_code = mProperties->crs();
+
         double step = 0;
         if (progressBar) {
             auto max = progressBar->maximum() / 2 - 1;
@@ -1652,7 +1689,7 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::BoundingBox
                 }
 
                 const auto &window = grid[r][c];
-                int image_size = tl::numberCast<int>(window.width() / mGSD);
+                int image_size = tl::numberCast<int>(window.width() / gsd);
 
                 // Todas las imagenes del elemento actual del grid
                 std::vector<cv::Mat> images;
@@ -1677,8 +1714,8 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::BoundingBox
                         auto ortoimage_center = image_reader.window().center();
                         auto tile_center = window.center();
 
-                        double center_x_tile = (ortoimage_center.x() - tile_center.x()) / mGSD;
-                        double center_y_tile = (tile_center.y() - ortoimage_center.y()) / mGSD;
+                        double center_x_tile = (ortoimage_center.x() - tile_center.x()) / gsd;
+                        double center_y_tile = (tile_center.y() - ortoimage_center.y()) / gsd;
 
 
                         tl::BoundingBox2i window_image;
@@ -1755,9 +1792,9 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::BoundingBox
                     tl::RasterWriter image_writer(tile);
 
                     image_writer.create(read_image.rows, read_image.cols, read_image.channels(), mDataType);
-                    tl::Crs crs(mEpsg);
+                    tl::Crs crs(epsg_code);
                     image_writer.setCRS(crs.toWktFormat());
-                    tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, window.min().x(), window.max().y(), 0.0);
+                    tl::Affine<double, 2> affine_ortho(gsd, -gsd, window.min().x(), window.max().y(), 0.0);
                     image_writer.setGeoreference(affine_ortho);
                     if (mDataType == tl::DataType::TL_32F || mDataType == tl::DataType::TL_64F)
                         image_writer.setNoDataValue(tl::NoData<float>);
@@ -1781,11 +1818,14 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::Bounding
 
         tl::Message::info("Writing ortho image");
 
+        auto gsd = mProperties->gsd();
+        auto epsg_code = mProperties->crs();
+
         //tl::Path ortho_final(mOrthoPath);
         //ortho_final.append("ortho.tif");
         tl::RasterWriter image_writer(mOrthoPath);
-        int cols = static_cast<int>(std::round(mWindowAll.width() / mGSD));
-        int rows = static_cast<int>(std::round(mWindowAll.height() / mGSD));
+        int cols = static_cast<int>(std::round(mWindowAll.width() / gsd));
+        int rows = static_cast<int>(std::round(mWindowAll.height() / gsd));
 
         tl::ImageOptions options;
         options.set(tl::tiff::Tiled, "YES");
@@ -1802,9 +1842,9 @@ void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::Bounding
             QString tiffDateTime = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
             metadata.set("TIFFTAG_DATETIME", tiffDateTime.toStdString());
             image_writer.setMetadata(metadata);
-            tl::Crs crs(mEpsg);
+            tl::Crs crs(epsg_code);
             image_writer.setCRS(crs.toWktFormat());
-            tl::Affine<double, 2> affine_ortho(mGSD, -mGSD, mWindowAll.min().x(), mWindowAll.max().y(), 0.0);
+            tl::Affine<double, 2> affine_ortho(gsd, -gsd, mWindowAll.min().x(), mWindowAll.max().y(), 0.0);
             image_writer.setGeoreference(affine_ortho);
 
             if (mDataType == tl::DataType::TL_32F || mDataType == tl::DataType::TL_64F)

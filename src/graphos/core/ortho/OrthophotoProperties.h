@@ -26,11 +26,14 @@
 #include "graphos/graphos_global.h"
 
 #include <string>
+#include <memory>
 
 #include <tidop/core/base/Property.h>
 
 namespace graphos
 {
+
+class OrthomosaicProperties;
 
 class OrthophotoProperties
 {
@@ -38,6 +41,7 @@ class OrthophotoProperties
 protected:
 
     tl::Properties mProperties;
+    std::shared_ptr<OrthomosaicProperties> mOrthomosaicProperties;
 
 public:
 
@@ -56,12 +60,12 @@ public:
     [[nodiscard]]
     auto interpolation() const -> std::string;
     [[nodiscard]]
-    auto method() const -> std::string;
+    auto orthomosaicProperties() const -> std::shared_ptr<OrthomosaicProperties>;
 
     void setCrs(std::string crs);
     void setGsd(double gsd);
     void setInterpolation(std::string interpolation);
-    void setMethod(std::string method);
+    void setOrthomosaicProperties(std::shared_ptr<OrthomosaicProperties> orthomosaicProperties);
 
     void clear();
 
@@ -80,6 +84,5 @@ public:
         mProperties.setProperty(key, value);
     }
 };
-
 
 } // namespace graphos

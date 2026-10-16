@@ -36,6 +36,7 @@
 #include <tidop/rastertools/DataType.h>
 
 #include "graphos/core/ortho/OrthophotoReport.h"
+#include "graphos/core/ortho/OrthophotoProperties.h"
 
 namespace tl 
 {
@@ -55,16 +56,17 @@ class OrthophotoTask
 
 public:
 
-    OrthophotoTask(std::unordered_map<size_t, Image> images,
+    OrthophotoTask(const std::shared_ptr<OrthophotoProperties> &properties, 
+                   std::unordered_map<size_t, Image> images,
                    std::map<int, Camera> cameras,
                    tl::Path orthoPath,
                    tl::Path mdt,
                    std::string enuCrs,
-                   std::string epsg,
-                   std::string interpolation = "BILINEAR",
-                   double resolution = -1.,
-                   bool cuda = false,
-                   std::string method = "Robust Local Blending");
+                   //std::string epsg,
+                   //std::string interpolation = "BILINEAR",
+                   //double resolution = -1.,
+                   bool cuda = false/*,
+                   std::string method = "Robust Local Blending"*/);
 
     ~OrthophotoTask() override;
 
@@ -97,21 +99,22 @@ protected:
 
 private:
 
+    std::shared_ptr<OrthophotoProperties> mProperties;
     std::unordered_map<size_t, Image> mImages;
     std::map<int, Camera> mCameras;
     tl::Path mOrthoPath;
     tl::Path mMdt;
     std::string mEnuCrs;
-    std::string mEpsg;
-    std::string mInterpolation;
+    //std::string mEpsg;
+    //std::string mInterpolation;
     OrthophotoReport mOrthophotoReport;
-    double mGSD;
+    //double mGSD;
     bool bCuda;
     // Por ahora se calcula internamente pero se podría establecer la región de la ortofoto externamente
     tl::BoundingBox2d mWindowAll;
     tl::DataType mDataType;
     int mChannels;
-    std::string mMethod;
+    //std::string mMethod;
 };
 
 } // namespace graphos

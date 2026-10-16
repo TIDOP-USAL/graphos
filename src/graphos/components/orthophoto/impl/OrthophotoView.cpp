@@ -31,6 +31,7 @@
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QComboBox>
+#include <QGroupBox>
 
 namespace graphos
 {
@@ -49,7 +50,7 @@ OrthophotoViewImp::~OrthophotoViewImp()
 void OrthophotoViewImp::initUI()
 {
     this->setObjectName(QString("OrthophotoView"));
-    this->resize(380, 300);
+    //this->resize(380, 300);
 
     auto grid_layout = new QGridLayout();
     this->setLayout(grid_layout);
@@ -65,14 +66,17 @@ void OrthophotoViewImp::initUI()
     mPushButtonCRS->setText("...");
     grid_layout->addWidget(mPushButtonCRS, 0, 2, 1, 1);
 
+    mGroupOrthoimages = new QGroupBox(this);
+    auto orthoimages_layout = new QGridLayout(mGroupOrthoimages);
+
     mLabelGSD = new QLabel(this);
-    grid_layout->addWidget(mLabelGSD, 1, 0, 1, 1);
+    orthoimages_layout->addWidget(mLabelGSD, 0, 0, 1, 1);
     mDoubleSpinBoxGSD = new QDoubleSpinBox(this);
     mDoubleSpinBoxGSD->setSingleStep(0.1);
-    grid_layout->addWidget(mDoubleSpinBoxGSD, 1, 1, 1, 2);
+    orthoimages_layout->addWidget(mDoubleSpinBoxGSD, 0, 1, 1, 2);
 
     mLabelInterpolation = new QLabel(this);
-    grid_layout->addWidget(mLabelInterpolation, 2, 0, 1, 1);
+    orthoimages_layout->addWidget(mLabelInterpolation, 1, 0, 1, 1);
     mComboBoxInterpolation = new QComboBox(this);
     mComboBoxInterpolation->addItem("");
     mComboBoxInterpolation->addItem("");
@@ -80,21 +84,33 @@ void OrthophotoViewImp::initUI()
     mComboBoxInterpolation->setItemData(0, "NEAREST");
     mComboBoxInterpolation->setItemData(1, "BILINEAR");
     mComboBoxInterpolation->setItemData(2, "BICUBIC");
-    grid_layout->addWidget(mComboBoxInterpolation, 2, 1, 1, 2);
+    orthoimages_layout->addWidget(mComboBoxInterpolation, 1, 1, 1, 2);
+
+    grid_layout->addWidget(mGroupOrthoimages, 1, 0, 1, 3);
+
+    mGroupOrthomosaic = new QGroupBox(this);
+    auto orthomosaic_layout = new QGridLayout(mGroupOrthomosaic);
 
     mLabelMethod = new QLabel(this);
-    grid_layout->addWidget(mLabelMethod, 3, 0, 1, 1);
+    orthomosaic_layout->addWidget(mLabelMethod, 0, 0, 1, 1);
     mComboBoxMethod = new QComboBox(this);
     mComboBoxMethod->addItem("");
-    mComboBoxMethod->addItem("");
-    mComboBoxMethod->setItemData(0, "Robust Local Blending");
-    mComboBoxMethod->setItemData(1, "Seam-based Blending");
-    grid_layout->addWidget(mComboBoxMethod, 3, 1, 1, 2);
+    //mComboBoxMethod->addItem("");
+    mComboBoxMethod->setItemData(0, "RLB");
+    //mComboBoxMethod->setItemData(1, "Seam-based Blending");
+    orthomosaic_layout->addWidget(mComboBoxMethod, 0, 1, 1, 1);
+
+    QWidget *widget_orthomosaic = new QWidget();
+    mGridLayoutOrthomosaicWidget = new QGridLayout(widget_orthomosaic);
+    mGridLayoutOrthomosaicWidget->setContentsMargins(0, 0, 0, 0);
+    orthomosaic_layout->addWidget(widget_orthomosaic, 1, 0, 1, 2);
+
+    grid_layout->addWidget(mGroupOrthomosaic, 2, 0, 1, 3);
 
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    grid_layout->addWidget(mButtonBox, 8, 0, 1, 3);
+    grid_layout->addWidget(mButtonBox, 3, 0, 1, 3);
 
     this->retranslate();
     this->clear();
@@ -107,6 +123,9 @@ void OrthophotoViewImp::initSignalAndSlots()
     connect(mLineEditCRS, &QLineEdit::textChanged, this, &OrthophotoViewImp::update);
     connect(mPushButtonCRS, &QAbstractButton::clicked, this, &OrthophotoView::select_crs);
     connect(mDoubleSpinBoxGSD, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &OrthophotoView::resolutionChanged);
+    connect(mComboBoxMethod, &QComboBox::currentIndexChanged, [&](int index) {
+        emit orthomosaicMethodChanged(mComboBoxMethod->itemData(index).toString());
+        }); // this, &OrthophotoView::orthomosaicMethodChanged);
 
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, &OrthophotoView::run);
@@ -117,15 +136,19 @@ void OrthophotoViewImp::retranslate()
 {
     this->setWindowTitle(QApplication::translate("OrthophotoComponent", "Orthophoto"));
 
-    mLabelGSD->setText(QApplication::translate("OrthophotoComponent", "Resolution (m):"));
     mLabelCRS->setText(QApplication::translate("OrthophotoComponent", "CRS"));
+
+    mGroupOrthoimages->setTitle(QApplication::translate("OrthophotoComponent", "Orthoimages", nullptr));
+    mLabelGSD->setText(QApplication::translate("OrthophotoComponent", "Resolution (m):"));
     mLabelInterpolation->setText(QApplication::translate("OrthophotoComponent", "Interpolation"));
     mComboBoxInterpolation->setItemText(0, QApplication::translate("OrthophotoComponent", "Nearest"));
     mComboBoxInterpolation->setItemText(1, QApplication::translate("OrthophotoComponent", "Bilinear"));
     mComboBoxInterpolation->setItemText(2, QApplication::translate("OrthophotoComponent", "Bicubic"));
-    mLabelMethod->setText(QApplication::translate("OrthophotoComponent", "Mosaic Method"));
+
+    mGroupOrthomosaic->setTitle(QApplication::translate("OrthophotoComponent", "Orthomosaic", nullptr));
+    mLabelMethod->setText(QApplication::translate("OrthophotoComponent", "Method"));
     mComboBoxMethod->setItemText(0, QApplication::translate("OrthophotoComponent", "Robust Local Blending"));
-    mComboBoxMethod->setItemText(1, QApplication::translate("OrthophotoComponent", "Seam-based Blending"));
+    //mComboBoxMethod->setItemText(1, QApplication::translate("OrthophotoComponent", "Seam-based Blending"));
 
     mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("OrthophotoComponent", "Cancel"));
     mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("OrthophotoComponent", "Run"));
@@ -145,7 +168,10 @@ void OrthophotoViewImp::clear()
 }
 
 void OrthophotoViewImp::update()
-{}
+{
+    mComboBoxMethod->setVisible(mComboBoxMethod->count() > 1);
+    mLabelMethod->setVisible(mComboBoxMethod->count() > 1);
+}
 
 auto OrthophotoViewImp::gsd() const -> double
 {
@@ -162,7 +188,7 @@ auto OrthophotoViewImp::interpolation() const -> QString
     return mComboBoxInterpolation->currentData().toString();
 }
 
-auto OrthophotoViewImp::method() const -> QString
+auto OrthophotoViewImp::orthomosaicMethod() const -> QString
 {
     return mComboBoxMethod->currentData().toString();
 }
@@ -183,11 +209,32 @@ void OrthophotoViewImp::setInterpolation(const QString &interpolation)
     mComboBoxInterpolation->setCurrentIndex(mComboBoxInterpolation->findData(interpolation));
 }
 
-void OrthophotoViewImp::setMethod(const QString &method)
+void OrthophotoViewImp::setOrthomosaicMethod(const QString &method)
 {
+    const QSignalBlocker blocker_method(mComboBoxMethod);
     mComboBoxMethod->setCurrentIndex(mComboBoxMethod->findData(method));
+
+    for (int idx = 0; idx < mGridLayoutOrthomosaicWidget->count(); idx++) {
+        QLayoutItem *item = mGridLayoutOrthomosaicWidget->itemAt(idx);
+        if (dynamic_cast<QWidgetItem *>(item)) {
+            if (item->widget()->objectName().compare(method) == 0)
+                item->widget()->setVisible(true);
+            else
+                item->widget()->setVisible(false);
+        }
+    }
 }
 
+void OrthophotoViewImp::addOrthomosaicMethodWidget(QWidget *orthomosaic)
+{
+    mComboBoxMethod->addItem(orthomosaic->windowTitle());
+    mComboBoxMethod->setItemData(mComboBoxMethod->count() - 1, orthomosaic->objectName());
+
+    mGridLayoutOrthomosaicWidget->addWidget(orthomosaic, 1, 0, 1, 2);
+    orthomosaic->setVisible(false);
+
+    update();
+}
 
 } // namespace graphos
 

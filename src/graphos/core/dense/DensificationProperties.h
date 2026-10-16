@@ -38,15 +38,6 @@ class CameraPose;
 class DensificationProperties
 {
 
-//public:
-//
-//    enum class Method
-//    {
-//        cmvs_pmvs,
-//        smvs,
-//        mvs
-//    };
-
 protected:
 
     tl::Properties mProperties;
@@ -83,18 +74,7 @@ public:
         mProperties.setProperty(key, value);
     }
 
-    ///*!
-    // * \brief Densification method
-    // * \see Method
-    // */
-    //auto method() const -> Method { return mDensificationMethod.flags(); }
-
-//protected:
-//
-//    tl::EnumFlags<Method> mDensificationMethod;
-
 };
-//ALLOW_BITWISE_FLAG_OPERATIONS(DensificationProperties::Method)
 
 
 class DensificationPropertiesFactory
@@ -104,78 +84,6 @@ public:
 
     static auto create(const std::string &type) -> std::shared_ptr<DensificationProperties>;
 };
-
-
-
-//class Densifier
-//{
-//
-//public:
-//
-//    Densifier() = default;
-//    virtual ~Densifier() = default;
-//
-//    virtual void enableCuda(bool enable) = 0;
-//    virtual auto isCudaEnabled() const -> bool = 0;
-//    virtual auto denseModel() const -> tl::Path = 0;
-//    virtual auto report() const -> DenseReport = 0;
-//};
-//
-//
-//
-//class DensifierBase
-//  : public Densifier,
-//    public tl::Task
-//{
-//
-//public:
-//
-//    DensifierBase(const std::unordered_map<size_t, Image> &images,
-//                  const std::map<int, Camera> &cameras,
-//                  const std::unordered_map<size_t, CameraPose> &poses,
-//                  const std::vector<GroundPoint> &groundPoints,
-//                  tl::Path outputPath);
-//    ~DensifierBase() override;
-//
-//    void setUndistortImagesFormat(UndistortImages::Format format);
-//
-//protected:
-//
-//    void undistort(const QString &dir) const;
-//    auto outputPath() const -> tl::Path;
-//    auto images() const -> const std::unordered_map<size_t, Image>&;
-//    auto cameras() const -> const std::map<int, Camera>&;
-//    auto poses() const -> const std::unordered_map<size_t, CameraPose>&;
-//    auto groundPoints() const -> const std::vector<GroundPoint>&;
-//    void setDenseModel(const tl::Path &denseModel);
-//    void autoSegmentation() const;
-//    virtual void copyUndistortedImages() const = 0;
-//
-//// Densifier
-//
-//public:
-//
-//    void enableCuda(bool enable) override;
-//    auto isCudaEnabled() const -> bool override;
-//    auto denseModel() const -> tl::Path override;
-//    auto report() const -> DenseReport override;
-//
-//private:
-//
-//    std::unordered_map<size_t, Image> mImages;
-//    std::map<int, Camera> mCameras;
-//    std::unordered_map<size_t, CameraPose> mPoses;
-//    std::vector<GroundPoint> mGroundPoints;
-//    tl::Path mOutputPath;
-//    bool mCuda;
-//    tl::Path mDenseModel;
-//    UndistortImages::Format mFormat;
-//
-//protected:
-//
-//    DenseReport mReport;
-//};
-
 
 
 } // namespace graphos

@@ -24,6 +24,7 @@
 #include "graphos/core/project/io/ProjectReader.h"
 
 #include "graphos/core/features/SiftProperties.h"
+#include "graphos/core/ortho/OrthomosaicProperties.h"
 
 #include <tidop/core/base/Split.h>
 
@@ -780,9 +781,35 @@ void ProjectReader::readOrtho(QXmlStreamReader &stream, Project &project)
 
             while (stream.readNextStartElement()) {
                 std::string key = stream.name().toString().toStdString();
-                std::string value = streamToStdString(stream);
 
-                config->setProperty(key, value);
+                if (key == "Method") {
+                    // cambiado a Mosaic. Se construye el objeto OrthomosaicProperties y se asigna al OrthophotoProperties
+                    std::string value = streamToStdString(stream);
+                    auto mosaicConfig = OrthomosaicPropertiesFactory::create(value == "Seam-based Blending" ? "SBB" : "RLB");
+                    config->setOrthomosaicProperties(mosaicConfig);
+                    continue; 
+                } else if (key == "Mosaic") {
+
+                    std::string mosaic_method("RLB");
+                    if (stream.attributes().hasAttribute("method"))
+                        mosaic_method = stream.attributes().value("method").toString().toStdString();
+
+                    auto mosaic_config = OrthomosaicPropertiesFactory::create(mosaic_method);
+
+                    while (stream.readNextStartElement()) {
+                        std::string key = stream.name().toString().toStdString();
+                        std::string value = streamToStdString(stream);
+
+                        mosaic_config->setProperty(key, value);
+                    }
+
+                    config->setOrthomosaicProperties(mosaic_config);
+
+                    continue;
+                } else {
+                    std::string value = streamToStdString(stream);
+                    config->setProperty(key, value);
+                }
             }
 
             project.setOrthoConfig(config);

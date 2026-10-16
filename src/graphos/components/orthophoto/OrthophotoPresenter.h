@@ -28,6 +28,8 @@
 namespace graphos
 {
 
+class SeamBasedBlendingMosaicWidget;
+
 class OrthophotoPresenter
   : public TaskPresenter
 {
@@ -38,6 +40,8 @@ public:
 
     OrthophotoPresenter() = default;
     ~OrthophotoPresenter() override = default;
+
+    virtual void setSeamBasedBlendingMosaicWidget(std::shared_ptr<SeamBasedBlendingMosaicWidget> sbb) = 0;
 
 signals:
 
