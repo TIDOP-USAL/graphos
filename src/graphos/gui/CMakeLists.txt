@@ -58,13 +58,13 @@ if (BUILD_GUI)
                              MainWindowModel.cpp
                              MainWindowPresenter.cpp
                              MainWindowView.cpp
-                             HelpDialog.cpp
+                             #HelpDialog.cpp
                          HEADER_FILES
                              ComponentsManager.h
                              MainWindowModel.h
                              MainWindowPresenter.h
                              MainWindowView.h
-                             HelpDialog.h
+                             #HelpDialog.h
                          RESOURCE_FILES
                              ${GRAPHOS_RESOURCES}
                          FORM_FILES
@@ -74,9 +74,9 @@ if (BUILD_GUI)
 
         add_files_to_project(${PROJECT_NAME}
                              RESOURCE_FILES
-                                 graphos.rc
+                                 ${CMAKE_SOURCE_DIR}/res/graphos.rc
                              HEADER_FILES
-                                 resource.h)
+                                 ${CMAKE_SOURCE_DIR}/res/resource.h)
 
     endif(MSVC)
 
@@ -112,6 +112,80 @@ add_executable(${PROJECT_NAME}
                ${PROJECT_RESOURCE_FILES}
                ${QM_FILES}
 )
+
+if (BUILD_GUI AND BUILD_HELP_COMPONENT)
+
+    get_filename_component(GRAPHOS_QT_INSTALL_PREFIX "${Qt6_DIR}/../../.." ABSOLUTE)
+    find_program(GRAPHOS_QHELPGENERATOR_EXECUTABLE
+                 NAMES qhelpgenerator
+                 HINTS "${GRAPHOS_QT_INSTALL_PREFIX}/bin")
+
+    if (GRAPHOS_QHELPGENERATOR_EXECUTABLE)
+
+        set(GRAPHOS_HELP_OUTPUT_DIR "${CMAKE_BINARY_DIR}/bin/$<CONFIG>/help")
+        set(GRAPHOS_HELP_SOURCE_DIR "${CMAKE_SOURCE_DIR}/res/help")
+        set(GRAPHOS_HELP_SHARED_IMAGE_COMMANDS)
+        if (EXISTS "${GRAPHOS_HELP_SOURCE_DIR}/images")
+            list(APPEND GRAPHOS_HELP_SHARED_IMAGE_COMMANDS
+                 COMMAND ${CMAKE_COMMAND} -E copy_directory
+                         "${GRAPHOS_HELP_SOURCE_DIR}/images" "${GRAPHOS_HELP_OUTPUT_DIR}/en/images"
+                 COMMAND ${CMAKE_COMMAND} -E copy_directory
+                         "${GRAPHOS_HELP_SOURCE_DIR}/images" "${GRAPHOS_HELP_OUTPUT_DIR}/es/images")
+        endif()
+
+        add_custom_target(copy_help ALL
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${GRAPHOS_HELP_OUTPUT_DIR}/en"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    "${GRAPHOS_HELP_SOURCE_DIR}/en" "${GRAPHOS_HELP_OUTPUT_DIR}/en"
+            ${GRAPHOS_HELP_SHARED_IMAGE_COMMANDS}
+            COMMAND "${GRAPHOS_QHELPGENERATOR_EXECUTABLE}"
+                    "${GRAPHOS_HELP_OUTPUT_DIR}/en/graphos.qhp"
+                    -o "${GRAPHOS_HELP_OUTPUT_DIR}/en/graphos.qch"
+            COMMAND "${GRAPHOS_QHELPGENERATOR_EXECUTABLE}"
+                    "${GRAPHOS_HELP_OUTPUT_DIR}/en/graphos.qhcp"
+                    -o "${GRAPHOS_HELP_OUTPUT_DIR}/en/graphos.qhc"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${GRAPHOS_HELP_OUTPUT_DIR}/es"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    "${GRAPHOS_HELP_SOURCE_DIR}/es" "${GRAPHOS_HELP_OUTPUT_DIR}/es"
+            COMMAND "${GRAPHOS_QHELPGENERATOR_EXECUTABLE}"
+                    "${GRAPHOS_HELP_OUTPUT_DIR}/es/graphos.qhp"
+                    -o "${GRAPHOS_HELP_OUTPUT_DIR}/es/graphos.qch"
+            COMMAND "${GRAPHOS_QHELPGENERATOR_EXECUTABLE}"
+                    "${GRAPHOS_HELP_OUTPUT_DIR}/es/graphos.qhcp"
+                    -o "${GRAPHOS_HELP_OUTPUT_DIR}/es/graphos.qhc"
+            COMMENT "Generating and copying GRAPHOS help documentation"
+            VERBATIM
+        )
+
+        add_dependencies(${PROJECT_NAME} copy_help)
+        install(DIRECTORY "$<TARGET_FILE_DIR:${PROJECT_NAME}>/help/"
+                DESTINATION bin/help
+                COMPONENT bin)
+        install(CODE "
+            set(_graphos_help_generator \"${GRAPHOS_QHELPGENERATOR_EXECUTABLE}\")
+            foreach(_language en es)
+                execute_process(
+                    COMMAND \"\${_graphos_help_generator}\"
+                            \"\${CMAKE_INSTALL_PREFIX}/bin/help/\${_language}/graphos.qhcp\"
+                            -o \"\${CMAKE_INSTALL_PREFIX}/bin/help/\${_language}/graphos.qhc\"
+                    RESULT_VARIABLE _graphos_help_result
+                )
+                if(NOT _graphos_help_result EQUAL 0)
+                    message(FATAL_ERROR \"Could not generate the \${_language} GRAPHOS help collection.\")
+                endif()
+            endforeach()
+            unset(_graphos_help_generator)
+            unset(_graphos_help_result)
+            unset(_language)
+        " COMPONENT bin)
+
+    else()
+
+        message(WARNING "qhelpgenerator was not found; the GRAPHOS Help component will have no documentation.")
+
+    endif()
+
+endif()
 
 if (BUILD_TRANSLATION)
 
@@ -149,6 +223,7 @@ target_link_libraries(${PROJECT_NAME}
                       Graphos::Framework
                       $<$<BOOL:${GRAPHOS_GUI}>:Graphos::Widgets>
                       $<$<BOOL:${GRAPHOS_HAVE_ABOUT}>:Graphos::About>
+                      $<$<BOOL:${GRAPHOS_GUI}>:Graphos::Help>
                       $<$<BOOL:${GRAPHOS_HAVE_CAMERAS}>:Graphos::Cameras>
                       $<$<BOOL:${GRAPHOS_HAVE_CREATE_PROJECT}>:Graphos::CreateProject>
                       $<$<BOOL:${GRAPHOS_HAVE_DENSE}>:Graphos::Dense>

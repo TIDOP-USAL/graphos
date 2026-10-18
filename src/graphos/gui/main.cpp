@@ -125,6 +125,9 @@
 #ifdef GRAPHOS_HAVE_CRS
 #include "graphos/components/crs/CoordinateReferenceSystemComponent.h"
 #endif // GRAPHOS_HAVE_CRS
+#ifdef GRAPHOS_HAVE_HELP
+#include "graphos/components/help/HelpComponent.h"
+#endif // GRAPHOS_HAVE_HELP
 
 #include <tidop/core/console/Console.h>
 #include <tidop/core/app/Logger.h>
@@ -137,6 +140,7 @@
 #include <ogr_srs_api.h>
 
 #include <QAction>
+#include <QIcon>
 #include <QTranslator>
 
 #include "graphos/core/settings.h"
@@ -213,6 +217,7 @@ int main(int argc, char *argv[])
     //FLAGS_minloglevel = 2;          // 0: INFO, 1: WARNING, 2: ERROR, 3: FATAL
 
     Application app(argc, argv);
+    app.setWindowIcon(QIcon(":/ico/img/graphos.ico"));
 
     Application::setApplicationName("GRAPHOS");
     Application::setApplicationDisplayName("GRAPHOS");
@@ -369,6 +374,10 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_ABOUT
     AboutComponent about_component(&app);
 #endif // GRAPHOS_HAVE_ABOUT
+
+#ifdef GRAPHOS_HAVE_HELP
+    HelpComponent help_component(&app);
+#endif // GRAPHOS_HAVE_HELP
 
 #ifdef GRAPHOS_HAVE_PROPERTIES
     PropertiesComponent properties_component(&app);
@@ -617,10 +626,16 @@ int main(int argc, char *argv[])
 
         /* Help menu */
 
+#ifdef GRAPHOS_HAVE_HELP
+        componentsManager.registerComponent(&help_component,
+            ComponentsManager::Flags::separator_before);
+#endif // GRAPHOS_HAVE_ABOUT
+
 #ifdef GRAPHOS_HAVE_ABOUT
         componentsManager.registerComponent(&about_component,
                                             ComponentsManager::Flags::separator_before);
 #endif // GRAPHOS_HAVE_ABOUT
+
 
 #ifdef GRAPHOS_HAVE_PROPERTIES
         properties_component.open();
@@ -637,6 +652,10 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(loadProject()));
         QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::openCreateProjectDialog,
                          create_project_component.action(), &QAction::trigger);
+#ifdef GRAPHOS_HAVE_HELP
+        QObject::connect(&create_project_component, &CreateProjectComponent::help,
+                         &help_component, &HelpComponent::setHelpPage);
+#endif // GRAPHOS_HAVE_HELP
 #endif // GRAPHOS_HAVE_CREATE_PROJECT
 
 #ifdef GRAPHOS_HAVE_OPEN_PROJECT
@@ -651,10 +670,6 @@ int main(int argc, char *argv[])
         QObject::connect(&recent_projects_component, SIGNAL(open_project(QString)),
                          componentsManager.mainWindowPresenter(), SLOT(openProject(QString)));
 #endif // GRAPHOS_HAVE_OPEN_PROJECT
-
-        // No se usa
-        //QObject::connect(&app, SIGNAL(image_loaded(size_t)),
-        //                 componentsManager.mainWindowPresenter(), SLOT(loadImage(size_t)));
 
 
         /////TODO: por ahora hasta que refactorice MainWindow
@@ -672,6 +687,10 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_VIDEO_LOAD  
         QObject::connect(&load_video_component, &LoadFromVideoComponent::frame_loaded,
                          componentsManager.mainWindowPresenter(), &MainWindowPresenter::loadImage);
+#ifdef GRAPHOS_HAVE_HELP
+        QObject::connect(&load_video_component, &LoadFromVideoComponent::help,
+                         &help_component, &HelpComponent::setHelpPage);
+#endif // GRAPHOS_HAVE_HELP
 #endif // GRAPHOS_HAVE_VIDEO_LOAD
 
 #ifdef GRAPHOS_HAVE_FEATEXTRACT
@@ -679,6 +698,10 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(loadFeatures(size_t)));
         QObject::connect(&feature_extractor_component, SIGNAL(features_deleted()),
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#ifdef GRAPHOS_HAVE_HELP
+        QObject::connect(&feature_extractor_component, &FeatureExtractorComponent::help,
+                         &help_component, &HelpComponent::setHelpPage);
+#endif // GRAPHOS_HAVE_HELP
 #else
 #   undef GRAPHOS_HAVE_FEATMATCH
 #endif // GRAPHOS_HAVE_FEATEXTRACT
@@ -688,6 +711,10 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(updateMatches()));
         QObject::connect(&feature_matching_component, SIGNAL(matches_deleted()),
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#ifdef GRAPHOS_HAVE_HELP
+        QObject::connect(&feature_matching_component, &FeatureMatchingComponent::help,
+                         &help_component, &HelpComponent::setHelpPage);
+#endif // GRAPHOS_HAVE_HELP
 #else
 #   undef GRAPHOS_HAVE_ORIENTATION
 #endif // GRAPHOS_HAVE_FEATMATCH
@@ -697,6 +724,10 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
         QObject::connect(&orientation_component, SIGNAL(orientation_deleted()),
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#ifdef GRAPHOS_HAVE_HELP
+        QObject::connect(&orientation_component, &OrientationComponent::help,
+                         &help_component, &HelpComponent::setHelpPage);
+#endif // GRAPHOS_HAVE_HELP
 #else
 #   undef GRAPHOS_HAVE_DENSE
 #endif // GRAPHOS_HAVE_ORIENTATION
@@ -706,6 +737,10 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(loadDenseModel()));
         QObject::connect(&densification_component, SIGNAL(densification_deleted()),
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#ifdef GRAPHOS_HAVE_HELP
+        QObject::connect(&densification_component, &DensificationComponent::help,
+                         &help_component, &HelpComponent::setHelpPage);
+#endif // GRAPHOS_HAVE_HELP
 #else
 #   undef GRAPHOS_HAVE_MESH
 #endif // GRAPHOS_HAVE_DENSE
@@ -715,6 +750,10 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(loadMesh()));
         QObject::connect(&mesh_component, SIGNAL(mesh_deleted()),
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#ifdef GRAPHOS_HAVE_HELP
+        QObject::connect(&mesh_component, &MeshComponent::help,
+                         &help_component, &HelpComponent::setHelpPage);
+#endif // GRAPHOS_HAVE_HELP
 #endif // GRAPHOS_HAVE_MESH
 
 #ifdef GRAPHOS_HAVE_DEM
@@ -722,6 +761,10 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(loadDTM()));
         QObject::connect(&dem_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadDSM()));
+#ifdef GRAPHOS_HAVE_HELP
+        QObject::connect(&dem_component, &DemComponent::help,
+                         &help_component, &HelpComponent::setHelpPage);
+#endif // GRAPHOS_HAVE_HELP
 #else
 #   undef GRAPHOS_HAVE_ORTHOPHOTO
 #endif // GRAPHOS_HAVE_DEM
@@ -731,11 +774,19 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(loadOrtho()));
         QObject::connect(&orthophoto_component, SIGNAL(ortho_deleted()),
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#ifdef GRAPHOS_HAVE_HELP
+        QObject::connect(&orthophoto_component, &OrthophotoComponent::help,
+                         &help_component, &HelpComponent::setHelpPage);
+#endif // GRAPHOS_HAVE_HELP
 #endif
 
 #ifdef GRAPHOS_HAVE_FEATVIEWER
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openKeypointsViewer,
                          &features_viewer_component, &FeaturesViewerComponent::openKeypointsViewer);
+#ifdef GRAPHOS_HAVE_HELP
+        QObject::connect(&features_viewer_component, &FeaturesViewerComponent::help,
+                         &help_component, &HelpComponent::setHelpPage);
+#endif // GRAPHOS_HAVE_HELP
 #endif // GRAPHOS_HAVE_FEATVIEWER
 
 
@@ -747,6 +798,10 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_MATCH_VIEWER
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
                          &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
+#ifdef GRAPHOS_HAVE_HELP
+        QObject::connect(&match_viewer_component, &MatchViewerComponent::help,
+                         &help_component, &HelpComponent::setHelpPage);
+#endif // GRAPHOS_HAVE_HELP
 #endif // GRAPHOS_HAVE_MATCH_VIEWER
 
 #ifdef GRAPHOS_HAVE_PROPERTIES

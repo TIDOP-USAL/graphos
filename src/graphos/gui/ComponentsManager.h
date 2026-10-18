@@ -39,7 +39,7 @@ class MainWindowView;
 class MainWindowPresenter;
 class ProgressHandler;
 class ProgressBarDialog;
-class HelpDialog;
+//class HelpDialog;
 
 class ComponentsManager
   : public QObject
@@ -81,7 +81,7 @@ public:
                                 Flags flags = Flags::none);
     void loadPlugins();
 
-    HelpDialog *helpDialog();
+    //HelpDialog *helpDialog();
 
     ProgressHandler *progressHandler();
     ProgressBarDialog *progressDialog();
@@ -98,7 +98,7 @@ protected:
     MainWindowModel *mMainWindowModel;
     MainWindowPresenter *mMainWindowPresenter;
 
-    HelpDialog *mHelpDialog;
+    //HelpDialog *mHelpDialog;
 
     ProgressHandler *mProgressHandler;
     ProgressBarDialog *mProgressDialog;

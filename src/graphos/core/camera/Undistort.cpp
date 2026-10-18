@@ -898,7 +898,7 @@ void UndistortImages::execute(tl::Progress *progressBar, std::stop_token stopTok
         }
 
     } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("FeatureExtractorProperties Extractor error");
+        TL_THROW_EXCEPTION_WITH_NESTED("Unistort images error");
     }
 
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtHelpProject version="1.0">
+    <namespace>tidop.com.graphos.2.0</namespace>
+    <virtualFolder>doc</virtualFolder>
+    <customFilter name="GRAPHOS English">
+        <filterAttribute>graphos</filterAttribute>
+        <filterAttribute>english</filterAttribute>
+    </customFilter>
+    <filterSection>
+        <filterAttribute>graphos</filterAttribute>
+        <filterAttribute>english</filterAttribute>
+        <toc>
+            <section title="GRAPHOS — Help" ref="index.html">
+                <section title="Workflow" ref="workflow.html"/>
+                <section title="Tools" ref="tools.html"/>
+                <section title="Interface" ref="interface.html"/>
+                <section title="Command line" ref="commands.html"/>
+            </section>
+        </toc>
+        <keywords>
+            <keyword name="Workflow" id="workflow" ref="workflow.html"/>
+            <keyword name="Tools" id="tools" ref="tools.html"/>
+            <keyword name="Interface" id="interface" ref="interface.html"/>
+            <keyword name="Command line" id="commands" ref="commands.html"/>
+            <keyword name="Commands" id="commands-list" ref="commands.html"/>
+        </keywords>
+        <files>
+            <file>index.html</file>
+            <file>workflow.html</file>
+            <file>tools.html</file>
+            <file>interface.html</file>
+            <file>commands.html</file>
+            <file>css/styles.css</file>
+            <file>images/*.png</file>
+        </files>
+    </filterSection>
+</QtHelpProject>

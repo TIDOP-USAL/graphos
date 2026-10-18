@@ -37,6 +37,7 @@
 #include <tidop/core/app/Message.h>
 
 #include <QHeaderView>
+#include <QIcon>
 #include <QTreeWidgetItem>
 #include <QFileInfo>
 #include <QSettings>
@@ -86,7 +87,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionExit(new QAction(this)),
     mActionStartPage(new QAction(this)),
     mActionCameras(new QAction(this)),
-    mActionHelp(new QAction(this)),
+    //mActionHelp(new QAction(this)),
     mActionImportCameraPoses(new QAction(this)),
     mActionExportCameraPoses(new QAction(this)),
     mActionExportTiePoints(new QAction(this)),
@@ -115,6 +116,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionAngleMeasure(new QAction(this))
 {
     ui->setupUi(this);
+    setWindowIcon(QIcon(":/ico/img/graphos.ico"));
 
     this->initUI();
     this->initSignalAndSlots();
@@ -1183,7 +1185,7 @@ void MainWindowView::initActions()
 
     /* Help menu actions */
 
-    mActionHelp->setIcon(QIcon::fromTheme("help"));
+    //mActionHelp->setIcon(QIcon::fromTheme("help"));
 
     /* Project tree context menu actions */
 
@@ -1390,7 +1392,7 @@ void MainWindowView::initMenuPlugins()
 
 void MainWindowView::initMenuHelp()
 {
-    ui->menuHelp->addAction(mActionHelp);
+    //ui->menuHelp->addAction(mActionHelp);
 }
 
 void MainWindowView::initProgressBar()
@@ -1417,7 +1419,7 @@ void MainWindowView::initSignalAndSlots()
 
     /* Help menu */
 
-    connect(mActionHelp, SIGNAL(triggered(bool)), this, SIGNAL(openHelpDialog()));
+    //connect(mActionHelp, SIGNAL(triggered(bool)), this, SIGNAL(openHelpDialog()));
 
 
     /* TreeWidgetProject */
@@ -1682,7 +1684,7 @@ void MainWindowView::retranslate()
     mActionExit->setText(QApplication::translate("MainWindowView", "Exit", nullptr));
     mActionStartPage->setText(QApplication::translate("MainWindowView", "Start Page", nullptr));
     mActionCameras->setText(QApplication::translate("MainWindowView", "Cameras", nullptr));
-    mActionHelp->setText(QApplication::translate("MainWindowView", "Help", nullptr));
+    //mActionHelp->setText(QApplication::translate("MainWindowView", "Help", nullptr));
     mActionOpenImage->setText(QApplication::translate("MainWindowView", "Open Image", nullptr));
     mActionDeleteImage->setText(QApplication::translate("MainWindowView", "Delete Image", nullptr));
     mActionViewKeypoints->setText(QApplication::translate("MainWindowView", "View Keypoints", nullptr));
@@ -1723,7 +1725,7 @@ void MainWindowView::retranslate()
     mActionSaveProject->setShortcut(QApplication::translate("MainWindowView", "Ctrl+S", nullptr));
     mActionSaveProjectAs->setShortcut(QApplication::translate("MainWindowView", "Ctrl+Shift+S", nullptr));
     mActionExit->setShortcut(QApplication::translate("MainWindowView", "Alt+F4", nullptr));
-    mActionHelp->setShortcut(QApplication::translate("MainWindowView", "F1", nullptr));
+    //mActionHelp->setShortcut(QApplication::translate("MainWindowView", "F1", nullptr));
 #endif // QT_NO_SHORTCUT
 }
 

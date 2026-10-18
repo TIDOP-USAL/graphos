@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GRAPHOS | Interface</title><link rel="stylesheet" href="css/styles.css"></head>
+<body>
+  <table class="masthead" width="100%" cellpadding="0" cellspacing="0" bgcolor="#123453"><tr><td bgcolor="#123453"><div class="eyebrow">User guide</div><h1>Interface</h1><p>Find the project, workspace, viewers and tools.</p></td></tr></table>
+  <div class="site-nav"><a href="index.html">Home</a>&nbsp; | &nbsp;<a href="workflow.html">Workflow</a>&nbsp; | &nbsp;<a href="tools.html">Tools</a>&nbsp; | &nbsp;<a href="interface.html">Interface</a>&nbsp; | &nbsp;<a href="commands.html">Command line</a></div>
+  <h2>Main window</h2>
+  <p>The main window groups the menu bar, toolbars, project tree, workspace and information panels. The exact layout can vary with window size and visible panels.</p>
+  <div class="screenshot"><img src="images/interface-overview.png" width="960" height="540" alt="GRAPHOS main window"><p class="caption">Screenshot pending: full window with menus, project tree and workspace. File: <code>images/interface-overview.png</code> (960 × 540 px; adjust when replacing).</p></div>
+  <h2>Menus and toolbars</h2>
+  <table class="grid"><thead><tr><th>Area</th><th>Purpose</th></tr></thead><tbody>
+    <tr><td><strong>File</strong></td><td>Create, open, save and close projects; import data and export results.</td></tr>
+    <tr><td><strong>Workflow</strong></td><td>Add images and run extraction, matching, orientation and product-generation stages.</td></tr>
+    <tr><td><strong>Tools</strong></td><td>Open camera, GCP, viewer, CRS, scale and settings utilities.</td></tr>
+    <tr><td><strong>View</strong></td><td>Control presentation and visible panels.</td></tr>
+    <tr><td><strong>Toolbars</strong></td><td>Shortcuts to common actions; buttons depend on the project state.</td></tr>
+  </tbody></table>
+  <h2>Project tree</h2>
+  <p>The tree organizes project items such as images, cameras, match pairs and results. Select an item to inspect its properties or open it in a viewer. Actions are enabled when their required input data is available.</p>
+  <h2>Workspace and viewers</h2>
+  <p>The workspace displays images and 3D results. Use viewer controls to change the view, zoom and adjust visible layers. Feature and match panels help diagnose coverage or alignment problems.</p>
+  <h2>Processes and messages</h2>
+  <p>When an operation starts, GRAPHOS displays progress and temporarily disables parameters that cannot be changed during processing. If supported, cancel it using the progress control. Review warnings and errors before trying again.</p>
+  <p class="note">Save the project after processing and before closing GRAPHOS to preserve settings and references to results.</p>
+  <div class="footer"><a href="index.html">Back to home</a></div>
+</body>
+</html>

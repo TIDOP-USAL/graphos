@@ -103,14 +103,14 @@ void MatchFeaturesTask::execute(tl::Progress *progressBar, std::stop_token stopT
             mReport.cuda = bUseCuda;
             mReport.time = this->time();
 
-            tl::Message::success("FeatureExtractorProperties Matching finished in {:.2} minutes", mReport.time / 60.);
+            tl::Message::success("Feature Matching finished in {:.2} minutes", mReport.time / 60.);
             tl::Message::info(" - Total matches: {}", num_matches);
 
         }
 
     } catch (...) {
 
-        TL_THROW_EXCEPTION_WITH_NESTED("FeatureExtractorProperties Matching error");
+        TL_THROW_EXCEPTION_WITH_NESTED("Feature Matching error");
     }
 }
 

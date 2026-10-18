@@ -43,7 +43,7 @@ namespace graphos
 {
 
 FeatureMatchingCommand::FeatureMatchingCommand()
-  : Command("featmatch", "FeatureExtractorProperties Matching"),
+  : Command("featmatch", "Match features between images"),
     mDisableCuda(false)
 {
     MatchingProperties feature_matching_properties;

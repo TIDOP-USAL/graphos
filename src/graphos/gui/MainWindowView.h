@@ -276,7 +276,7 @@ private:
     QAction *mActionStartPage;
     QAction *mActionLoadImages;
     QAction *mActionCameras;
-    QAction *mActionHelp;
+    //QAction *mActionHelp;
     QAction *mActionImportCameraPoses;
     QAction *mActionExportCameraPoses;
     QAction *mActionExportTiePoints;

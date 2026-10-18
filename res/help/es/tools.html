@@ -1,32 +1,61 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-<title>Herramientas</title>
-<meta http-equiv="Content-Script-Type" content="text/javascript">
-<meta http-equiv="Content-Style-Type" content="text/css">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel="stylesheet" type="text/css" href="css/styles.css">
-</head>
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GRAPHOS | Herramientas</title><link rel="stylesheet" href="css/styles.css"></head>
 <body>
+  <table class="masthead" width="100%" cellpadding="0" cellspacing="0" bgcolor="#123453"><tr><td bgcolor="#123453"><div class="eyebrow">Referencia</div><h1>Herramientas</h1><p>Qué hace cada herramienta y dónde encontrar su comando de consola, cuando existe.</p></td></tr></table>
+  <div class="site-nav"><a href="index.html">Inicio</a>&nbsp; | &nbsp;<a href="workflow.html">Flujo de trabajo</a>&nbsp; | &nbsp;<a href="tools.html">Herramientas</a>&nbsp; | &nbsp;<a href="interface.html">Interfaz</a>&nbsp; | &nbsp;<a href="commands.html">Línea de comandos</a></div>
+  <p>Las herramientas se habilitan según el estado del proyecto. Las operaciones de procesamiento se encuentran principalmente en <em>Flujo de trabajo</em>; las utilidades y visores, en <em>Herramientas</em>.</p>
 
-<h1 class="western">Herramientas</h1>
+  <h2>Proyecto e imágenes</h2>
+  <h3 id="project">Proyectos</h3>
+  <p>Crea, abre, guarda, guarda como y cierra proyectos; la lista de proyectos recientes facilita volver a los últimos trabajos. El archivo del proyecto conserva la configuración y referencias a los productos generados. Usa “Guardar como” con cuidado: conserva accesibles los datos referenciados y revisa sus rutas.</p>
+  <p><strong>Consola:</strong> <code>createproj</code> crea un proyecto; consulta <a href="commands.html#createproj">createproj</a>. Abrir, guardar y cerrar desde la interfaz no tienen un comando específico.</p>
+  <h3 id="images">Añadir imágenes y extraer vídeo</h3>
+  <p>Añade imágenes al proyecto y asocia sus datos de cámara cuando estén disponibles. La herramienta de vídeo permite obtener imágenes desde un archivo de vídeo; revisa la selección y el intervalo de extracción para evitar incorporar fotogramas redundantes.</p>
+  <p><strong>Consola:</strong> <code>image_manager</code> añade o elimina imágenes de un proyecto. La extracción desde vídeo no tiene un comando registrado.</p>
+  <h3 id="cameras">Cámaras e importación de calibración</h3>
+  <p>Administra las cámaras asociadas a las imágenes, revisa sus parámetros y carga o exporta calibraciones en los formatos admitidos. Una calibración incorrecta afecta a la orientación, la nube densa y la ortorrectificación. La importación de cámaras externa se encuentra en las opciones de importación del proyecto.</p>
+  <p><strong>Consola:</strong> <code>cameras</code> lista y gestiona cámaras y calibraciones; consulta <a href="commands.html#cameras">cameras</a>. La importación de cámaras como acción de proyecto no dispone de un comando separado.</p>
 
-<p class="western">Herramientas de an&aacute;lisis energ&eacute;tico</p>
+  <h2>Reconstrucción</h2>
+  <h3 id="features">Extracción y correspondencia de características</h3>
+  <p>La extracción SIFT detecta puntos y descriptores. La correspondencia relaciona esos puntos entre imágenes y prepara los datos para la orientación. El visor de puntos muestra características detectadas; el visor de correspondencias permite inspeccionar los pares y las coincidencias calculadas.</p>
+  <p><strong>Consola:</strong> <code>featextract</code> y <code>featmatch</code>. Ver <a href="commands.html#featextract">featextract</a> y <a href="commands.html#featmatch">featmatch</a>.</p>
+  <h3 id="orientation">Orientación</h3>
+  <p>Estima las poses de cámara y la reconstrucción dispersa mediante orientación secuencial o global. Puede utilizar GCP o poses de cámara para orientación absoluta, y admite la opción de precisión RTK. La calibración puede mantenerse fija durante la estimación. La calidad depende de la cobertura de correspondencias y del control disponible.</p>
+  <p><strong>Consola:</strong> <code>ori</code>. Ver <a href="commands.html#ori">ori</a>.</p>
+  <h3 id="undistort">Corregir distorsión de imágenes</h3>
+  <p>Genera imágenes rectificadas según la calibración de cámara. Puede servir como paso de preparación para productos que necesitan imágenes sin distorsión.</p>
+  <p><strong>Consola:</strong> <code>undistort</code>. Ver <a href="commands.html#undistort">undistort</a>.</p>
+  <h3 id="gcps">Puntos de control y escala</h3>
+  <p>Importa puntos de control terrestre (GCP) para restringir o georreferenciar la orientación. Comprueba que las coordenadas y el CRS del archivo sean coherentes con el proyecto. La herramienta de escala aporta una referencia de distancia para escalar reconstrucciones sin una georreferenciación completa.</p>
+  <p><strong>Consola:</strong> <code>gcps</code> importa GCP. La herramienta de escala no tiene un comando específico.</p>
 
-<ul>
-<li class="western"><a title="Velocidad equivalente de barrera" href="ebs.html">Velocidad equivalente de barrera</a></li>
-<li class="western"><a title="Colisi&oacute;n contra postes" href="polecolision.html">Colisi&oacute;n contra postes</a></li>
-<li class="western"><a title="Energ&iacute;a disipada por rozamiento" href="energyfrictiongeneral.html">Energ&iacute;a disipada por rozamiento</a></li>
-<li class="western"><a title="Energ&iacute;a disipada por rozamiento en giros" href="energyfrictionturns.html">Energ&iacute;a disipada por rozamiento en giros</a></li>
-</ul>
+  <h2>Modelos y cartografía</h2>
+  <h3 id="dense">Nube de puntos densa</h3>
+  <p>Calcula profundidad y fusiona observaciones para construir una nube densa. Los métodos disponibles son MVS, PMVS y SMVS; sus parámetros equilibran detalle, cobertura, tiempo y memoria. La aceleración CUDA depende del hardware, del controlador y de la compilación.</p>
+  <p><strong>Consola:</strong> <code>dense</code>. Ver <a href="commands.html#dense">dense</a>.</p>
+  <h3 id="dem">DSM y DTM</h3>
+  <p>Genera modelos digitales de superficie (DSM) y/o de terreno (DTM) a partir de los datos densos. Define el tamaño de píxel (GSD) y el CRS de salida. El DSM representa las superficies observadas; el DTM representa el terreno filtrado según el método de procesamiento.</p>
+  <p><strong>Consola:</strong> <code>dem</code>. Ver <a href="commands.html#dem">dem</a>.</p>
+  <h3 id="mesh">Malla 3D</h3>
+  <p>Reconstruye una superficie triangular a partir de la nube densa. La profundidad y el tipo de condición de contorno afectan al detalle y al cierre de la superficie. La exportación de malla es una acción independiente del cálculo.</p>
+  <p><strong>Consola:</strong> <code>mesh</code> reconstruye la malla; la exportación de malla está disponible desde la interfaz, sin comando específico.</p>
+  <h3 id="orthophoto">Ortomosaico</h3>
+  <p>Combina imágenes rectificadas en una imagen ortorrectificada. Permite definir GSD, CRS, interpolación y método de mosaico. La disponibilidad y el aspecto del resultado dependen de la orientación, del modelo de superficie y de la cobertura de imágenes.</p>
+  <p><strong>Consola:</strong> <code>ortho</code>. Ver <a href="commands.html#ortho">ortho</a>.</p>
 
-<p class="western">Otras herramientas</p>
-
-<ul>
-<li class="western"><a title="C&aacute;lculo de velocidad a partir de huellas de frenada" href="skidmarksspeed.html">C&aacute;lculo de velocidad a partir de huellas de frenada</a></li>
-<li class="western"><a title="Distancia de parada" href="stopdistance.html">Distancia de parada</a></li>
-<li class="western"><a title="Linea de referencia" href="referenceline.html">Dibujo y edición de línea de referencia</a></li>
-</ul>
-
+  <h2>Inspección, exportación y ajustes</h2>
+  <h3 id="viewers">Visores 2D y 3D</h3>
+  <p>El visor de imágenes muestra las fotografías del proyecto; los visores de características y correspondencias muestran las observaciones fotogramétricas. El visor 3D permite examinar la nube y los modelos, cambiar la vista y ajustar la visualización. Los visores no modifican por sí solos los datos reconstruidos.</p>
+  <h3 id="export">Exportar resultados</h3>
+  <p>Exporta nubes de puntos con colores y normales cuando estén disponibles, poses de cámara en formatos admitidos y mallas desde la interfaz. Comprueba el CRS, el formato y las unidades antes de compartir los ficheros.</p>
+  <p><strong>Consola:</strong> <code>export_point_cloud</code> y <code>export_camera_poses</code>. La exportación de malla no dispone de comando registrado.</p>
+  <div class="screenshot"><img src="images/viewers-and-export.png" width="960" height="540" alt="Visor 3D y exportación de resultados"><p class="caption">Captura pendiente: visor 3D y opciones de exportación. Archivo: <code>images/viewers-and-export.png</code> (960 × 540 px; ajustar al sustituir).</p></div>
+  <h3 id="crs">Sistema de referencia de coordenadas</h3>
+  <p>Consulta o selecciona el CRS asociado al proyecto y sus productos. No mezcles coordenadas en sistemas distintos: verifica unidades, zona y datum de las imágenes, GCP y productos de salida.</p>
+  <h3 id="settings">Ajustes y propiedades</h3>
+  <p>Los ajustes permiten personalizar opciones de la aplicación y de los visores, incluido el idioma. El cambio de idioma de la interfaz requiere reiniciar GRAPHOS. El panel de propiedades resume metadatos del proyecto y de los elementos seleccionados.</p>
+  <div class="footer"><a href="index.html">Volver al inicio</a></div>
 </body>
 </html>

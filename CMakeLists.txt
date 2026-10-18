@@ -31,6 +31,10 @@ if(POLICY CMP0146)
     cmake_policy(SET CMP0146 OLD) 
 endif()
 
+if(POLICY CMP0144)
+    cmake_policy(SET CMP0144 NEW)
+endif()
+
 project(GRAPHOS 
         VERSION 2.0.0
         DESCRIPTION "GRAPHOS (InteGRAted PHOtogrammetric Suite)"
@@ -146,6 +150,7 @@ include(CMakeDependentOption)
 
 
 unset(GRAPHOS_HAVE_ABOUT CACHE)
+unset(GRAPHOS_HAVE_HELP CACHE)
 unset(GRAPHOS_HAVE_CAMERAS CACHE)
 unset(GRAPHOS_HAVE_CREATE_PROJECT CACHE)
 unset(GRAPHOS_HAVE_DENSE CACHE)
@@ -178,6 +183,7 @@ unset(GRAPHOS_HAVE_CRS CACHE)
 unset(GRAPHOS_GUI CACHE)
 
 option(BUILD_ABOUT_COMPONENT          "Build About Component"         ON)
+option(BUILD_HELP_COMPONENT          "Build Help Component"         ON)
 option(BUILD_CAMERAS_COMPONENT        "Build Cameras Component"       ON)
 option(BUILD_CREATE_PROJECT_COMPONENT "Build Create Project Component"  ON)
 option(BUILD_DENSE_COMPONENT "Build Dense Component"  ON)

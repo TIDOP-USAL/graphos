@@ -1,29 +1,51 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-  <head>
-    <title>Presentación</title>
-    <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <meta http-equiv="Content-Style-Type" content="text/css">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="stylesheet" type="text/css" href="css/styles.css">
-  </head>
-  <body>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GRAPHOS | Ayuda</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <table class="masthead" width="100%" cellpadding="0" cellspacing="0" bgcolor="#123453"><tr><td>
+    <div class="eyebrow">Guía de usuario</div>
+    <h1>GRAPHOS</h1>
+    <p>Documentación de las herramientas fotogramétricas y de la línea de comandos.</p></td></tr></table>
+  <div class="site-nav">
+    <a href="index.html">Inicio</a>&nbsp; | &nbsp;<a href="workflow.html">Flujo de trabajo</a>&nbsp; | &nbsp;<a href="tools.html">Herramientas</a>&nbsp; | &nbsp;<a href="interface.html">Interfaz</a>&nbsp; | &nbsp;<a href="commands.html">Línea de comandos</a>
+  </div>
 
-    <h1 class="western">INSPECTOR: Inspección y mantenimiento en entornos complejos desasistidos</h1>
-
-    <div>
-
-    </div>
-    
-    <h2 class="western">Primeros pasos</h2>
-
+  <p class="lead"><strong>GRAPHOS</strong> (inteGRAted PHOtogrammetric Suite) es una solución integral para el procesamiento fotogramétrico de vuelos y bloques de imágenes. Desarrollada para resolver el flujo de trabajo completo de la fotogrametría digital, permite llevar a cabo la orientación relativa y absoluta, el cálculo de aerotriangulación y la autocalibración de cámaras, así como la generación automatizada de productos geomáticos de alta precisión: modelos de elevación (MDT/MDS), nubes de puntos densas, mallas 3D y ortomosaicos.</p>
+  
+  <h2>Capacidades clave</h2>
+  <div class="card">
     <ul>
-
-      <li class="western"><a title="Instalaci&oacute;n de Inspector Image" href="installation.html">Instalaci&oacute;n de <b>Inspector Image</b></a></li>
-      <li class="western"><a title="Gu&iacute;a de inicio r&aacute;pida" href="guide.html">Gu&iacute;a de inicio r&aacute;pida</a></li>
-
+      <li><strong>Orientación y Autocalibración:</strong> Estimación precisa de la orientación interna y externa de los sensores mediante ajuste por haces de rayos (bundle adjustment).</li>
+      <li><strong>Reconstrucción 3D Densificada:</strong> Generación de nubes de puntos de alta densidad y mallas poligonales texturizadas.</li>
+      <li><strong>Modelos Digitales del Terreno y Elevación (MDT/MDS):</strong> Extracción de modelos cartográficos rasterizados a partir de los datos 3D.</li>
+      <li><strong>Ortoproyección:</strong> Generación de ortofotos y ortomosaicos corregidos geométricamente y radiométricamente.</li>
+      <li><strong>Ejecución flexible:</strong> Flujo accesible tanto desde la interfaz gráfica interactiva (GUI) como mediante la consola de línea de comandos (CLI) para la automatización de procesos.</li>
     </ul>
-    
-    
-  </body>
+  </div>
+  
+  <div class="screenshot">
+    <img src="images/overview-workspace.png" width="960" height="515" alt="Vista general del espacio de trabajo de GRAPHOS">
+    <p class="caption">Vista general del espacio de trabajo.</p>
+  </div>
+
+  <h2>Secciones de esta ayuda</h2>
+  <table class="grid">
+    <thead><tr><th>Sección</th><th>Contenido</th></tr></thead>
+    <tbody>
+      <tr><td><a href="workflow.html">Flujo de trabajo</a></td><td>Preparación del proyecto, procesamiento fotogramétrico y productos derivados.</td></tr>
+      <tr><td><a href="tools.html">Herramientas</a></td><td>Descripción de las herramientas de GRAPHOS, requisitos y disponibilidad en la interfaz.</td></tr>
+      <tr><td><a href="interface.html">Interfaz</a></td><td>Organización de la ventana, proyecto, visores y controles de ejecución.</td></tr>
+      <tr><td><a href="commands.html">Línea de comandos</a></td><td>Comandos disponibles, su correspondencia con las herramientas y cómo consultar sus parámetros.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note"><strong>Idioma:</strong> la ayuda se muestra en el idioma seleccionado en GRAPHOS. Para cambiarlo, abre <em>Herramientas &gt; Ajustes</em> y reinicia la aplicación para que el cambio surta efecto.</p>
+
+  <div class="footer">GRAPHOS · Ayuda del usuario</div>
+</body>
 </html>

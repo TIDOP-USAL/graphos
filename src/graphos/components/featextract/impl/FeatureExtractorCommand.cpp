@@ -41,7 +41,7 @@ namespace graphos
 {
 
 FeatureExtractorCommand::FeatureExtractorCommand()
-  : Command("featextract", "FeatureExtractorProperties extraction (SIFT)"),
+  : Command("featextract", "Runs SIFT detection and description"),
     mDisableCuda(false)
 {
     SiftProperties sift_properties;

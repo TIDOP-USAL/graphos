@@ -31,9 +31,8 @@ class License;
 }
 
 namespace graphos
-
-
 {
+
 /*!
  * \brief About model
  *

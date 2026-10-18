@@ -5,7 +5,7 @@
         <file>img/usal.png</file>
     </qresource>
     <qresource prefix="/ico">
-        <file>img/GraphosIcon.ico</file>
+        <file>img/graphos.ico</file>
     </qresource>
     <qresource prefix="/ico/96">
         <file>img/icons/keypoint.png</file>

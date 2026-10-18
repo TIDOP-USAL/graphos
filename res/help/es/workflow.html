@@ -1,23 +1,47 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<!DOCTYPE html>
+<html lang="es">
 <head>
-<title>Flujo de trabajo</title>
-<meta http-equiv="Content-Script-Type" content="text/javascript">
-<meta http-equiv="Content-Style-Type" content="text/css">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel="stylesheet" type="text/css" href="css/styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GRAPHOS | Flujo de trabajo</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <table class="masthead" width="100%" cellpadding="0" cellspacing="0" bgcolor="#123453"><tr><td bgcolor="#123453"><div class="eyebrow">Procesamiento fotogramétrico</div><h1>Flujo de trabajo</h1><p>De las fotografías a los productos 3D y cartográficos.</p></td></tr></table>
+  <div class="site-nav"><a href="index.html">Inicio</a>&nbsp; | &nbsp;<a href="workflow.html">Flujo de trabajo</a>&nbsp; | &nbsp;<a href="tools.html">Herramientas</a>&nbsp; | &nbsp;<a href="interface.html">Interfaz</a>&nbsp; | &nbsp;<a href="commands.html">Línea de comandos</a></div>
 
-<h1 class="western">Flujo de trabajo</h1>
+  <h2 id="project-setup">1. Crear el proyecto y cargar imágenes</h2>
+  <p>Crea un proyecto nuevo o abre su archivo de proyecto. Añade fotografías desde el flujo de trabajo; también puedes extraer imágenes de un vídeo. Mantén los originales disponibles durante el procesamiento y evita cambiar su ubicación una vez incorporados al proyecto.</p>
+  <p>Las imágenes con solape suficiente y una geometría de toma variada suelen producir una reconstrucción más fiable. Comprueba que las cámaras y sus parámetros iniciales son razonables; la herramienta <a href="tools.html#cameras">Cámaras</a> permite revisar y gestionar esa información.</p>
+  <div class="screenshot"><img src="images/project-add-images.png" width="960" height="540" alt="Creación del proyecto y carga de fotografías"><p class="caption">Captura pendiente: proyecto y carga de imágenes. Archivo: <code>images/project-add-images.png</code> (960 × 540 px; ajustar al sustituir).</p></div>
 
+  <h2 id="extract-features">2. Extraer características</h2>
+  <p>La extracción detecta puntos distintivos en cada fotografía y calcula sus descriptores. GRAPHOS utiliza SIFT; la ejecución puede usar CPU o CUDA cuando está disponible y habilitado. Ajusta el tamaño máximo de imagen y el número de características según el detalle y los recursos del equipo.</p>
+  <p>Este paso prepara los datos para la correspondencia entre imágenes. Si aparecen pocos puntos o la cobertura es insuficiente, revisa la resolución, el enfoque y el contraste de las fotografías antes de continuar.</p>
+  <p><strong>Comando:</strong> <code>featextract</code>. Consulta <a href="commands.html#featextract">sus parámetros</a> o ejecuta <code>graphos.exe featextract --help</code>.</p>
+  <div class="screenshot"><img src="images/feature-extraction.png" width="477" height="422" alt="Parámetros de extracción de características"><p class="caption">Herramienta de extracción de características.</p></div>
 
-  <ul>
-    <li class="western">Añadir im&aacute;genes</li>
-    <li class="western"><a href="feature_extraction.html">Detección de puntos de interés</a></li>
-	<li class="western"><a href="feature_matching.html">Correspondencia de puntos de interés</a></li>
-	<li class="western"><a href="orientation.html">Orientación relativa</a></li>
-  </ul>
-  
-  </body>
+  <h2 id="match-features">3. Calcular correspondencias</h2>
+  <p>La correspondencia busca puntos comunes entre pares de imágenes y filtra coincidencias inconsistentes. El resultado determina qué imágenes están conectadas y proporciona observaciones para la orientación.</p>
+  <p>Inspecciona los pares y las coincidencias si la reconstrucción posterior falla o deja imágenes sin orientar. Una cobertura débil puede deberse a poco solape, cambios de iluminación o superficies sin textura.</p>
+  <p><strong>Comando:</strong> <code>featmatch</code>. Consulta <a href="commands.html#featmatch">sus parámetros</a> o ejecuta <code>graphos.exe featmatch --help</code>.</p>
+  <div class="screenshot"><img src="images/feature-matching.png" width="502" height="412" alt="Resultado de correspondencia de características"><p class="caption">Correspondencias y pares de imágenes.</p></div>
+
+  <h2 id="estimate-orientation">4. Estimar la orientación</h2>
+  <p>La orientación estima la posición y rotación de las cámaras y reconstruye una nube dispersa. GRAPHOS ofrece métodos secuencial y global. La orientación relativa no requiere coordenadas de control; para georreferenciar el resultado, activa la orientación absoluta y proporciona puntos de control terrestre (GCP) o posiciones de cámara compatibles.</p>
+  <p>La opción de calibración fija evita optimizar los parámetros internos. Si se usan posiciones RTK, puede habilitarse el uso de su precisión. Revisa el porcentaje de imágenes orientadas, los errores y la distribución espacial del control antes de aceptar el resultado.</p>
+  <p><strong>Comando:</strong> <code>ori</code>. Consulta <a href="commands.html#ori">sus parámetros</a> o ejecuta <code>graphos.exe ori --help</code>.</p>
+  <div class="screenshot"><img src="images/orientation.png" width="521" height="387" alt="Configuración y resultado de orientación"><p class="caption">Configuración de orientación y nube dispersa.</p></div>
+
+  <h2 id="dense-products">5. Generar productos</h2>
+  <p>Con las cámaras orientadas, genera una nube de puntos densa mediante MVS, PMVS o SMVS. A partir de la nube densa puedes crear un DSM y/o un DTM, reconstruir una malla y generar un ortomosaico. Algunos productos requieren que los pasos anteriores hayan terminado correctamente y que exista orientación válida.</p>
+  <ul><li><strong>Nube densa:</strong> <code>dense</code>; selecciona el método y los parámetros adecuados al conjunto de datos.</li><li><strong>DSM/DTM:</strong> <code>dem</code>; define el tamaño de píxel y el sistema de referencia de coordenadas (CRS).</li><li><strong>Malla:</strong> <code>mesh</code>; reconstruye una superficie a partir de la nube densa.</li><li><strong>Ortomosaico:</strong> <code>ortho</code>; genera una imagen ortorrectificada usando la orientación y el modelo de superficie disponible.</li></ul>
+  <p>Consulta las descripciones y limitaciones de cada herramienta en <a href="tools.html">Herramientas</a> y la referencia de consola en <a href="commands.html">Línea de comandos</a>.</p>
+  <div class="screenshot"><img src="images/dense-surface-orthophoto.png" width="960" height="540" alt="Nube densa, modelos de elevación y ortomosaico"><p class="caption">Captura pendiente: resultados de densificación y productos derivados. Archivo: <code>images/dense-surface-orthophoto.png</code> (960 × 540 px; ajustar al sustituir).</p></div>
+
+  <h2>6. Revisar y exportar</h2>
+  <p>Utiliza los visores 2D y 3D para inspeccionar imágenes, puntos, correspondencias y geometría reconstruida. Guarda el proyecto y exporta la nube de puntos, las poses de cámara o la malla según el siguiente flujo de trabajo.</p>
+  <p class="note">Los nombres de parámetros y valores aceptados pueden depender de la versión y de las opciones de compilación. La ayuda de consola de la propia aplicación es la referencia más precisa para la instalación en uso.</p>
+  <div class="footer"><a href="index.html">Volver al inicio</a></div>
+</body>
 </html>

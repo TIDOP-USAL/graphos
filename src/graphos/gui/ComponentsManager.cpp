@@ -30,7 +30,7 @@
 #include "graphos/gui/MainWindowView.h"
 #include "graphos/gui/MainWindowPresenter.h"
 #include "graphos/components/cameras/CamerasComponent.h"
-#include "graphos/gui/HelpDialog.h"
+//#include "graphos/gui/HelpDialog.h"
 #include "graphos/framework/task/ProgressHandler.h"
 #include "graphos/widgets/ProgressBarDialog.h"
 #include "graphos/widgets/ProgressBarWidget.h"
@@ -54,7 +54,7 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mMainWindowView(nullptr),
     mMainWindowModel(nullptr),
     mMainWindowPresenter(nullptr),
-    mHelpDialog(nullptr),
+    //mHelpDialog(nullptr),
     mProgressHandler(nullptr),
     mProgressDialog(nullptr)
 {
@@ -360,14 +360,14 @@ void ComponentsManager::loadPlugin(QObject *plugin)
     }
 }
 
-HelpDialog *ComponentsManager::helpDialog()
-{
-    if (mHelpDialog == nullptr) {
-        mHelpDialog = new HelpDialog(this->mainWindowView());
-        mHelpDialog->setModal(true);
-    }
-    return mHelpDialog;
-}
+//HelpDialog *ComponentsManager::helpDialog()
+//{
+//    if (mHelpDialog == nullptr) {
+//        mHelpDialog = new HelpDialog(this->mainWindowView());
+//        mHelpDialog->setModal(true);
+//    }
+//    return mHelpDialog;
+//}
 
 ProgressHandler *ComponentsManager::progressHandler()
 {

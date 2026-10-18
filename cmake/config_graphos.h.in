@@ -40,6 +40,7 @@
 #cmakedefine GRAPHOS_GUI
 #cmakedefine GRAPHOS_TRANSLATION
 #cmakedefine GRAPHOS_HAVE_ABOUT
+#cmakedefine GRAPHOS_HAVE_HELP
 #cmakedefine GRAPHOS_HAVE_CAMERAS
 #cmakedefine GRAPHOS_HAVE_CREATE_PROJECT
 #cmakedefine GRAPHOS_HAVE_DENSE

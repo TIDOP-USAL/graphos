@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GRAPHOS | Workflow</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <table class="masthead" width="100%" cellpadding="0" cellspacing="0" bgcolor="#123453"><tr><td bgcolor="#123453"><div class="eyebrow">Photogrammetric processing</div><h1>Workflow</h1><p>From photographs to 3D and mapping products.</p></td></tr></table>
+  <div class="site-nav"><a href="index.html">Home</a>&nbsp; | &nbsp;<a href="workflow.html">Workflow</a>&nbsp; | &nbsp;<a href="tools.html">Tools</a>&nbsp; | &nbsp;<a href="interface.html">Interface</a>&nbsp; | &nbsp;<a href="commands.html">Command line</a></div>
+  
+  <h2 id="project-setup">1. Create a project and add images</h2>
+  <p>Create a new project or open its project file. Add photographs from the workflow; you can also extract images from a video. Keep the source images available during processing and avoid moving them after they have been added.</p>
+  <p>Sufficient overlap and varied camera geometry usually produce a more reliable reconstruction. Check that camera data and initial parameters are reasonable; see <a href="tools.html#cameras">Cameras</a>.</p>
+  <div class="screenshot"><img src="images/project-add-images.png" width="960" height="540" alt="Project creation and image import"><p class="caption">Screenshot pending: project and image import. File: <code>images/project-add-images.png</code> (960 × 540 px; adjust when replacing).</p></div>
+  
+  <h2 id="extract-features">2. Extract features</h2>
+  <p>Feature extraction detects distinctive points in each photograph and computes their descriptors. GRAPHOS uses SIFT; processing can use the CPU or CUDA when available and enabled. Tune maximum image size and feature count to suit the required detail and available resources.</p>
+  <p>This step prepares data for matching. If there are too few features or poor coverage, check image resolution, focus and contrast before continuing.</p>
+  <p><strong>Command:</strong> <code>featextract</code>. See <a href="commands.html#featextract">its reference</a> or run <code>graphos.exe featextract --help</code>.</p>
+  <div class="screenshot"><img src="images/feature-extraction.png" width="477" height="422" alt="Feature extraction settings"><p class="caption">Feature extraction tool.</p></div>
+  
+  <h2 id="match-features">3. Match features</h2>
+  <p>Matching finds common points between image pairs and filters inconsistent matches. The result identifies connected images and provides observations for orientation.</p>
+  <p>Inspect pairs and matches if reconstruction fails or leaves images unoriented. Weak coverage may be caused by limited overlap, lighting changes or textureless surfaces.</p>
+  <p><strong>Command:</strong> <code>featmatch</code>. See <a href="commands.html#featmatch">its reference</a> or run <code>graphos.exe featmatch --help</code>.</p>
+  <div class="screenshot"><img src="images/feature-matching.png" width="502" height="412" alt="Feature matching results"><p class="caption">Image pairs and matches.</p></div>
+  
+  <h2 id="estimate-orientation">4. Estimate orientation</h2>
+  <p>Orientation estimates camera positions and rotations and reconstructs a sparse model. GRAPHOS provides sequential and global methods. Relative orientation does not require control coordinates; for georeferencing, enable absolute orientation and provide ground control points (GCPs) or compatible camera positions.</p>
+  <p>Fix calibration to keep internal camera parameters constant. If RTK positions are used, their accuracy can also be enabled. Review the oriented-image percentage, errors and control-point distribution before accepting the result.</p>
+  <p><strong>Command:</strong> <code>ori</code>. See <a href="commands.html#ori">its reference</a> or run <code>graphos.exe ori --help</code>.</p>
+  <div class="screenshot"><img src="images/orientation.png" width="521" height="387" alt="Orientation settings and result"><p class="caption">Orientation settings and sparse model.</p></div>
+  
+  <h2 id="dense-products">5. Generate products</h2>
+  <p>Once cameras are oriented, generate a dense point cloud using MVS, PMVS or SMVS. From the dense cloud, create a DSM and/or DTM, reconstruct a mesh and generate an orthomosaic. These products require valid input from earlier stages.</p>
+  <ul><li><strong>Dense cloud:</strong> <code>dense</code>; choose the method and suitable parameters.</li><li><strong>DSM/DTM:</strong> <code>dem</code>; set the pixel size and coordinate reference system (CRS).</li><li><strong>Mesh:</strong> <code>mesh</code>; reconstructs a surface from the dense cloud.</li><li><strong>Orthomosaic:</strong> <code>ortho</code>; creates an orthorectified image using orientation and available surface data.</li></ul>
+  <p>Read the descriptions and prerequisites in <a href="tools.html">Tools</a> and the console reference in <a href="commands.html">Command line</a>.</p>
+  <div class="screenshot"><img src="images/dense-surface-orthophoto.png" width="960" height="540" alt="Dense cloud, elevation models and orthomosaic"><p class="caption">Screenshot pending: dense cloud and derived products. File: <code>images/dense-surface-orthophoto.png</code> (960 × 540 px; adjust when replacing).</p></div>
+  <h2>6. Review and export</h2>
+  <p>Use the 2D and 3D viewers to inspect images, points, matches and reconstructed geometry. Save the project and export the point cloud, camera poses or mesh for downstream use.</p>
+  <p class="note">Parameter names and accepted values may depend on the version and build options. The command's own help is the authoritative reference for the installed build.</p>
+  <div class="footer"><a href="index.html">Back to home</a></div>
+</body>
+</html>

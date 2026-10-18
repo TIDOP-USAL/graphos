@@ -1,32 +1,27 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-<title>Interfaz de usuario</title>
-<meta http-equiv="Content-Script-Type" content="text/javascript">
-<meta http-equiv="Content-Style-Type" content="text/css">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel="stylesheet" type="text/css" href="css/styles.css">
-</head>
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GRAPHOS | Interfaz</title><link rel="stylesheet" href="css/styles.css"></head>
 <body>
-
-<h1 class="western">Interfaz de usuario</h1>
-
-  <div class="image"><img src="images/gui.png" width="878" height="683" /> 
-    <br clear="all" />
-  </div>
-  
-  <p class="western" align="justify">La ventana principal de GRAPHOS contiene los siguientes elementos:</p>
-
-  <ul>
-    <li class="western">1 - <a title="&Aacute;rea de trabajo" href="workarea.html">&Aacute;rea de trabajo</a></li>
-    <li class="western">2 - <a href="menus.html">Men&uacute;s</a></li>
-    <li class="western">3 - <a title="Barras de herramientas" href="toolbar.html">Barras de herramientas</a></li>
-    <li class="western">4 - <a title="&Aacute;rbol de proyecto" href="tree_prj.html">&Aacute;rbol de proyecto</a></li>
-    <li class="western">5 - <a title="Propiedades de imagen" href="img_properties.html">Propiedades de imagen</a></li>
-    <li class="western">6 - <a title="Panel miniaturas" href="thumbnails.html">Panel miniaturas</a></li>
-    <li class="western">7 - <a title="Consola" href="console.html">Consola</a></li>
-  </ul>
-
-
+  <table class="masthead" width="100%" cellpadding="0" cellspacing="0" bgcolor="#123453"><tr><td bgcolor="#123453"><div class="eyebrow">Guía de usuario</div><h1>Interfaz</h1><p>Localiza el proyecto, el área de trabajo, los visores y las herramientas.</p></td></tr></table>
+  <div class="site-nav"><a href="index.html">Inicio</a>&nbsp; | &nbsp;<a href="workflow.html">Flujo de trabajo</a>&nbsp; | &nbsp;<a href="tools.html">Herramientas</a>&nbsp; | &nbsp;<a href="interface.html">Interfaz</a>&nbsp; | &nbsp;<a href="commands.html">Línea de comandos</a></div>
+  <h2>Ventana principal</h2>
+  <p>La ventana principal agrupa la barra de menús, las barras de herramientas, el árbol del proyecto, el área de trabajo y los paneles de información. La distribución concreta puede variar con el tamaño de la ventana y los paneles visibles.</p>
+  <div class="screenshot"><img src="images/interface-overview.png" width="960" height="540" alt="Ventana principal de GRAPHOS"><p class="caption">Captura pendiente: ventana completa con menús, árbol y área de trabajo. Archivo: <code>images/interface-overview.png</code> (960 × 540 px; ajustar al sustituir).</p></div>
+  <h2>Menús y barras de herramientas</h2>
+  <table class="grid"><thead><tr><th>Zona</th><th>Uso</th></tr></thead><tbody>
+    <tr><td><strong>Archivo</strong></td><td>Crear, abrir, guardar y cerrar proyectos; importar datos y exportar resultados.</td></tr>
+    <tr><td><strong>Flujo de trabajo</strong></td><td>Añadir imágenes y ejecutar las fases de extracción, correspondencia, orientación y generación de productos.</td></tr>
+    <tr><td><strong>Herramientas</strong></td><td>Abrir utilidades de cámara, GCP, visores, CRS, escala y ajustes.</td></tr>
+    <tr><td><strong>Vista</strong></td><td>Controlar la presentación y los paneles de visualización.</td></tr>
+    <tr><td><strong>Barras de herramientas</strong></td><td>Acceso rápido a acciones frecuentes; los botones disponibles dependen del estado del proyecto.</td></tr>
+  </tbody></table>
+  <h2>Árbol del proyecto</h2>
+  <p>El árbol organiza los elementos asociados al proyecto, como imágenes, cámaras, pares de correspondencias y resultados. Selecciona un elemento para consultar sus propiedades o abrirlo en un visor. Las acciones se habilitan cuando existen los datos de entrada necesarios.</p>
+  <h2>Área de trabajo y visores</h2>
+  <p>El área de trabajo presenta imágenes y resultados 3D. Utiliza los controles del visor para cambiar la vista, acercar o alejar y ajustar las capas visibles. Los paneles de características y correspondencias ayudan a diagnosticar problemas de cobertura o alineación.</p>
+  <h2>Procesos y mensajes</h2>
+  <p>Al iniciar una operación, GRAPHOS muestra el progreso y bloquea temporalmente los parámetros que no se pueden cambiar durante el cálculo. Si la operación lo admite, puedes cancelarla desde el control de progreso. Revisa los mensajes de advertencia y error antes de volver a ejecutar.</p>
+  <p class="note">Guarda el proyecto después de terminar una operación y antes de cerrar GRAPHOS para conservar los cambios de configuración y las referencias a los resultados.</p>
+  <div class="footer"><a href="index.html">Volver al inicio</a></div>
 </body>
 </html>

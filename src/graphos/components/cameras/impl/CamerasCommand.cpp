@@ -39,15 +39,26 @@ namespace graphos
 CamerasCommand::CamerasCommand()
   : Command("cameras", "Cameras manager")
 {
-    this->addArgument<tl::Path>("prj", 'p', "Path to the project file");
-    this->addOption("list", 'l', "List project cameras", false);
-    this->addArgument<int>("camera_id", 'c', "Show camera info", 0);
-    this->addArgument<tl::Path>("export_calib", "Calibration export file", tl::Path());
-    this->addArgument<tl::Path>("import_calib", "Calibration import file", tl::Path());
+    auto prj = tl::Argument::make<tl::Path>("prj", 'p', "Path to the project file");
+    auto list_cameras = tl::Argument::make<bool>("list", 'l', "List project cameras", false);
+    auto camera_id = tl::Argument::make<int>("camera_id", 'c', "Show camera info", 0);
+    auto export_calib = tl::Argument::make<tl::Path>("export_calib", "Calibration export file", tl::Path());
+    auto import_calib = tl::Argument::make<tl::Path>("import_calib", "Calibration import file", tl::Path());
     std::vector<std::string> formats{"OpenCV", "Pix4D", "Agisoft", "ODM"};
     auto format_arg = tl::Argument::make<std::string>("format", 'f', "Calibration file format", formats.at(0));
     format_arg->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(formats));
+
+    this->addArgument(prj);
+    this->addArgument(list_cameras);
+    this->addArgument(camera_id);
+    this->addArgument(export_calib);
+    this->addArgument(import_calib);
     this->addArgument(format_arg);
+
+    this->addUsage(tl::UsageSignature({prj, list_cameras}, {}, "List cameras"));
+    this->addUsage(tl::UsageSignature({prj, camera_id}, {}, "Show camera ID"));
+    this->addUsage(tl::UsageSignature({prj, camera_id, export_calib}, {format_arg}, "Export camera calibration"));
+    this->addUsage(tl::UsageSignature({prj, camera_id, import_calib}, {format_arg}, "Import camera calibration"));
 
     this->addExample("cameras -p 253/253.xml --list");
     this->addExample("cameras -p 253/253.xml --camera 1");

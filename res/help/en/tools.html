@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GRAPHOS | Tools</title><link rel="stylesheet" href="css/styles.css"></head>
+<body>
+  <table class="masthead" width="100%" cellpadding="0" cellspacing="0" bgcolor="#123453"><tr><td bgcolor="#123453"><div class="eyebrow">Reference</div><h1>Tools</h1><p>What each tool does and its console command, when one is available.</p></td></tr></table>
+  <div class="site-nav"><a href="index.html">Home</a>&nbsp; | &nbsp;<a href="workflow.html">Workflow</a>&nbsp; | &nbsp;<a href="tools.html">Tools</a>&nbsp; | &nbsp;<a href="interface.html">Interface</a>&nbsp; | &nbsp;<a href="commands.html">Command line</a></div>
+  <p>Tools become available according to the current project state. Processing operations are mainly under <em>Workflow</em>; utilities and viewers are under <em>Tools</em>. </p>
+  
+  <h2>Projects and images</h2>
+  <h3 id="project">Projects</h3>
+  <p>Create, open, save, save as and close projects; recent projects provide quick access to previous work. The project file stores settings and references to generated products. When using “Save as”, keep referenced data accessible and check its paths.</p>
+  <p><strong>Console:</strong> <code>createproj</code> creates a project; see <a href="commands.html#createproj">createproj</a>. Opening, saving and closing from the interface have no dedicated command.</p>
+  <h3 id="images">Add images and extract video frames</h3>
+  <p>Add photographs to a project and associate available camera data. The video tool extracts images from a video file; review the selected frames and extraction interval to avoid redundant images.</p>
+  <p><strong>Console:</strong> <code>image_manager</code> adds or removes project images. Video-frame extraction has no registered command.</p>
+  <h3 id="cameras">Cameras and calibration import</h3>
+  <p>Manage cameras associated with project images, review their parameters, and import or export calibrations in supported formats. Incorrect calibration affects orientation, dense reconstruction and orthorectification. External camera import is available as a project import action.</p>
+  <p><strong>Console:</strong> <code>cameras</code> lists cameras and manages calibration; see <a href="commands.html#cameras">cameras</a>. The separate project camera-import action has no dedicated command.</p>
+  
+  <h2>Reconstruction</h2>
+  <h3 id="features">Feature extraction and matching</h3>
+  <p>SIFT extraction detects points and descriptors. Matching links those observations across images and prepares data for orientation. The feature viewer displays detected points; the match viewer inspects image pairs and calculated matches.</p>
+  <p><strong>Console:</strong> <code>featextract</code> and <code>featmatch</code>. See <a href="commands.html#featextract">featextract</a> and <a href="commands.html#featmatch">featmatch</a>.</p>
+  <h3 id="orientation">Orientation</h3>
+  <p>Estimate camera poses and a sparse reconstruction using sequential or global orientation. Absolute orientation can use GCPs or camera positions, including an option to use RTK accuracy. Calibration can be held fixed. Quality depends on match coverage and available control.</p>
+  <p><strong>Console:</strong> <code>ori</code>. See <a href="commands.html#ori">ori</a>.</p>
+  <h3 id="undistort">Undistort images</h3>
+  <p>Creates rectified images using camera calibration. This can prepare imagery for products that require distortion-corrected input.</p>
+  <p><strong>Console:</strong> <code>undistort</code>. See <a href="commands.html#undistort">undistort</a>.</p>
+  <h3 id="gcps">Ground control points and scale</h3>
+  <p>Import GCPs to constrain or georeference the orientation. Check that their coordinates and file CRS match the project. The scale tool provides a known-distance reference to scale a reconstruction without full georeferencing.</p>
+  <p><strong>Console:</strong> <code>gcps</code> imports GCPs. The scale tool has no dedicated command.</p>
+  
+  <h2>Models and mapping</h2>
+  <h3 id="dense">Dense point cloud</h3>
+  <p>Computes depth and fuses observations into a dense point cloud. Available methods are MVS, PMVS and SMVS; their parameters trade detail and coverage against processing time and memory. CUDA acceleration depends on hardware, drivers and build options.</p>
+  <p><strong>Console:</strong> <code>dense</code>. See <a href="commands.html#dense">dense</a>.</p>
+  <h3 id="dem">DSM and DTM</h3>
+  <p>Generates digital surface models (DSM) and/or digital terrain models (DTM) from dense data. Set the ground sample distance (GSD) and output CRS. A DSM represents observed surfaces; a DTM represents terrain filtered by the processing method.</p>
+  <p><strong>Console:</strong> <code>dem</code>. See <a href="commands.html#dem">dem</a>.</p>
+  <h3 id="mesh">3D mesh</h3>
+  <p>Reconstructs a triangular surface from the dense cloud. Depth and boundary conditions affect surface detail and closure. Mesh reconstruction and mesh export are separate actions.</p>
+  <p><strong>Console:</strong> <code>mesh</code> reconstructs the mesh; mesh export is available in the interface and has no dedicated command.</p>
+  <h3 id="orthophoto">Orthomosaic</h3>
+  <p>Combines rectified images into an orthorectified image. Configure GSD, CRS, interpolation and mosaic method. Availability and output quality depend on orientation, surface data and image coverage.</p>
+  <p><strong>Console:</strong> <code>ortho</code>. See <a href="commands.html#ortho">ortho</a>.</p>
+  
+  <h2>Inspection, export and settings</h2>
+  <h3 id="viewers">2D and 3D viewers</h3>
+  <p>The image viewer displays project photographs; feature and match viewers display photogrammetric observations. The 3D viewer inspects clouds and models, changes view direction and adjusts rendering. Viewers do not change reconstructed data by themselves.</p>
+  <h3 id="export">Export results</h3>
+  <p>Export point clouds with available colors and normals, camera poses in supported formats, and meshes through the interface. Check the CRS, format and units before sharing files.</p>
+  <p><strong>Console:</strong> <code>export_point_cloud</code> and <code>export_camera_poses</code>. Mesh export has no registered command.</p>
+  <div class="screenshot"><img src="images/viewers-and-export.png" width="960" height="540" alt="3D viewer and result export"><p class="caption">Screenshot pending: 3D viewer and export options. File: <code>images/viewers-and-export.png</code> (960 × 540 px; adjust when replacing).</p></div>
+  <h3 id="crs">Coordinate reference system</h3>
+  <p>Review or select the CRS associated with the project and its products. Do not mix coordinate systems: check units, zone and datum for images, GCPs and outputs.</p>
+  <h3 id="settings">Settings and properties</h3>
+  <p>Settings customize application and viewer options, including the language. Restart GRAPHOS for a language change to take effect. The properties panel summarizes project metadata and selected items.</p>
+  <div class="footer"><a href="index.html">Back to home</a></div>
+</body>
+</html>

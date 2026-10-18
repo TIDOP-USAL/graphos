@@ -44,7 +44,7 @@ namespace graphos
 {
 
 OrientationCommand::OrientationCommand()
-  : Command("ori", "3D Reconstruction")
+  : Command("ori", "Estimates sequential or global orientation; supports absolute orientation and use of GCPs or camera poses.")
 {
 
     this->addArgument<tl::Path>("prj", 'p', "Project file");
@@ -89,7 +89,7 @@ bool OrientationCommand::run()
         reader.read(project_path, project);
 
         TL_ASSERT(project.matches().hasInlierMatches(), "No valid matches found in the database. "
-            "Please run the FeatureExtractorProperties Matching process before estimating camera cameraPosesFile.");
+            "Please run the Feature Matching process before estimating camera cameraPosesFile.");
 
         project.clearOrientation();
 
@@ -185,7 +185,7 @@ bool OrientationCommand::run()
         double oriented_percent = (static_cast<double>(poses.size()) / static_cast<double>(project.images().size())) * 100.;
         if (oriented_percent < 90.) {
             // Menos del 90% de imagenes orientadas
-            tl::Message::warning("{} percent of images oriented. Increase image size and number of points in FeatureExtractorProperties detector.", tl::roundToInteger(oriented_percent));
+            tl::Message::warning("{} percent of images oriented. Increase image size and number of points in Feature detector.", tl::roundToInteger(oriented_percent));
         }
 
         //for (const auto &camera : cameras) {

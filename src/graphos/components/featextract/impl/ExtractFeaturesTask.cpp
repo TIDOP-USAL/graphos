@@ -383,11 +383,11 @@ void ExtractFeaturesTask::execute(tl::Progress *progressBar, std::stop_token sto
 
     try {
 
-        tl::Message::info("FeatureExtractorProperties extraction running");
+        tl::Message::info("Feature extraction running");
 
         TL_ASSERT(!mImageRepo.empty(), "Cannot extract features: Image repository is empty.");
         TL_ASSERT(!mCameraRepo.empty(), "Cannot extract features: Camera repository is empty.");
-        TL_ASSERT(mFeatureExtractor != nullptr, "Cannot extract features: FeatureExtractorProperties extractor is null.");
+        TL_ASSERT(mFeatureExtractor != nullptr, "Cannot extract features: FeatureExtractor is null.");
 
         setupDatabaseAndMappings();
 
@@ -444,13 +444,13 @@ void ExtractFeaturesTask::execute(tl::Progress *progressBar, std::stop_token sto
             mReport.cuda = bUseCuda;
             mReport.time = this->time();
 
-            tl::Message::success("FeatureExtractorProperties extraction finished in {:.2} minutes", mReport.time / 60.);
+            tl::Message::success("Feature extraction finished in {:.2} minutes", mReport.time / 60.);
             tl::Message::info(" - Total features extracted: {}", keypoints);
 
         }
 
     } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("FeatureExtractorProperties Extractor error");
+        TL_THROW_EXCEPTION_WITH_NESTED("Feature Extractor error");
     }
 
 }

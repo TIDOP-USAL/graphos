@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GRAPHOS | Línea de comandos</title><link rel="stylesheet" href="css/styles.css"></head>
+<body>
+  <table class="masthead" width="100%" cellpadding="0" cellspacing="0" bgcolor="#123453"><tr><td bgcolor="#123453"><div class="eyebrow">Referencia de consola</div><h1>Línea de comandos</h1><p>Ejecuta operaciones de GRAPHOS desde una consola con los mismos proyectos utilizados por la interfaz.</p></td></tr></table>
+  <div class="site-nav"><a href="index.html">Inicio</a>&nbsp; | &nbsp;<a href="workflow.html">Flujo de trabajo</a>&nbsp; | &nbsp;<a href="tools.html">Herramientas</a>&nbsp; | &nbsp;<a href="interface.html">Interfaz</a>&nbsp; | &nbsp;<a href="commands.html">Línea de comandos</a></div>
+  <h2>Uso básico</h2>
+  <p>Abre una consola en la carpeta que contiene el ejecutable de GRAPHOS o utiliza su ruta completa. En Windows, el ejecutable del proyecto es <code>graphos.exe</code>. Para consultar los comandos generales y la sintaxis de un comando:</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe --help
+graphos.exe &lt;comando&gt; --help
+graphos.exe dense --help</pre></td></tr></table>
+  <p>Los comandos de procesamiento suelen recibir el archivo XML del proyecto mediante <code>-p</code> o <code>--prj</code>. Usa las comillas para rutas con espacios. Por ejemplo:</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe featextract -p "D:\proyectos\edificio\edificio.xml"
+graphos.exe dense -p "D:\proyectos\edificio\edificio.xml" --method mvs</pre></td></tr></table>
+  <p class="note"><strong>Importante:</strong> consulta siempre <code>--help</code> para ver todos los argumentos, valores permitidos, valores predeterminados y opciones disponibles en tu compilación. Las opciones CUDA dependen del hardware y de cómo se haya compilado GRAPHOS.</p>
+  <h2 id="available-commands">Comandos disponibles</h2>
+  <table class="grid"><thead><tr><th>Comando</th><th>Herramienta / operación</th><th>Descripción</th></tr></thead><tbody>
+    <tr id="createproj"><td><code>createproj</code></td><td>Crear proyecto</td><td>Crea un proyecto GRAPHOS. <a href="#help-createproj">Ayuda completa</a>.</td></tr>
+    <tr id="image_manager"><td><code>image_manager</code></td><td>Gestionar imágenes</td><td>Añade o elimina imágenes del proyecto; admite información de cámara. <a href="#help-image_manager">Ayuda completa</a>.</td></tr>
+    <tr id="cameras"><td><code>cameras</code></td><td>Gestionar cámaras</td><td>Lista cámaras y gestiona o intercambia calibraciones de cámara en los formatos admitidos. <a href="#help-cameras">Ayuda completa</a>.</td></tr>
+    <tr id="featextract"><td><code>featextract</code></td><td>Extraer características</td><td>Ejecuta la detección y descripción SIFT. Permite ajustar tamaño de imagen, cantidad de características y parámetros SIFT. <a href="#help-featextract">Ayuda completa</a>.</td></tr>
+    <tr id="featmatch"><td><code>featmatch</code></td><td>Calcular correspondencias</td><td>Calcula correspondencias entre las imágenes del proyecto. <a href="#help-featmatch">Ayuda completa</a>.</td></tr>
+    <tr id="ori"><td><code>ori</code></td><td>Orientar imágenes</td><td>Estima orientaciones secuenciales o globales; puede ejecutar orientación absoluta y usar GCP o poses. <a href="#help-ori">Ayuda completa</a>.</td></tr>
+    <tr id="gcps"><td><code>gcps</code></td><td>Importar GCP</td><td>Importa puntos de control terrestre para el proyecto. Consulta <code>--help</code> para el formato y la ruta requeridos.</td></tr>
+    <tr id="undistort"><td><code>undistort</code></td><td>Corregir distorsión</td><td>Genera imágenes corregidas a partir de la calibración de cámara.</td></tr>
+    <tr id="dense"><td><code>dense</code></td><td>Crear nube densa</td><td>Ejecuta MVS, PMVS o SMVS y expone sus parámetros específicos. <a href="#help-dense">Ayuda completa</a>.</td></tr>
+    <tr id="dem"><td><code>dem</code></td><td>Crear DSM/DTM</td><td>Genera modelos digitales de superficie y/o de terreno con GSD y CRS configurables. <a href="#help-dem">Ayuda completa</a>.</td></tr>
+    <tr id="mesh"><td><code>mesh</code></td><td>Reconstruir malla</td><td>Reconstruye una malla desde los datos del proyecto. <a href="#help-mesh">Ayuda completa</a>.</td></tr>
+    <tr id="ortho"><td><code>ortho</code></td><td>Crear ortomosaico</td><td>Genera un ortomosaico con opciones de GSD, CRS, interpolación y método de mosaico. <a href="#help-ortho">Ayuda completa</a>.</td></tr>
+    <tr id="export_point_cloud"><td><code>export_point_cloud</code></td><td>Exportar nube de puntos</td><td>Exporta la nube de puntos al formato admitido; puede incluir colores y normales disponibles.</td></tr>
+    <tr id="export_camera_poses"><td><code>export_camera_poses</code></td><td>Exportar poses</td><td>Exporta las orientaciones de cámara en los formatos admitidos; el formato de texto puede incluir cuaterniones. <a href="#help-export_camera_poses">Ayuda completa</a>.</td></tr>
+  </tbody></table>
+  <p>Todos los comandos aceptan <code>-h</code>/<code>--help</code> para mostrar la ayuda, <code>--version</code> para mostrar la versión y <code>--license</code> para mostrar la licencia. Los argumentos marcados como obligatorios deben proporcionarse en cada ejecución.</p>
+
+  <h2>Ayuda completa de los comandos seleccionados</h2>
+  
+  <h3 id="help-createproj">createproj — Crear un proyecto</h3>
+  <p>Crea un proyecto GRAPHOS. Si se indica un nombre sin ruta absoluta, GRAPHOS lo coloca en su carpeta predeterminada de proyectos. El nombre también puede ser la ruta de un archivo de proyecto XML.</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe createproj [-h | --help] [--version] [--license]
+                       -n &lt;nombre-o-archivo.xml&gt;
+                       [-d &lt;descripción&gt;] [-o]</pre></td></tr></table>
+  <table class="grid"><thead><tr><th>Opción</th><th>Requisito</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>-n</code>, <code>--name</code></td><td>Obligatoria</td><td>Nombre del proyecto o ruta del archivo de proyecto (<code>.xml</code>).</td></tr>
+    <tr><td><code>-d</code>, <code>--description</code></td><td>Opcional</td><td>Descripción del proyecto.</td></tr>
+    <tr><td><code>-o</code>, <code>--overwrite</code></td><td>Opcional</td><td>Fuerza la sobrescritura del proyecto existente. Predeterminado: <code>false</code>.</td></tr>
+  </tbody></table>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe createproj --name "edificio" --description "Levantamiento fotogramétrico"</pre></td></tr></table>
+  <p><a href="#available-commands">Volver a los comandos disponibles</a></p>
+  
+
+  <h3 id="help-image_manager">image_manager — Gestionar imágenes</h3>
+  <p>Añade una imagen o una lista de imágenes a un proyecto; con <code>--delete</code>, elimina la imagen o las imágenes indicadas. El tipo de cámara predeterminado es <code>OpenCV 1</code> y el tipo de barra de progreso predeterminado es <code>COLOR</code>.</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe image_manager [-h | --help] [--version] [--license]
+                          -p &lt;proyecto.xml&gt;
+                          [-i &lt;imagen&gt;] [-l &lt;lista-de-imágenes&gt;]
+                          [-c &lt;tipo-de-cámara&gt;] [-d]
+                          [--progress_bar &lt;tipo&gt;]</pre></td></tr></table>
+  <table class="grid"><thead><tr><th>Opción</th><th>Requisito</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>-p</code>, <code>--prj</code></td><td>Obligatoria</td><td>Ruta al archivo de proyecto.</td></tr>
+    <tr><td><code>-i</code>, <code>--image</code></td><td>Opcional</td><td>Ruta de una imagen para añadir o, con <code>--delete</code>, eliminar del proyecto.</td></tr>
+    <tr><td><code>-l</code>, <code>--image_list</code></td><td>Opcional</td><td>Archivo que contiene una lista de imágenes para añadir o, con <code>--delete</code>, eliminar del proyecto.</td></tr>
+    <tr><td><code>-c</code>, <code>--camera</code></td><td>Opcional</td><td>Tipo de cámara: <code>Pinhole 1</code>, <code>Pinhole 2</code>, <code>Radial 1</code>, <code>Radial 2</code>, <code>OpenCV 1</code>, <code>OpenCV Fisheye</code>, <code>OpenCV 2</code>, <code>Radial Fisheye 1</code>, <code>Radial Fisheye 2</code> o <code>Radial 3</code>. Predeterminado: <code>OpenCV 1</code>.</td></tr>
+    <tr><td><code>-d</code>, <code>--delete</code></td><td>Opcional</td><td>Elimina del proyecto la imagen o lista especificada. Sin esta opción, las imágenes se añaden.</td></tr>
+    <tr><td><code>--progress_bar</code></td><td>Opcional</td><td>Estilo de progreso: <code>NORMAL</code>, <code>COLOR</code>, <code>PERCENT</code>, <code>SPINNER</code> o <code>DISABLE</code>. Predeterminado: <code>COLOR</code>.</td></tr>
+  </tbody></table>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe image_manager -p "D:\proyectos\edificio\edificio.xml" -i "D:\fotos\img001.jpg" --camera "OpenCV 1"
+graphos.exe image_manager -p "D:\proyectos\edificio\edificio.xml" --image_list "D:\fotos\imagenes.txt"
+graphos.exe image_manager -p "D:\proyectos\edificio\edificio.xml" -i "D:\fotos\img001.jpg" --delete</pre></td></tr></table>
+  <p><a href="#available-commands">Volver a los comandos disponibles</a></p>
+  
+  
+  <h3 id="help-featextract">featextract — Extraer características</h3>
+  <p>Ejecuta la detección de características SIFT y calcula sus descriptores. Ajusta el tamaño máximo de imagen y los parámetros SIFT según el detalle de las fotografías y los recursos disponibles. CUDA se utiliza salvo que se desactive y esté disponible en la compilación.</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe featextract [-h | --help] [--version] [--license]
+                        -p &lt;proyecto.xml&gt;
+                        [-s &lt;tamaño-máximo&gt;]
+                        [--max_features_number &lt;número&gt;]
+                        [--octave_resolution &lt;capas&gt;]
+                        [--contrast_threshold &lt;umbral&gt;]
+                        [--edge_threshold &lt;umbral&gt;]
+                        [--progress_bar &lt;tipo&gt;] [--disable_cuda]</pre></td></tr></table>
+  <table class="grid"><thead><tr><th>Opción</th><th>Requisito</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>-p</code>, <code>--prj</code></td><td>Obligatoria</td><td>Ruta al archivo de proyecto.</td></tr>
+    <tr><td><code>-s</code>, <code>--max_image_size</code></td><td>Opcional</td><td>Tamaño máximo de imagen para la extracción. Predeterminado: <code>3200</code>.</td></tr>
+    <tr><td><code>--max_features_number</code></td><td>Opcional</td><td>Número máximo de características que se detectarán. Predeterminado: <code>5000</code>.</td></tr>
+    <tr><td><code>--octave_resolution</code></td><td>Opcional</td><td>Número de capas por octava de SIFT. Predeterminado: <code>3</code>.</td></tr>
+    <tr><td><code>--contrast_threshold</code></td><td>Opcional</td><td>Umbral de contraste de SIFT. Predeterminado: <code>0.006667</code>.</td></tr>
+    <tr><td><code>--edge_threshold</code></td><td>Opcional</td><td>Umbral de borde de SIFT, utilizado para filtrar características similares a bordes. Predeterminado: <code>10.000000</code>.</td></tr>
+    <tr><td><code>--progress_bar</code></td><td>Opcional</td><td>Tipo de barra de progreso: <code>NORMAL</code>, <code>COLOR</code>, <code>PERCENT</code>, <code>SPINNER</code> o <code>DISABLE</code>.</td></tr>
+    <tr><td><code>--disable_cuda</code></td><td>Opcional</td><td>Desactiva la aceleración CUDA. Predeterminado: <code>false</code>.</td></tr>
+  </tbody></table>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe featextract -p "D:\proyectos\edificio\edificio.xml"
+graphos.exe featextract -p "D:\proyectos\edificio\edificio.xml" --max_features_number 8000 --disable_cuda</pre></td></tr></table>
+  <p><a href="#available-commands">Volver a los comandos disponibles</a></p>
+
+
+  <h3 id="help-featmatch">featmatch — Calcular correspondencias</h3>
+  <p>Calcula correspondencias entre las imágenes del proyecto. Los umbrales controlan la selección de coincidencias y la tolerancia geométrica; la búsqueda exhaustiva y la comprobación cruzada modifican la estrategia de correspondencia.</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe featmatch [-h | --help] [--version] [--license]
+                      -p &lt;proyecto.xml&gt;
+                      [-r &lt;umbral&gt;] [-d &lt;umbral&gt;] [-e &lt;error&gt;]
+                      [-c &lt;confianza&gt;] [-x &lt;true|false&gt;]
+                      [--exhaustive_matching] [--progress_bar &lt;tipo&gt;]
+                      [--disable_cuda]</pre></td></tr></table>
+  <table class="grid"><thead><tr><th>Opción</th><th>Requisito</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>-p</code>, <code>--prj</code></td><td>Obligatoria</td><td>Ruta al archivo de proyecto.</td></tr>
+    <tr><td><code>-r</code>, <code>--ratio</code></td><td>Opcional</td><td>Umbral de la prueba de razón de Lowe. Predeterminado: <code>0.800000</code>.</td></tr>
+    <tr><td><code>-d</code>, <code>--distance</code></td><td>Opcional</td><td>Umbral de distancia. Predeterminado: <code>0.700000</code>.</td></tr>
+    <tr><td><code>-e</code>, <code>--max_error</code></td><td>Opcional</td><td>Error máximo de reproyección. Predeterminado: <code>4.000000</code>.</td></tr>
+    <tr><td><code>-c</code>, <code>--confidence</code></td><td>Opcional</td><td>Nivel de confianza.</td></tr>
+    <tr><td><code>-x</code>, <code>--cross_check</code></td><td>Opcional</td><td>Activa la comprobación cruzada. Predeterminado: <code>true</code>.</td></tr>
+    <tr><td><code>--exhaustive_matching</code></td><td>Opcional</td><td>Usa correspondencia exhaustiva. Predeterminado: <code>false</code>.</td></tr>
+    <tr><td><code>--progress_bar</code></td><td>Opcional</td><td>Tipo de barra de progreso: <code>NORMAL</code>, <code>COLOR</code>, <code>PERCENT</code>, <code>SPINNER</code> o <code>DISABLE</code>.</td></tr>
+    <tr><td><code>--disable_cuda</code></td><td>Opcional</td><td>Desactiva la aceleración CUDA. Predeterminado: <code>false</code>.</td></tr>
+  </tbody></table>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe featmatch -p "D:\proyectos\edificio\edificio.xml"
+graphos.exe featmatch -p "D:\proyectos\edificio\edificio.xml" --exhaustive_matching --disable_cuda</pre></td></tr></table>
+  <p><a href="#available-commands">Volver a los comandos disponibles</a></p>
+
+
+  <h3 id="help-ori">ori — Orientar imágenes</h3>
+  <p>Estima la orientación secuencial o global de las imágenes. La orientación absoluta puede utilizar puntos de control terrestre (GCP) o poses de cámara; también se puede indicar el uso de la precisión de posicionamiento RTK.</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe ori [-h | --help] [--version] [--license]
+                -p &lt;proyecto.xml&gt; [-m &lt;sequential|global&gt;]
+                [-c] [--use_gcp] [--use_poses]
+                [--use_rtk_accuracy] [-a]</pre></td></tr></table>
+  <table class="grid"><thead><tr><th>Opción</th><th>Requisito</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>-p</code>, <code>--prj</code></td><td>Obligatoria</td><td>Archivo de proyecto.</td></tr>
+    <tr><td><code>-m</code>, <code>--method</code></td><td>Opcional</td><td>Método de orientación: secuencial o global.</td></tr>
+    <tr><td><code>-c</code>, <code>--fix_calibration</code></td><td>Opcional</td><td>Fija la calibración durante la orientación.</td></tr>
+    <tr><td><code>--use_gcp</code></td><td>Opcional</td><td>Usa puntos de control terrestre para la orientación absoluta.</td></tr>
+    <tr><td><code>--use_poses</code></td><td>Opcional</td><td>Usa el archivo de poses de cámara para la orientación absoluta.</td></tr>
+    <tr><td><code>--use_rtk_accuracy</code></td><td>Opcional</td><td>Usa la precisión de posicionamiento RTK.</td></tr>
+    <tr><td><code>-a</code>, <code>--absolute_orientation</code></td><td>Opcional</td><td>Activa la orientación absoluta.</td></tr>
+  </tbody></table>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe ori -p "D:\proyectos\edificio\edificio.xml" --method sequential
+graphos.exe ori -p "D:\proyectos\edificio\edificio.xml" --absolute_orientation --use_gcp</pre></td></tr></table>
+  <p><a href="#available-commands">Volver a los comandos disponibles</a></p>
+
+
+  <h3 id="help-dense">dense — Crear una nube de puntos densa</h3>
+  <p>Genera una nube de puntos densa con el método seleccionado. Cada método admite opciones propias: MVS configura resolución y fusión de vistas, PMVS controla la agrupación y filtrado, y SMVS permite ajustar escalas y suavizado.</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe dense [-h | --help] [--version] [--license]
+                  -p &lt;proyecto.xml&gt; [-m &lt;mvs|pmvs|smvs&gt;]
+                  [opciones específicas del método]
+                  [-s] [--disable_cuda]</pre></td></tr></table>
+  <table class="grid"><thead><tr><th>Opción</th><th>Requisito</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>-p</code>, <code>--prj</code></td><td>Obligatoria</td><td>Archivo de proyecto.</td></tr>
+    <tr><td><code>-m</code>, <code>--method</code></td><td>Opcional</td><td>Método de densificación: <code>mvs</code>, <code>pmvs</code> o <code>smvs</code>.</td></tr>
+    <tr><td><code>--mvs:resolution_level</code></td><td>Opcional</td><td>Nivel de resolución.</td></tr>
+    <tr><td><code>--mvs:min_resolution</code></td><td>Opcional</td><td>Resolución mínima.</td></tr>
+    <tr><td><code>--mvs:max_resolution</code></td><td>Opcional</td><td>Resolución máxima.</td></tr>
+    <tr><td><code>--mvs:number_views</code></td><td>Opcional</td><td>Número de vistas.</td></tr>
+    <tr><td><code>--mvs:number_views_fuse</code></td><td>Opcional</td><td>Número de vistas que se fusionarán.</td></tr>
+    <tr><td><code>--mvs:estimate_colors</code></td><td>Opcional</td><td>Estima el color. Predeterminado: <code>true</code>.</td></tr>
+    <tr><td><code>--mvs:estimate_normals</code></td><td>Opcional</td><td>Estima las normales. Predeterminado: <code>true</code>.</td></tr>
+    <tr><td><code>--pmvs:visibility</code></td><td>Opcional</td><td>Usa información de visibilidad. Predeterminado: <code>true</code>.</td></tr>
+    <tr><td><code>--pmvs:images_per_cluster</code></td><td>Opcional</td><td>Imágenes por clúster. Predeterminado: <code>100</code>.</td></tr>
+    <tr><td><code>--pmvs:level</code></td><td>Opcional</td><td>Nivel. Predeterminado: <code>1</code>.</td></tr>
+    <tr><td><code>--pmvs:cell_size</code></td><td>Opcional</td><td>Tamaño de celda. Predeterminado: <code>2</code>.</td></tr>
+    <tr><td><code>--pmvs:threshold</code></td><td>Opcional</td><td>Umbral. Predeterminado: <code>0.7</code>.</td></tr>
+    <tr><td><code>--pmvs:window_size</code></td><td>Opcional</td><td>Tamaño de ventana. Predeterminado: <code>7</code>.</td></tr>
+    <tr><td><code>--pmvs:minimun_images</code></td><td>Opcional</td><td>Número mínimo de imágenes. Predeterminado: <code>3</code>.</td></tr>
+    <tr><td><code>--pmvs:original_depth</code></td><td>Opcional</td><td>Usa la profundidad original de imagen. Predeterminado: <code>false</code>.</td></tr>
+    <tr><td><code>--smvs:input_image_scale</code></td><td>Opcional</td><td>Escala de imagen de entrada. Predeterminado: <code>1</code>.</td></tr>
+    <tr><td><code>--smvs:output_depth_scale</code></td><td>Opcional</td><td>Escala de profundidad de salida. Predeterminado: <code>2</code>.</td></tr>
+    <tr><td><code>--smvs:shading_optimization</code></td><td>Opcional</td><td>Usa optimización basada en sombreado. Predeterminado: <code>false</code>.</td></tr>
+    <tr><td><code>--smvs:sgm</code></td><td>Opcional</td><td>Usa correspondencia semiglobal. Predeterminado: <code>true</code>.</td></tr>
+    <tr><td><code>--smvs:smooth_factor</code></td><td>Opcional</td><td>Factor de suavizado de superficie. Predeterminado: <code>1.0</code>.</td></tr>
+    <tr><td><code>-s</code>, <code>--segment</code></td><td>Opcional</td><td>Activa la segmentación automática. Predeterminado: <code>false</code>.</td></tr>
+    <tr><td><code>--disable_cuda</code></td><td>Opcional</td><td>Desactiva CUDA.</td></tr>
+  </tbody></table>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe dense -p "D:\proyectos\edificio\edificio.xml" --method mvs
+graphos.exe dense -p "D:\proyectos\edificio\edificio.xml" --method pmvs --pmvs:level 1</pre></td></tr></table>
+  <p><a href="#available-commands">Volver a los comandos disponibles</a></p>
+
+  <h3 id="help-mesh">mesh — Reconstruir malla (Poisson)</h3>
+  <p>Reconstruye una malla mediante el método de Poisson. La profundidad controla el nivel máximo de reconstrucción; el tipo de contorno define la condición aplicada al borde.</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe mesh [-h | --help] [--version] [--license]
+                 -p &lt;proyecto.xml&gt; [--depth &lt;profundidad&gt;]
+                 [--boundary_type &lt;Free|Dirichlet|Neumann&gt;]</pre></td></tr></table>
+  <table class="grid"><thead><tr><th>Opción</th><th>Requisito</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>-p</code>, <code>--prj</code></td><td>Obligatoria</td><td>Archivo de proyecto.</td></tr>
+    <tr><td><code>--depth</code></td><td>Opcional</td><td>Profundidad máxima de reconstrucción.</td></tr>
+    <tr><td><code>--boundary_type</code></td><td>Opcional</td><td>Tipo de contorno: <code>Free</code>, <code>Dirichlet</code> o <code>Neumann</code>.</td></tr>
+  </tbody></table>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe mesh -p "D:\proyectos\edificio\edificio.xml" --depth 10 --boundary_type Free</pre></td></tr></table>
+  <p><a href="#available-commands">Volver a los comandos disponibles</a></p>
+
+  <h3 id="help-dem">dem — Crear DSM y/o DTM</h3>
+  <p>Genera un modelo digital de superficie (DSM), un modelo digital del terreno (DTM) o ambos. El GSD define el tamaño de píxel del resultado y el CRS establece su sistema de referencia de coordenadas.</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe dem [-h | --help] [--version] [--license]
+                -p &lt;proyecto.xml&gt; [-g &lt;gsd&gt;]
+                [--dsm] [--dtm] [--crs &lt;crs&gt;]</pre></td></tr></table>
+  <table class="grid"><thead><tr><th>Opción</th><th>Requisito</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>-p</code>, <code>--prj</code></td><td>Obligatoria</td><td>Archivo de proyecto.</td></tr>
+    <tr><td><code>-g</code>, <code>--gsd</code></td><td>Opcional</td><td>Tamaño de píxel en el terreno (Ground Sample Distance).</td></tr>
+    <tr><td><code>--dsm</code></td><td>Opcional</td><td>Genera un modelo digital de superficie.</td></tr>
+    <tr><td><code>--dtm</code></td><td>Opcional</td><td>Genera un modelo digital del terreno.</td></tr>
+    <tr><td><code>--crs</code></td><td>Opcional</td><td>Sistema de referencia de coordenadas.</td></tr>
+  </tbody></table>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe dem -p "D:\proyectos\edificio\edificio.xml" --dsm --dtm --gsd 0.05</pre></td></tr></table>
+  <p><a href="#available-commands">Volver a los comandos disponibles</a></p>
+
+  <h3 id="help-ortho">ortho — Crear ortofoto</h3>
+  <p>Genera una ortofoto a partir de las imágenes orientadas y de los productos de superficie disponibles. Permite configurar GSD, CRS, interpolación y método de mosaico.</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe ortho [-h | --help] [--version] [--license]
+                  -p &lt;proyecto.xml&gt; [-g &lt;gsd&gt;] [--crs &lt;crs&gt;]
+                  [-i &lt;NEAREST|BILINEAR|BICUBIC&gt;]
+                  [-m &lt;RLB|SBB&gt;] [--disable_cuda]</pre></td></tr></table>
+  <table class="grid"><thead><tr><th>Opción</th><th>Requisito</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>-p</code>, <code>--prj</code></td><td>Obligatoria</td><td>Archivo de proyecto.</td></tr>
+    <tr><td><code>-g</code>, <code>--gsd</code></td><td>Opcional</td><td>Tamaño de píxel en el terreno (Ground Sample Distance).</td></tr>
+    <tr><td><code>--crs</code></td><td>Opcional</td><td>Sistema de referencia de coordenadas.</td></tr>
+    <tr><td><code>-i</code>, <code>--interpolation</code></td><td>Opcional</td><td>Interpolación: <code>NEAREST</code>, <code>BILINEAR</code> o <code>BICUBIC</code>.</td></tr>
+    <tr><td><code>-m</code>, <code>--mosaic_method</code></td><td>Opcional</td><td>Método de mosaico: <code>RLB</code> o <code>SBB</code>.</td></tr>
+    <tr><td><code>--disable_cuda</code></td><td>Opcional</td><td>Desactiva CUDA. Predeterminado: <code>false</code>.</td></tr>
+  </tbody></table>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe ortho -p "D:\proyectos\edificio\edificio.xml" --gsd 0.05 --interpolation BICUBIC --mosaic_method SBB</pre></td></tr></table>
+  <p><a href="#available-commands">Volver a los comandos disponibles</a></p>
+
+  <h3 id="help-cameras">cameras — Gestionar cámaras</h3>
+  <p>Lista las cámaras del proyecto, muestra la información de una cámara o importa/exporta un archivo de calibración. Para consultar o intercambiar una calibración, indica el identificador de cámara.</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe cameras [-h | --help] [--version] [--license]
+graphos.exe cameras -p &lt;proyecto.xml&gt; --list
+graphos.exe cameras -p &lt;proyecto.xml&gt; --camera_id &lt;id&gt;
+graphos.exe cameras -p &lt;proyecto.xml&gt; --camera_id &lt;id&gt; --export_calib &lt;archivo&gt; [-f &lt;formato&gt;]
+graphos.exe cameras -p &lt;proyecto.xml&gt; --camera_id &lt;id&gt; --import_calib &lt;archivo&gt; [-f &lt;formato&gt;]</pre></td></tr></table>
+  <table class="grid"><thead><tr><th>Opción</th><th>Requisito</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>-p</code>, <code>--prj</code></td><td>Obligatoria</td><td>Ruta al archivo de proyecto.</td></tr>
+    <tr><td><code>-l</code>, <code>--list</code></td><td>Opcional</td><td>Lista las cámaras del proyecto.</td></tr>
+    <tr><td><code>-c</code>, <code>--camera_id</code></td><td>Opcional</td><td>Muestra la información de la cámara indicada por su identificador.</td></tr>
+    <tr><td><code>--export_calib</code></td><td>Opcional</td><td>Archivo de destino para exportar la calibración.</td></tr>
+    <tr><td><code>--import_calib</code></td><td>Opcional</td><td>Archivo de calibración que se desea importar.</td></tr>
+    <tr><td><code>-f</code>, <code>--format</code></td><td>Opcional</td><td>Formato de calibración: <code>OpenCV</code>, <code>Pix4D</code>, <code>Agisoft</code> u <code>ODM</code>.</td></tr>
+  </tbody></table>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe cameras -p "D:\proyectos\edificio\edificio.xml" --list
+graphos.exe cameras -p "D:\proyectos\edificio\edificio.xml" --camera_id 1
+graphos.exe cameras -p "D:\proyectos\edificio\edificio.xml" --camera_id 1 --export_calib "calibracion.xml" --format OpenCV
+graphos.exe cameras -p "D:\proyectos\edificio\edificio.xml" --camera_id 1 --import_calib "calibracion.xml" --format Agisoft</pre></td></tr></table>
+  <p><a href="#available-commands">Volver a los comandos disponibles</a></p>
+
+
+  <h3 id="help-export_camera_poses">export_camera_poses — Exportar poses de cámara</h3>
+  <p>Exporta las orientaciones de cámara del proyecto. Los formatos disponibles son texto (<code>TXT</code>) y ODM (<code>ODM</code>); la salida ODM utiliza un archivo JSON. La opción de cuaterniones solo se aplica al formato de texto.</p>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe export_camera_poses [-h | --help] [--version] [--license]
+                                -p &lt;proyecto.xml&gt; --file &lt;salida&gt;
+                                [-f TXT | ODM] [-q]</pre></td></tr></table>
+  <table class="grid"><thead><tr><th>Opción</th><th>Requisito</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><code>-p</code>, <code>--prj</code></td><td>Obligatoria</td><td>Ruta al archivo de proyecto.</td></tr>
+    <tr><td><code>--file</code></td><td>Obligatoria</td><td>Archivo de salida: texto <code>.txt</code> u ODM <code>.json</code>.</td></tr>
+    <tr><td><code>-f</code>, <code>--format</code></td><td>Opcional</td><td>Formato de exportación: <code>TXT</code> u <code>ODM</code>. Predeterminado: <code>TXT</code>.</td></tr>
+    <tr><td><code>-q</code>, <code>--quaternions</code></td><td>Opcional</td><td>Escribe las rotaciones como cuaterniones; solo para formato de texto. Predeterminado: desactivado.</td></tr>
+  </tbody></table>
+  <table class="code-block" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f9"><tr><td bgcolor="#f3f6f9"><pre>graphos.exe export_camera_poses -p "D:\proyectos\edificio\edificio.xml" --file "poses.txt" --format TXT --quaternions
+graphos.exe export_camera_poses -p "D:\proyectos\edificio\edificio.xml" --file "poses.json" --format ODM</pre></td></tr></table>
+    <p><a href="#available-commands">Volver a los comandos disponibles</a></p>
+
+
+  <h2>Herramientas solo disponibles en la interfaz</h2>
+  <p>En esta versión, las siguientes acciones no tienen un comando de consola específico: cargar imágenes desde vídeo, importar cámaras como acción separada, ajustar la escala, abrir los visores, cambiar el CRS del proyecto desde su panel, exportar una malla y gestionar preferencias. Las operaciones de abrir, guardar y cerrar proyectos también se realizan desde la interfaz.</p>
+  <h2>Automatización</h2>
+  <p>Ejecuta cada operación sobre un proyecto guardado y conserva la salida de la consola y los archivos de registro para revisar errores. Comprueba el código de salida de cada proceso antes de lanzar la siguiente fase. No ejecutes simultáneamente varias operaciones que escriban en el mismo proyecto o en los mismos datos derivados.</p>
+  <div class="screenshot"><img src="images/command-line-help.png" width="828" height="408" alt="Ayuda de un comando GRAPHOS en la consola"></div>
+  <div class="footer"><a href="index.html">Volver al inicio</a></div>
+</body>
+</html>
