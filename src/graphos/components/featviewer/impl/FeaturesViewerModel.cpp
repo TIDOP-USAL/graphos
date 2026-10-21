@@ -90,17 +90,17 @@ auto FeaturesViewerModelImp::loadKeypoints(size_t imageId) -> std::vector<std::t
 
         TL_ASSERT(database_path.exists(), "Database not found");
 
-        auto database = colmap::Database::Open(database_path.toUtf8());
+        auto database = colmap::Database::Open(database_path.toWString());
 
         auto _images = database->ReadAllImages();
         for (const auto &image : _images) {
             std::string name = image.Name();
         }
 
-        if (!database->ExistsImageWithName(image->path().toString()))
-            throw std::runtime_error(std::string("Image not found in database: ").append(image->path().toString()));
+        if (!database->ExistsImageWithName(image->path().toUtf8()))
+            throw std::runtime_error(std::string("Image not found in database: ").append(image->path().toUtf8()));
 
-        if (auto image_colmap = database->ReadImageWithName(image->path().toString())) {
+        if (auto image_colmap = database->ReadImageWithName(image->path().toUtf8())) {
             colmap::image_t image_id = image_colmap->ImageId();
 
             if (image_id > 0) {

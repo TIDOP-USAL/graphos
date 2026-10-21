@@ -121,7 +121,7 @@ EstimatePosesTask::EstimatePosesTask(tl::Path database,
 
 
     // Calibration options
-    auto colmap_database = colmap::Database::Open(mDatabase.toUtf8());
+    auto colmap_database = colmap::Database::Open(mDatabase.toWString());
 
     for (auto &[camera_id, camera] : mCameraRepo) {
 
@@ -256,7 +256,7 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
             mMapper = nullptr;
         }
 
-        auto database = colmap::Database::Open(mDatabase.toUtf8());
+        auto database = colmap::Database::Open(mDatabase.toWString());
 
         std::unordered_map<size_t, Eigen::Vector3d> poses_prior_enu;
 
@@ -267,7 +267,7 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
 
                 /*if (image.cameraPose().isEmpty()) continue;*/
 
-                if (auto colmap_image = database->ReadImageWithName(image.path().toString())) {
+                if (auto colmap_image = database->ReadImageWithName(image.path().toUtf8())) {
 
                     colmap::image_t colmap_image_id = colmap_image->ImageId();
                     mImageIdsGraphosToColmap[image_id] = colmap_image_id;

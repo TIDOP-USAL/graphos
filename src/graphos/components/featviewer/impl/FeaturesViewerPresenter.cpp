@@ -66,7 +66,7 @@ void FeaturesViewerPresenterImp::open()
     bool active_image = false;
     std::vector<std::pair<size_t, QString>> images;
     for (const auto &[image_id, image] : mModel->images()) {
-        images.emplace_back(image_id, QString::fromStdString(image.path().toString()));
+        images.emplace_back(image_id, QString::fromStdWString(image.path().toWString()));
     }
 
     if (!images.empty()) {
@@ -91,7 +91,7 @@ void FeaturesViewerPresenterImp::initSignalAndSlots()
 void FeaturesViewerPresenterImp::setImageActive(size_t imageId)
 {
     if (auto image = mModel->images().find(imageId)) {
-        mView->setCurrentImage(QString::fromStdString(image->path().toString()));
+        mView->setCurrentImage(QString::fromStdWString(image->path().toWString()));
         loadKeypoints(Image::id(*image));
     }
 }

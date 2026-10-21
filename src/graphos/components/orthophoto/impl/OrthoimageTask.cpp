@@ -177,6 +177,28 @@ void OrthoimageTask::execute(tl::Progress *progressBar, std::stop_token stopToke
             const auto &image = image_pair.second;
             int camera_id = image.cameraId();
 
+            // Filtrado por ángulo de inclinación respecto la vertical
+            auto mMaxTiltAngle = 30.; // Pasar como parametro
+            auto &camera_pose = image.cameraPose();
+
+            tl::Vector3d vertical{0.0, 0.0, 1.0};
+
+            // Producto escalar para obtener el coseno del ángulo de inclinación (Tilt)
+            double cos_tilt = std::abs(camera_pose.rotationMatrix().col(2).dotProduct(vertical));
+
+            // Limitar el valor a [-1.0, 1.0] por precisión numérica antes de arccos
+            cos_tilt = std::clamp(cos_tilt, -1.0, 1.0);
+
+            double tilt_deg = std::acos(cos_tilt) * tl::consts::rad_to_deg<double>;
+
+            // Filtrado por umbral (ejemplo: 30 grados)
+            if (tilt_deg > mMaxTiltAngle) {
+                tl::Message::info("Image {} discarded due to excessive tilt: {:.2f}°",
+                    image.path().fileName().toUtf8(), tilt_deg);
+                if (progressBar) (*progressBar)();
+                continue;
+            }
+
             try {
 
                 if (status() == Status::stopping)  break;
@@ -256,12 +278,15 @@ void OrthoimageTask::execute(tl::Progress *progressBar, std::stop_token stopToke
                 //                                    window_ortho_enu.height() * (mCrop - 1.) / 2.);
                 auto window_dem_enu = orthorectification.windowDsm();
                 window_ortho_enu = tl::intersection(window_ortho_enu, window_dem_enu);
-                tl::Size<int> size_ortho_enu(static_cast<int>(std::round(window_ortho_enu.width() / gsd)),
-                                             static_cast<int>(std::round(window_ortho_enu.height() / gsd)));
+                tl::Size<int> size_ortho_enu(tl::numberCast<int>(std::round(window_ortho_enu.width() / gsd)),
+                                             tl::numberCast<int>(std::round(window_ortho_enu.height() / gsd)));
                 /******************************************************************************************************/
 
                 // Huella de vuelo en el sistema de coordenadas de salida 
                 auto footprint_projected = footprintProjected(footprint_enu);
+                // BBOX de la huella de vuelo
+                auto window_ortho_terrain = footprint_projected->window();
+
                 tl::TableRegister data(layer.tableFields());
                 data.setValue(0, ortho_file.toUtf8());
                 footprint_projected->setAttributes(data);
@@ -269,28 +294,34 @@ void OrthoimageTask::execute(tl::Progress *progressBar, std::stop_token stopToke
 
                 /// Gráfico de ortofotos en el sistema de coordenadas de salida 
 
-                tl::Rect<double> rect(window_ortho_enu.min(), window_ortho_enu.max());
-                rect.normalize();
+                //tl::Rect<double> rect(window_ortho_enu.min(), window_ortho_enu.max());
+                //rect.normalize();
 
                 auto ortho_graph_projected = std::make_unique<tl::GPolygon>();
 
-                tl::Point3d top_left_projected = static_cast<tl::Point3d>(rect.topLeft());
-                geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_projected.x(), top_left_projected.y(), top_left_projected.z());
-                ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(top_left_projected));
+                auto vertices = window_ortho_terrain.vertices();
+                ortho_graph_projected->geometry().outer().push_back(vertices[0]);
+                ortho_graph_projected->geometry().outer().push_back(vertices[1]);
+                ortho_graph_projected->geometry().outer().push_back(vertices[2]);
+                ortho_graph_projected->geometry().outer().push_back(vertices[3]);
 
-                tl::Point3d top_right_projected = static_cast<tl::Point3d>(rect.topRight());
-                geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_projected.x(), top_right_projected.y(), top_right_projected.z());
-                ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(top_right_projected));
+                //tl::Point3d top_left_projected = static_cast<tl::Point3d>(rect.topLeft());
+                //geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_projected.x(), top_left_projected.y(), top_left_projected.z());
+                //ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(top_left_projected));
 
-                tl::Point3d bottom_right_projected = static_cast<tl::Point3d>(rect.bottomRight());
-                geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_projected.x(), bottom_right_projected.y(), bottom_right_projected.z());
-                ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(bottom_right_projected));
+                //tl::Point3d top_right_projected = static_cast<tl::Point3d>(rect.topRight());
+                //geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_projected.x(), top_right_projected.y(), top_right_projected.z());
+                //ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(top_right_projected));
 
-                tl::Point3d bottom_left_projected = static_cast<tl::Point3d>(rect.bottomLeft());
-                geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_projected.x(), bottom_left_projected.y(), bottom_left_projected.z());
-                ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(bottom_left_projected));
+                //tl::Point3d bottom_right_projected = static_cast<tl::Point3d>(rect.bottomRight());
+                //geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_projected.x(), bottom_right_projected.y(), bottom_right_projected.z());
+                //ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(bottom_right_projected));
 
-                auto window_ortho_terrain = ortho_graph_projected->window();
+                //tl::Point3d bottom_left_projected = static_cast<tl::Point3d>(rect.bottomLeft());
+                //geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_projected.x(), bottom_left_projected.y(), bottom_left_projected.z());
+                //ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(bottom_left_projected));
+
+                //auto window_ortho_terrain = ortho_graph_projected->window();
 
                 tl::TableRegister data_ortho(layer_ortho_graph.tableFields());
                 data_ortho.setValue(0, ortho_file.toUtf8());
@@ -299,8 +330,6 @@ void OrthoimageTask::execute(tl::Progress *progressBar, std::stop_token stopToke
 
                 // Ajustar a la georeferencia del mosaico
                 
-                tl::Size<int> size_ortho_terrain(static_cast<int>(std::round(window_ortho_terrain.width() / gsd)),
-                                                 static_cast<int>(std::round(window_ortho_terrain.height() / gsd)));
                 {
                     auto affine_ortho_inverse = mGeoreferenceOrthomosaic.inverse();
                     auto pt1 = static_cast<tl::Point2i>(affine_ortho_inverse.transform(window_ortho_terrain.min()));
@@ -308,7 +337,10 @@ void OrthoimageTask::execute(tl::Progress *progressBar, std::stop_token stopToke
                     window_ortho_terrain.min() = mGeoreferenceOrthomosaic.transform(static_cast<tl::Point2d>(pt1));
                     window_ortho_terrain.max() = mGeoreferenceOrthomosaic.transform(static_cast<tl::Point2d>(pt2));
                 }
- 
+                tl::Size<int> size_ortho_terrain(tl::numberCast<int>(std::round(window_ortho_terrain.width() / gsd)),
+                                                 tl::numberCast<int>(std::round(window_ortho_terrain.height() / gsd)));
+
+                //TODO: En z-buffer trabajo en ENU pero en Orthoimage en el sistema de salida. Tratar de unificar criterios
                 // Z-Buffer en coordenadas ENU
                 tl::Affine<double, 2> affine_ortho_enu(gsd, -gsd,
                                                        window_ortho_enu.min().x(),

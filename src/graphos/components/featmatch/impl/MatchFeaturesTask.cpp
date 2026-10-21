@@ -57,7 +57,7 @@ void MatchFeaturesTask::execute(tl::Progress *progressBar, std::stop_token stopT
 {
     try {
 
-        auto database = colmap::Database::Open(mDatabase.toUtf8());
+        auto database = colmap::Database::Open(mDatabase.toWString());
         TL_ASSERT(database->NumKeypoints() > 0, "Keypoints not found in the database");
 
         colmap::FeatureMatchingOptions matching_options;

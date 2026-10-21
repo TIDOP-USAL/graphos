@@ -204,7 +204,7 @@ public:
 
     ConsumerImp(const ImageRepository &imageRepo,
                 FeatureExtractor *featExtractor,
-                std::string databaseFile,
+                tl::Path databaseFile,
                 colmap::Database *database,
                 QueueMPMC<queue_data> *buffer,
                 ExtractFeaturesTask *featureExtractorTask,
@@ -255,7 +255,7 @@ private:
 
             if (const auto &image_graphos = mImageRepo.find(data.image_id)) {
                 QString image_name = image_graphos->name();
-                mFeatureExtractorTask->features_extracted(data.image_id, image_name + "@" + mDatabaseFile.c_str());
+                mFeatureExtractorTask->features_extracted(data.image_id, image_name + "@" + QString::fromStdWString(mDatabaseFile.toWString()));
             }
 
         } catch (std::exception &e) {
@@ -345,7 +345,7 @@ private:
 
     const ImageRepository &mImageRepo;
     FeatureExtractor *mFeatExtractor;
-    std::string mDatabaseFile;
+    tl::Path mDatabaseFile;
     colmap::Database *mDatabase;
     QueueMPMC<queue_data> *mBuffer;
     ExtractFeaturesTask *mFeatureExtractorTask;
@@ -391,7 +391,7 @@ void ExtractFeaturesTask::execute(tl::Progress *progressBar, std::stop_token sto
 
         setupDatabaseAndMappings();
 
-        auto database = colmap::Database::Open(mDatabase.toUtf8());
+        auto database = colmap::Database::Open(mDatabase.toWString());
 
         QueueMPMC<internal::queue_data> buffer(50);
         internal::ProducerImp producer(mImageRepo,
@@ -402,7 +402,7 @@ void ExtractFeaturesTask::execute(tl::Progress *progressBar, std::stop_token sto
                                        this);
         internal::ConsumerImp consumer(mImageRepo,
                                        mFeatureExtractor.get(),
-                                       mDatabase.toUtf8(),
+                                       mDatabase,
                                        database.get(),
                                        &buffer,
                                        this,
@@ -462,123 +462,129 @@ auto ExtractFeaturesTask::report() const -> FeatureExtractorReport
 
 void ExtractFeaturesTask::setupDatabaseAndMappings()
 {
-    auto database = colmap::Database::Open(mDatabase.toUtf8());
-    database->BeginTransaction();
+    try {
 
-    GeoTools *geo_tools = nullptr;
-    if (!mEnuCrs.empty()) 
-        geo_tools = tl::GeoTools::getInstance();
+        auto database = colmap::Database::Open(mDatabase.toWString());
+        database->BeginTransaction();
 
-    for (const auto &[image_id, image] : mImageRepo) {
+        GeoTools *geo_tools = nullptr;
+        if (!mEnuCrs.empty())
+            geo_tools = tl::GeoTools::getInstance();
 
-        std::string image_path = image.path().toString();
-        colmap::image_t colmap_image_id{};
+        for (const auto &[image_id, image] : mImageRepo) {
 
-        if (!database->ExistsImageWithName(image_path)) {
+            std::string image_path = image.path().toUtf8();
+            colmap::image_t colmap_image_id{};
 
-            colmap::camera_t camera_id = static_cast<colmap::camera_t>(image.cameraId());
+            if (!database->ExistsImageWithName(image_path)) {
 
-            if (!database->ExistsCamera(camera_id)) {
+                colmap::camera_t camera_id = static_cast<colmap::camera_t>(image.cameraId());
 
-                const Camera *camera = mCameraRepo.find(image.cameraId());
-                TL_ASSERT(camera, "Camera not found for image: {}", image_path);
+                if (!database->ExistsCamera(camera_id)) {
 
-                QString colmap_camera_type = cameraToColmapType(*camera);
-                TL_ASSERT(colmap::ExistsCameraModelWithName(colmap_camera_type.toStdString()), "Unknown COLMAP camera model: {}", colmap_camera_type.toStdString());
+                    const Camera *camera = mCameraRepo.find(image.cameraId());
+                    TL_ASSERT(camera, "Camera not found for image: {}", image_path);
 
-                auto camera_model_id = colmap::CameraModelNameToId(colmap_camera_type.toStdString());
-                if (camera_model_id == colmap::CameraModelId::kInvalid) throw std::runtime_error("Camera model unknow");
+                    QString colmap_camera_type = cameraToColmapType(*camera);
+                    TL_ASSERT(colmap::ExistsCameraModelWithName(colmap_camera_type.toStdString()), "Unknown COLMAP camera model: {}", colmap_camera_type.toStdString());
 
-                size_t width = static_cast<size_t>(camera->width());
-                size_t height = static_cast<size_t>(camera->height());
+                    auto camera_model_id = colmap::CameraModelNameToId(colmap_camera_type.toStdString());
+                    if (camera_model_id == colmap::CameraModelId::kInvalid) throw std::runtime_error("Camera model unknow");
 
-                colmap::Camera camera_colmap;
-                camera_colmap.model_id = camera_model_id;
-                camera_colmap.width = width;
-                camera_colmap.height = height;
+                    size_t width = static_cast<size_t>(camera->width());
+                    size_t height = static_cast<size_t>(camera->height());
 
-                if (camera->priorCalibration()) {
-                    camera_colmap.params = camera->priorCalibration()->toVector();
-                    camera_colmap.has_prior_focal_length = true;
-                } else {
-                    camera_colmap.has_prior_focal_length = false;
-                    size_t num_params = colmap::CameraModelNumParams(camera_model_id);
-                    camera_colmap.params.assign(num_params, 0.0);
+                    colmap::Camera camera_colmap;
+                    camera_colmap.model_id = camera_model_id;
+                    camera_colmap.width = width;
+                    camera_colmap.height = height;
 
-                    const auto focal_length_idxs = colmap::CameraModelFocalLengthIdxs(camera_model_id);
-                    double focal_length = camera->focal() > 0. ? camera->focal() : 1.2 * std::max(width, height);
+                    if (camera->priorCalibration()) {
+                        camera_colmap.params = camera->priorCalibration()->toVector();
+                        camera_colmap.has_prior_focal_length = true;
+                    } else {
+                        camera_colmap.has_prior_focal_length = false;
+                        size_t num_params = colmap::CameraModelNumParams(camera_model_id);
+                        camera_colmap.params.assign(num_params, 0.0);
 
-                    for (const auto idx : focal_length_idxs) {
-                        camera_colmap.params[idx] = focal_length;
+                        const auto focal_length_idxs = colmap::CameraModelFocalLengthIdxs(camera_model_id);
+                        double focal_length = camera->focal() > 0. ? camera->focal() : 1.2 * std::max(width, height);
+
+                        for (const auto idx : focal_length_idxs) {
+                            camera_colmap.params[idx] = focal_length;
+                        }
+
+                        const auto principal_point_idxs = colmap::CameraModelPrincipalPointIdxs(camera_model_id);
+                        if (principal_point_idxs.size() == 2) {
+                            camera_colmap.params[principal_point_idxs[0]] = camera_colmap.width / 2.0;
+                            camera_colmap.params[principal_point_idxs[1]] = camera_colmap.height / 2.0;
+                        }
                     }
 
-                    const auto principal_point_idxs = colmap::CameraModelPrincipalPointIdxs(camera_model_id);
-                    if (principal_point_idxs.size() == 2) {
-                        camera_colmap.params[principal_point_idxs[0]] = camera_colmap.width / 2.0;
-                        camera_colmap.params[principal_point_idxs[1]] = camera_colmap.height / 2.0;
+                    camera_id = database->WriteCamera(camera_colmap);
+                }
+
+                colmap::Image image_colmap;
+                image_colmap.SetName(image_path);
+                image_colmap.SetCameraId(camera_id);
+                colmap_image_id = database->WriteImage(image_colmap, false);
+
+                auto position = image.cameraPose().position();
+
+                if (position != tl::Point3d()) {
+
+                    auto crs = image.cameraPose().crs().toStdString();
+                    if (geo_tools) {
+                        //tl::Message::info("Transformación de {} a {}: ", crs, mEnuCrs);
+                        //tl::Message::info(" - Entrada: [{}, {}, {}]", position.x(), position.y(), position.z());
+                        geo_tools->ptrCRSsTools()->crsOperation(crs, mEnuCrs, position.x(), position.y(), position.z());
+                        //tl::Message::info(" - Salida: [{}, {}, {}]", position.x(), position.y(), position.z());
+                    } else {
+                        tl::Message::warning("geotools no existe");
                     }
+
+                    colmap::PosePrior pose_prior;
+                    pose_prior.corr_data_id = colmap::data_t(colmap::sensor_t(colmap::SensorType::CAMERA, camera_id), colmap_image_id);
+                    pose_prior.position = Eigen::Vector3d(position.x(), position.y(), position.z());
+                    pose_prior.coordinate_system = geo_tools ? colmap::PosePrior::CoordinateSystem::CARTESIAN : colmap::PosePrior::CoordinateSystem::WGS84;
+
+                    tl::Quaternion<double> q = image.cameraPose().quaternion();
+                    if (q != tl::Quaternion<double>::zero()) {
+                        Eigen::Quaterniond q_eigen(q.w(), q.x(), q.y(), q.z());
+                        // El vector gravedad [0, 0, 1] transformado al sistema local de la cámara
+                        pose_prior.gravity = q_eigen.conjugate() * Eigen::Vector3d(0.0, 0.0, 1.0);
+                    }
+
+                    //auto acc = image.cameraPose().accuracy();
+                    //Eigen::Vector3d accuracy(acc.x(), acc.y(), acc.z());
+
+                    //Eigen::Matrix3d cov = Eigen::Matrix3d::Zero();
+                    //cov(0, 0) = accuracy.x() * accuracy.x(); // sigma_x^2
+                    //cov(1, 1) = accuracy.y() * accuracy.y(); // sigma_y^2
+                    //cov(2, 2) = accuracy.z() * accuracy.z(); // sigma_z^2
+                    //pose_prior.position_covariance = cov;
+
+                    database->WritePosePrior(pose_prior);
                 }
 
-                camera_id = database->WriteCamera(camera_colmap);
+            } else {
+
+                auto image_colmap = database->ReadImageWithName(image_path);
+
+                // Si no existe lanzar error
+                if (image_colmap)
+                    colmap_image_id = image_colmap.value().ImageId();
+
             }
 
-            colmap::Image image_colmap;
-            image_colmap.SetName(image_path);
-            image_colmap.SetCameraId(camera_id);
-            colmap_image_id = database->WriteImage(image_colmap, false);
-
-            auto position = image.cameraPose().position();
-            
-            if (position != tl::Point3d()) {
-
-                auto crs = image.cameraPose().crs().toStdString();
-                if (geo_tools) {
-                    //tl::Message::info("Transformación de {} a {}: ", crs, mEnuCrs);
-                    //tl::Message::info(" - Entrada: [{}, {}, {}]", position.x(), position.y(), position.z());
-                    geo_tools->ptrCRSsTools()->crsOperation(crs, mEnuCrs, position.x(), position.y(), position.z());
-                    //tl::Message::info(" - Salida: [{}, {}, {}]", position.x(), position.y(), position.z());
-                } else {
-                    tl::Message::warning("geotools no existe");
-                }
-
-                colmap::PosePrior pose_prior;
-                pose_prior.corr_data_id = colmap::data_t(colmap::sensor_t(colmap::SensorType::CAMERA, camera_id), colmap_image_id);
-                pose_prior.position = Eigen::Vector3d(position.x(), position.y(), position.z());
-                pose_prior.coordinate_system = geo_tools ? colmap::PosePrior::CoordinateSystem::CARTESIAN : colmap::PosePrior::CoordinateSystem::WGS84;
-
-                tl::Quaternion<double> q = image.cameraPose().quaternion();
-                if (q != tl::Quaternion<double>::zero()) {
-                    Eigen::Quaterniond q_eigen(q.w(), q.x(), q.y(), q.z());
-                    // El vector gravedad [0, 0, 1] transformado al sistema local de la cámara
-                    pose_prior.gravity = q_eigen.conjugate() * Eigen::Vector3d(0.0, 0.0, 1.0);
-                }
-
-                //auto acc = image.cameraPose().accuracy();
-                //Eigen::Vector3d accuracy(acc.x(), acc.y(), acc.z());
-
-                //Eigen::Matrix3d cov = Eigen::Matrix3d::Zero();
-                //cov(0, 0) = accuracy.x() * accuracy.x(); // sigma_x^2
-                //cov(1, 1) = accuracy.y() * accuracy.y(); // sigma_y^2
-                //cov(2, 2) = accuracy.z() * accuracy.z(); // sigma_z^2
-                //pose_prior.position_covariance = cov;
-
-                database->WritePosePrior(pose_prior);
-            }
-
-        } else {
-
-            auto image_colmap = database->ReadImageWithName(image_path);
-
-            // Si no existe lanzar error
-            if (image_colmap)
-                colmap_image_id = image_colmap.value().ImageId();
-
+            mGraphosToColmapId[image_id] = static_cast<uint32_t>(colmap_image_id);
         }
 
-        mGraphosToColmapId[image_id] = static_cast<uint32_t>(colmap_image_id);
-    }
+        database->EndTransaction();
 
-    database->EndTransaction();
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Setup database error");
+    }
 }
 
 } // graphos

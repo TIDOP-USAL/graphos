@@ -439,7 +439,7 @@ void GroundControlPointsModelImp::importGroundControlPoints(const QString &file,
 
         auto reader = GCPsReaderFactory::create(format.toStdString());
         reader->setImages(images().all());
-        reader->read(file.toStdString());
+        reader->read(file.toStdWString());
         mCrs = QString::fromStdString(reader->epsgCode());
         auto gcps = reader->gcps();
 
@@ -456,7 +456,7 @@ void GroundControlPointsModelImp::exportGroundControlPoints(const QString &file,
     writer->setEPSGCode(mCrs.toStdString());
     writer->setGCPs(groundControlPoints());
     writer->setImages(images().all());
-    writer->write(file.toStdString());
+    writer->write(file.toStdWString());
 }
 
 void GroundControlPointsModelImp::setCrs(const QString &crs)

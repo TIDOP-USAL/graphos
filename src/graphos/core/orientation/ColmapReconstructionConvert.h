@@ -29,10 +29,6 @@
 #include <unordered_map>
 #include <vector>
 
-//#include <tidop/core/task/Task.h>
-//#include <tidop/core/base/Path.h>
-//#include <tidop/geometry/primitives/Point.h>
-
 #include "graphos/core/image/Image.h"
 #include "graphos/core/orientation/GroundPoint.h"
 #include "graphos/core/camera/Camera.h"
@@ -45,19 +41,11 @@ class Progress;
 namespace colmap
 {
 class Reconstruction;
-//class ReconstructionManager;
-//struct IncrementalMapperOptions;
-//class IncrementalMapperController;
+
 }
 
 namespace graphos
 {
-
-//class Image;
-//class Camera;
-//class GroundPoint;
-//class CameraPose;
-//class Calibration;
 
 /*!
  * \brief COLMAP Reconstruction Converter
@@ -113,7 +101,6 @@ public:
 private:
 
     const colmap::Reconstruction *mReconstruction;
-    //std::vector<Image> mImages;
     const std::unordered_map<size_t, Image> &mImages;
     std::unordered_map<uint32_t, size_t> mImageIds;
 };

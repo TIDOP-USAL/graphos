@@ -62,7 +62,7 @@ auto streamToStdString(QXmlStreamReader &stream) -> std::string
 
 auto streamToPath(QXmlStreamReader &stream) -> tl::Path
 {
-    return tl::Path(stream.readElementText().toStdString());
+    return tl::Path(stream.readElementText().toStdWString());
 }
 
 void readPriorCalibration(QXmlStreamReader &stream, Camera &camera)

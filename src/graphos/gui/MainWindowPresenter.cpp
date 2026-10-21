@@ -222,7 +222,7 @@ void MainWindowPresenter::loadProject()
     Application &app = Application::instance();
     app.status()->activeFlag(AppStatus::Flag::project_exists, true);
 
-    QString project_path = QString::fromStdString(mModel->projectPath().toUtf8());
+    QString project_path = QString::fromStdWString(mModel->projectPath().toWString());
 
     /// Se añade al historial de proyectos recientes
     app.addToHistory(project_path);
@@ -352,7 +352,7 @@ void MainWindowPresenter::loadMesh()
 void MainWindowPresenter::loadDTM()
 {
     Application &app = Application::instance();
-    QString dtm = QString::fromStdString(mModel->dtm().toString());
+    QString dtm = QString::fromStdWString(mModel->dtm().toWString());
     if (!dtm.isEmpty()) {
         mView->setDTM(dtm);
         app.status()->activeFlag(AppStatus::Flag::dtm, true);
@@ -365,7 +365,7 @@ void MainWindowPresenter::loadDTM()
 void MainWindowPresenter::loadDSM()
 {
     Application &app = Application::instance();
-    QString dsm = QString::fromStdString(mModel->dsm().toString());
+    QString dsm = QString::fromStdWString(mModel->dsm().toWString());
     if (!dsm.isEmpty()) {
         mView->setDSM(dsm);
         app.status()->activeFlag(AppStatus::Flag::dsm, true);
@@ -402,7 +402,7 @@ void MainWindowPresenter::openImage(size_t imageId)
 
         if (auto graphos_image = mModel->images().find(imageId)) {
             auto &image_path = graphos_image->path();
-            QString image = QString::fromStdString(image_path.toString());
+            QString image = QString::fromStdWString(image_path.toWString());
             int tab_id = tab_widget->fileTab(image);
 
             if (tab_id != -1) {
@@ -559,7 +559,7 @@ void MainWindowPresenter::openDtm()
 {
     try {
 
-        QString dtm = QString::fromStdString(mModel->dtm().toString());
+        QString dtm = QString::fromStdWString(mModel->dtm().toWString());
         auto tab_widget = mView->tabWidget();
         int tab_id = tab_widget->fileTab("Map"/*dtm*/);
 
@@ -606,7 +606,7 @@ void MainWindowPresenter::openDsm()
 {
     try {
 
-        QString dsm = QString::fromStdString(mModel->dsm().toString());
+        QString dsm = QString::fromStdWString(mModel->dsm().toWString());
         auto tab_widget = mView->tabWidget();
         int tab_id = tab_widget->fileTab("Map");
 
@@ -682,7 +682,7 @@ void MainWindowPresenter::openOrthophoto(size_t ortho_id)
 
         // Añadir método para cargar directamente la orto que quiero
         const auto &orthos = mModel->orthophotos();
-        QString orthophoto = QString::fromStdString(orthos.at(ortho_id).toString());
+        QString orthophoto = QString::fromStdWString(orthos.at(ortho_id).toWString());
 
         map_viewer->loadGeoTiff(orthophoto);
 

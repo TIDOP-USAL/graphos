@@ -114,8 +114,8 @@ auto ImageLoaderPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
     mImages.clear();
     for (auto &image_file : mImageFiles) {
-        tl::Path image_path(image_file.toStdString());
-        size_t hash_id = tl::Path::hash(image_path.toString());
+        tl::Path image_path(image_file.toStdWString());
+        size_t hash_id = tl::Path::hash(image_path);
         if (!mModel->existImage(hash_id)) {
             mImages.emplace_back(image_path);
         }

@@ -25,10 +25,8 @@
 
 #include "graphos/components/gcps/impl/GroundControlPointsModel.h"
 #include "graphos/components/gcps/impl/GroundControlPointsView.h"
-//#include "graphos/core/sfm/posesio.h"
 #include "graphos/core/image/ImageRepository.h"
 
-//#include <tidop/core/defs.h>
 #include <tidop/core/app/Message.h>
 
 #include <QFileInfo>
@@ -62,7 +60,7 @@ void GroundControlPointsPresenterImp::open()
     bool active_image = false;
     std::vector<std::pair<size_t, QString>> images;
     for (const auto &image : mModel->images()) {
-        images.emplace_back(image.first, QString::fromStdString(image.second.path().toString()));
+        images.emplace_back(image.first, QString::fromStdWString(image.second.path().toWString()));
     }
 
     if (!images.empty()) {
@@ -113,7 +111,7 @@ void GroundControlPointsPresenterImp::initSignalAndSlots()
 void GroundControlPointsPresenterImp::setImageActive(size_t imageId)
 {
     if (auto image = mModel->images().find(imageId)) {
-        mView->setCurrentImage(QString::fromStdString(image->path().toString()));
+        mView->setCurrentImage(QString::fromStdWString(image->path().toWString()));
         std::list<std::pair<QString, QPointF>> points = mModel->points(imageId);
         mView->setPoints(points);
     }

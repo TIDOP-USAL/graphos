@@ -25,6 +25,7 @@
 
 #include "graphos/graphos_global.h"
 
+#include <string>
 #include <unordered_set>
 
 #include <tidop/core/base/Path.h>
@@ -75,16 +76,16 @@ public:
     auto numInlierMatches() const -> size_t;
 
     [[nodiscard]]
-    auto loadMatches(const std::string &imageNameLeft, const std::string &imageNameRight) const -> Matches;
+    auto loadMatches(const tl::Path &imageLeft, const tl::Path &imageRight) const -> Matches;
 
     [[nodiscard]]
-    auto imagePairs(const std::string &imageName) const->std::vector<std::string>;
+    auto imagePairs(const tl::Path &image) const->std::vector<tl::Path>;
 
     [[nodiscard]]
-    auto hasImagePairs(const std::string &imageName) const -> bool;
+    auto hasImagePairs(const tl::Path &image) const -> bool;
 
     [[nodiscard]]
-    auto imageNamesWithPairs() const -> std::unordered_set<std::string>;
+    auto imagesWithPairs() const -> std::unordered_set<std::string>;
 
     void clear();
 

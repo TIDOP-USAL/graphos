@@ -1,6 +1,7 @@
 #include "Easy3DViewer3D.h"
 
 #include <QApplication>
+#include <QFile>
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QMouseEvent>
@@ -52,30 +53,31 @@ namespace
 auto readModels(const QString &file) -> std::vector<easy3d::Model *>
 {
     const auto extension = QFileInfo(file).suffix().toLower();
+    const std::string native_file = QFile::encodeName(file).toStdString();
     std::vector<easy3d::Model *> models;
 
     bool is_ply_mesh = false;
     if (extension == "ply")
-        is_ply_mesh = easy3d::io::PlyReader::num_instances(file.toStdString(), "face") > 0;
+        is_ply_mesh = easy3d::io::PlyReader::num_instances(native_file, "face") > 0;
 
     easy3d::Model *model = nullptr;
     if ((extension == "ply" && is_ply_mesh) ||
         extension == "obj" || extension == "off" ||
         extension == "stl" || extension == "sm" ||
         extension == "geojson" || extension == "trilist") {
-        model = easy3d::SurfaceMeshIO::load(file.toStdString());
+        model = easy3d::SurfaceMeshIO::load(native_file);
     } else if (extension == "ply" &&
-               easy3d::io::PlyReader::num_instances(file.toStdString(), "edge") > 0) {
-        model = easy3d::SurfaceMeshIO::load(file.toStdString());
+               easy3d::io::PlyReader::num_instances(native_file, "edge") > 0) {
+        model = easy3d::SurfaceMeshIO::load(native_file);
     } else if (extension == "plm" || extension == "pm" || extension == "mesh") {
-        model = easy3d::PolyMeshIO::load(file.toStdString());
+        model = easy3d::PolyMeshIO::load(native_file);
     } else if (extension == "ptx") {
-        easy3d::io::PointCloudIO_ptx serializer(file.toStdString());
+        easy3d::io::PointCloudIO_ptx serializer(native_file);
         while (auto cloud = serializer.load_next())
             models.push_back(cloud);
         return models;
     } else {
-        model = easy3d::PointCloudIO::load(file.toStdString());
+        model = easy3d::PointCloudIO::load(native_file);
     }
 
     if (model)

@@ -42,10 +42,13 @@
 #include <tidop/geometry/algorithms/analysis/Intersects.h>
 #include <tidop/geometry/algorithms/analysis/Contains.h>
 #include <tidop/geometry/algorithms/measurement/Distance.h>
+#include <tidop/geometry/algorithms/spatial/Intersection.h>
 #include <tidop/rastertools/io/Reader.h>
 #include <tidop/rastertools/io/Writer.h>
 #include <tidop/rastertools/io/Formats.h>
 #include <tidop/math/statistic/algorithms/descriptive/Median.h>
+#include <tidop/geotools/CRSsTools.h>
+#include <tidop/geotools/GeoTools.h>
 
 /* OpenCV */
 #include <opencv2/stitching.hpp>
@@ -410,12 +413,6 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
             for (size_t c = 0; c < grid[r].size(); ++c) {
                 tl::Message::info("Processing grid cell [{}, {}]", r, c);
 
-                tl::Path debug_cell_path(ortho_path.parentPath());
-                debug_cell_path.append("mosaic_debug");
-                debug_cell_path.append(std::to_string(r));
-                debug_cell_path.append(std::to_string(c));
-                debug_cell_path.createDirectories();
-
                 cv::Ptr<cv::detail::Blender> blender = cv::detail::Blender::createDefault(blender_type, try_cuda);
 
                 int cols_grid = static_cast<int>(std::round(grid[r][c].width() / res_ortho));
@@ -482,8 +479,6 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
                             image_reader_seam.close();
                             continue;
                         }
-
-                        cv::imwrite(tl::Path(debug_cell_path).append("compensated_" + std::to_string(j) + ".tif").toString(), compensate_image);
 
                         // Convertir a 16S para el blender (OpenCV blender requiere CV_16S)
                         cv::Mat compensate_image_16s;
@@ -1456,21 +1451,21 @@ auto OrthophotoTask::orthoPath() const -> tl::Path
     return mOrthoPath;
 }
 
-std::vector<std::vector<tl::BoundingBox2d>> OrthophotoTask::findGrid(int gridSize) const
+std::vector<std::vector<tl::BoundingBox2d>> OrthophotoTask::findGrid(int gridSize, const tl::BoundingBox2d &bbox) const
 {
     std::vector<std::vector<tl::BoundingBox2d>> grid;
 
     try {
-        
+
         int grid_size = mProperties->gsd() * gridSize;
 
-        tl::RasterReader reader(mMdt);
-        TL_ASSERT(reader.isOpen(), "Can not open the MDT");
-        auto window = reader.window();
-        int step_x = std::ceil(window.width() / grid_size);
-        int step_y = std::ceil(window.height() / grid_size);
+        //tl::RasterReader reader(mMdt);
+        //TL_ASSERT(reader.isOpen(), "Can not open the MDT");
+        //auto window = reader.window();
+        int step_x = std::ceil(bbox.width() / grid_size);
+        int step_y = std::ceil(bbox.height() / grid_size);
 
-        auto center = window.center();
+        auto center = bbox.center();
 
         double x_ini = center.x() - ((step_x - 1) * grid_size) / 2.;
         double y_ini = center.y() + ((step_y - 1) * grid_size) / 2.;
@@ -1530,20 +1525,50 @@ void OrthophotoTask::execute(tl::Progress *progressBar, std::stop_token stopToke
         tl::Path dsm_path = mMdt;
         dsm_path.replaceBaseName("dsm_enu");
 
-        // Crear la malla de teselas
-        std::vector<std::vector<tl::BoundingBox2d>> grid = findGrid(500);
+        //// Crear la malla de teselas
+        //std::vector<std::vector<tl::BoundingBox2d>> grid = findGrid(500);
 
-        // Ventana ortomosaico
-        mWindowAll.min().x() = grid[0][0].min().x();
-        mWindowAll.min().y() = grid.back().back().min().y();
-        mWindowAll.max().x() = grid.back().back().max().x();
-        mWindowAll.max().y() = grid[0][0].max().y();
+        //// Ventana ortomosaico
+        //mWindowAll.min().x() = grid[0][0].min().x();
+        //mWindowAll.min().y() = grid.back().back().min().y();
+        //mWindowAll.max().x() = grid.back().back().max().x();
+        //mWindowAll.max().y() = grid[0][0].max().y();
 
         auto gsd = mProperties->gsd();
         auto crs = mProperties->crs();
         auto interpolation = mProperties->interpolation();
 
-        tl::Affine<double, 2> affine_ortho(gsd, -gsd, mWindowAll.min().x(), mWindowAll.max().y(), 0.0);
+        //tl::Affine<double, 2> affine_ortho(gsd, -gsd, mWindowAll.min().x(), mWindowAll.max().y(), 0.0);
+                /// Calculo de la ventana del DEM en coordenadas de salida
+        tl::BoundingBox2d dem_bbox;
+        {
+            tl::RasterReader reader(dsm_path);
+            TL_ASSERT(reader.isOpen(), "Can not open the MDT");
+            dem_bbox = reader.window();
+            
+            std::vector<tl::Point2d> pts = {
+                dem_bbox.min(),
+                tl::Point2d{dem_bbox.min().x(), dem_bbox.max().y()},
+                dem_bbox.max(),
+                tl::Point2d{dem_bbox.max().x(), dem_bbox.min().y()}
+            };
+            tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
+            std::vector<tl::Point2d> bbox_points;
+            if (geo_tools) {
+                tl::CRSsTools *crsTools = geo_tools->ptrCRSsTools();
+                for (auto &pt : pts) {
+                    if (crsTools) {
+                        double z = 0;
+                        crsTools->crsOperation(mEnuCrs, crs, pt.x(), pt.y(), z);
+                    }
+                    bbox_points.emplace_back(pt.x(), pt.y());
+                }
+                reader.close();
+                dem_bbox = tl::BoundingBox2d(bbox_points);
+            }
+        }
+
+        tl::Affine<double, 2> affine_ortho(gsd, -gsd, dem_bbox.min().x(), dem_bbox.max().y(), 0.0);
 
         OrthoimageTask orthoimage_task(mImages,
                                        mCameras,
@@ -1572,6 +1597,13 @@ void OrthophotoTask::execute(tl::Progress *progressBar, std::stop_token stopToke
         if (orthomosaic_properties) {
             mosaic_method = orthomosaic_properties->name();
         }
+
+        // Se calcula la ventana del mosaico como intersección del DSM/DTM y la huella de vuelo
+        tl::VectorReader vectorReader(graph_orthos);
+        TL_ASSERT(vectorReader.isOpen(), "Graph orthos not found: {}", graph_orthos.toString());
+        auto orthos_bbox = vectorReader.boundingBox();
+        mWindowAll = tl::intersection(dem_bbox, orthos_bbox);
+        auto grid = findGrid(500, mWindowAll);
 
         if (mosaic_method == "RLB") {
             tl::Message::info("Generating orthophoto tiles with Robust Local Blending method");

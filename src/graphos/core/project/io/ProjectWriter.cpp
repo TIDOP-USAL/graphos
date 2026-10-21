@@ -409,14 +409,12 @@ void ProjectWriter::writeInfo(QXmlStreamWriter &stream, const ProjectInfo &proje
 
     stream.writeStartElement("General");
     {
-        stream.writeTextElement("Name", projectInfo.name());
+        stream.writeTextElement("Name", QString::fromStdString(projectInfo.name()));
         stream.writeTextElement("Path", QString::fromStdWString(projectInfo.projectFolder().toWString()));
-        stream.writeTextElement("Description", projectInfo.description());
+        stream.writeTextElement("Description", QString::fromStdString(projectInfo.description()));
         stream.writeTextElement("EnuCrs", projectInfo.enuCrs());
     }
     stream.writeEndElement();
-
-    //stream.writeTextElement("Database", QString::fromStdWString(projectInfo.database().toWString()));
 }
 
 void ProjectWriter::writeCameras(QXmlStreamWriter &stream, const CameraRepository &cameraRepository, bool writeUndistortedCameras)
@@ -563,7 +561,7 @@ void ProjectWriter::writeImages(QXmlStreamWriter &stream, const ImageRepository 
             stream.writeStartElement("Image");
             {
                 stream.writeAttribute("id", QString::number(id));
-                stream.writeTextElement("File", QString::fromStdString(image.path().toString()));
+                stream.writeTextElement("File", QString::fromStdWString(image.path().toWString()));
                 stream.writeTextElement("CameraId", QString::number(image.cameraId()));
                 writeCameraPosition(stream, image.cameraPose());
                 writeImageMetadata(stream, image.metadata());
@@ -633,9 +631,9 @@ void ProjectWriter::writeOrientation(QXmlStreamWriter &stream, const Project &pr
     stream.writeStartElement("Orientations");
 
     writeOrientationConfig(stream, project.orientationConfig().get());
-    stream.writeTextElement("SparseModel", project.sparseModel().toString());
-    stream.writeTextElement("GroundPoints", project.groundPoints().toString());
-    stream.writeTextElement("CameraPoses", project.cameraPosesFile().toString());
+    stream.writeTextElement("SparseModel", QString::fromStdWString(project.sparseModel().toWString()));
+    stream.writeTextElement("GroundPoints", QString::fromStdWString(project.groundPoints().toWString()));
+    stream.writeTextElement("CameraPoses", QString::fromStdWString(project.cameraPosesFile().toWString()));
     writeOrientationReport(stream, project.orientationReport());
 
     stream.writeEndElement(); // Orientations
@@ -647,7 +645,7 @@ void ProjectWriter::writeDensification(QXmlStreamWriter &stream, const Project &
 
     writeDensificationConfig(stream, project.densificationConfig().get());
     writeDensificationReport(stream, project.densificationReport());
-    stream.writeTextElement("DenseModel", project.denseModel().toString());
+    stream.writeTextElement("DenseModel", project.denseModel().toUtf8());
 
     stream.writeEndElement(); // Densification
 }
@@ -659,7 +657,7 @@ void ProjectWriter::writeMeshing(QXmlStreamWriter &stream, const Project &projec
     writeMeshingConfig(stream, project.meshConfig().get());
     writeMeshingReport(stream, project.meshReport());
     if (!project.meshModel().empty())
-        stream.writeTextElement("MeshModel", project.meshModel().toString());
+        stream.writeTextElement("MeshModel", QString::fromStdWString(project.meshModel().toWString()));
 
     stream.writeEndElement(); // Mesh
 }
@@ -671,11 +669,11 @@ void ProjectWriter::writeDem(QXmlStreamWriter &stream, const Project &project)
     writeDemConfig(stream, project.demConfig().get());
     writeDemReport(stream, project.demReport());
     if (!project.dsm().empty())
-        stream.writeTextElement("Dsm", project.dsm().toString());
+        stream.writeTextElement("Dsm", QString::fromStdWString(project.dsm().toWString()));
     if (!project.dsmEnu().empty())
-        stream.writeTextElement("DsmEnu", project.dsmEnu().toString());
+        stream.writeTextElement("DsmEnu", QString::fromStdWString(project.dsmEnu().toWString()));
     if (!project.dtm().empty())
-        stream.writeTextElement("Dtm", project.dtm().toString());
+        stream.writeTextElement("Dtm", QString::fromStdWString(project.dtm().toWString()));
 
     stream.writeEndElement(); // Dem
 }
@@ -687,7 +685,7 @@ void ProjectWriter::writeOrtho(QXmlStreamWriter &stream, const Project &project)
     writeOrthoConfig(stream, project.orthoConfig().get());
     writeOrthoReport(stream, project.orthoReport());
     if (!project.orthophoto().empty())
-        stream.writeTextElement("Path", project.orthophoto().toString());
+        stream.writeTextElement("Path", QString::fromStdWString(project.orthophoto().toWString()));
 
     stream.writeEndElement(); // Orthophoto
 }

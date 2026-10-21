@@ -259,21 +259,6 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
                                                    mModel->useCuda(),
                                                    mView->autoSegmentation());
 
-        //pmvs->setUseVisibilityInformation(mCmvsPmvs->useVisibilityInformation());
-        //pmvs->setImagesPerCluster(mCmvsPmvs->imagesPerCluster());
-        //pmvs->setLevel(mCmvsPmvs->level());
-        //pmvs->setCellSize(mCmvsPmvs->cellSize());
-        //pmvs->setThreshold(mCmvsPmvs->threshold());
-        //pmvs->setWindowSize(mCmvsPmvs->windowSize());
-        //pmvs->setMinimunImageNumber(mCmvsPmvs->minimunImageNumber());
-
-        //auto properties = std::make_shared<CmvsPmvs>(mCmvsPmvs->useVisibilityInformation(),
-        //                                                       mCmvsPmvs->imagesPerCluster(),
-        //                                                       mCmvsPmvs->level(),
-        //                                                       mCmvsPmvs->cellSize(),
-        //                                                       mCmvsPmvs->threshold(),
-        //                                                       mCmvsPmvs->windowSize(),
-        //                                                       mCmvsPmvs->minimunImageNumber());
         mModel->setDensificationConfig(config);
 
         dense_task = std::move(pmvs);
@@ -300,17 +285,6 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
                                                mModel->useCuda(),
                                                mView->autoSegmentation());
 
-        //smvs->setInputImageScale(mSmvs->inputImageScale());
-        //smvs->setOutputDepthScale(mSmvs->outputDepthScale());
-        //smvs->setShadingBasedOptimization(mSmvs->shadingBasedOptimization());
-        //smvs->setSemiGlobalMatching(mSmvs->semiGlobalMatching());
-        //smvs->setSurfaceSmoothingFactor(mSmvs->surfaceSmoothingFactor());
-        //
-        //auto properties = std::make_shared<Smvs>(mSmvs->inputImageScale(),
-        //                                                   mSmvs->outputDepthScale(),
-        //                                                   mSmvs->shadingBasedOptimization(),
-        //                                                   mSmvs->semiGlobalMatching(),
-        //                                                   mSmvs->surfaceSmoothingFactor());
         mModel->setDensificationConfig(config);
 
         dense_task = std::move(smvs);
@@ -340,19 +314,6 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
                                              mModel->useCuda(),
                                              mView->autoSegmentation());
 
-        //mvs->setMaxResolution(3000/*mMVS->maxResolution()*/);
-        //mvs->setMinResolution(256/*mMVS->minResolution()*/);
-        //mvs->setNumberViews(mMVS->numberViews());
-        //mvs->setNumberViewsFuse(mMVS->numberViewsFuse());
-        //mvs->setResolutionLevel(mMVS->quality());
-        //mvs->setEstimateColors(mMVS->estimateColors());
-        //mvs->setEstimateNormals(mMVS->estimateNormals());
-
-        //auto properties = std::make_shared<Mvs>(mMVS->quality(),
-        //                                        256/*mMVS->minResolution()*/,
-        //                                        3000/*mMVS->maxResolution()*/,
-        //                                        mMVS->numberViews(),
-        //                                        mMVS->numberViewsFuse());
         mModel->setDensificationConfig(config);
 
         dense_task = std::move(mvs);
@@ -361,14 +322,6 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
         mView->hide();
         throw std::runtime_error("Densification Method not valid");
     }
-
-    //dense_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
-
-    //    auto report = dynamic_cast<DensifierBase const*>(event->task())->report();
-
-    //    mModel->setDenseReport(report);
-
-    //});
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);

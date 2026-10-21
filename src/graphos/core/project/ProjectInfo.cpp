@@ -23,7 +23,6 @@
 
 #include "graphos/core/project/ProjectInfo.h"
 
-
 namespace graphos
 {
 
@@ -47,7 +46,7 @@ void ProjectInfo::setProjectPath(tl::Path path)
 
 auto ProjectInfo::name() const -> std::string
 {
-    return mProjectPath.baseName().toString();
+    return mProjectPath.baseName().toUtf8();
 }
 
 auto ProjectInfo::description() const -> std::string

@@ -69,7 +69,7 @@ void LoadThumbnailTask::execute(tl::Progress *progressBar, std::stop_token stopT
     try {
 
         const QString thumb = mItem->toolTip();
-        std::string image_file = thumb.toStdString();
+        tl::Path image_file(thumb.toStdWString());
 
         tl::RasterReader image_reader(image_file);
         if (image_reader.isOpen()) {
@@ -96,7 +96,7 @@ void LoadThumbnailTask::execute(tl::Progress *progressBar, std::stop_token stopT
             mListWidget->viewport()->update();
 
         } else {
-            tl::Message::error("Error al abrir la imagen: {}", image_file);
+            tl::Message::error("Error al abrir la imagen: {}", image_file.toUtf8());
         }
 
     } catch (const std::exception &e) {
@@ -187,7 +187,7 @@ void ThumbnailsWidget::addThumbnail(const Image &image, const QSize &imageSize)
         pixmap.fill(QColor(Qt::GlobalColor::lightGray));
         QIcon icon(pixmap);
         QListWidgetItem *item = new QListWidgetItem(icon, image.name());
-        item->setToolTip(QString::fromStdString(image.path().toString()));
+        item->setToolTip(QString::fromStdWString(image.path().toWString()));
         item->setData(Qt::UserRole, static_cast<qulonglong>(Image::id(image)));
         mListWidget->addItem(item);
         // TODO: Utilizar setGridSize para ajustar el tamaño

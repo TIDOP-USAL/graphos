@@ -113,6 +113,139 @@ static auto buildTiles(const tl::Rect<int> &rect, int tileSize) -> std::vector<T
     return tiles;
 }
 
+// Este código rellena mejor la ortoimagen. Es mas lento pero puedo quitar el bloqueo
+//void ZBuffer::run()
+//{
+//    try {
+//        tl::ChronoAuto chrono("ZBuffer");
+//
+//        auto gsd = mEnuGeoreference.scale().x();
+//
+//        tl::Rect<int> rect_image = mOrthorectification->rectImage();
+//        tl::Rect<int> rect_dtm = mOrthorectification->rectDsm();
+//
+//        tl::Rect<int> iterRect(rect_dtm.x(), rect_dtm.y(), rect_dtm.width() - 1, rect_dtm.height() - 1);
+//        auto tiles = buildTiles(iterRect, 128);
+//
+//        auto inverse_transform = mEnuGeoreference.inverse();
+//
+//        tl::parallel_for(size_t(0), tiles.size(), [&](size_t t) {
+//
+//            const auto &tile = tiles[t];
+//
+//            for (int y = 0; y < tile.rect.height(); ++y) {
+//                for (int x = 0; x < tile.rect.width(); ++x) {
+//
+//                    int c = tile.origin.x() + x * tile.step.x();
+//                    int r = tile.origin.y() + y * tile.step.y();
+//                    if (c < tile.rect.x() || c >= tile.rect.x() + tile.rect.width() ||
+//                        r < tile.rect.y() || r >= tile.rect.y() + tile.rect.height())
+//                        continue;
+//
+//                    std::vector<tl::Point3d> dem_enu_coordinates(4);
+//
+//                    dem_enu_coordinates[0] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point2i(c, r));
+//                    dem_enu_coordinates[1] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point2i(c + 1, r));
+//                    dem_enu_coordinates[2] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point2i(c + 1, r + 1));
+//                    dem_enu_coordinates[3] = mOrthorectification->dsmImageCoordinatesToTerrain(tl::Point2i(c, r + 1));
+//
+//                    if (mOrthorectification->hasNodataValue()) {
+//                        double nodata_value = mOrthorectification->nodataValue();
+//                        if (dem_enu_coordinates[0].z() == nodata_value ||
+//                            dem_enu_coordinates[1].z() == nodata_value ||
+//                            dem_enu_coordinates[2].z() == nodata_value ||
+//                            dem_enu_coordinates[3].z() == nodata_value) {
+//                            continue;
+//                        }
+//                    }
+//
+//                    std::vector<tl::Point2i> dem_image_coordinates(4);
+//                    std::vector<tl::Point2i> photocoordinates(4);
+//                    std::vector<tl::Point2i> image_coordinates(4);
+//
+//                    for (int i = 0; i < 4; ++i) {
+//                        dem_image_coordinates[i] = static_cast<tl::Point2i>(inverse_transform.transform(static_cast<tl::Point2d>(dem_enu_coordinates[i])));
+//                        photocoordinates[i] = static_cast<tl::Point2i>(mOrthorectification->terrainToPhotoCoordinates(dem_enu_coordinates[i]));
+//                        image_coordinates[i] = static_cast<tl::Point2i>(mOrthorectification->photoCoordinatesToImageCoordinates(static_cast<tl::Point2d>(photocoordinates[i])));
+//                    }
+//
+//                    // 1. Validar envolvente en imagen
+//                    tl::BoundingBox2i window_image_in = tl::envelope(image_coordinates[0],
+//                        image_coordinates[1],
+//                        image_coordinates[2],
+//                        image_coordinates[3]);
+//                    if (!window_image_in.isValid()) continue;
+//
+//                    // 2. Validar envolvente en ortofoto
+//                    tl::BoundingBox2i window_ortho_in = tl::envelope(dem_image_coordinates[0],
+//                        dem_image_coordinates[1],
+//                        dem_image_coordinates[2],
+//                        dem_image_coordinates[3]);
+//                    if (!window_ortho_in.isValid()) continue;
+//
+//                    // Permitir intersección en lugar de requerir que mRectOrtho contenga los 4 puntos completos
+//                    tl::Rect<int> win_img_rect(window_image_in.min().x(), window_image_in.min().y(),
+//                                               window_image_in.width() + 1, window_image_in.height() + 1);
+//
+//                    if (!tl::intersects(rect_image.boundingBox(), win_img_rect.boundingBox()) || !tl::intersects(mRectOrtho.boundingBox(), tl::BoundingBox2i(window_ortho_in.min(), window_ortho_in.max() + tl::Vector2i(1, 1)))) {
+//                        continue;
+//                    }
+//
+//                    // Recortar la ventana al dominio estricto de la imagen para no salir de rango
+//                    int img_x1 = std::max(rect_image.x(), window_image_in.min().x());
+//                    int img_y1 = std::max(rect_image.y(), window_image_in.min().y());
+//                    int img_x2 = std::min(rect_image.x() + rect_image.width() - 1, window_image_in.max().x());
+//                    int img_y2 = std::min(rect_image.y() + rect_image.height() - 1, window_image_in.max().y());
+//
+//                    if (img_x1 > img_x2 || img_y1 > img_y2) continue;
+//
+//                    tl::Point3d terrain_point = dem_enu_coordinates[0];
+//                    for (size_t j = 1; j < dem_enu_coordinates.size(); j++) {
+//                        terrain_point += (dem_enu_coordinates[j] - terrain_point) / (static_cast<double>(j) + 1.);
+//                    }
+//
+//                    double distance = tl::distance(terrain_point, mOrthorectification->orientation().position());
+//
+//                    float z_buffer_distance = mDistances.at<float>(img_y1, img_x1);
+//
+//                    if (distance < static_cast<double>(z_buffer_distance) + gsd * 5.0) {
+//
+//                        int w = img_x2 - img_x1 + 1;
+//                        int h = img_y2 - img_y1 + 1;
+//
+//                        std::vector<cv::Point> pts(4);
+//                        for (size_t k = 0; k < image_coordinates.size(); k++) {
+//                            pts[k] = cv::Point(image_coordinates[k].x() - img_x1,
+//                                image_coordinates[k].y() - img_y1);
+//                        }
+//
+//                        cv::Mat mask_image = cv::Mat::zeros(h, w, CV_8U);
+//                        cv::fillConvexPoly(mask_image, pts, cv::Scalar(255));
+//
+//                        cv::Mat image_distances(h, w, CV_32F, distance);
+//                        image_distances.copyTo(mDistances.colRange(img_x1, img_x2 + 1)
+//                            .rowRange(img_y1, img_y2 + 1),
+//                            mask_image);
+//
+//                        cv::Mat image_z_buffer_y(h, w, CV_32S, r - rect_dtm.y());
+//                        image_z_buffer_y.copyTo(mY.colRange(img_x1, img_x2 + 1)
+//                            .rowRange(img_y1, img_y2 + 1),
+//                            mask_image);
+//
+//                        cv::Mat image_z_buffer_x(h, w, CV_32S, c - rect_dtm.x());
+//                        image_z_buffer_x.copyTo(mX.colRange(img_x1, img_x2 + 1)
+//                            .rowRange(img_y1, img_y2 + 1),
+//                            mask_image);
+//                    }
+//                }
+//            }
+//            });
+//
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("Z-Buffer error");
+//    }
+//}
+
 void ZBuffer::run()
 {
     try {

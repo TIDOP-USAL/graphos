@@ -84,7 +84,7 @@ void CmvsPmvsTask::writeBundleFile()
 {
     try {
 
-        auto database = colmap::Database::Open(mDatabase.toUtf8());
+        auto database = colmap::Database::Open(mDatabase.toWString());
         const auto &colmap_images = database->ReadAllImages();
 
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
@@ -261,7 +261,7 @@ void CmvsPmvsTask::writeVisibility()
 
         ///////////////////////////////////////////////////////////////////////////////
         /// TODO: Repetido
-        auto database = colmap::Database::Open(mDatabase.toUtf8());
+        auto database = colmap::Database::Open(mDatabase.toWString());
         const auto &colmap_images = database->ReadAllImages();
 
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;

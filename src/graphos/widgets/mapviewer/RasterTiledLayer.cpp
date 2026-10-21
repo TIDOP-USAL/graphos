@@ -95,9 +95,10 @@ RasterTiledLayer::RasterTiledLayer(const QString &tifPath, bool dem)
 {
     setZValue(-1);
 
-    reader = std::make_unique<tl::RasterReader>(tifPath.toStdString());
+    tl::Path file_path(tifPath.toStdWString());
+    reader = std::make_unique<tl::RasterReader>(file_path);
     if (!reader->isOpen()) {
-        throw std::runtime_error("The GeoTIFF file could not be opened: " + tifPath.toStdString());
+        throw std::runtime_error("The GeoTIFF file could not be opened: " + file_path.toUtf8());
     }
     auto georeference = reader->georeference();
     mAffineImageToWorld = georeference.inverse();

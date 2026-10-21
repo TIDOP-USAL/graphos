@@ -55,13 +55,13 @@ void MatchViewerPresenterImp::setLeftImage(size_t imageId)
         tl::printException(std::runtime_error("Image not found"));
         return;
     }
-    mView->setLeftImage(QString::fromStdString(image->path().toString()));
+    mView->setLeftImage(QString::fromStdWString(image->path().toWString()));
 
     std::vector<std::pair<size_t, QString>> pairs;
     for (const auto &pair_id : mModel->imagePairs(imageId)) {
         const Image *pair_image = mModel->findImage(pair_id);
         if (pair_image) {
-            pairs.emplace_back(pair_id, QString::fromStdString(pair_image->path().toString()));
+            pairs.emplace_back(pair_id, QString::fromStdWString(pair_image->path().toWString()));
         }
     }
 
@@ -112,7 +112,7 @@ void MatchViewerPresenterImp::open()
 
     std::vector<std::pair<size_t, QString>> images;
     for (const auto &[image_id, image] : mModel->images()) {
-        images.emplace_back(image_id, QString::fromStdString(image.path().toString()));
+        images.emplace_back(image_id, QString::fromStdWString(image.path().toWString()));
     }
 
     if (!images.empty()) {

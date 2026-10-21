@@ -22,27 +22,10 @@
  ************************************************************************/
 
 #include "graphos/core/orientation/ColmapReconstructionConvert.h"
-//#include "graphos/core/sfm/orientationexport.h"
-//#include "graphos/core/orientation/GroundPoint.h"
-//#include "graphos/core/sfm/posesio.h"
-//#include "graphos/core/sfm/BundleAdjuster.h"
-//#include "graphos/core/camera/Camera.h"
-//#include "graphos/core/image/Image.h"
-//#include "graphos/core/camera/Colmap.h"
-//
-//#include <tidop/core/app/Message.h>
-//#include <tidop/core/base/Path.h>
-//#include <tidop/core/base/Chrono.h>
-//#include <tidop/core/task/Progress.h>
-//#include <tidop/math/algebra/rotations/RotationMatrix.h>
-//#include <tidop/math/algebra/rotation_convert.h>
+
 #include <tidop/geometry/primitives/Point.h>
 
 #include <colmap/scene/reconstruction.h>
-//#include <colmap/util/option_manager.h>
-//#include <colmap/util/misc.h>
-//#include <colmap/controllers/hierarchical_mapper.h>
-//#include <colmap/base/cost_functions.h>
 
 namespace graphos
 {

@@ -76,7 +76,7 @@ public:
 private:
 
     //std::vector<tl::WindowD> findGrid(const tl::Path &mdt, double gsd);
-    auto findGrid(int gridSize) const -> std::vector<std::vector<tl::BoundingBox2d>>;
+    auto findGrid(int gridSize, const tl::BoundingBox2d &bbox) const -> std::vector<std::vector<tl::BoundingBox2d>>;
 
 
 

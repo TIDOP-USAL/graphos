@@ -34,7 +34,7 @@ auto MatchingRepository::hasMatches() const -> bool
 {
     if (mDbPath.empty() || !mDbPath.exists()) return false;
 
-    if (auto database = colmap::Database::Open(mDbPath.toUtf8())) {
+    if (auto database = colmap::Database::Open(mDbPath.toWString())) {
         return database->NumMatches() > 0;
     }
 
@@ -45,7 +45,7 @@ auto MatchingRepository::hasInlierMatches() const -> bool
 {
     if (mDbPath.empty() || !mDbPath.exists()) return false;
 
-    if (auto database = colmap::Database::Open(mDbPath.toUtf8())) {
+    if (auto database = colmap::Database::Open(mDbPath.toWString())) {
         return database->NumInlierMatches() > 0;
     }
 
@@ -56,7 +56,7 @@ auto MatchingRepository::numMatches() const -> size_t
 {
     if (mDbPath.empty() || !mDbPath.exists()) return 0;
 
-    if (auto database = colmap::Database::Open(mDbPath.toUtf8())) {
+    if (auto database = colmap::Database::Open(mDbPath.toWString())) {
         return database->NumMatches();
     }
 
@@ -67,31 +67,31 @@ auto MatchingRepository::numInlierMatches() const -> size_t
 {
     if (mDbPath.empty() || !mDbPath.exists()) return 0;
 
-    if (auto database = colmap::Database::Open(mDbPath.toUtf8())) {
+    if (auto database = colmap::Database::Open(mDbPath.toWString())) {
         return database->NumInlierMatches();
     }
 
     return 0;
 }
 
-auto MatchingRepository::loadMatches(const std::string &imageNameLeft, 
-                                     const std::string &imageNameRight) const -> Matches
+auto MatchingRepository::loadMatches(const tl::Path &imageLeft,
+                                     const tl::Path &imageRight) const -> Matches
 {
     Matches matches;
 
     TL_ASSERT(mDbPath.exists(), "Database not found: {}", mDbPath.toString());
 
-    auto database = colmap::Database::Open(mDbPath.toUtf8());
+    auto database = colmap::Database::Open(mDbPath.toWString());
 
-    if (!database->ExistsImageWithName(imageNameLeft)) {
-        TL_THROW_EXCEPTION("Image not found in database: {}", imageNameLeft);
+    if (!database->ExistsImageWithName(imageLeft.toUtf8())) {
+        TL_THROW_EXCEPTION("Image not found in database: {}", imageLeft.toUtf8());
     }
-    if (!database->ExistsImageWithName(imageNameRight)) {
-        TL_THROW_EXCEPTION("Image not found in database: {}", imageNameRight);
+    if (!database->ExistsImageWithName(imageRight.toUtf8())) {
+        TL_THROW_EXCEPTION("Image not found in database: {}", imageRight.toUtf8());
     }
 
-    auto image_left = database->ReadImageWithName(imageNameLeft);
-    auto image_right = database->ReadImageWithName(imageNameRight);
+    auto image_left = database->ReadImageWithName(imageLeft.toUtf8());
+    auto image_right = database->ReadImageWithName(imageRight.toUtf8());
 
     if (image_left && image_right) {
 
@@ -123,20 +123,20 @@ auto MatchingRepository::loadMatches(const std::string &imageNameLeft,
     return matches;
 }
 
-auto MatchingRepository::imagePairs(const std::string &imageName) const -> std::vector<std::string>
+auto MatchingRepository::imagePairs(const tl::Path &image) const -> std::vector<tl::Path>
 {
-    std::vector<std::string> pairedImageNames;
+    std::vector<tl::Path> pairedImageNames;
 
     if (!mDbPath.exists()) return pairedImageNames;
 
-    auto database = colmap::Database::Open(mDbPath.toUtf8());
+    auto database = colmap::Database::Open(mDbPath.toWString());
 
-    if (!database->ExistsImageWithName(imageName)) {
+    if (!database->ExistsImageWithName(image.toUtf8())) {
         return pairedImageNames;
     }
 
     // 1. Obtener la imagen objetivo y su ID interno en COLMAP
-    const auto targetImage = database->ReadImageWithName(imageName);
+    const auto targetImage = database->ReadImageWithName(image.toUtf8());
     const colmap::image_t targetId = targetImage->ImageId();
 
     // 2. Crear un mapa local ID -> Name para resolver la ruta rápida al iterar las coincidencias
@@ -166,15 +166,15 @@ auto MatchingRepository::imagePairs(const std::string &imageName) const -> std::
     return pairedImageNames;
 }
 
-auto MatchingRepository::hasImagePairs(const std::string &imageName) const -> bool
+auto MatchingRepository::hasImagePairs(const tl::Path &image) const -> bool
 {
     if (mDbPath.empty() || !mDbPath.exists()) return false;
 
-    auto database = colmap::Database::Open(mDbPath.toUtf8());
-    const auto image = database->ReadImageWithName(imageName);
-    if (!image) return false;
+    auto database = colmap::Database::Open(mDbPath.toWString());
+    const auto img = database->ReadImageWithName(image.toUtf8());
+    if (!img) return false;
 
-    const colmap::image_t imageId = image->ImageId();
+    const colmap::image_t imageId = img->ImageId();
     for (const auto &[pairId, numInliers] : database->ReadTwoViewGeometryNumInliers()) {
         if (numInliers <= 0) continue;
 
@@ -187,13 +187,13 @@ auto MatchingRepository::hasImagePairs(const std::string &imageName) const -> bo
     return false;
 }
 
-auto MatchingRepository::imageNamesWithPairs() const -> std::unordered_set<std::string>
+auto MatchingRepository::imagesWithPairs() const -> std::unordered_set<std::string>
 {
-    std::unordered_set<std::string> imageNames;
+    std::unordered_set<std::string> image_pairs;
 
-    if (mDbPath.empty() || !mDbPath.exists()) return imageNames;
+    if (mDbPath.empty() || !mDbPath.exists()) return image_pairs;
 
-    auto database = colmap::Database::Open(mDbPath.toUtf8());
+    auto database = colmap::Database::Open(mDbPath.toWString());
     const auto images = database->ReadAllImages();
     const auto geometries = database->ReadTwoViewGeometryNumInliers();
 
@@ -208,14 +208,14 @@ auto MatchingRepository::imageNamesWithPairs() const -> std::unordered_set<std::
 
         const auto [imageId1, imageId2] = colmap::PairIdToImagePair(pairId);
         if (const auto image = imageNamesById.find(imageId1); image != imageNamesById.end()) {
-            imageNames.insert(image->second);
+            image_pairs.insert(image->second);
         }
         if (const auto image = imageNamesById.find(imageId2); image != imageNamesById.end()) {
-            imageNames.insert(image->second);
+            image_pairs.insert(image->second);
         }
     }
 
-    return imageNames;
+    return image_pairs;
 }
 
 void MatchingRepository::clear()
@@ -227,7 +227,7 @@ void MatchingRepository::removeMatches()
 {
     if (mDbPath.empty() || !mDbPath.exists()) return;
 
-    if (auto database = colmap::Database::Open(mDbPath.toUtf8())) {
+    if (auto database = colmap::Database::Open(mDbPath.toWString())) {
         database->ClearMatches();
         database->ClearTwoViewGeometries();
         database->Close();

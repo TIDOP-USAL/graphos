@@ -121,10 +121,10 @@ auto MatchViewerModelImp::imagePairs(size_t imageId) const -> std::vector<size_t
     
     const Image *image = mProject->images().find(imageId);
     if (image) {
-        std::vector<std::string> pair_names = mProject->matches().imagePairs(image->path().toString());
+        auto pair_names = mProject->matches().imagePairs(image->path());
         for (const auto &pair_name : pair_names) {
             for (const auto &img_pair : mProject->images()) {
-                if (img_pair.second.path().toString() == pair_name) {
+                if (img_pair.second.path().compare(pair_name) == 0) {
                     image_pairs.push_back(img_pair.first);
                     break;
                 }
@@ -149,17 +149,17 @@ auto MatchViewerModelImp::loadMatches(size_t imageId1, size_t imageId2) const ->
 
     TL_ASSERT(database_path.exists(), "Database not found");
 
-    auto database = colmap::Database::Open(database_path.toUtf8());
+    auto database = colmap::Database::Open(database_path.toWString());
 
-    if (!database->ExistsImageWithName(image_left->path().toString()))
+    if (!database->ExistsImageWithName(image_left->path().toUtf8()))
         throw std::runtime_error(std::string("Image not found in database: ").append(image_left->name().toStdString()));
-    if (!database->ExistsImageWithName(image_right->path().toString()))
+    if (!database->ExistsImageWithName(image_right->path().toUtf8()))
         throw std::runtime_error(std::string("Image not found in database: ").append(image_right->name().toStdString()));
 
-    if (auto image_left_colmap = database->ReadImageWithName(image_left->path().toString())) {
+    if (auto image_left_colmap = database->ReadImageWithName(image_left->path().toUtf8())) {
         colmap::image_t image_left_id = image_left_colmap->ImageId();
         
-        if (auto image_right_colmap = database->ReadImageWithName(image_right->path().toString())) {
+        if (auto image_right_colmap = database->ReadImageWithName(image_right->path().toUtf8())) {
             colmap::image_t image_right_id = image_right_colmap->ImageId();
 
             if (image_left_id > 0 && image_right_id > 0) {
@@ -191,5 +191,4 @@ void MatchViewerModelImp::clear()
 }
 
 } // namespace graphos
-
 

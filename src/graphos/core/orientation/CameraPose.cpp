@@ -24,7 +24,6 @@
 #include "graphos/core/orientation/CameraPose.h"
 
 #include <tidop/core/base/Path.h>
-//#include <tidop/math/algebra/rotation_convert.h>
 
 namespace graphos
 {
@@ -149,19 +148,6 @@ void CameraPose::setAccuracy(const tl::Vector3d &accuracy)
 
 auto CameraPose::quaternion() const -> tl::Quaternion<double>
 {
-    //tl::Quaternion<double> quaternion = tl::Quaternion<double>::zero();
-
-    //if (mRotation) {
-
-    //    Orientation::Type type = mRotation->type();
-    //    if (type == Orientation::Type::quaternion) {
-    //        quaternion = *dynamic_cast<Quaterniond *>(mRotation.get());
-    //    } else if (type == Orientation::Type::rotation_matrix) {
-    //        RotationConverter<double>::convert(*dynamic_cast<RotationMatrix<double> *>(mRotation.get()), quaternion);
-    //    }
-
-    //}
-
     return mRotation;
 }
 
