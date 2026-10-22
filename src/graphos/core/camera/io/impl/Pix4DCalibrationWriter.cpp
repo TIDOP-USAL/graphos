@@ -59,20 +59,28 @@ void Pix4DCalibrationWriter::write(const tl::Path &path,
                      calibration->parameter(Calibration::Parameters::focal) :
                      (calibration->parameter(Calibration::Parameters::focalx) + calibration->parameter(Calibration::Parameters::focaly)) / 2.;
         focal *= scale;
+        auto px = calibration->parameter(Calibration::Parameters::cx) * scale;
+        auto py = calibration->parameter(Calibration::Parameters::cy) * scale;
+        auto k1 = (calibration->existParameter(Calibration::Parameters::k1) ? calibration->parameter(Calibration::Parameters::k1) : 0.0);
+        auto k2 = (calibration->existParameter(Calibration::Parameters::k2) ? calibration->parameter(Calibration::Parameters::k2) : 0.0);
+        auto k3 = (calibration->existParameter(Calibration::Parameters::k3) ? calibration->parameter(Calibration::Parameters::k3) : 0.0);
+        auto t1 = (calibration->existParameter(Calibration::Parameters::p1) ? calibration->parameter(Calibration::Parameters::p1) : 0.0);
+        auto t2 = (calibration->existParameter(Calibration::Parameters::p2) ? calibration->parameter(Calibration::Parameters::p2) : 0.0);
 
         out << "Pix4D camera calibration file 0\n";
         out << "#Focal Length mm assuming a sensor width of " << w << "x" << h << "mm\n";
-        out << "F " << focal << "\n";
-        out << "#Principal Point mm\n";
-        out << "Px " << calibration->parameter(Calibration::Parameters::cx) * scale << "\n";
-        out << "Py " << calibration->parameter(Calibration::Parameters::cy) * scale << "\n";
-        out << "#Symmetrical Lens Distortion Coeffs\n";
-        out << "K1 " << (calibration->existParameter(Calibration::Parameters::k1) ? calibration->parameter(Calibration::Parameters::k1) : 0.0) << "\n";
-        out << "K2 " << (calibration->existParameter(Calibration::Parameters::k2) ? calibration->parameter(Calibration::Parameters::k2) : 0.0) << "\n";
-        out << "K3 " << (calibration->existParameter(Calibration::Parameters::k3) ? calibration->parameter(Calibration::Parameters::k3) : 0.0) << "\n";
-        out << "#Tangential Lens Distortion Coeffs\n";
-        out << "T1 " << (calibration->existParameter(Calibration::Parameters::p1) ? calibration->parameter(Calibration::Parameters::p1) : 0.0) << "\n";
-        out << "T2 " << (calibration->existParameter(Calibration::Parameters::p2) ? calibration->parameter(Calibration::Parameters::p2) : 0.0) << "\n";
+        out << std::fixed << std::setprecision(10)
+            << "F " << focal << "\n"
+            << "#Principal Point mm\n"
+            << "Px " << px << "\n"
+            << "Py " << py << "\n"
+            << "#Symmetrical Lens Distortion Coeffs\n"
+            << "K1 " << k1 << "\n"
+            << "K2 " << k2 << "\n"
+            << "K3 " << k3 << "\n"
+            << "#Tangential Lens Distortion Coeffs\n"
+            << "T1 " << t1 << "\n"
+            << "T2 " << t2 << "\n";
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Failed to write Pix4D calibration file: {}", path.toUtf8());

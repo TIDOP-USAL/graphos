@@ -279,7 +279,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorF, 1, 0, 1, 1);
     mDoubleSpinBoxPriorF = new QDoubleSpinBox(mGroupBoxPriorCalibration );
     mDoubleSpinBoxPriorF->setRange(0., 100000.);
-    mDoubleSpinBoxPriorF->setDecimals(8);
+    mDoubleSpinBoxPriorF->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorF, 1, 1, 1, 3);
 
     mLabelPriorFx = new QLabel(mGroupBoxPriorCalibration );
@@ -287,7 +287,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorFx, 1, 0, 1, 1);
     mDoubleSpinBoxPriorFx = new QDoubleSpinBox(mGroupBoxPriorCalibration );
     mDoubleSpinBoxPriorFx->setRange(0., 100000.);
-    mDoubleSpinBoxPriorFx->setDecimals(8);
+    mDoubleSpinBoxPriorFx->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorFx, 1, 1, 1, 1);
 
     mLabelPriorFy = new QLabel(mGroupBoxPriorCalibration );
@@ -295,7 +295,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorFy, 1, 2, 1, 1);
     mDoubleSpinBoxPriorFy = new QDoubleSpinBox(mGroupBoxPriorCalibration );
     mDoubleSpinBoxPriorFy->setRange(0., 100000.);
-    mDoubleSpinBoxPriorFy->setDecimals(8);
+    mDoubleSpinBoxPriorFy->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorFy, 1, 3, 1, 1);
 
     mLabelPriorCx = new QLabel(mGroupBoxPriorCalibration );
@@ -303,7 +303,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorCx, 2, 0, 1, 1);
     mDoubleSpinBoxPriorCx = new QDoubleSpinBox(mGroupBoxPriorCalibration );
     mDoubleSpinBoxPriorCx->setRange(-100000., 100000.);
-    mDoubleSpinBoxPriorCx->setDecimals(8);
+    mDoubleSpinBoxPriorCx->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorCx, 2, 1, 1, 1);
 
     mLabelPriorCy = new QLabel(mGroupBoxPriorCalibration );
@@ -311,7 +311,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorCy, 2, 2, 1, 1);
     mDoubleSpinBoxPriorCy = new QDoubleSpinBox(mGroupBoxPriorCalibration );
     mDoubleSpinBoxPriorCy->setRange(-100000., 100000.);
-    mDoubleSpinBoxPriorCy->setDecimals(8);
+    mDoubleSpinBoxPriorCy->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorCy, 2, 3, 1, 1);
 
     mLabelPriorK1 = new QLabel(mGroupBoxPriorCalibration );
@@ -319,7 +319,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorK1, 4, 0, 1, 1);
     mDoubleSpinBoxPriorK1 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
     mDoubleSpinBoxPriorK1->setRange(-100000., 100000.);
-    mDoubleSpinBoxPriorK1->setDecimals(8);
+    mDoubleSpinBoxPriorK1->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorK1, 4, 1, 1, 1);
 
     mLabelPriorK2 = new QLabel(mGroupBoxPriorCalibration );
@@ -327,7 +327,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorK2, 4, 2, 1, 1);
     mDoubleSpinBoxPriorK2 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
     mDoubleSpinBoxPriorK2->setRange(-100000., 100000.);
-    mDoubleSpinBoxPriorK2->setDecimals(8);
+    mDoubleSpinBoxPriorK2->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorK2, 4, 3, 1, 1);
 
     mLabelPriorK3 = new QLabel(mGroupBoxPriorCalibration );
@@ -335,7 +335,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorK3, 6, 0, 1, 1);
     mDoubleSpinBoxPriorK3 = new QDoubleSpinBox(mGroupBoxPriorCalibration);
     mDoubleSpinBoxPriorK3->setRange(-100000., 100000.);
-    mDoubleSpinBoxPriorK3->setDecimals(8);
+    mDoubleSpinBoxPriorK3->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorK3, 6, 1, 1, 1);
 
     mLabelPriorK4 = new QLabel(mGroupBoxPriorCalibration );
@@ -343,7 +343,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorK4, 6, 2, 1, 1);
     mDoubleSpinBoxPriorK4 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
     mDoubleSpinBoxPriorK4->setRange(-100000., 100000.);
-    mDoubleSpinBoxPriorK4->setDecimals(8);
+    mDoubleSpinBoxPriorK4->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorK4, 6, 3, 1, 1);
 
     mLabelPriorK5 = new QLabel(mGroupBoxPriorCalibration );
@@ -351,7 +351,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorK5, 7, 0, 1, 1);
     mDoubleSpinBoxPriorK5 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
     mDoubleSpinBoxPriorK5->setRange(-100000., 100000.);
-    mDoubleSpinBoxPriorK5->setDecimals(8);
+    mDoubleSpinBoxPriorK5->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorK5, 7, 1, 1, 1);
 
     mLabelPriorK6 = new QLabel(mGroupBoxPriorCalibration );
@@ -359,7 +359,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorK6, 7, 2, 1, 1);
     mDoubleSpinBoxPriorK6 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
     mDoubleSpinBoxPriorK6->setRange(-100000., 100000.);
-    mDoubleSpinBoxPriorK6->setDecimals(8);
+    mDoubleSpinBoxPriorK6->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorK6, 7, 3, 1, 1);
 
     mLabelPriorP1 = new QLabel(mGroupBoxPriorCalibration );
@@ -367,7 +367,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorP1, 8, 0, 1, 1);
     mDoubleSpinBoxPriorP1 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
     mDoubleSpinBoxPriorP1->setRange(-100000., 100000.);
-    mDoubleSpinBoxPriorP1->setDecimals(8);
+    mDoubleSpinBoxPriorP1->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorP1, 8, 1, 1, 1);
 
     mLabelPriorP2 = new QLabel(mGroupBoxPriorCalibration );
@@ -375,7 +375,7 @@ void CamerasViewImp::initUI()
     grid_layout_prior_calibration->addWidget(mLabelPriorP2, 8, 2, 1, 1);
     mDoubleSpinBoxPriorP2 = new QDoubleSpinBox(mGroupBoxPriorCalibration );
     mDoubleSpinBoxPriorP2->setRange(-100000., 100000.);
-    mDoubleSpinBoxPriorP2->setDecimals(8);
+    mDoubleSpinBoxPriorP2->setDecimals(10);
     grid_layout_prior_calibration->addWidget(mDoubleSpinBoxPriorP2, 8, 3, 1, 1);
 
     tabCalibLayout->addWidget(mGroupBoxPriorCalibration );

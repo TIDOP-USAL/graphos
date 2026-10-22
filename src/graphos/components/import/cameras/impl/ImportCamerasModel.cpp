@@ -29,15 +29,8 @@
 #include <tidop/core/base/Split.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geometry/primitives/Point.h>
-//#include <tidop/math/math.h>
 #include <tidop/math/algebra/rotations/EulerAngles.h>
 #include <tidop/math/algebra/rotations/Quaternion.h>
-//#include <tidop/math/algebra/euler_angles.h>
-//#include <tidop/math/algebra/rotations/Quaternion.h>
-
-///TODO: Esto no deber�a estar aqui
-//#include <colmap/scene/database.h>
-///
 
 #include <QStandardItemModel>
 #include <QTextStream>
@@ -73,7 +66,7 @@ auto ImportCamerasModelImp::itemModelFormatCameras() -> QStandardItemModel*
     return mItemModelCameras;
 }
 
-void ImportCamerasModelImp::setCsvFile(const QString &csv)
+void ImportCamerasModelImp::setCsvFile(const tl::Path &csv)
 {
     mCsvFile = csv;
 }
@@ -101,7 +94,7 @@ void ImportCamerasModelImp::previewImportCameras()
 {
     mItemModelCSV->clear();
 
-    QFile file(mCsvFile);
+    QFile file(QString::fromStdWString(mCsvFile.toWString()));
     if (file.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream stream(&file);
         if (mIniLine) {
@@ -250,7 +243,7 @@ void ImportCamerasModelImp::previewImportCamerasFormated()
             mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z");
         }
 
-        QFile file(mCsvFile);
+        QFile file(QString::fromStdWString(mCsvFile.toWString()));
         if (file.open(QFile::ReadOnly | QFile::Text)) {
             QTextStream stream(&file);
             if (mIniLine) {
@@ -613,7 +606,7 @@ void ImportCamerasModelImp::setCrs(const QString &crs)
 void ImportCamerasModelImp::importCameras()
 {
 
-    QFile file(mCsvFile);
+    QFile file(QString::fromStdWString(mCsvFile.toWString()));
     if (file.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream stream(&file);
         if (mIniLine) {
@@ -776,7 +769,7 @@ void ImportCamerasModelImp::importCameras()
                 if (image_path.equivalent(image_path2)) {
 
                     CameraPose camera_pose;
-                    camera_pose.setSource(mCsvFile);
+                    camera_pose.setSource(QString::fromStdWString(mCsvFile.toWString()));
                     //if (bTrfCrs) {
                     //    tl::CrsTransform crs_trf(crs_in, crs_out);
 
@@ -852,12 +845,12 @@ struct ImageData
     std::string image_name;
 };
 
-void ImportCamerasModelImp::importCamerasFromMRK(const QString &file)
+void ImportCamerasModelImp::importCamerasFromMRK(const tl::Path &file)
 {
     try {
 
-        std::ifstream stream(file.toStdString());
-        TL_ASSERT(stream.is_open(), "Error when opening the file {}", file.toStdString());
+        std::ifstream stream(file.toString());
+        TL_ASSERT(stream.is_open(), "Error when opening the file {}", file.toUtf8());
 
         std::string line;
         while (std::getline(stream, line)) {
@@ -924,7 +917,7 @@ void ImportCamerasModelImp::importCamerasFromMRK(const QString &file)
                     tl::Point3d pt(entry.longitude, entry.latitude, entry.height);
 
                     CameraPose camera_pose;
-                    camera_pose.setSource(file);
+                    camera_pose.setSource(QString::fromStdWString(file.toWString()));
                     camera_pose.setPosition(pt);
                     camera_pose.setCrs("EPSG:4326");
                     camera_pose.setAccuracy({entry.std_dev_east, entry.std_dev_north, entry.std_dev_vertical});

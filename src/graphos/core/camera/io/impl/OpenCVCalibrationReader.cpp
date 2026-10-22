@@ -35,7 +35,7 @@ void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera, bool pr
 {
     try {
 
-        QFile file(QString::fromStdString(path.toString()));
+        QFile file(QString::fromStdWString(path.toWString()));
         TL_ASSERT(file.open(QIODevice::ReadOnly | QIODevice::Text), "Unable to open OpenCV calibration file.");
 
         QXmlStreamReader stream(&file);
@@ -68,12 +68,6 @@ void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera, bool pr
                         cx = values[2].toDouble() - 0.5;
                         fy = values[4].toDouble();
                         cy = values[5].toDouble() - 0.5;
-
-                        //calibration->setParameter(Calibration::Parameters::focal, (fx + fy) / 2.0);
-                        //calibration->setParameter(Calibration::Parameters::focalx, fx);
-                        //calibration->setParameter(Calibration::Parameters::focaly, fy);
-                        //calibration->setParameter(Calibration::Parameters::cx, cx);
-                        //calibration->setParameter(Calibration::Parameters::cy, cy);
 
                     } else {
                         stream.skipCurrentElement();
@@ -143,38 +137,36 @@ void OpenCVCalibrationReader::read(const tl::Path &path, Camera &camera, bool pr
         calibration->setParameter(Calibration::Parameters::cx, cx);
         calibration->setParameter(Calibration::Parameters::cy, cy);
 
-        if (distortion_coefficients[0] > 0.)
+        if (distortion_coefficients.size() > 0)
             calibration->setParameter(Calibration::Parameters::k1, distortion_coefficients[0]);
 
-        if (distortion_coefficients[1] > 0.)
+        if (distortion_coefficients.size() > 1)
             calibration->setParameter(Calibration::Parameters::k2, distortion_coefficients[1]);
 
         if (calibration->checkCameraType(Calibration::CameraType::fisheye)) {
 
-            if (distortion_coefficients[2] > 0.)
+            if (distortion_coefficients.size() > 2)
                 calibration->setParameter(Calibration::Parameters::k3, distortion_coefficients[2]);
-            if (distortion_coefficients[3] > 0.)
+            if (distortion_coefficients.size() > 3)
                 calibration->setParameter(Calibration::Parameters::k4, distortion_coefficients[3]);
 
         } else {
 
-            if (distortion_coefficients[2] > 0.)
+            if (distortion_coefficients.size() > 2)
                 calibration->setParameter(Calibration::Parameters::p1, distortion_coefficients[2]);
-            if (distortion_coefficients[3] > 0.)
+            if (distortion_coefficients.size() > 3)
                 calibration->setParameter(Calibration::Parameters::p2, distortion_coefficients[3]);
         }
 
         if (distortion_coefficients.size() > 4 && distortion_coefficients[4] > 0.)
             calibration->setParameter(Calibration::Parameters::k3, distortion_coefficients[4]);
 
-        if (distortion_coefficients.size() > 5) {
-            if (distortion_coefficients[5] > 0.)
-                calibration->setParameter(Calibration::Parameters::k4, distortion_coefficients[5]);
-            if (distortion_coefficients[6] > 0.)
-                calibration->setParameter(Calibration::Parameters::k5, distortion_coefficients[6]);
-            if (distortion_coefficients[7] > 0.)
-                calibration->setParameter(Calibration::Parameters::k6, distortion_coefficients[7]);
-        }
+        if (distortion_coefficients.size() > 5)
+            calibration->setParameter(Calibration::Parameters::k4, distortion_coefficients[5]);
+        if (distortion_coefficients.size() > 6)
+            calibration->setParameter(Calibration::Parameters::k5, distortion_coefficients[6]);
+        if (distortion_coefficients.size() > 7)
+            calibration->setParameter(Calibration::Parameters::k6, distortion_coefficients[7]);
 
         if (prior)
             camera.setPriorCalibration(calibration);

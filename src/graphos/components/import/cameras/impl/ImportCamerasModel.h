@@ -49,12 +49,12 @@ public:
 
     auto itemModelCSV() -> QStandardItemModel* override;
     auto itemModelFormatCameras() -> QStandardItemModel* override;
-    //auto checkCRS(const QString& crs) -> bool override;
-    //auto outputCRS() const -> QString override;
+
+    void setCsvFile(const tl::Path &csv) override;
+    void importCamerasFromMRK(const tl::Path &file) override;
 
 public slots:
 
-    void setCsvFile(const QString &csv) override;
     void previewImportCameras() override;
     void previewImportCamerasFormated() override;
     void loadCameras() override;
@@ -80,7 +80,6 @@ public slots:
     void setCrs(const QString &crs) override;
     //void writePriorPoses();
     void importCameras() override;
-    void importCamerasFromMRK(const QString &file) override;
 
 // Model interface
 
@@ -95,7 +94,7 @@ public slots:
 protected:
 
     Project *mProject;
-    QString mCsvFile;
+    tl::Path mCsvFile;
     bool bFieldNamesFromFirstRow;
     QString mDelimiter;
     int mIniLine;

@@ -34,7 +34,7 @@ void AgisoftCalibrationReader::read(const tl::Path &path, Camera &camera, bool p
 {
     try {
 
-        QFile input(QString::fromStdString(path.toString()));
+        QFile input(QString::fromStdWString(path.toWString()));
         TL_ASSERT(input.open(QIODevice::ReadOnly | QIODevice::Text), "Unable to open Agisoft calibration file.");
 
         QXmlStreamReader stream(&input);
@@ -55,7 +55,7 @@ void AgisoftCalibrationReader::read(const tl::Path &path, Camera &camera, bool p
             QString text = stream.readElementText();
 
             if (name == "projection") {
-                projection = stream.readElementText();
+                projection = text;
             } else if (name == "width") {
                 width = text.toInt();
             } else if (name == "height") {
@@ -83,7 +83,7 @@ void AgisoftCalibrationReader::read(const tl::Path &path, Camera &camera, bool p
             }
         }
 
-        TL_ASSERT(projection.isEmpty(), "Missing projection type in Agisoft calibration file.");
+        TL_ASSERT(!projection.isEmpty(), "Missing projection type in Agisoft calibration file.");
 
         std::shared_ptr<Calibration> calibration;
         if (projection == "frame") {

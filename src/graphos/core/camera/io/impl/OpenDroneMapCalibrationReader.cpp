@@ -36,7 +36,7 @@ void OpenDroneMapCalibrationReader::read(const tl::Path &path, Camera &camera, b
 {
     try {
 
-        QFile file(QString::fromStdString(path.toString()));
+        QFile file(QString::fromStdWString(path.toWString()));
         TL_ASSERT(file.open(QIODevice::ReadOnly | QIODevice::Text), "Unable to open OpenDroneMap calibration file: {}", path.toUtf8());
 
         QByteArray data = file.readAll();

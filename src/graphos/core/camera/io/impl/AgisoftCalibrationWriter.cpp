@@ -47,7 +47,7 @@ void AgisoftCalibrationWriter::write(const tl::Path &path,
 
         TL_ASSERT(calibration != nullptr, "No calibration data to write.");
 
-        QFile file(QString::fromStdString(path.toString()));
+        QFile file(QString::fromStdWString(path.toWString()));
         TL_ASSERT(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate), "Unable to open file for writing.");
 
         QTextStream stream(&file);
@@ -66,38 +66,46 @@ void AgisoftCalibrationWriter::write(const tl::Path &path,
 
         stream << "  <width>" << width << "</width>\n";
         stream << "  <height>" << height << "</height>\n";
-        stream << "  <f>" << focal << "</f>\n";
+        stream << "  <f>" << QString::number(focal, 'f', 10) << "</f>\n";
 
         if (calibration->existParameter(Calibration::Parameters::cx)) {
-            stream << "  <cx>" << static_cast<double>(camera.width()) / 2. - calibration->parameter(Calibration::Parameters::cx) << "</cx>\n";
+            auto cx = static_cast<double>(camera.width()) / 2. - calibration->parameter(Calibration::Parameters::cx);
+            stream << "  <cx>" << QString::number(cx, 'f', 10) << "</cx>\n";
         }
 
         if (calibration->existParameter(Calibration::Parameters::cy)) {
-            stream << "  <cy>" << static_cast<double>(camera.height()) / 2. - calibration->parameter(Calibration::Parameters::cy) << "</cy>\n";
+            auto cy = static_cast<double>(camera.height()) / 2. - calibration->parameter(Calibration::Parameters::cy);
+            stream << "  <cy>" << QString::number(cy, 'f', 10) << "</cy>\n";
         }
 
         if (calibration->existParameter(Calibration::Parameters::k1)) {
-            stream << "  <k1>" << calibration->parameter(Calibration::Parameters::k1) << "</k1>\n";
+            auto k1 = calibration->parameter(Calibration::Parameters::k1);
+            stream << "  <k1>" << QString::number(k1, 'f', 10) << "</k1>\n";
         }
 
         if (calibration->existParameter(Calibration::Parameters::k2)) {
-            stream << "  <k2>" << calibration->parameter(Calibration::Parameters::k2) << "</k2>\n";
+            auto k2 = calibration->parameter(Calibration::Parameters::k2);
+            stream << "  <k2>" << QString::number(k2, 'f', 10) << "</k2>\n";
         }
 
         if (calibration->existParameter(Calibration::Parameters::k3)) {
-            stream << "  <k3>" << calibration->parameter(Calibration::Parameters::k3) << "</k3>\n";
+            auto k3 = calibration->parameter(Calibration::Parameters::k3);
+            stream << "  <k3>" << QString::number(k3, 'f', 10) << "</k3>\n";
         }
 
         if (calibration->existParameter(Calibration::Parameters::k4)) {
-            stream << "  <k4>" << calibration->parameter(Calibration::Parameters::k4) << "</k4>\n";
+            auto k4 = calibration->parameter(Calibration::Parameters::k4);
+            stream << "  <k4>" << QString::number(k4, 'f', 10) << "</k4>\n";
         }
 
         if (calibration->existParameter(Calibration::Parameters::p1)) {
-            stream << "  <p1>" << calibration->parameter(Calibration::Parameters::p1) << "</p1>\n";
+            auto p1 = calibration->parameter(Calibration::Parameters::p1);
+            stream << "  <p1>" << QString::number(p1, 'f', 10) << "</p1>\n";
         }
 
         if (calibration->existParameter(Calibration::Parameters::p2)) {
-            stream << "  <p2>" << calibration->parameter(Calibration::Parameters::p2) << "</p2>\n";
+            auto p2 = calibration->parameter(Calibration::Parameters::p2);
+            stream << "  <p2>" << QString::number(p2, 'f', 10) << "</p2>\n";
         }
 
         stream << "  <date></date>\n";

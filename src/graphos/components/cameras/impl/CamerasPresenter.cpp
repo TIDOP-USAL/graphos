@@ -25,7 +25,6 @@
 
 #include "graphos/components/cameras/CamerasModel.h"
 #include "graphos/components/cameras/CamerasView.h"
-//#include "graphos/core/image/Image.h"
 #include "graphos/core/camera/CameraRepository.h"
 
 #include <tidop/core/app/Message.h>
@@ -62,7 +61,6 @@ void CamerasPresenterImp::initSignalAndSlots()
     connect(mView, &CamerasView::priorCalibrationImport, this, &CamerasPresenterImp::priorCalibrationImport);
     connect(mView, &CamerasView::priorCalibrationExport, mModel, &CamerasModel::priorCalibrationExport);
     connect(mView, &CamerasView::adjustCalibrationExport, mModel, &CamerasModel::adjustCalibrationExport);
-    //connect(mView, &CamerasView::fixCalibration, this, &CamerasPresenterImp::fixCalibration);
 
     connect(mView, &CamerasView::typeChange, mModel, &CamerasModel::updateCurrentCameraType);
     connect(mView, &CamerasView::makeChanged, mModel, &CamerasModel::updateCurrentCameraMake);

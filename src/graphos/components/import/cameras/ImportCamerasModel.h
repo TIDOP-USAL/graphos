@@ -25,6 +25,8 @@
 
 #include "graphos/framework/mvp/Model.h"
 
+#include <tidop/core/base/Path.h>
+
 class QStandardItemModel;
 
 namespace graphos
@@ -43,12 +45,12 @@ public:
 
     virtual auto itemModelCSV() -> QStandardItemModel* = 0;
     virtual auto itemModelFormatCameras() -> QStandardItemModel* = 0;
-    //virtual auto checkCRS(const QString& crs) -> bool = 0;
-    //virtual auto outputCRS() const -> QString = 0;
+
+    virtual void setCsvFile(const tl::Path &csv) = 0;
+    virtual void importCamerasFromMRK(const tl::Path &file) = 0;
 
 public slots:
 
-    virtual void setCsvFile(const QString &csv) = 0;
     virtual void previewImportCameras() = 0;
     virtual void previewImportCamerasFormated() = 0;
     virtual void loadCameras() = 0;
@@ -73,7 +75,7 @@ public slots:
     virtual void setKappaFieldId(int id) = 0;
     virtual void setCrs(const QString &crs) = 0;
     virtual void importCameras() = 0;
-    virtual void importCamerasFromMRK(const QString &file) = 0;
+
 
 signals:
 

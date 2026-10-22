@@ -24,8 +24,6 @@
 #include "graphos/core/camera/io/impl/OpenDroneMapCalibrationWriter.h"
 #include "graphos/core/camera/Calibration.h"
 
-#include <QJsonObject>
-#include <QJsonDocument>
 #include <QFile>
 #include <QTextStream>
 
@@ -37,8 +35,6 @@ void OpenDroneMapCalibrationWriter::write(const tl::Path &path,
                                           bool prior)
 {
     try {
-
-        QJsonObject odmCameras;
 
         std::shared_ptr<Calibration> calibration;
         if (prior)
@@ -81,37 +77,9 @@ void OpenDroneMapCalibrationWriter::write(const tl::Path &path,
                             .arg(width)
                             .arg(height)
                             .arg(odmModel)
-                            .arg(focal_ratio, 0, 'f', 4);
-
-        //QJsonObject cameraObj;
-        //cameraObj["projection_type"] = odmModel;
-        //cameraObj["width"] = width;
-        //cameraObj["height"] = height;
-        //cameraObj["focal_x"] = fx / width;
-        //cameraObj["focal_y"] = fy / height;
-        //cameraObj["c_x"] = (cx / width) - 0.5;
-        //cameraObj["c_y"] = (cy / height) - 0.5;
-
-        //if (odmModel == "brown" || odmModel == "fisheye_opencv") {
-        //    cameraObj["k1"] = k1;
-        //    cameraObj["k2"] = k2;
-        //    cameraObj["p1"] = p1;
-        //    cameraObj["p2"] = p2;
-        //    cameraObj["k3"] = k3;
-        //}
-
-        //odmCameras.insert(key, cameraObj);
-
-        //QJsonDocument doc(odmCameras);
-
-
-        //QFile file(QString::fromStdString(path.toString()));
-        //TL_ASSERT(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate), "Unable to open file for writing.");
-
-        //file.write(doc.toJson(QJsonDocument::Indented));
-        //file.close();       
+                            .arg(focal_ratio, 0, 'f', 10);     
         
-        QFile file(QString::fromStdString(path.toString()));
+        QFile file(QString::fromStdWString(path.toWString()));
         TL_ASSERT(file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text), "Unable to open file for writing.");
 
         QTextStream out(&file);
@@ -119,22 +87,27 @@ void OpenDroneMapCalibrationWriter::write(const tl::Path &path,
         out.setRealNumberNotation(QTextStream::FixedNotation);
         out.setRealNumberPrecision(8);
 
+        double focal_x = fx / static_cast<double>(width);
+        double focal_y = fy / static_cast<double>(height);
+        double c_x = ((cx / static_cast<double>(width)) - 0.5);
+        double c_y = ((cy / static_cast<double>(height)) - 0.5);
+
         out << "{\n";
         out << "  \"" << key << "\": {\n";
         out << "    \"projection_type\": \"" << odmModel << "\",\n";
         out << "    \"width\": " << width << ",\n";
         out << "    \"height\": " << height << ",\n";
-        out << "    \"focal_x\": " << (fx / width) << ",\n";
-        out << "    \"focal_y\": " << (fy / height) << ",\n";
-        out << "    \"c_x\": " << ((cx / width) - 0.5) << ",\n";
-        out << "    \"c_y\": " << ((cy / height) - 0.5);
+        out << "    \"focal_x\": " << QString::number(focal_x, 'f', 10) << ",\n";
+        out << "    \"focal_y\": " << QString::number(focal_y, 'f', 10) << ",\n";
+        out << "    \"c_x\": " << QString::number(c_x, 'f', 10) << ",\n";
+        out << "    \"c_y\": " << QString::number(c_y, 'f', 10);
 
         if (odmModel == "brown" || odmModel == "fisheye") {
-            out << ",\n    \"k1\": " << k1
-                << ",\n    \"k2\": " << k2
-                << ",\n    \"p1\": " << p1
-                << ",\n    \"p2\": " << p2
-                << ",\n    \"k3\": " << k3;
+            out << ",\n    \"k1\": " << QString::number(k1, 'f', 10)
+                << ",\n    \"k2\": " << QString::number(k2, 'f', 10)
+                << ",\n    \"p1\": " << QString::number(p1, 'f', 10)
+                << ",\n    \"p2\": " << QString::number(p2, 'f', 10)
+                << ",\n    \"k3\": " << QString::number(k3, 'f', 10);
         }
 
         out << "\n  }\n";

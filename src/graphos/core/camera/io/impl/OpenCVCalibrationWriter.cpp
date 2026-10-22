@@ -46,7 +46,7 @@ void OpenCVCalibrationWriter::write(const tl::Path &path,
 
         TL_ASSERT(calibration != nullptr, "No calibration data to write.");
 
-        QFile file(QString::fromStdString(path.toString()));
+        QFile file(QString::fromStdWString(path.toWString()));
         TL_ASSERT(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate), "Unable to open file for writing.");
 
         QTextStream stream(&file);
@@ -83,8 +83,8 @@ void OpenCVCalibrationWriter::write(const tl::Path &path,
         stream << "  <cols>3</cols>\n";
         stream << "  <dt>d</dt>\n";
         stream << "  <data>\n";
-        stream << "    " << fx << " 0. " << cx << "\n";
-        stream << "    0. " << fy << " " << cy << "\n";
+        stream << "    " << QString::number(fx, 'f', 10) << " 0. " << QString::number(cx, 'f', 10) << "\n";
+        stream << "    0. " << QString::number(fy, 'f', 10) << " " << QString::number(cy, 'f', 10) << "\n";
         stream << "    0. 0. 1.\n";
         stream << "  </data>\n";
         stream << "</camera_matrix>\n";
@@ -166,7 +166,7 @@ void OpenCVCalibrationWriter::write(const tl::Path &path,
         stream << "  <dt>d</dt>\n";
         stream << "  <data>\n";
         for (const auto coefficient : distortions_coefficients) {
-            stream << "    " << QString::number(coefficient, 'e', 8) << "\n";
+            stream << "    " << QString::number(coefficient, 'f', 10) << "\n";
         }
         stream << "  </data>\n";
         stream << "</distortion_coefficients>\n";

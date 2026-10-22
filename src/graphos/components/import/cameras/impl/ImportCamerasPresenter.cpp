@@ -78,7 +78,7 @@ void ImportCamerasPresenterImp::open()
         if (selected_filter.compare(QApplication::translate("ImportCamerasComponent", "MRK File (*.mrk)")) == 0) {
 
             try {
-                mModel->importCamerasFromMRK(file);
+                mModel->importCamerasFromMRK(file.toStdWString());
                 emit importedCameras();
             } catch(std::exception &e){
                 tl::printException(e);
@@ -87,7 +87,7 @@ void ImportCamerasPresenterImp::open()
             return;
 
         } else {
-            mModel->setCsvFile(file);
+            mModel->setCsvFile(file.toStdWString());
             //mView->setOutputCRS(mModel->outputCRS());
             previewCSV();
         }
