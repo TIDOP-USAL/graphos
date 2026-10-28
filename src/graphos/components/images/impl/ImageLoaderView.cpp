@@ -48,7 +48,7 @@ void ImageLoaderViewImp::init()
 void ImageLoaderViewImp::retranslate()
 {
     this->setWindowTitle(QCoreApplication::translate("ImageLoaderComponent", "Load images", nullptr));
-    this->setNameFilter(QCoreApplication::translate("ImageLoaderComponent", "Image files (*.tif *.tiff *.jpg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg)", nullptr));
+    this->setNameFilter(QCoreApplication::translate("ImageLoaderComponent", "Image files (*.tif *.tiff *.jpg *.jpeg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg *.jpeg)", nullptr));
 }
 
 void ImageLoaderViewImp::setImagesDirectory(const QString &directory)
