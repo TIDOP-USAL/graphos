@@ -90,6 +90,10 @@ void OrthophotoPresenterImp::open()
 
     QString orthomosaic_method = "RLB";
     if (auto config = mModel->properties()) {
+
+        mView->setGsd(config->gsd());
+        mView->setMaxTiltAngle(config->maxTiltAngle());
+        mView->setInterpolation(QString::fromStdString(config->interpolation()));
         if (auto orthomosaic_properties = config->orthomosaicProperties()) {
 
             orthomosaic_method = QString::fromStdString(orthomosaic_properties->name());
@@ -179,7 +183,6 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
 
     const auto &images = mModel->images();
     const auto &cameras = mModel->cameras();
-    //const auto &poses = mModel->poses();
     bool use_cuda = mModel->useCuda();
 
     tl::Path undistort_path(mModel->projectFolder());
@@ -189,20 +192,6 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
     if (undistort_path.exists()) {
         undistorted_image_paths = undistort_path.list(".tif");
     }
-
-    //if (undistorted_image_paths.size() != images.size()) {
-
-    //    undistort_path.createDirectories();
-
-    //    auto undistort = std::make_shared<UndistortImages>(images,
-    //                                                       cameras,
-    //                                                       undistort_path,
-    //                                                       UndistortImages::Format::tiff,
-    //                                                       use_cuda,
-    //                                                       true);
-    //    task_list->push_back(undistort);
-    //}
-
 
     TL_TODO("Mover a la tarea. Con muchas imágenes tarda mucho y parece que se ha colgado el programa")
     auto undistorted_cameras = undistortedCameras(cameras);
@@ -214,21 +203,10 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
     ortho_path.append("ortho");
     ortho_path.append("orthomosaic.tif");
 
-    //for (auto &image : images) {
-
-    //    auto image_id = Image::id(image);
-    //    tl::Path undistorted_image = undistort_path;
-    //    std::string file_name = std::to_string(image_id).append(".tif");
-    //    undistorted_image.append(file_name);
-
-    //    image.setPath(file_name);
-
-    //}
-
-    // TODO: Pasar config a la tarea
     auto config = std::make_shared<OrthophotoProperties>();
     config->setCrs(mView->crs().toStdString());
     config->setGsd(mView->gsd());
+    config->setMaxTiltAngle(mView->maxTiltAngle());
     config->setInterpolation(mView->interpolation().toStdString());
 
     auto orthomosaic_method = mView->orthomosaicMethod().toStdString();
@@ -248,27 +226,25 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
 
     mModel->setProperties(config);
 
+    const auto orthoimage_count = undistorted_images.size();
     auto ortho_task = std::make_unique<OrthophotoTask>(config,
                                                        std::move(undistorted_images),
                                                        std::move(undistorted_cameras),
                                                        ortho_path,
                                                        mModel->dtmPath(),
                                                        mModel->enuCrs(),
-                                                       //mView->crs().toStdString(),
-                                                       //mView->interpolation().toStdString(),
-                                                       //mView->gsd(),
-                                                       mModel->useCuda()
-                                                       /*mView->orthomosaicMethod().toStdString()*/);
+                                                       mModel->useCuda());
 
     if(progressHandler()) {
-        progressHandler()->setRange(0, mModel->images().size()*4);
+        // The orthophoto and mosaic phases each account for half of the progress range.
+        progressHandler()->setRange(0, orthoimage_count * 2);
         progressHandler()->setTitle(QApplication::translate("OrthophotoComponent", "Orthophoto"));
         progressHandler()->setDescription(QApplication::translate("OrthophotoComponent", "Orthophoto generation..."));
     }
 
     mView->hide();
 
-    return ortho_task/*task_list*/;
+    return ortho_task;
 }
 
 auto OrthophotoPresenterImp::undistortedImages(const ImageRepository &images,

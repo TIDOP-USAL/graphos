@@ -49,10 +49,10 @@ auto OrthophotoProperties::interpolation() const -> std::string
     return mProperties.getProperty<std::string>("Interpolation");
 }
 
-//auto OrthophotoProperties::method() const -> std::string
-//{
-//    return mProperties.getProperty<std::string>("Method");
-//}
+auto OrthophotoProperties::maxTiltAngle() const -> double
+{
+    return mProperties.getProperty<double>("MaxTiltAngle");
+}
 
 auto OrthophotoProperties::orthomosaicProperties() const -> std::shared_ptr<OrthomosaicProperties>
 {
@@ -74,10 +74,10 @@ void OrthophotoProperties::setInterpolation(std::string interpolation)
     mProperties.setProperty("Interpolation", std::move(interpolation));
 }
 
-//void OrthophotoProperties::setMethod(std::string method)
-//{
-//    mProperties.setProperty("Method", std::move(method));
-//}
+void OrthophotoProperties::setMaxTiltAngle(double maxTiltAngle)
+{
+    mProperties.setProperty("MaxTiltAngle", maxTiltAngle);
+}
 
 void OrthophotoProperties::setOrthomosaicProperties(std::shared_ptr<OrthomosaicProperties> orthomosaicProperties)
 {
@@ -89,7 +89,7 @@ void OrthophotoProperties::clear()
     mProperties.setProperty("Crs", std::string());
     mProperties.setProperty("Gsd", 0.0);
     mProperties.setProperty("Interpolation", std::string("BILINEAR"));
-    //mProperties.setProperty("Method", std::string("Robust Local Blending"));
+    mProperties.setProperty("MaxTiltAngle", 30.0);
     if (mOrthomosaicProperties) {
         mOrthomosaicProperties->clear();
     }

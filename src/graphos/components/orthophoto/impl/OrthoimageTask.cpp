@@ -86,6 +86,7 @@ OrthoimageTask::OrthoimageTask(const std::unordered_map<size_t, Image> &images,
                                const tl::Path &footprint,
                                double gsd,
                                const std::string &interpolation,
+                               double maxTiltAngle,
                                double crop,
                                bool cuda)
   : mImages(images),
@@ -99,6 +100,7 @@ OrthoimageTask::OrthoimageTask(const std::unordered_map<size_t, Image> &images,
     mFootprint(footprint),
     mGsd(gsd),
     mInterpolation(interpolation),
+    mMaxTiltAngle(maxTiltAngle),
     mCrop(crop),
     bCuda(cuda)
 {
@@ -178,7 +180,6 @@ void OrthoimageTask::execute(tl::Progress *progressBar, std::stop_token stopToke
             int camera_id = image.cameraId();
 
             // Filtrado por ángulo de inclinación respecto la vertical
-            auto mMaxTiltAngle = 30.; // Pasar como parametro
             auto &camera_pose = image.cameraPose();
 
             tl::Vector3d vertical{0.0, 0.0, 1.0};
@@ -280,12 +281,18 @@ void OrthoimageTask::execute(tl::Progress *progressBar, std::stop_token stopToke
                 window_ortho_enu = tl::intersection(window_ortho_enu, window_dem_enu);
                 tl::Size<int> size_ortho_enu(tl::numberCast<int>(std::round(window_ortho_enu.width() / gsd)),
                                              tl::numberCast<int>(std::round(window_ortho_enu.height() / gsd)));
+                // Defino un tamaño maximo para evitar errores
+                if (size_ortho_enu.width() > 20000 || size_ortho_enu.height() > 20000) {
+                    tl::Message::warning("Size not valid {}", image.path().fileName().toUtf8());
+                    if (progressBar) (*progressBar)();
+                    continue;
+                }
                 /******************************************************************************************************/
 
                 // Huella de vuelo en el sistema de coordenadas de salida 
                 auto footprint_projected = footprintProjected(footprint_enu);
                 // BBOX de la huella de vuelo
-                auto window_ortho_terrain = footprint_projected->window();
+                //auto window_ortho_terrain = footprint_projected->window();
 
                 tl::TableRegister data(layer.tableFields());
                 data.setValue(0, ortho_file.toUtf8());
@@ -294,34 +301,34 @@ void OrthoimageTask::execute(tl::Progress *progressBar, std::stop_token stopToke
 
                 /// Gráfico de ortofotos en el sistema de coordenadas de salida 
 
-                //tl::Rect<double> rect(window_ortho_enu.min(), window_ortho_enu.max());
-                //rect.normalize();
+                tl::Rect<double> rect(window_ortho_enu.min(), window_ortho_enu.max());
+                rect.normalize();
 
                 auto ortho_graph_projected = std::make_unique<tl::GPolygon>();
 
-                auto vertices = window_ortho_terrain.vertices();
-                ortho_graph_projected->geometry().outer().push_back(vertices[0]);
-                ortho_graph_projected->geometry().outer().push_back(vertices[1]);
-                ortho_graph_projected->geometry().outer().push_back(vertices[2]);
-                ortho_graph_projected->geometry().outer().push_back(vertices[3]);
+                //auto vertices = window_ortho_terrain.vertices();
+                //ortho_graph_projected->geometry().outer().push_back(vertices[0]);
+                //ortho_graph_projected->geometry().outer().push_back(vertices[1]);
+                //ortho_graph_projected->geometry().outer().push_back(vertices[2]);
+                //ortho_graph_projected->geometry().outer().push_back(vertices[3]);
 
-                //tl::Point3d top_left_projected = static_cast<tl::Point3d>(rect.topLeft());
-                //geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_projected.x(), top_left_projected.y(), top_left_projected.z());
-                //ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(top_left_projected));
+                tl::Point3d top_left_projected = static_cast<tl::Point3d>(rect.topLeft());
+                geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_projected.x(), top_left_projected.y(), top_left_projected.z());
+                ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(top_left_projected));
 
-                //tl::Point3d top_right_projected = static_cast<tl::Point3d>(rect.topRight());
-                //geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_projected.x(), top_right_projected.y(), top_right_projected.z());
-                //ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(top_right_projected));
+                tl::Point3d top_right_projected = static_cast<tl::Point3d>(rect.topRight());
+                geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_projected.x(), top_right_projected.y(), top_right_projected.z());
+                ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(top_right_projected));
 
-                //tl::Point3d bottom_right_projected = static_cast<tl::Point3d>(rect.bottomRight());
-                //geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_projected.x(), bottom_right_projected.y(), bottom_right_projected.z());
-                //ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(bottom_right_projected));
+                tl::Point3d bottom_right_projected = static_cast<tl::Point3d>(rect.bottomRight());
+                geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_projected.x(), bottom_right_projected.y(), bottom_right_projected.z());
+                ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(bottom_right_projected));
 
-                //tl::Point3d bottom_left_projected = static_cast<tl::Point3d>(rect.bottomLeft());
-                //geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_projected.x(), bottom_left_projected.y(), bottom_left_projected.z());
-                //ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(bottom_left_projected));
+                tl::Point3d bottom_left_projected = static_cast<tl::Point3d>(rect.bottomLeft());
+                geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_projected.x(), bottom_left_projected.y(), bottom_left_projected.z());
+                ortho_graph_projected->geometry().outer().push_back(static_cast<tl::Point2d>(bottom_left_projected));
 
-                //auto window_ortho_terrain = ortho_graph_projected->window();
+                auto window_ortho_terrain = ortho_graph_projected->window();
 
                 tl::TableRegister data_ortho(layer_ortho_graph.tableFields());
                 data_ortho.setValue(0, ortho_file.toUtf8());

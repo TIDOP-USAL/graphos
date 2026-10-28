@@ -52,6 +52,7 @@ public:
 public:
 
     auto gsd() const -> double override;
+    auto maxTiltAngle() const -> double override;
     auto crs() const -> QString override;
     auto interpolation() const -> QString override;
     auto orthomosaicMethod() const -> QString override;
@@ -59,6 +60,7 @@ public:
 public slots:
 
     void setGsd(double gsd) override;
+    void setMaxTiltAngle(double maxTiltAngle) override;
     void setCrs(const QString &crs) override;
     void setInterpolation(const QString &interpolation) override;
     void setOrthomosaicMethod(const QString &method) override;
@@ -88,6 +90,8 @@ protected:
     QGroupBox *mGroupOrthoimages;
     QLabel *mLabelGSD;
     QDoubleSpinBox *mDoubleSpinBoxGSD;
+    QLabel *mLabelmaxTiltAngle;
+    QDoubleSpinBox *mDoubleSpinBoxMaxTiltAngle;
     QLabel *mLabelInterpolation;
     QComboBox *mComboBoxInterpolation;
     QGroupBox *mGroupOrthomosaic;

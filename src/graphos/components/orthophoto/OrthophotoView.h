@@ -44,7 +44,7 @@ public:
      * \return The GSD value.
      */
     virtual auto gsd() const -> double = 0;
-
+    virtual auto maxTiltAngle() const -> double = 0;
     virtual auto crs() const -> QString = 0;
     virtual auto interpolation() const -> QString = 0;
     virtual auto orthomosaicMethod() const -> QString = 0;
@@ -56,7 +56,7 @@ public slots:
      * \param[in] gsd The GSD value to set.
      */
     virtual void setGsd(double gsd) = 0;
-
+    virtual void setMaxTiltAngle(double maxTiltAngle) = 0;
     virtual void setCrs(const QString &crs) = 0;
     virtual void setInterpolation(const QString &interpolation) = 0;
     virtual void setOrthomosaicMethod(const QString &method) = 0;
@@ -66,6 +66,7 @@ public slots:
 signals:
 
     void resolutionChanged(double);
+    void maxTiltAngleChanged(double);
     void crs_change();
     void select_crs();
     void orthomosaicMethodChanged(QString);

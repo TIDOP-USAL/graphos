@@ -60,11 +60,14 @@ public:
     [[nodiscard]]
     auto interpolation() const -> std::string;
     [[nodiscard]]
+    auto maxTiltAngle() const -> double;
+    [[nodiscard]]
     auto orthomosaicProperties() const -> std::shared_ptr<OrthomosaicProperties>;
 
     void setCrs(std::string crs);
     void setGsd(double gsd);
     void setInterpolation(std::string interpolation);
+    void setMaxTiltAngle(double maxTiltAngle);
     void setOrthomosaicProperties(std::shared_ptr<OrthomosaicProperties> orthomosaicProperties);
 
     void clear();

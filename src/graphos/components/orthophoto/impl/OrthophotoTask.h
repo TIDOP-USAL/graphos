@@ -88,7 +88,6 @@ private:
                        std::vector<std::vector<std::map<double, std::string>>> &orthos,
                        tl::Progress *progressBar);
     //void tilesExposureCompensator(const std::vector<std::vector<tl::WindowD>> &grid);
-    void writeOrthomosaic(const std::vector<std::vector<tl::BoundingBox2d>> &grid);
     //void blendTileBlock(int r, int c, const std::vector<std::vector<tl::WindowD>> &grid);
 
 // tl::TaskBase interface

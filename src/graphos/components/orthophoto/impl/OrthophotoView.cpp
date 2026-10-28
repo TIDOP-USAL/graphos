@@ -75,8 +75,16 @@ void OrthophotoViewImp::initUI()
     mDoubleSpinBoxGSD->setSingleStep(0.1);
     orthoimages_layout->addWidget(mDoubleSpinBoxGSD, 0, 1, 1, 2);
 
+    mLabelmaxTiltAngle = new QLabel(this);
+    orthoimages_layout->addWidget(mLabelmaxTiltAngle, 1, 0, 1, 1);
+    mDoubleSpinBoxMaxTiltAngle = new QDoubleSpinBox(this);
+    mDoubleSpinBoxMaxTiltAngle->setSingleStep(0.1);
+    mDoubleSpinBoxMaxTiltAngle->setMinimum(5.);
+    mDoubleSpinBoxMaxTiltAngle->setMaximum(60.);
+    orthoimages_layout->addWidget(mDoubleSpinBoxMaxTiltAngle, 1, 1, 1, 2);
+
     mLabelInterpolation = new QLabel(this);
-    orthoimages_layout->addWidget(mLabelInterpolation, 1, 0, 1, 1);
+    orthoimages_layout->addWidget(mLabelInterpolation, 2, 0, 1, 1);
     mComboBoxInterpolation = new QComboBox(this);
     mComboBoxInterpolation->addItem("");
     mComboBoxInterpolation->addItem("");
@@ -84,7 +92,7 @@ void OrthophotoViewImp::initUI()
     mComboBoxInterpolation->setItemData(0, "NEAREST");
     mComboBoxInterpolation->setItemData(1, "BILINEAR");
     mComboBoxInterpolation->setItemData(2, "BICUBIC");
-    orthoimages_layout->addWidget(mComboBoxInterpolation, 1, 1, 1, 2);
+    orthoimages_layout->addWidget(mComboBoxInterpolation, 2, 1, 1, 2);
 
     grid_layout->addWidget(mGroupOrthoimages, 1, 0, 1, 3);
 
@@ -123,6 +131,7 @@ void OrthophotoViewImp::initSignalAndSlots()
     connect(mLineEditCRS, &QLineEdit::textChanged, this, &OrthophotoViewImp::update);
     connect(mPushButtonCRS, &QAbstractButton::clicked, this, &OrthophotoView::select_crs);
     connect(mDoubleSpinBoxGSD, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &OrthophotoView::resolutionChanged);
+    connect(mDoubleSpinBoxMaxTiltAngle, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &OrthophotoView::maxTiltAngleChanged);
     connect(mComboBoxMethod, &QComboBox::currentIndexChanged, [&](int index) {
         emit orthomosaicMethodChanged(mComboBoxMethod->itemData(index).toString());
         }); // this, &OrthophotoView::orthomosaicMethodChanged);
@@ -140,6 +149,7 @@ void OrthophotoViewImp::retranslate()
 
     mGroupOrthoimages->setTitle(QApplication::translate("OrthophotoComponent", "Orthoimages", nullptr));
     mLabelGSD->setText(QApplication::translate("OrthophotoComponent", "Resolution (m):"));
+    mLabelmaxTiltAngle->setText(QApplication::translate("OrthophotoComponent", "Maximum tilt angle:"));
     mLabelInterpolation->setText(QApplication::translate("OrthophotoComponent", "Interpolation"));
     mComboBoxInterpolation->setItemText(0, QApplication::translate("OrthophotoComponent", "Nearest"));
     mComboBoxInterpolation->setItemText(1, QApplication::translate("OrthophotoComponent", "Bilinear"));
@@ -157,8 +167,8 @@ void OrthophotoViewImp::retranslate()
 
 void OrthophotoViewImp::clear()
 {
-    const QSignalBlocker signal_blocker(mDoubleSpinBoxGSD);
-    mDoubleSpinBoxGSD->setValue(0.05);
+    setGsd(0.05);
+    setMaxTiltAngle(30.);
 
     const QSignalBlocker blocker_crs(mLineEditCRS);
     mLineEditCRS->clear();
@@ -176,6 +186,11 @@ void OrthophotoViewImp::update()
 auto OrthophotoViewImp::gsd() const -> double
 {
     return mDoubleSpinBoxGSD->value();
+}
+
+auto OrthophotoViewImp::maxTiltAngle() const -> double
+{
+    return mDoubleSpinBoxMaxTiltAngle->value();
 }
 
 auto OrthophotoViewImp::crs() const -> QString
@@ -197,6 +212,12 @@ void OrthophotoViewImp::setGsd(double gsd)
 {
     const QSignalBlocker blocker(mDoubleSpinBoxGSD);
     mDoubleSpinBoxGSD->setValue(gsd);
+}
+
+void OrthophotoViewImp::setMaxTiltAngle(double maxTiltAngle)
+{
+    const QSignalBlocker blocker(mDoubleSpinBoxMaxTiltAngle);
+    mDoubleSpinBoxMaxTiltAngle->setValue(maxTiltAngle);
 }
 
 void OrthophotoViewImp::setCrs(const QString &crs)

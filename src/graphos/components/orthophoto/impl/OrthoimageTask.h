@@ -30,10 +30,7 @@
 #include <tidop/core/base/Path.h>
 #include <tidop/geometry/transform/Affine.h>
 #include <tidop/graphic/entities/GPolygon.h>
-//#include <tidop/vect/vectwriter.h>
-//#include <tidop/graphic/entities/polygon.h>
-//#include <tidop/geometry/transform/Affine.h>
-//
+
 #include "graphos/core/image/Image.h"
 #include "graphos/core/camera/Camera.h"
 
@@ -44,9 +41,6 @@ class Progress;
 
 namespace graphos
 {
-
-//class Orthorectification;
-//class ZBuffer;
 
 class OrthoimageTask
 	: public tl::Task
@@ -68,6 +62,7 @@ public:
 				   const tl::Path &footprint = tl::Path(),
 				   double gsd = -1.,
 				   const std::string &interpolation = "BILINEAR",
+		           double maxTiltAngle = 30.,
 				   double crop = 1.,
 				   bool bCuda = false);
 	~OrthoimageTask();
@@ -78,7 +73,6 @@ private:
 
 	void execute(tl::Progress *progressBar, std::stop_token stopToken) override;
 
-	//auto orthoimageGraphProjected(const tl::Window<tl::Point2d> &windowOrthoTerrain) const -> std::shared_ptr<tl::GPolygon>;
 	auto footprintProjected(const tl::GPolygon &footprint) const -> std::unique_ptr<tl::GPolygon>;
 
 private:
@@ -92,10 +86,9 @@ private:
 	std::string mCrs;
 	tl::Affine<double, 2> mGeoreferenceOrthomosaic;
 	tl::Path mFootprint;
-	//std::unique_ptr<tl::VectorWriter> mFootprintWriter;
-	//std::unique_ptr<tl::VectorWriter> mGraphOrthosWriter;
 	double mGsd;
 	std::string mInterpolation;
+	double mMaxTiltAngle;
 	double mCrop;
 	bool bCuda;
 

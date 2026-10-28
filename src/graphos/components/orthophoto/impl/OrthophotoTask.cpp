@@ -47,6 +47,7 @@
 #include <tidop/rastertools/io/Writer.h>
 #include <tidop/rastertools/io/Formats.h>
 #include <tidop/math/statistic/algorithms/descriptive/Median.h>
+#include <tidop/math/base/Simd.h>
 #include <tidop/geotools/CRSsTools.h>
 #include <tidop/geotools/GeoTools.h>
 
@@ -58,13 +59,15 @@
 #include <QDateTime>
 
 #include <map>
+#include <algorithm>
+#include <cmath>
 #include <stdexcept>
 #include <utility>
 
 namespace graphos
 {
 
-constexpr double exposure_compensator_factor = 0.25;
+constexpr double exposure_compensator_factor = 0.15;
 //constexpr int ortho_tile_w = 600;
 //constexpr int ortho_tile_h = 600;
 //#ifndef FAST_ORTHO
@@ -74,27 +77,55 @@ constexpr auto ortho_overlap = 50.;
 //#endif
 
 
-static void orthoMosaic(tl::Path &optimal_footprint_path,
-                        tl::Path &ortho_path,
-                        double res_ortho,
-                        const std::string &epsg,
-                        std::vector<std::vector<tl::BoundingBox2d>> &grid,
-                        tl::DataType dataType,
-                        int channels,
-                        const SbbProperties *sbbConfig = nullptr,
-                        bool try_cuda = false)
+static void orthoMosaicImpl(tl::Path &optimal_footprint_path,
+                            tl::Path &ortho_path,
+                            double res_ortho,
+                            const std::string &epsg,
+                            const tl::BoundingBox2d &window_all,
+                            std::vector<std::vector<tl::BoundingBox2d>> &grid,
+                            tl::DataType dataType,
+                            int channels,
+                            const SbbProperties *sbbConfig,
+                            bool try_cuda,
+                            bool in_memory_tiles,
+                            tl::Progress *progressBar)
 {
+    std::mutex mtx;
+    std::mutex progress_mtx;
+    double progress_fraction = 0.;
+    size_t progress_reported = 0;
+    const size_t post_process_steps = progressBar ? progressBar->maximum() / 2 : 0;
+    // Approximate SBB phase costs from the recorded processing timings.
+    constexpr double exposure_compensation_weight = 0.18;
+    constexpr double exposure_application_weight = 0.01;
+    constexpr double seam_finding_weight = 0.38;
+    constexpr double tile_blending_weight = 0.40;
+    constexpr double overview_generation_weight = 0.03;
+    const auto report_progress = [&](double fraction) {
+        if (!progressBar || post_process_steps == 0) return;
+
+        std::lock_guard<std::mutex> lock(progress_mtx);
+        progress_fraction = std::min(1., progress_fraction + fraction);
+        const auto target = static_cast<size_t>(progress_fraction * post_process_steps);
+        if (target > progress_reported) {
+            (*progressBar)(target - progress_reported);
+            progress_reported = target;
+        }
+    };
+
     try {
 
         tl::Message::info("Starting orthoMosaic function");
         tl::Message::info("Input parameters - dataType: {}, channels: {}, res_ortho: {}", static_cast<int>(dataType), channels, res_ortho);
-        tl::Message::info("Optimal footprint path: {}", optimal_footprint_path.toString());
+        tl::Message::info("Optimal footprint path: {}", optimal_footprint_path.toUtf8());
         tl::Message::info("Grid size: {}x{}", grid.size(), grid.empty() ? 0 : grid[0].size());
 
-        tl::BoundingBox2d window_all;
+        //tl::BoundingBox2d window_all;
         std::vector<std::pair<std::string, std::string>> compensated_orthos;
 
         tl::Message::info("Step 1: Exposure compensator initialization");
+        tl::Chrono chrono("Step 1: Exposure compensator initialization");
+        chrono.run();
 
         // Usar GAIN_BLOCKS que funciona mejor para mosaicos
         //int type = cv::detail::ExposureCompensator::GAIN_BLOCKS;
@@ -115,36 +146,36 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
 
         cv::Ptr<cv::detail::ExposureCompensator> compensator = cv::detail::ExposureCompensator::createDefault(type);
 
-        tl::Message::info("Step 2: Opening vector reader");
         tl::VectorReader vector_reader(optimal_footprint_path);
 
         TL_ASSERT(vector_reader.isOpen(), "Cannot open vector reader: {}", optimal_footprint_path.toString());
         TL_ASSERT(vector_reader.layersCount() >= 1, "No layers found in footprint");
 
-        tl::Message::info("Step 3: Reading layer");
         std::shared_ptr<tl::GLayer> layer = vector_reader.read(0);
-        tl::Message::info("Layer read successfully, entities: {}", layer->size());
+        //tl::Message::info("Layer read successfully, entities: {}", layer->size());
 
         // Primera pasada: calcular ventana global completa
-        for (const auto &entity : *layer) {
-            if (entity->type() != tl::GraphicEntity::Type::polygon_2d) {
-                continue;
-            }
-            auto polygon = dynamic_cast<tl::GPolygon *>(entity.get());
-            const std::string ortho_path = polygon->attributes().value(0);
-            tl::RasterReader image_reader(ortho_path);
-            if (!image_reader.isOpen()) {
-                tl::Message::warning("Cannot open ortho image while calculating mosaic bounds: {}", ortho_path);
-                continue;
-            }
-            window_all = tl::merge(window_all, image_reader.window());
-            image_reader.close();
-        }
-        TL_ASSERT(window_all.isValid(), "No valid ortho image bounds found");
+        //for (const auto &entity : *layer) {
+        //    if (entity->type() != tl::GraphicEntity::Type::polygon_2d) {
+        //        continue;
+        //    }
+        //    auto polygon = dynamic_cast<tl::GPolygon *>(entity.get());
+        //    auto window = polygon->window();
+        //    window_all = tl::merge(window_all, window);
+        //    //const std::string ortho_path = polygon->attributes().value(0);
+        //    //tl::RasterReader image_reader(ortho_path);
+        //    //if (!image_reader.isOpen()) {
+        //    //    tl::Message::warning("Cannot open ortho image while calculating mosaic bounds: {}", ortho_path);
+        //    //    continue;
+        //    //}
+        //    //window_all = tl::merge(window_all, image_reader.window());
+        //    //image_reader.close();
+        //}
+        //TL_ASSERT(window_all.isValid(), "No valid ortho image bounds found");
 
-        tl::Message::info("Global window: [{}, {}] - [{}, {}]",
-            window_all.min().x(), window_all.min().y(),
-            window_all.max().x(), window_all.max().y());
+        //tl::Message::info("Global window: [{}, {}] - [{}, {}]",
+        //    window_all.min().x(), window_all.min().y(),
+        //    window_all.max().x(), window_all.max().y());
 
         // Segunda pasada: procesar todas las imágenes
         std::vector<std::string> all_orthos;
@@ -186,7 +217,7 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
                 cv::Point corner;
                 corner.x = tl::roundToInteger((window.min().x() - window_all.min().x()) * exposure_compensator_factor / scale);
                 corner.y = tl::roundToInteger((window_all.max().y() - window.max().y()) * exposure_compensator_factor / scale);
-                tl::Message::info("Image {} corner: ({}, {})", ortho_path_str, corner.x, corner.y);
+                //tl::Message::info("Image {} corner: ({}, {})", ortho_path_str, corner.x, corner.y);
 
                 // Crear máscara
                 cv::Mat mask;
@@ -222,9 +253,15 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
 
         TL_ASSERT(!all_orthos.empty(), "No valid orthos found");
 
+        chrono.stop();
+        chrono.reset();
+        chrono.setMessage("Applying exposure compensation to images");
+        chrono.run();
+
         // Aplicar compensación radiométrica
         tl::Message::info("Applying exposure compensation to {} images", all_orthos.size());
         compensator->feed(all_corners, all_images_comp, all_masks_comp);
+        report_progress(exposure_compensation_weight);
 
         // Preparar imágenes y mascaras para seam finding
         std::vector<cv::UMat> all_images_seam;
@@ -250,6 +287,12 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
             color_image.convertTo(img32f, CV_32F);
             all_images_seam.push_back(img32f);
         }
+        report_progress(exposure_application_weight);
+
+        chrono.stop();
+        chrono.reset();
+        chrono.setMessage("Seam finding");
+        chrono.run();
 
         // Encontrar líneas de costura
         tl::Message::info("Seam finding");
@@ -278,6 +321,273 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
             tl::Message::warning("GraphCut failed, using Voronoi: {}", e.what());
             seam_finder = cv::makePtr<cv::detail::VoronoiSeamFinder>();
             seam_finder->find(all_images_seam, all_corners, all_masks_comp);
+        }
+        report_progress(seam_finding_weight);
+
+        chrono.stop();
+        chrono.reset();
+        chrono.setMessage("Applying exposure compensation to full scale images");
+        chrono.run();
+
+        if (in_memory_tiles) {
+            chrono.stop();
+            chrono.reset();
+            chrono.setMessage("Tile-based SBB blending");
+            chrono.run();
+
+            int blender_type = cv::detail::Blender::FEATHER;
+            float blend_strength = 2.f;
+            if (sbbConfig) {
+                const auto blender = sbbConfig->blenderType();
+                if (blender == "NO") {
+                    blender_type = cv::detail::Blender::NO;
+                } else if (blender == "FEATHER") {
+                    blender_type = cv::detail::Blender::FEATHER;
+                } else if (blender == "MULTI_BAND") {
+                    blender_type = cv::detail::Blender::MULTI_BAND;
+                }
+            }
+
+            tl::RasterWriter image_writer(ortho_path);
+            TL_ASSERT(image_writer.isOpen(), "Cannot open orthomosaic writer {}", ortho_path.toString());
+
+            const int cols = static_cast<int>(std::round(window_all.width() / res_ortho));
+            const int rows = static_cast<int>(std::round(window_all.height() / res_ortho));
+
+            tl::ImageOptions options;
+            options.set(tl::tiff::Tiled, "YES");
+            options.set(tl::tiff::BigTiff, "IF_NEEDED");
+            options.set(tl::tiff::Compress, "LZW");
+            image_writer.create(rows, cols, channels, dataType);
+
+            tl::ImageMetadata metadata;
+            metadata.set("TIFFTAG_DOCUMENTNAME", "Orthomosaic");
+            metadata.set("TIFFTAG_IMAGEDESCRIPTION", "Orthomosaic generated by GRAPHOS");
+            metadata.set("TIFFTAG_SOFTWARE", "GRAPHOS");
+            const QString tiffDateTime = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
+            metadata.set("TIFFTAG_DATETIME", tiffDateTime.toStdString());
+            image_writer.setMetadata(metadata);
+
+            tl::Crs crs(epsg);
+            image_writer.setCRS(crs.toWktFormat());
+
+            const tl::Affine<double, 2> affine_ortho(
+                res_ortho, -res_ortho, window_all.min().x(), window_all.max().y(), 0.0);
+            image_writer.setGeoreference(affine_ortho);
+
+            std::vector<std::vector<std::vector<size_t>>> tile_images(grid.size());
+            for (size_t r = 0; r < grid.size(); ++r) {
+                tile_images[r].resize(grid[r].size());
+                for (size_t c = 0; c < grid[r].size(); ++c) {
+                    for (size_t i = 0; i < all_windows.size(); ++i) {
+                        if (tl::intersects(all_windows[i], grid[r][c])) {
+                            tile_images[r][c].push_back(i);
+                        }
+                    }
+                }
+            }
+
+            struct TileIndex { size_t r; size_t c; };
+            std::vector<TileIndex> tiles;
+            for (size_t r = 0; r < grid.size(); ++r)
+                for (size_t c = 0; c < grid[r].size(); ++c)
+                    tiles.push_back({r, c});
+
+            const double tile_progress_step =
+                tiles.empty() ? 0. : tile_blending_weight / static_cast<double>(tiles.size());
+            //for (size_t r = 0; r < grid.size(); ++r) {
+            //    for (size_t c = 0; c < grid[r].size(); ++c) {
+            tl::parallel_for(0, tiles.size(), [&](size_t idx) {
+                size_t r = tiles[idx].r;
+                size_t c = tiles[idx].c;
+
+                if (tile_images[r][c].size() == 0) {
+                    report_progress(tile_progress_step);
+                    return;
+                }
+
+                    tl::Message::info("Processing SBB grid cell [{}, {}] with {} images",
+                                      r, c, tile_images[r][c].size());
+
+                    const int tile_cols = static_cast<int>(std::round(grid[r][c].width() / res_ortho));
+                    const int tile_rows = static_cast<int>(std::round(grid[r][c].height() / res_ortho));
+                    const cv::Rect tile_rect(0, 0, tile_cols, tile_rows);
+                    cv::Ptr<cv::detail::Blender> blender =
+                        cv::detail::Blender::createDefault(blender_type, try_cuda);
+
+                    const float blend_width =
+                        std::sqrt(static_cast<float>(tile_rect.area())) * blend_strength / 100.f;
+                    if (blend_width < 1.f || blender_type == cv::detail::Blender::NO) {
+                        blender = cv::detail::Blender::createDefault(cv::detail::Blender::NO, try_cuda);
+                    } else if (blender_type == cv::detail::Blender::MULTI_BAND) {
+                        auto *multi_band_blender =
+                            dynamic_cast<cv::detail::MultiBandBlender *>(blender.get());
+                        const int num_bands = std::min(
+                            5, static_cast<int>(std::ceil(std::log(blend_width) / std::log(2.)) - 1.));
+                        multi_band_blender->setNumBands(num_bands);
+                    } else if (blender_type == cv::detail::Blender::FEATHER) {
+                        auto *feather_blender =
+                            dynamic_cast<cv::detail::FeatherBlender *>(blender.get());
+                        feather_blender->setSharpness(1.f / blend_width);
+                    }
+                    blender->prepare(tile_rect);
+
+                    for (const size_t i : tile_images[r][c]) {
+                        try {
+                            tl::RasterReader image_reader(all_orthos[i]);
+                            if (!image_reader.isOpen()) {
+                                tl::Message::warning("Cannot open ortho image: {}", all_orthos[i]);
+                                continue;
+                            }
+
+                            const auto image_window = image_reader.window();
+                            const auto image_georef_inverse = image_reader.georeference().inverse();
+                            tl::BoundingBox2i window_image;
+                            window_image.min() = static_cast<tl::Point2i>(
+                                image_georef_inverse.transform(grid[r][c].min()));
+                            window_image.max() = static_cast<tl::Point2i>(
+                                image_georef_inverse.transform(grid[r][c].max()));
+                            window_image.normalized();
+
+                            const tl::Rect<int> rect_image(
+                                window_image.min().x(), window_image.min().y(),
+                                window_image.width(), window_image.height());
+                            const tl::Rect<int> rect_full_image(
+                                0, 0, image_reader.cols(), image_reader.rows());
+                            const tl::Rect<int> rect_to_read =
+                                tl::intersect(rect_full_image, rect_image);
+                            if (!rect_to_read.isValid()) {
+                                image_reader.close();
+                                continue;
+                            }
+
+                            cv::Mat tile_image = image_reader.read(1., 1., rect_to_read);
+                            if (tile_image.empty()) {
+                                image_reader.close();
+                                continue;
+                            }
+
+                            const cv::Mat black_pixel_mask = createBlackPixelMask(tile_image, 32);
+                            if (cv::countNonZero(black_pixel_mask) > 0) {
+                                cv::inpaint(tile_image, black_pixel_mask, tile_image, 3, cv::INPAINT_TELEA);
+                            }
+
+                            cv::Mat valid_mask;
+                            if (tile_image.channels() == 1) {
+                                cv::threshold(tile_image, valid_mask, 1, 255, cv::THRESH_BINARY);
+                            } else if (tile_image.channels() == 4) {
+                                cv::Mat gray;
+                                cv::cvtColor(tile_image, gray, cv::COLOR_BGRA2GRAY);
+                                cv::threshold(gray, valid_mask, 1, 255, cv::THRESH_BINARY);
+                            } else {
+                                cv::Mat gray;
+                                cv::cvtColor(tile_image, gray, cv::COLOR_BGR2GRAY);
+                                cv::threshold(gray, valid_mask, 1, 255, cv::THRESH_BINARY);
+                            }
+
+                            const double scale_full = image_reader.georeference().scale().x();
+                            const cv::Point image_corner(
+                                tl::roundToInteger((image_window.min().x() - window_all.min().x()) / scale_full),
+                                tl::roundToInteger((window_all.max().y() - image_window.max().y()) / scale_full));
+                            const cv::Point crop_corner(
+                                image_corner.x + rect_to_read.topLeft().x(),
+                                image_corner.y + rect_to_read.topLeft().y());
+                            compensator->apply(
+                                static_cast<int>(i), crop_corner, tile_image, valid_mask);
+
+                            cv::Mat seam_mask_small = all_masks_comp[i].getMat(cv::ACCESS_READ);
+                            if (seam_mask_small.empty()) {
+                                image_reader.close();
+                                continue;
+                            }
+                            const double seam_scale_x =
+                                static_cast<double>(seam_mask_small.cols) / image_reader.cols();
+                            const double seam_scale_y =
+                                static_cast<double>(seam_mask_small.rows) / image_reader.rows();
+                            const int seam_x0 = std::clamp(
+                                static_cast<int>(std::floor(rect_to_read.x() * seam_scale_x)),
+                                0, seam_mask_small.cols - 1);
+                            const int seam_y0 = std::clamp(
+                                static_cast<int>(std::floor(rect_to_read.y() * seam_scale_y)),
+                                0, seam_mask_small.rows - 1);
+                            const int seam_x1 = std::clamp(
+                                static_cast<int>(std::ceil((rect_to_read.x() + rect_to_read.width()) * seam_scale_x)),
+                                seam_x0 + 1, seam_mask_small.cols);
+                            const int seam_y1 = std::clamp(
+                                static_cast<int>(std::ceil((rect_to_read.y() + rect_to_read.height()) * seam_scale_y)),
+                                seam_y0 + 1, seam_mask_small.rows);
+                            cv::Mat seam_mask_tile;
+                            cv::resize(
+                                seam_mask_small(cv::Rect(seam_x0, seam_y0,
+                                                         seam_x1 - seam_x0, seam_y1 - seam_y0)),
+                                seam_mask_tile, tile_image.size(), 0., 0., cv::INTER_NEAREST);
+                            const cv::Mat dilate_element =
+                                cv::getStructuringElement(cv::MORPH_RECT, cv::Size(9, 9));
+                            cv::dilate(seam_mask_tile, seam_mask_tile, dilate_element);
+                            cv::bitwise_and(seam_mask_tile, valid_mask, seam_mask_tile);
+
+                            cv::Mat tile_image_16s;
+                            if (tile_image.depth() == CV_32F) {
+                                tile_image.convertTo(tile_image_16s, CV_16S, 255.0);
+                            } else {
+                                tile_image.convertTo(tile_image_16s, CV_16S);
+                            }
+                            const auto offset = rect_to_read.topLeft() - rect_image.topLeft();
+                            blender->feed(tile_image_16s, seam_mask_tile, cv::Point(offset.x(), offset.y()));
+                            image_reader.close();
+                        } catch (const std::exception &e) {
+                            tl::Message::warning(
+                                "Error blending image {} into grid cell [{}, {}]: {}",
+                                all_orthos[i], r, c, e.what());
+                        }
+                    }
+
+                    cv::Mat ortho_blend, mask_blend;
+                    blender->blend(ortho_blend, mask_blend);
+                    if (!ortho_blend.empty()) {
+                        cv::Mat ortho_blend_output;
+                        if (dataType == tl::DataType::TL_8U) {
+                            ortho_blend.convertTo(ortho_blend_output, CV_8U);
+                        } else if (dataType == tl::DataType::TL_16U) {
+                            ortho_blend.convertTo(ortho_blend_output, CV_16U, 255.0);
+                        } else if (dataType == tl::DataType::TL_32F) {
+                            ortho_blend.convertTo(ortho_blend_output, CV_32F, 1.0 / 255.0);
+                        } else {
+                            ortho_blend.convertTo(ortho_blend_output, CV_8U);
+                        }
+
+                        const auto affine_ortho_inverse = affine_ortho.inverse();
+                        const auto pp1 = affine_ortho_inverse.transform(grid[r][c].min());
+                        const auto pp2 = affine_ortho_inverse.transform(grid[r][c].max());
+                        tl::BoundingBox2i window_to_write(
+                            static_cast<tl::Point2i>(pp1), static_cast<tl::Point2i>(pp2));
+                        window_to_write.normalized();
+                        if (window_to_write.isValid()) {
+                            const cv::Mat black_pixel_mask = createBlackPixelMask(ortho_blend_output, 1024);
+                            if (cv::countNonZero(black_pixel_mask) > 0) {
+                                cv::inpaint(
+                                    ortho_blend_output, black_pixel_mask, ortho_blend_output,
+                                    3, cv::INPAINT_TELEA);
+                            }
+                            std::lock_guard<std::mutex> lck(mtx);
+                            image_writer.write(ortho_blend_output, window_to_write);
+                        }
+                    }
+            //    }
+            //}
+                report_progress(tile_progress_step);
+            });
+
+            image_writer.close();
+            vector_reader.close();
+
+            addOverviewsToImage(ortho_path.toString());
+            report_progress(overview_generation_weight);
+            report_progress(1.);
+
+            chrono.stop();
+            tl::Message::info("Mosaic completed with in-memory tile blending: {}", ortho_path.toUtf8());
+            return;
         }
 
         // Aplicar compensación y guardar imágenes procesadas
@@ -376,9 +686,14 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
 
         vector_reader.close();
 
+        TL_ASSERT(!compensated_orthos.empty(), "No compensated orthos were written");
+
         // BLENDING
 
-        TL_ASSERT(!compensated_orthos.empty(), "No compensated orthos were written");
+        chrono.stop();
+        chrono.reset();
+        chrono.setMessage("Blending");
+        chrono.run();
 
         tl::Message::info("Starting blending with {} images", compensated_orthos.size());
 
@@ -560,6 +875,8 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
             }
         }
 
+        chrono.stop();
+
         image_writer.close();
 
         tl::Message::info("Mosaic completed: {}", ortho_path.toString());
@@ -567,6 +884,22 @@ static void orthoMosaic(tl::Path &optimal_footprint_path,
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Orthophoto task error");
     }
+}
+
+static void orthoMosaic(tl::Path &optimal_footprint_path,
+                         tl::Path &ortho_path,
+                         double res_ortho,
+                         const std::string &epsg,
+                         const tl::BoundingBox2d &window_all,
+                         std::vector<std::vector<tl::BoundingBox2d>> &grid,
+                         tl::DataType dataType,
+                         int channels,
+                         const SbbProperties *sbbConfig,
+                         bool try_cuda,
+                         tl::Progress *progressBar)
+{
+    orthoMosaicImpl(optimal_footprint_path, ortho_path, res_ortho, epsg, window_all, grid,
+                    dataType, channels, sbbConfig, try_cuda, true, progressBar);
 }
 
 static const tl::GPolygon* bestImage(const tl::Point2d &pt, std::shared_ptr<tl::GLayer> layer)
@@ -1125,6 +1458,573 @@ static cv::Mat combineImagesSmart(const std::vector<cv::Mat> &images,
     return final_img;
 }
 
+static cv::Mat combineImagesSmart2(const std::vector<cv::Mat> &images,
+    const std::vector<cv::Point2f> &centers,
+    float weight_color = 0.3f,
+    float weight_distance = 0.7f)
+{
+    if (images.empty()) return cv::Mat();
+
+    size_t images_size = images.size();
+    TL_ASSERT(images_size == centers.size(), "Number of images and distances must match");
+
+    // Verificación de formato
+    int rows = images[0].rows;
+    int cols = images[0].cols;
+    int depth = images[0].depth();
+    int channels = images[0].channels();
+    int type = images[0].type();
+
+    TL_ASSERT(channels == 3, "combineImagesSmart only supports 3-channel images");
+
+    for (size_t i = 1; i < images_size; ++i) {
+        TL_ASSERT(images[i].rows == rows && images[i].cols == cols, "All images must be same size");
+        TL_ASSERT(images[i].channels() == channels, "All images must have same number of channels");
+        TL_ASSERT(images[i].depth() == depth, "All images must have same bit depth");
+    }
+
+    // máscaras de píxeles válidos (no negros)
+    std::vector<cv::Mat> valid_masks(images_size);
+    for (size_t i = 0; i < images_size; ++i) {
+        cv::inRange(images[i], cv::Scalar::all(0), cv::Scalar::all(0), valid_masks[i]);
+        cv::bitwise_not(valid_masks[i], valid_masks[i]);
+    }
+
+    // Conversión a CIELab
+    std::vector<cv::Mat> lab_images(images_size);
+    for (size_t i = 0; i < images_size; ++i) {
+        cv::Mat img = images[i];
+
+        if (depth == CV_8U) {
+            img.convertTo(img, CV_32F, 1.0 / 255.0);
+        } else if (depth == CV_16U) {
+            img.convertTo(img, CV_32F, 1.0 / 65535.0);
+        } else if (depth == CV_32F) {
+            img.convertTo(img, CV_32F);
+        } else {
+            TL_THROW_EXCEPTION("Unsupported image depth");
+        }
+
+        cv::cvtColor(img, lab_images[i], cv::COLOR_BGR2Lab);
+    }
+
+    // Pre-calcular rangos de distancia espacial para normalizar
+    // Como ahora es pixel a pixel, esto es una estimación, pero podemos
+    // calcular la distancia máxima posible teórica o dinámica.
+    // Para simplificar y evitar calcular min/max por pixel (muy lento), 
+    // normalizaremos usando la diagonal de la tesela como referencia de escala.
+    float max_dist_ref = std::sqrt((float)(rows * rows + cols * cols)) * 1.5f;
+
+    cv::Mat result_lab(rows, cols, CV_32FC3, cv::Scalar(0, 0, 0));
+    cv::Mat result_hf(rows, cols, CV_32FC3, cv::Scalar(0, 0, 0));
+
+    tl::parallel_for(0, rows, [&](size_t r) {
+
+        // Reservar estructuras por hilo (reutilizables para evitar allocs dinámicos)
+        std::vector<float> L;
+        std::vector<float> A;
+        std::vector<float> B;
+        std::vector<size_t> valid_idxs;
+        std::vector<float> color_distances;
+        std::vector<std::pair<float, int>> scored;
+
+        L.reserve(images_size);
+        A.reserve(images_size);
+        B.reserve(images_size);
+        valid_idxs.reserve(images_size);
+        color_distances.reserve(images_size);
+        scored.reserve(images_size);
+
+        for (int c = 0; c < cols; ++c) {
+
+            L.clear();
+            A.clear();
+            B.clear();
+            valid_idxs.clear();
+
+            // 1. Recolectar muestras válidas para este píxel
+            for (size_t i = 0; i < images_size; ++i) {
+                if (valid_masks[i].at<uchar>(static_cast<int>(r), c)) {
+                    cv::Vec3f lab = lab_images[i].at<cv::Vec3f>(static_cast<int>(r), c);
+                    L.push_back(lab[0]);
+                    A.push_back(lab[1]);
+                    B.push_back(lab[2]);
+                    valid_idxs.push_back(i);
+                }
+            }
+
+            const size_t num_valid = valid_idxs.size();
+            if (num_valid == 0) continue;
+
+            // 2. Mediana inicial por canal
+            float medL = tl::median(L);
+            float medA = tl::median(A);
+            float medB = tl::median(B);
+
+            // 3. Calcular distancias de color de forma CONTIGUA (tamaño = num_valid)
+            color_distances.resize(num_valid);
+            float minC = std::numeric_limits<float>::infinity();
+            float maxC = std::numeric_limits<float>::lowest();
+
+            // Bucle directo sobre los válidos (opcionalmente vectorizable con tl::Packet)
+            for (size_t i = 0; i < num_valid; ++i) {
+                float dL = L[i] - medL;
+                float dA = A[i] - medA;
+                float dB = B[i] - medB;
+
+                float dist = std::sqrt(dL * dL + dA * dA + dB * dB);
+                color_distances[i] = dist;
+
+                if (dist < minC) minC = dist;
+                if (dist > maxC) maxC = dist;
+            }
+
+            float rangeC = (maxC > minC) ? (maxC - minC) : 1.0f;
+
+            // ---------------------------------------------------------
+            // 4. UMBRAL DE OUTLIERS (MAD sin copias de vectores)
+            // ---------------------------------------------------------
+            // Calculamos MAD directamente sobre color_distances (haciendo uso de iteradores)
+            float mad_val = tl::median(color_distances.begin(), color_distances.end());
+
+            float noise_floor = 10.0f;
+            float outlier_threshold = std::max(noise_floor, 3.0f * mad_val);
+            // ---------------------------------------------------------
+
+            // 5. Calcular score de cada imagen válida
+            scored.clear();
+
+            for (size_t i = 0; i < num_valid; ++i) {
+                float c_dist = color_distances[i];
+
+                if (c_dist > outlier_threshold) continue;
+
+                auto idx = valid_idxs[i]; // Recuperar el índice global de la ortofoto
+
+                // 1. Distancia de color normalizada (0..1)
+                float colorNorm = (c_dist - minC) / rangeC;
+
+                // 2. Distancia Espacial Pixel a Centro
+                float dx = static_cast<float>(c) - centers[idx].x;
+                float dy = static_cast<float>(r) - centers[idx].y;
+                float dist_pixel = std::sqrt(dx * dx + dy * dy);
+                float distNorm = dist_pixel / max_dist_ref;
+
+                // Score final
+                float score = weight_color * colorNorm + weight_distance * distNorm;
+                scored.emplace_back(score, static_cast<int>(idx));
+            }
+
+            if (scored.empty()) continue;
+
+            // Ordenar por score ascendente (menor es mejor)
+            std::sort(scored.begin(), scored.end(),
+                [](const auto &a, const auto &b) { return a.first < b.first; });
+
+            // Mezcla de los N mejores Píxeles...
+            const int TOP_N = 5;
+            int n = std::min<int>(TOP_N, static_cast<int>(scored.size()));
+
+            if (n == 1) {
+                result_lab.at<cv::Vec3f>(static_cast<int>(r), c) = lab_images[scored[0].second].at<cv::Vec3f>(static_cast<int>(r), c);
+            } else {
+                float total_w = 0.f;
+                cv::Vec3f sum_lab(0.f, 0.f, 0.f);
+
+                for (int i = 0; i < n; ++i) {
+                    int idx = scored[i].second;
+                    float w = 1.0f / (1e-3f + scored[i].first);
+                    cv::Vec3f lab = lab_images[idx].at<cv::Vec3f>(static_cast<int>(r), c);
+                    sum_lab += lab * w;
+                    total_w += w;
+                }
+
+                cv::Vec3f labWeighted = (total_w > 0.f) ? (sum_lab / total_w)
+                    : lab_images[scored[0].second].at<cv::Vec3f>(static_cast<int>(r), c);
+
+                result_lab.at<cv::Vec3f>(static_cast<int>(r), c) = labWeighted;
+            }
+        }
+        });
+
+    //cv::Mat final_lab;
+    //cv::Mat result_hf_blurred;
+    //cv::GaussianBlur(result_hf, result_hf_blurred, cv::Size(5, 5), 0);
+
+    // Alta Frecuencia 
+    // Contiene valores cercanos a 0, positivos en bordes claros y negativos en oscuros.
+    //cv::Mat high_frequency_map;
+    //cv::subtract(result_hf, result_hf_blurred, high_frequency_map);
+
+    //Opciones para resaltar la imagen:
+    // 1 - Añadir imagen de altas frecuencias 
+    //cv::add(result_lab, high_frequency_map, final_lab);
+
+    // 2 - Control de Ganancia (alpha)
+    // No sumar el 100% de la HF para evitar realzar demasiado el ruido o artefactos.
+    //float alpha = 0.7f; // 70% de detalle
+    //cv::addWeighted(result_lab, 1.0, high_frequency_map, alpha, 0, final_lab);
+
+    // 3 - Control de Ganancia con umbral (solo realzar detalles si la HF supera cierto umbral)
+    // 3.1
+    //float hf_threshold = 0.05f; // umbral de detalle (ajustable)
+    //cv::Mat hf_mask;
+    //cv::inRange(high_frequency_map, cv::Scalar(-hf_threshold, -hf_threshold, -hf_threshold),
+    //            cv::Scalar(hf_threshold, hf_threshold, hf_threshold), hf_mask);
+    //cv::Mat hf_mask_float;
+    //hf_mask.convertTo(hf_mask_float, CV_32F, 1.0 / 255.0);
+    //cv::Mat hf_weighted;
+    //cv::multiply(high_frequency_map, hf_mask_float, hf_weighted);
+
+    // 3.2
+    // Si el detalle es menor a 'epsilon', lo hacemos cero
+    //float epsilon = 0.05f; // Ajusta según el ruido (rango 0-1)
+    //cv::Mat mask;
+    //cv::absdiff(high_frequency_map, cv::Scalar::all(0), mask);
+    //cv::threshold(mask, mask, epsilon, 1.0, cv::THRESH_TOZERO);
+
+    // Ahora 'high_freq' solo tiene valores donde había bordes reales
+    //cv::Mat clean_hf;
+    //high_frequency_map.copyTo(clean_hf, mask > 0);
+    //cv::add(result_lab, clean_hf, final_lab);
+
+    //cv::Mat result_bgr_f;
+    //cv::cvtColor(final_lab, result_bgr_f, cv::COLOR_Lab2BGR);
+
+    // Convertir Lab float -> BGR float (CV_32F 3ch)
+    cv::Mat result_bgr_f;
+    cv::cvtColor(result_lab, result_bgr_f, cv::COLOR_Lab2BGR);
+
+    // Reconversión a la profundidad y canales originales
+    cv::Mat final_img;
+
+    cv::Mat bgr_out;
+    if (depth == CV_8U) {
+        result_bgr_f.convertTo(bgr_out, CV_8U, 255.0);
+    } else if (depth == CV_16U) {
+        result_bgr_f.convertTo(bgr_out, CV_16U, 65535.0);
+    } else {
+        bgr_out = result_bgr_f.clone();
+    }
+
+    final_img = bgr_out;
+
+    // Postprocesado adaptativo preservando bordes
+    //cv::bilateralFilter(bgr_out, final_img, 5, 0.1*255, 15);
+    //Filtro de realce (unsharp mask)
+    //cv::Mat sharp, blurred;
+    //cv::GaussianBlur(bgr_out, blurred, cv::Size(0, 0), 1.0);
+    //cv::addWeighted(bgr_out, 1.5, blurred, -0.5, 0, sharp);
+    //final_img = sharp;
+
+    return final_img;
+}
+
+static cv::Mat combineImagesSmart3(const std::vector<cv::Mat> &images,
+    const std::vector<cv::Point2f> &centers,
+    float weight_color = 0.3f,
+    float weight_distance = 0.7f)
+{
+    if (images.empty()) return cv::Mat();
+
+    size_t images_size = images.size();
+    TL_ASSERT(images_size == centers.size(), "Number of images and distances must match");
+
+    // Verificación de formato
+    int rows = images[0].rows;
+    int cols = images[0].cols;
+    int depth = images[0].depth();
+    int channels = images[0].channels();
+    int type = images[0].type();
+
+    TL_ASSERT(channels == 3, "combineImagesSmart only supports 3-channel images");
+
+    for (size_t i = 1; i < images_size; ++i) {
+        TL_ASSERT(images[i].rows == rows && images[i].cols == cols, "All images must be same size");
+        TL_ASSERT(images[i].channels() == channels, "All images must have same number of channels");
+        TL_ASSERT(images[i].depth() == depth, "All images must have same bit depth");
+    }
+
+    // máscaras de píxeles válidos (no negros)
+    std::vector<cv::Mat> valid_masks(images_size);
+    for (size_t i = 0; i < images_size; ++i) {
+        cv::inRange(images[i], cv::Scalar::all(0), cv::Scalar::all(0), valid_masks[i]);
+        cv::bitwise_not(valid_masks[i], valid_masks[i]);
+    }
+
+    // Conversión a CIELab
+    std::vector<cv::Mat> lab_images(images_size);
+    for (size_t i = 0; i < images_size; ++i) {
+        cv::Mat img = images[i];
+
+        if (depth == CV_8U) {
+            img.convertTo(img, CV_32F, 1.0 / 255.0);
+        } else if (depth == CV_16U) {
+            img.convertTo(img, CV_32F, 1.0 / 65535.0);
+        } else if (depth == CV_32F) {
+            img.convertTo(img, CV_32F);
+        } else {
+            TL_THROW_EXCEPTION("Unsupported image depth");
+        }
+
+        cv::cvtColor(img, lab_images[i], cv::COLOR_BGR2Lab);
+    }
+
+    // Pre-calcular rangos de distancia espacial para normalizar
+    // Como ahora es pixel a pixel, esto es una estimación, pero podemos
+    // calcular la distancia máxima posible teórica o dinámica.
+    // Para simplificar y evitar calcular min/max por pixel (muy lento), 
+    // normalizaremos usando la diagonal de la tesela como referencia de escala.
+    float max_dist_ref = std::sqrt((float)(rows * rows + cols * cols)) * 1.5f;
+
+    cv::Mat result_lab(rows, cols, CV_32FC3, cv::Scalar(0, 0, 0));
+    cv::Mat result_hf(rows, cols, CV_32FC3, cv::Scalar(0, 0, 0));
+
+    tl::parallel_for(0, rows, [&](size_t r) {
+
+        // Reservar estructuras por hilo (reutilizables para evitar allocs dinámicos)
+        std::vector<float> L;
+        std::vector<float> A;
+        std::vector<float> B;
+        std::vector<size_t> valid_idxs;
+        std::vector<float> color_distances;
+        std::vector<std::pair<float, int>> scored;
+
+        L.reserve(images_size);
+        A.reserve(images_size);
+        B.reserve(images_size);
+        valid_idxs.reserve(images_size);
+        color_distances.reserve(images_size);
+        scored.reserve(images_size);
+
+        for (int c = 0; c < cols; ++c) {
+
+            L.clear();
+            A.clear();
+            B.clear();
+            valid_idxs.clear();
+
+            // 1. Recolectar muestras válidas para este píxel
+            for (size_t i = 0; i < images_size; ++i) {
+                if (valid_masks[i].at<uchar>(static_cast<int>(r), c)) {
+                    cv::Vec3f lab = lab_images[i].at<cv::Vec3f>(static_cast<int>(r), c);
+                    L.push_back(lab[0]);
+                    A.push_back(lab[1]);
+                    B.push_back(lab[2]);
+                    valid_idxs.push_back(i);
+                }
+            }
+
+            const size_t num_valid = valid_idxs.size();
+            if (num_valid == 0) continue;
+
+            // 2. Mediana inicial por canal
+            float medL = tl::median(L);
+            float medA = tl::median(A);
+            float medB = tl::median(B);
+
+            tl::Packed<float> packed_med_l(medL);
+            tl::Packed<float> packed_med_a(medA);
+            tl::Packed<float> packed_med_b(medB);
+
+            // 3. Calcular distancias de color de forma CONTIGUA (tamaño = num_valid)
+            color_distances.resize(num_valid);
+
+            // Bucle directo sobre los válidos (opcionalmente vectorizable con tl::Packet)
+            //for (size_t i = 0; i < num_valid; ++i) {
+            //    float dL = L[i] - medL;
+            //    float dA = A[i] - medA;
+            //    float dB = B[i] - medB;
+
+            //    float dist = std::sqrt(dL * dL + dA * dA + dB * dB);
+            //    color_distances[i] = dist;
+
+            //    if (dist < minC) minC = dist;
+            //    if (dist > maxC) maxC = dist;
+            //}
+
+            constexpr size_t packed_size = tl::Packed<float>::size();
+            size_t max_vector = num_valid - (num_valid % packed_size);
+
+            for (size_t i = 0; i < max_vector; i += packed_size) {
+
+                tl::Packed<float> packed_l; 
+                tl::Packed<float> packed_a;
+                tl::Packed<float> packed_b;
+                packed_l.loadUnaligned(&L[i]);
+                packed_a.loadUnaligned(&A[i]);
+                packed_b.loadUnaligned(&B[i]);
+
+                tl::Packed<float> packed_dl = packed_l - packed_med_l;
+                tl::Packed<float> packed_da = packed_a - packed_med_a;
+                tl::Packed<float> packed_db = packed_b - packed_med_b;
+
+                //tl::Packed<float> r = tl::sqrt(packed_dl * packed_dl + packed_da * packed_da + packed_db * packed_db);
+                //r.storeUnaligned(&color_distances[i]);
+
+                tl::Packed<float> sum_sq = packed_db * packed_db;
+                sum_sq = tl::madd(packed_da, packed_da, sum_sq); // (da * da) + (db * db)
+                sum_sq = tl::madd(packed_dl, packed_dl, sum_sq); // (dl * dl) + sum_sq_previa
+                sum_sq.storeUnaligned(&color_distances[i]);
+            }
+
+            for (size_t i = max_vector; i < num_valid; ++i) {
+
+                float dL = L[i] - medL;
+                float dA = A[i] - medA;
+                float dB = B[i] - medB;
+
+                color_distances[i] = std::sqrt(dL * dL + dA * dA + dB * dB);
+            }
+
+            float minC = std::numeric_limits<float>::infinity();
+            float maxC = std::numeric_limits<float>::lowest();
+            for (const auto &d : color_distances) {
+                if (d < minC) minC = d;
+                if (d > maxC) maxC = d;
+            }
+
+            float rangeC = (maxC > minC) ? (maxC - minC) : 1.0f;
+
+            // ---------------------------------------------------------
+            // 4. UMBRAL DE OUTLIERS (MAD sin copias de vectores)
+            // ---------------------------------------------------------
+            // Calculamos MAD directamente sobre color_distances (haciendo uso de iteradores)
+            float mad_val = tl::median(color_distances.begin(), color_distances.end());
+
+            float noise_floor = 10.0f;
+            float outlier_threshold = std::max(noise_floor, 3.0f * mad_val);
+            // ---------------------------------------------------------
+
+            // 5. Calcular score de cada imagen válida
+            scored.clear();
+
+            for (size_t i = 0; i < num_valid; ++i) {
+                float c_dist = color_distances[i];
+
+                if (c_dist > outlier_threshold) continue;
+
+                auto idx = valid_idxs[i]; // Recuperar el índice global de la ortofoto
+
+                // 1. Distancia de color normalizada (0..1)
+                float colorNorm = (c_dist - minC) / rangeC;
+
+                // 2. Distancia Espacial Pixel a Centro
+                float dx = static_cast<float>(c) - centers[idx].x;
+                float dy = static_cast<float>(r) - centers[idx].y;
+                float dist_pixel = std::sqrt(dx * dx + dy * dy);
+                float distNorm = dist_pixel / max_dist_ref;
+
+                // Score final
+                float score = weight_color * colorNorm + weight_distance * distNorm;
+                scored.emplace_back(score, static_cast<int>(idx));
+            }
+
+            if (scored.empty()) continue;
+
+            // Ordenar por score ascendente (menor es mejor)
+            std::sort(scored.begin(), scored.end(),
+                [](const auto &a, const auto &b) { return a.first < b.first; });
+
+            // Mezcla de los N mejores Píxeles...
+            const int TOP_N = 5;
+            int n = std::min<int>(TOP_N, static_cast<int>(scored.size()));
+
+            if (n == 1) {
+                result_lab.at<cv::Vec3f>(static_cast<int>(r), c) = lab_images[scored[0].second].at<cv::Vec3f>(static_cast<int>(r), c);
+            } else {
+                float total_w = 0.f;
+                cv::Vec3f sum_lab(0.f, 0.f, 0.f);
+
+                for (int i = 0; i < n; ++i) {
+                    int idx = scored[i].second;
+                    float w = 1.0f / (1e-3f + scored[i].first);
+                    cv::Vec3f lab = lab_images[idx].at<cv::Vec3f>(static_cast<int>(r), c);
+                    sum_lab += lab * w;
+                    total_w += w;
+                }
+
+                cv::Vec3f labWeighted = (total_w > 0.f) ? (sum_lab / total_w)
+                    : lab_images[scored[0].second].at<cv::Vec3f>(static_cast<int>(r), c);
+
+                result_lab.at<cv::Vec3f>(static_cast<int>(r), c) = labWeighted;
+            }
+        }
+    });
+
+    //cv::Mat final_lab;
+    //cv::Mat result_hf_blurred;
+    //cv::GaussianBlur(result_hf, result_hf_blurred, cv::Size(5, 5), 0);
+
+    // Alta Frecuencia 
+    // Contiene valores cercanos a 0, positivos en bordes claros y negativos en oscuros.
+    //cv::Mat high_frequency_map;
+    //cv::subtract(result_hf, result_hf_blurred, high_frequency_map);
+
+    //Opciones para resaltar la imagen:
+    // 1 - Añadir imagen de altas frecuencias 
+    //cv::add(result_lab, high_frequency_map, final_lab);
+
+    // 2 - Control de Ganancia (alpha)
+    // No sumar el 100% de la HF para evitar realzar demasiado el ruido o artefactos.
+    //float alpha = 0.7f; // 70% de detalle
+    //cv::addWeighted(result_lab, 1.0, high_frequency_map, alpha, 0, final_lab);
+
+    // 3 - Control de Ganancia con umbral (solo realzar detalles si la HF supera cierto umbral)
+    // 3.1
+    //float hf_threshold = 0.05f; // umbral de detalle (ajustable)
+    //cv::Mat hf_mask;
+    //cv::inRange(high_frequency_map, cv::Scalar(-hf_threshold, -hf_threshold, -hf_threshold),
+    //            cv::Scalar(hf_threshold, hf_threshold, hf_threshold), hf_mask);
+    //cv::Mat hf_mask_float;
+    //hf_mask.convertTo(hf_mask_float, CV_32F, 1.0 / 255.0);
+    //cv::Mat hf_weighted;
+    //cv::multiply(high_frequency_map, hf_mask_float, hf_weighted);
+
+    // 3.2
+    // Si el detalle es menor a 'epsilon', lo hacemos cero
+    //float epsilon = 0.05f; // Ajusta según el ruido (rango 0-1)
+    //cv::Mat mask;
+    //cv::absdiff(high_frequency_map, cv::Scalar::all(0), mask);
+    //cv::threshold(mask, mask, epsilon, 1.0, cv::THRESH_TOZERO);
+
+    // Ahora 'high_freq' solo tiene valores donde había bordes reales
+    //cv::Mat clean_hf;
+    //high_frequency_map.copyTo(clean_hf, mask > 0);
+    //cv::add(result_lab, clean_hf, final_lab);
+
+    //cv::Mat result_bgr_f;
+    //cv::cvtColor(final_lab, result_bgr_f, cv::COLOR_Lab2BGR);
+
+    // Convertir Lab float -> BGR float (CV_32F 3ch)
+    cv::Mat result_bgr_f;
+    cv::cvtColor(result_lab, result_bgr_f, cv::COLOR_Lab2BGR);
+
+    // Reconversión a la profundidad y canales originales
+    cv::Mat final_img;
+
+    cv::Mat bgr_out;
+    if (depth == CV_8U) {
+        result_bgr_f.convertTo(bgr_out, CV_8U, 255.0);
+    } else if (depth == CV_16U) {
+        result_bgr_f.convertTo(bgr_out, CV_16U, 65535.0);
+    } else {
+        bgr_out = result_bgr_f.clone();
+    }
+
+    final_img = bgr_out;
+
+    // Postprocesado adaptativo preservando bordes
+    //cv::bilateralFilter(bgr_out, final_img, 5, 0.1*255, 15);
+    //Filtro de realce (unsharp mask)
+    //cv::Mat sharp, blurred;
+    //cv::GaussianBlur(bgr_out, blurred, cv::Size(0, 0), 1.0);
+    //cv::addWeighted(bgr_out, 1.5, blurred, -0.5, 0, sharp);
+    //final_img = sharp;
+
+    return final_img;
+}
+
 auto robustLocalBlendigRGB(const std::vector<cv::Mat> &images,
                            const std::vector<cv::Point2f> &centers,
                            float weight_color = 0.3f,
@@ -1397,7 +2297,7 @@ static cv::Mat combineImagesSmartMono(const std::vector<cv::Mat> &images_,
     //            result.at<float>(static_cast<int>(y), x) = images[bestIdx].at<float>(static_cast<int>(y), x);
     //        }
     //    }
-    //});
+    //}
 
     if (images_[0].depth() == CV_16U) {
         cv::Mat result_16u;
@@ -1414,11 +2314,7 @@ OrthophotoTask::OrthophotoTask(const std::shared_ptr<OrthophotoProperties> &prop
                                tl::Path orthoPath, 
                                tl::Path mdt, 
                                std::string enuCrs, 
-/*                               std::string epsg, 
-                               std::string interpolation, 
-                               double resolution,*/ 
-                               bool cuda/*,
-                               std::string method*/)
+                               bool cuda)
   : tl::Task(),
     mProperties(properties),
     mImages(std::move(images)),
@@ -1426,13 +2322,9 @@ OrthophotoTask::OrthophotoTask(const std::shared_ptr<OrthophotoProperties> &prop
     mOrthoPath(std::move(orthoPath)),
     mMdt(std::move(mdt)),
     mEnuCrs(std::move(enuCrs)),
-    //mEpsg(std::move(epsg)),
-    //mInterpolation(std::move(interpolation)),
-    //mGSD(resolution),
     bCuda(cuda),
     mDataType(tl::DataType::TL_8U),
-    mChannels(3)/*,
-    mMethod(std::move(method))*/
+    mChannels(3)
 {
 }
 
@@ -1581,6 +2473,7 @@ void OrthophotoTask::execute(tl::Progress *progressBar, std::stop_token stopToke
                                        footprint_file,
                                        gsd,
                                        interpolation,
+                                       mProperties->maxTiltAngle(),
                                        1.0,
                                        bCuda);
 
@@ -1603,24 +2496,24 @@ void OrthophotoTask::execute(tl::Progress *progressBar, std::stop_token stopToke
         TL_ASSERT(vectorReader.isOpen(), "Graph orthos not found: {}", graph_orthos.toString());
         auto orthos_bbox = vectorReader.boundingBox();
         mWindowAll = tl::intersection(dem_bbox, orthos_bbox);
-        auto grid = findGrid(500, mWindowAll);
+        auto grid = findGrid(512, mWindowAll);
 
         if (mosaic_method == "RLB") {
             tl::Message::info("Generating orthophoto tiles with Robust Local Blending method");
             auto orthos = searchTiles(graph_orthos, grid/*, 10*/);
 
             generateTiles(grid, orthos, progressBar);
-            writeOrthomosaic(grid);
         } else {
             tl::Message::info("Generating orthophoto tiles with Seam-based Blending method");
 
             auto sbb_config = dynamic_cast<SbbProperties *>(orthomosaic_properties.get());
-            orthoMosaic(graph_orthos, mOrthoPath, gsd, crs, grid, mDataType, mChannels, sbb_config, bCuda);
+            orthoMosaic(graph_orthos, mOrthoPath, gsd, crs, mWindowAll, grid,
+                        mDataType, mChannels, sbb_config, bCuda, progressBar);
         }
 
         tl::Path::removeDirectory(temp_path);
 
-        if (progressBar) (*progressBar)();
+        //if (progressBar) (*progressBar)();
 
         mOrthophotoReport.time = this->time();
         mOrthophotoReport.gsd = gsd;
@@ -1694,242 +2587,208 @@ void OrthophotoTask::generateTiles(const std::vector<std::vector<tl::BoundingBox
                                    std::vector<std::vector<std::map<double, std::string>>> &orthos, 
                                    tl::Progress *progressBar)
 {
+    std::mutex mtx;
+
     try {
 
         auto gsd = mProperties->gsd();
         auto epsg_code = mProperties->crs();
 
-        double step = 0;
-        if (progressBar) {
-            auto max = progressBar->maximum() / 2 - 1;
-            step = (progressBar->maximum() / 2 - 1) / static_cast<double>(grid.size() * grid[0].size());
-        }
-        double progress_value = 0;
-
-        for (size_t r = 0; r < grid.size(); r++) {
-            for (size_t c = 0; c < grid[r].size(); c++) {
-
-
-                if (progressBar) {
-
-                    progress_value += step;
-                    int value = static_cast<int>(trunc(progress_value));
-                    if (value >= 1) {
-                        (*progressBar)(value);
-                        progress_value -= value;
-                    }
-                }
-
-                const auto &window = grid[r][c];
-                int image_size = tl::numberCast<int>(window.width() / gsd);
-
-                // Todas las imagenes del elemento actual del grid
-                std::vector<cv::Mat> images;
-                // Cambio distances por centros proyectados para ser mas precisos en la selección del pixel optimo
-                std::vector<cv::Point2f> centers_in_tile_coords;
-                //std::vector<double> distances;
-
-                for (auto &ortho : orthos[r][c]) {
-
-                    try {
-
-                        tl::RasterReader image_reader(ortho.second);
-                        if (!image_reader.isOpen()) {
-                            tl::Message::error("Image open error :{}", ortho.second);
-                            continue;
-                        }
-
-                        double src_w = image_reader.cols();
-                        double src_h = image_reader.rows();
-                        auto georef = image_reader.georeference().inverse();
-
-                        auto ortoimage_center = image_reader.window().center();
-                        auto tile_center = window.center();
-
-                        double center_x_tile = (ortoimage_center.x() - tile_center.x()) / gsd;
-                        double center_y_tile = (tile_center.y() - ortoimage_center.y()) / gsd;
-
-
-                        tl::BoundingBox2i window_image;
-                        window_image.min() = static_cast<tl::Point2i>(georef.transform(window.min()));
-                        window_image.max() = static_cast<tl::Point2i>(georef.transform(window.max()));
-                        window_image.normalized();
-                        tl::Rect<int> rect_image(window_image.min().x(), window_image.min().y(), window_image.width(), window_image.height());
-                        tl::Rect<int> rect_full_image(0, 0, image_reader.cols(), image_reader.rows());
-                        tl::Rect<int> rect_to_read = tl::intersect(rect_full_image, rect_image);
-                        if (!rect_to_read.isValid()) continue;
-
-                        auto image = image_reader.read(1., 1., rect_to_read);
-                        auto data_type = image_reader.dataType();
-                        image_reader.close();
-
-
-                        if (image.rows != image_size || image.cols != image_size) {
-
-                            cv::Scalar no_data;
-                            if (image.type() == CV_32F || image.type() == CV_64F)
-                                no_data = tl::NoData<float>;
-                            else
-                                no_data = 0;
-
-                            cv::Mat aux = cv::Mat(image_size, image_size, image.type(), no_data);
-
-                            auto offset = rect_to_read.topLeft() - rect_image.topLeft();
-                            cv::Rect roi(offset.x(), offset.y(), image.cols, image.rows);
-                            cv::Mat image_roi = aux(roi);
-                            image.copyTo(image_roi);
-                            image = aux;
-                        }
-
-                        images.push_back(image);
-                        // Guardamos el punto central relativo al (0,0) de la tesela actual
-                        centers_in_tile_coords.push_back(cv::Point2f(static_cast<float>(center_x_tile), static_cast<float>(center_y_tile)));
-                        //distances.push_back(ortho.first);
-                    
-                    } catch (std::exception &e) {
-                        tl::Message::error("Window = [{}, {}, {}, {}]", window.min().x(), window.min().y(), window.max().x(), window.max().y());
-
-                        tl::printException(e);
-                    }
-                }
-
-                if (images.empty()) continue;
-
-                cv::Mat read_image;
-                if (images.size() == 1) {
-                    read_image = images[0].clone();
-                } else {
-
-                    if (mChannels == 1) {
-                        read_image = combineImagesSmartMono(images, centers_in_tile_coords);
-                    } else if (mChannels == 3) {
-                        read_image = combineImagesSmart(images, centers_in_tile_coords);
-                    } else {
-                        /// TODO: Contemplar otros casos
-                    }
-
-                }
-
-                if (read_image.empty()) continue;
-
-                try {
-
-                    tl::Path tile(mOrthoPath.parentPath());
-                    tile.append("temp");
-                    tile.append(std::to_string(r));
-                    tile.append(std::to_string(c));
-                    tile.createDirectories();
-                    tile.append("t.tif");
-
-                    tl::RasterWriter image_writer(tile);
-
-                    image_writer.create(read_image.rows, read_image.cols, read_image.channels(), mDataType);
-                    tl::Crs crs(epsg_code);
-                    image_writer.setCRS(crs.toWktFormat());
-                    tl::Affine<double, 2> affine_ortho(gsd, -gsd, window.min().x(), window.max().y(), 0.0);
-                    image_writer.setGeoreference(affine_ortho);
-                    if (mDataType == tl::DataType::TL_32F || mDataType == tl::DataType::TL_64F)
-                        image_writer.setNoDataValue(tl::NoData<float>);
-                    image_writer.write(read_image);
-                    image_writer.close();
-                } catch (std::exception &e) {
-                    tl::printException(e);
-                }
-            }
-        }
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("");
-    }
-}
-
-void OrthophotoTask::writeOrthomosaic(const std::vector<std::vector<tl::BoundingBox2d>> &grid)
-{
-
-    try {
-
-        tl::Message::info("Writing ortho image");
-
-        auto gsd = mProperties->gsd();
-        auto epsg_code = mProperties->crs();
-
-        //tl::Path ortho_final(mOrthoPath);
-        //ortho_final.append("ortho.tif");
         tl::RasterWriter image_writer(mOrthoPath);
-        int cols = static_cast<int>(std::round(mWindowAll.width() / gsd));
-        int rows = static_cast<int>(std::round(mWindowAll.height() / gsd));
+        TL_ASSERT(image_writer.isOpen(), "Cannot open orthomosaic writer: {}", mOrthoPath.toString());
+        const int cols = static_cast<int>(std::round(mWindowAll.width() / gsd));
+        const int rows = static_cast<int>(std::round(mWindowAll.height() / gsd));
 
         tl::ImageOptions options;
         options.set(tl::tiff::Tiled, "YES");
         options.set(tl::tiff::BigTiff, "IF_NEEDED");
         options.set(tl::tiff::Compress, "LZW");
+        image_writer.create(rows, cols, mChannels, mDataType, options);
 
-        if (image_writer.isOpen()) {
-            image_writer.create(rows, cols, mChannels, mDataType, options);
+        tl::ImageMetadata metadata;
+        metadata.set("TIFFTAG_DOCUMENTNAME", "Orthomosaic");
+        metadata.set("TIFFTAG_IMAGEDESCRIPTION", "Orthomosaic generated by GRAPHOS");
+        metadata.set("TIFFTAG_SOFTWARE", "GRAPHOS");
+        const QString tiffDateTime = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
+        metadata.set("TIFFTAG_DATETIME", tiffDateTime.toStdString());
+        image_writer.setMetadata(metadata);
 
-            tl::ImageMetadata metadata;
-            metadata.set("TIFFTAG_DOCUMENTNAME", "Orthomosaic");
-            metadata.set("TIFFTAG_IMAGEDESCRIPTION", "Orthomosaic generated by GRAPHOS");
-            metadata.set("TIFFTAG_SOFTWARE", "GRAPHOS");
-            QString tiffDateTime = QDateTime::currentDateTime().toString("yyyy:MM:dd HH:mm:ss");
-            metadata.set("TIFFTAG_DATETIME", tiffDateTime.toStdString());
-            image_writer.setMetadata(metadata);
-            tl::Crs crs(epsg_code);
-            image_writer.setCRS(crs.toWktFormat());
-            tl::Affine<double, 2> affine_ortho(gsd, -gsd, mWindowAll.min().x(), mWindowAll.max().y(), 0.0);
-            image_writer.setGeoreference(affine_ortho);
+        tl::Crs crs(epsg_code);
+        image_writer.setCRS(crs.toWktFormat());
 
-            if (mDataType == tl::DataType::TL_32F || mDataType == tl::DataType::TL_64F)
-                image_writer.setNoDataValue(tl::NoData<float>);
-            for (size_t r = 0; r < grid.size(); r++) {
-                for (size_t c = 0; c < grid[r].size(); c++) {
+        const tl::Affine<double, 2> affine_ortho(
+            gsd, -gsd, mWindowAll.min().x(), mWindowAll.max().y(), 0.0);
+        image_writer.setGeoreference(affine_ortho);
 
-                    try {
-                        
-                        tl::Path tile(mOrthoPath.parentPath());
-                        tile.append("temp");
-                        tile.append(std::to_string(r));
-                        tile.append(std::to_string(c));
-                        tile.append("t.tif");
-                        if (!tile.exists()) continue;
-                        tl::RasterReader image_reader(tile);
-                        if (!image_reader.isOpen()) {
-                            continue;
-                        }
+        if (mDataType == tl::DataType::TL_32F || mDataType == tl::DataType::TL_64F) {
+            image_writer.setNoDataValue(tl::NoData<float>);
+        }
 
-                        auto tile_window = image_reader.window();
+        struct TileIndex { size_t r; size_t c; };
+        std::vector<TileIndex> tiles;
+        for (size_t r = 0; r < grid.size(); ++r)
+            for (size_t c = 0; c < grid[r].size(); ++c)
+                tiles.push_back({r, c});
 
-                        const auto &window = grid[r][c];
-                        if (!tl::intersects(tile_window, window)) continue;
+        const size_t tile_progress_budget =
+            progressBar && progressBar->maximum() / 2 > 0
+                ? progressBar->maximum() / 2 - 1
+                : 0;
+        std::mutex progress_mutex;
+        size_t tiles_completed = 0;
+        size_t tile_progress_reported = 0;
+        const auto report_tile_progress = [&]() {
+            if (!progressBar || tiles.empty()) return;
 
-                        cv::Mat compensate_image = image_reader.read();
-                        // Relleno de pixeles negros
-                        cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 1024);
-                        //cv::Mat black_pixel_mask = createBlackPixelMask(compensate_image, 512);
-                        cv::inpaint(compensate_image, blackPixelMask, compensate_image, 3, cv::INPAINT_TELEA);
-                        //cv::inpaint(compensate_image, black_pixel_mask, compensate_image, 5, cv::INPAINT_NS);
+            std::lock_guard<std::mutex> lock(progress_mutex);
+            ++tiles_completed;
+            const auto target = static_cast<size_t>(
+                static_cast<double>(tile_progress_budget) * tiles_completed / tiles.size());
+            if (target > tile_progress_reported) {
+                (*progressBar)(target - tile_progress_reported);
+                tile_progress_reported = target;
+            }
+        };
 
-                        auto affine_ortho_inverse = affine_ortho.inverse();
-                        tl::Point2d p1_ortho = affine_ortho_inverse.transform(tile_window.min());
-                        tl::Point2d p2_ortho = affine_ortho_inverse.transform(tile_window.max());
-                        tl::BoundingBox2i window_to_write(static_cast<tl::Point2i>(p1_ortho), static_cast<tl::Point2i>(p2_ortho));
-                        window_to_write.normalized();
-                        if (window_to_write.isValid())
-                            image_writer.write(compensate_image, window_to_write);
-                    } catch (std::exception &e) {
-                        tl::printException(e);
+        tl::parallel_for(0, tiles.size(), [&](size_t idx) {
+            size_t r = tiles[idx].r;
+            size_t c = tiles[idx].c;
+
+            const auto &window = grid[r][c];
+            int image_size = tl::numberCast<int>(window.width() / gsd);
+
+            // Todas las imagenes del elemento actual del grid
+            std::vector<cv::Mat> images;
+            // Cambio distances por centros proyectados para ser mas precisos en la selección del pixel optimo
+            std::vector<cv::Point2f> centers_in_tile_coords;
+            //std::vector<double> distances;
+
+            for (auto &ortho : orthos[r][c]) {
+
+                try {
+
+                    tl::RasterReader image_reader(ortho.second);
+                    if (!image_reader.isOpen()) {
+                        tl::Message::error("Image open error :{}", ortho.second);
+                        continue;
                     }
+
+                    double src_w = image_reader.cols();
+                    double src_h = image_reader.rows();
+                    auto georef = image_reader.georeference().inverse();
+
+                    auto ortoimage_center = image_reader.window().center();
+                    auto tile_center = window.center();
+
+                    double center_x_tile = (ortoimage_center.x() - tile_center.x()) / gsd;
+                    double center_y_tile = (tile_center.y() - ortoimage_center.y()) / gsd;
+
+
+                    tl::BoundingBox2i window_image;
+                    window_image.min() = static_cast<tl::Point2i>(georef.transform(window.min()));
+                    window_image.max() = static_cast<tl::Point2i>(georef.transform(window.max()));
+                    window_image.normalized();
+                    tl::Rect<int> rect_image(window_image.min().x(), window_image.min().y(), window_image.width(), window_image.height());
+                    tl::Rect<int> rect_full_image(0, 0, image_reader.cols(), image_reader.rows());
+                    tl::Rect<int> rect_to_read = tl::intersect(rect_full_image, rect_image);
+                    if (!rect_to_read.isValid()) continue;
+
+                    auto image = image_reader.read(1., 1., rect_to_read);
+                    auto data_type = image_reader.dataType();
+                    image_reader.close();
+
+
+                    if (image.rows != image_size || image.cols != image_size) {
+
+                        cv::Scalar no_data;
+                        if (image.type() == CV_32F || image.type() == CV_64F)
+                            no_data = tl::NoData<float>;
+                        else
+                            no_data = 0;
+
+                        cv::Mat aux = cv::Mat(image_size, image_size, image.type(), no_data);
+
+                        auto offset = rect_to_read.topLeft() - rect_image.topLeft();
+                        cv::Rect roi(offset.x(), offset.y(), image.cols, image.rows);
+                        cv::Mat image_roi = aux(roi);
+                        image.copyTo(image_roi);
+                        image = aux;
+                    }
+
+                    images.push_back(image);
+                    // Guardamos el punto central relativo al (0,0) de la tesela actual
+                    centers_in_tile_coords.push_back(cv::Point2f(static_cast<float>(center_x_tile), static_cast<float>(center_y_tile)));
+
+                } catch (std::exception &e) {
+                    tl::Message::error("Window = [{}, {}, {}, {}]", window.min().x(), window.min().y(), window.max().x(), window.max().y());
+
+                    tl::printException(e);
                 }
             }
 
+            if (images.empty()) {
+                report_tile_progress();
+                return;
+            }
+
+            cv::Mat read_image;
+            if (images.size() == 1) {
+                read_image = images[0].clone();
+            } else {
+
+                if (mChannels == 1) {
+                    read_image = combineImagesSmartMono(images, centers_in_tile_coords);
+                } else if (mChannels == 3) {
+                    //read_image = combineImagesSmart(images, centers_in_tile_coords);
+                    // Evitando copia extra
+                    read_image = combineImagesSmart2(images, centers_in_tile_coords);
+                    // Con SIMD
+                    //read_image = combineImagesSmart3(images, centers_in_tile_coords);
+                } else {
+                    /// TODO: Contemplar otros casos
+                }
+
+            }
+
+            if (read_image.empty()) {
+                report_tile_progress();
+                return;
+            }
+
+            try {
+                const cv::Mat black_pixel_mask = createBlackPixelMask(read_image, 1024);
+                if (cv::countNonZero(black_pixel_mask) > 0) {
+                    cv::inpaint(read_image, black_pixel_mask, read_image, 3, cv::INPAINT_TELEA);
+                }
+
+                const auto affine_ortho_inverse = affine_ortho.inverse();
+                const auto p1_ortho = affine_ortho_inverse.transform(window.min());
+                const auto p2_ortho = affine_ortho_inverse.transform(window.max());
+                tl::BoundingBox2i window_to_write(
+                    static_cast<tl::Point2i>(p1_ortho), static_cast<tl::Point2i>(p2_ortho));
+                window_to_write.normalized();
+                if (window_to_write.isValid()) {
+                    std::lock_guard<std::mutex> lck(mtx);
+                    image_writer.write(read_image, window_to_write);
+                }
+            } catch (std::exception &e) {
+                tl::printException(e);
+            }
+            report_tile_progress();
+        });
+
+        image_writer.close();
+        addOverviewsToImage(mOrthoPath.toString());
+        if (progressBar) {
+            std::lock_guard<std::mutex> lock(progress_mutex);
+            if (tile_progress_budget > tile_progress_reported) {
+                (*progressBar)(tile_progress_budget - tile_progress_reported);
+            }
+            (*progressBar)();
         }
 
-        // Write overviews
-
-        addOverviewsToImage(mOrthoPath.toString());
-
-    } catch (std::exception &e) {
-        tl::printException(e);
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
     }
 }
 
