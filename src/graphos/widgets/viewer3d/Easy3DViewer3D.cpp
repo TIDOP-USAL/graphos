@@ -391,17 +391,31 @@ void Easy3DViewer3D::setPointLighting(bool enabled)
 {
     for (auto model : mModels) {
 
+        if (!model->renderer()) continue;
+
         auto *cloud = dynamic_cast<easy3d::PointCloud *>(model);
-        if (!cloud || !cloud->renderer())
-            continue;
+        auto *mesh = dynamic_cast<easy3d::SurfaceMesh *>(model);
 
-        if (!cloud->get_vertex_property<easy3d::vec3>("v:normal"))
-            continue;
+        if (cloud) {
 
-        for (const auto &drawable : cloud->renderer()->points_drawables()) {
-            drawable->set_lighting(enabled);
+            if (!cloud->get_vertex_property<easy3d::vec3>("v:normal"))
+                continue;
+
+            for (const auto &drawable : cloud->renderer()->points_drawables()) {
+                drawable->set_lighting(enabled);
+            }
+
+        } else if (mesh) {
+
+            if (!mesh->get_vertex_property<easy3d::vec3>("v:normal"))
+                continue;
+
+            for (const auto &drawable : mesh->renderer()->triangles_drawables()) {
+                drawable->set_lighting(enabled);
+            }
         }
     }
+
     update();
 }
 
@@ -413,6 +427,7 @@ void Easy3DViewer3D::setPointSize(int size)
         for (const auto &drawable : model->renderer()->points_drawables())
             drawable->set_point_size(static_cast<float>(size));
     }
+
     update();
 }
 
@@ -477,19 +492,53 @@ void Easy3DViewer3D::showContextMenu(const QPoint &position)
 {
     bool hasNormals = false;
     bool pointLighting = false;
+    bool hasPointCloud = false;
+
     for (auto model : mModels) {
-        auto *cloud = dynamic_cast<easy3d::PointCloud *>(model);
-        if (!cloud || !cloud->renderer() ||
-            !cloud->get_vertex_property<easy3d::vec3>("v:normal"))
+
+        if (!model || !model->renderer())
             continue;
-        hasNormals = true;
-        if (!cloud->renderer()->points_drawables().empty() &&
-            cloud->renderer()->points_drawables().front()->lighting())
-            pointLighting = true;
+
+        bool modelHasNormals = false;
+        auto *cloud = dynamic_cast<easy3d::PointCloud *>(model);
+        auto *mesh = dynamic_cast<easy3d::SurfaceMesh *>(model);
+
+        if (cloud) {
+            hasPointCloud = true;
+        }
+
+        if (cloud && cloud->get_vertex_property<easy3d::vec3>("v:normal")) {
+            modelHasNormals = true;
+        } else if (mesh && mesh->get_vertex_property<easy3d::vec3>("v:normal")) {
+            modelHasNormals = true;
+        }
+
+        if (modelHasNormals) {
+            hasNormals = true;
+
+            if (cloud && !cloud->renderer()->points_drawables().empty() &&
+                cloud->renderer()->points_drawables().front()->lighting()) {
+                pointLighting = true;
+            } else if (mesh && !mesh->renderer()->triangles_drawables().empty() &&
+                mesh->renderer()->triangles_drawables().front()->lighting()) {
+                pointLighting = true;
+            }
+        }
+
+        //auto *cloud = dynamic_cast<easy3d::PointCloud *>(model);
+        //if (!cloud || !cloud->renderer() ||
+        //    !cloud->get_vertex_property<easy3d::vec3>("v:normal"))
+        //    continue;
+        //hasNormals = true;
+        //if (!cloud->renderer()->points_drawables().empty() &&
+        //    cloud->renderer()->points_drawables().front()->lighting())
+        //    pointLighting = true;
     }
+
     mContextMenu->setPerspectiveProjection(mCamera->type() == easy3d::Camera::PERSPECTIVE);
     mContextMenu->setPointLightingAvailable(hasNormals);
     mContextMenu->setPointLighting(pointLighting);
+
     if (mMousePressed == position)
         mContextMenu->exec(mapToGlobal(position));
 }
