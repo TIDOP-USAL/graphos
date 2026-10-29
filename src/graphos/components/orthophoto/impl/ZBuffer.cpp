@@ -54,7 +54,7 @@ ZBuffer::~ZBuffer()
 
 struct Tile
 {
-    tl::Rect<int> rect;      // area covered by the tile
+    tl::Rect<int> rect;   // area covered by the tile
     tl::Point2i origin;   // starting pixel (depends on relative position)
     tl::Point2i step;     // traversal direction: (1,1)=down-right, (-1,1)=down-left, etc.
 };
@@ -138,8 +138,11 @@ static auto buildTiles(const tl::Rect<int> &rect, int tileSize) -> std::vector<T
 //
 //                    int c = tile.origin.x() + x * tile.step.x();
 //                    int r = tile.origin.y() + y * tile.step.y();
+//
 //                    if (c < tile.rect.x() || c >= tile.rect.x() + tile.rect.width() ||
 //                        r < tile.rect.y() || r >= tile.rect.y() + tile.rect.height())
+//                        continue;
+//                    if (!tile.rect.contains(tl::Point2i(c, r)))
 //                        continue;
 //
 //                    std::vector<tl::Point3d> dem_enu_coordinates(4);
@@ -169,21 +172,21 @@ static auto buildTiles(const tl::Rect<int> &rect, int tileSize) -> std::vector<T
 //                        image_coordinates[i] = static_cast<tl::Point2i>(mOrthorectification->photoCoordinatesToImageCoordinates(static_cast<tl::Point2d>(photocoordinates[i])));
 //                    }
 //
-//                    // 1. Validar envolvente en imagen
+//                     1. Validar envolvente en imagen
 //                    tl::BoundingBox2i window_image_in = tl::envelope(image_coordinates[0],
 //                        image_coordinates[1],
 //                        image_coordinates[2],
 //                        image_coordinates[3]);
 //                    if (!window_image_in.isValid()) continue;
 //
-//                    // 2. Validar envolvente en ortofoto
+//                     2. Validar envolvente en ortofoto
 //                    tl::BoundingBox2i window_ortho_in = tl::envelope(dem_image_coordinates[0],
 //                        dem_image_coordinates[1],
 //                        dem_image_coordinates[2],
 //                        dem_image_coordinates[3]);
 //                    if (!window_ortho_in.isValid()) continue;
 //
-//                    // Permitir intersección en lugar de requerir que mRectOrtho contenga los 4 puntos completos
+//                     Permitir intersección en lugar de requerir que mRectOrtho contenga los 4 puntos completos
 //                    tl::Rect<int> win_img_rect(window_image_in.min().x(), window_image_in.min().y(),
 //                                               window_image_in.width() + 1, window_image_in.height() + 1);
 //
@@ -191,7 +194,7 @@ static auto buildTiles(const tl::Rect<int> &rect, int tileSize) -> std::vector<T
 //                        continue;
 //                    }
 //
-//                    // Recortar la ventana al dominio estricto de la imagen para no salir de rango
+//                     Recortar la ventana al dominio estricto de la imagen para no salir de rango
 //                    int img_x1 = std::max(rect_image.x(), window_image_in.min().x());
 //                    int img_y1 = std::max(rect_image.y(), window_image_in.min().y());
 //                    int img_x2 = std::min(rect_image.x() + rect_image.width() - 1, window_image_in.max().x());

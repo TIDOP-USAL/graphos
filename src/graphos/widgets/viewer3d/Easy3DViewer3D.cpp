@@ -945,16 +945,6 @@ void Easy3DViewer3D::mouseMoveEvent(QMouseEvent *event)
 
 void Easy3DViewer3D::wheelEvent(QWheelEvent *event)
 {
-    QPoint position = event->position().toPoint();
-
-    bool found = false;
-    const easy3d::vec3 &point = pointUnderPixel(position, found);
-    if (found) {
-        mCamera->setPivotPoint(point);
-    } /*else {
-        mCamera->setPivotPoint(mCamera->sceneCenter());
-    }*/
-
     mCamera->frame()->action_zoom(event->angleDelta().y() > 0 ? 1 : -1, mCamera);
 
     QOpenGLWidget::wheelEvent(event);

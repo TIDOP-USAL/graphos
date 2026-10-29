@@ -758,6 +758,11 @@ void MainWindowPresenter::init()
     bool bUseGPU = cudaEnabled(10.0, 3.0);
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName());
     settings.setValue("UseCuda", settings.value("UseCuda", bUseGPU).toBool());
+
+    // Chapuza para iniciar antes Easy3DViewer3D y evitar un parpadeo al abrir un modelo por primera vez...
+    Easy3DViewer3D openGLWarmup(mView);
+    openGLWarmup.makeCurrent();
+    openGLWarmup.doneCurrent();
 }
 
 void MainWindowPresenter::initSignalAndSlots()
