@@ -48,10 +48,9 @@ public:
 
     auto graphosProjectsDirectory() const -> tl::Path override;
 
-public slots:
-
     void exportMesh(const tl::Path &exportPath) override;
-
+    void saveProject() override;
+    auto isProjectScaled() const -> bool override;
 
 // Model interface
 

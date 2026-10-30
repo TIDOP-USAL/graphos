@@ -51,7 +51,7 @@ OrientationCommand::OrientationCommand()
     this->addArgument<std::string>("method", 'm', "Orientation method: sequential or global", "sequential");
     this->addArgument<bool>("fix_calibration", 'c', "Fix calibration", false);
     this->addArgument<bool>("use_gcp", "Use Ground Control Points for absolute orientation", true);
-    this->addArgument<bool>("use_poses", "Use camera cameraPosesFile for absolute orientation", true);
+    this->addArgument<bool>("use_poses", "Use camera poses for absolute orientation", true);
     this->addArgument<bool>("use_rtk_accuracy", "Use RTK positioning accuracy", false);
     this->addArgument<bool>("absolute_orientation", 'a', "Absolute Orientation", false);
 
@@ -89,7 +89,7 @@ bool OrientationCommand::run()
         reader.read(project_path, project);
 
         TL_ASSERT(project.matches().hasInlierMatches(), "No valid matches found in the database. "
-            "Please run the Feature Matching process before estimating camera cameraPosesFile.");
+            "Please run the Feature Matching process before estimating camera poses.");
 
         project.clearOrientation();
 
@@ -157,7 +157,7 @@ bool OrientationCommand::run()
         ground_points_path.append("ground_points.bin");
 
         tl::Path poses_path = sfm_path;
-        poses_path.append("cameraPosesFile.bin");
+        poses_path.append("poses.bin");
 
 
         TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");

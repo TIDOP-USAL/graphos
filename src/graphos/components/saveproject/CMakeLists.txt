@@ -64,7 +64,9 @@ if(BUILD_SAVE_PROJECT_COMPONENT AND BUILD_GUI)
                           Qt6::Widgets
                           Graphos::Core
                           Eigen3::Eigen
-                          glog::glog)
+                          glog::glog
+                          $<$<BOOL:${HAVE_EASY3D}>:easy3d::renderer>
+                          $<$<BOOL:${HAVE_EASY3D}>:easy3d::fileio>)
     
     set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
     

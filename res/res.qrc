@@ -117,6 +117,7 @@
         <file alias="24/angle_measure.png">icons/Material/24/angle_measure.png</file>
         <file alias="48/angle_measure.png">icons/Material/48/angle_measure.png</file>
         <file alias="96/angle_measure.png">icons/Material/96/angle_measure.png</file>
+        <file alias="area_measure.svg">icons/Material/area_measure.svg</file>
         <file alias="24/console.png">icons/Material/24/console.png</file>
         <file alias="48/console.png">icons/Material/48/console.png</file>
         <file alias="96/console.png">icons/Material/96/console.png</file>

@@ -46,6 +46,7 @@ public:
 public slots:
 
     virtual void setDistance(double distance) = 0;
+    virtual void setMeasureEnabled(bool enabled) = 0;
 
 signals:
 

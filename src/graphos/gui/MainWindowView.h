@@ -135,7 +135,7 @@ public:
      * \brief Añade un mensaje temporal en la barra de herramientas
      * \param msg Mensaje
      */
-    void setStatusBarMsg(const QString &msg);
+    void setStatusBarMsg(const QString &msg, int timeout = 2000);
 
     ProgressBarWidget *progressBar();
 
@@ -318,6 +318,7 @@ private:
     QAction *mActionPointMeasuse;
     QAction *mActionDistanceMeasuse;
     QAction *mActionAngleMeasure;
+    QAction *mActionAreaMeasure;
 
     ThumbnailsWidget *mThumbnailsWidget;
     LogWidget *mLogWidget;

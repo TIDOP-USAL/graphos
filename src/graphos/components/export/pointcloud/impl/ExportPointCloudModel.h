@@ -51,10 +51,8 @@ public:
     auto enuCrs() const -> std::string override;
     auto crs() const -> std::string override;
     auto pointCloudSize() const -> size_t override;
-
-public slots:
-
-    //void exportPointCloud(const tl::Path &exportPath) override;
+    void saveProject() override;
+    auto isProjectScaled() const -> bool override;
 
 // Model interface
 

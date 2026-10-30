@@ -113,36 +113,56 @@ void ExportPointCloudPresenterImp::cancel()
 
 void ExportPointCloudPresenterImp::open()
 {
-    QString filters;
-    if (mPlyFormatWidget) filters.append("PLY (*.ply)");
-    if (mLasFormatWidget) {
-        if (!filters.isEmpty()) filters.append(";;");
-        filters.append("LAS (*.las *.laz)");
-    }
+    try {
 
-    QString selected_filter;
-    mExportFile = QFileDialog::getSaveFileName(nullptr,
-                                               QApplication::translate("ExportPointCloudComponent", "Point Cloud Export"),
-                                               QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-                                               filters,
-                                               &selected_filter);
-
-    if (!mExportFile.isEmpty()) {
-
-        if (selected_filter.compare("PLY (*.ply)") == 0) {
-            mView->setFormat(mPlyFormatWidget->windowTitle());
-        } else if (selected_filter.compare("LAS (*.las *.laz)") == 0) {
-            mView->setFormat(mLasFormatWidget->windowTitle());
-        } else {
-            tl::Message::error("Unsupported format");
-            return;
+        if (mModel->isProjectScaled()) {
+            int i_ret = QMessageBox(QMessageBox::Information,
+                QApplication::translate("ExportPointCloudPresenter", "Scaled Project"),
+                QApplication::translate("ExportPointCloudPresenter",
+                    "The project currently has an active scale. In order to perform the export correctly, "
+                    "it is necessary to save the project first.\n\n"
+                    "Would you like to save the project now and proceed with the export?"),
+                QMessageBox::Yes | QMessageBox::No).exec();
+            if (i_ret == QMessageBox::Yes) {
+                mModel->saveProject();
+                mAppStatus->activeFlag(AppStatus::Flag::project_modified, false);
+            } else if (i_ret == QMessageBox::No) {
+                return;
+            }
         }
 
-        mView->setCrs(QString::fromStdString(mModel->crs()));
+        QString filters;
+        if (mPlyFormatWidget) filters.append("PLY (*.ply)");
+        if (mLasFormatWidget) {
+            if (!filters.isEmpty()) filters.append(";;");
+            filters.append("LAS (*.las *.laz)");
+        }
 
-        mView->exec();
+        QString selected_filter;
+        mExportFile = QFileDialog::getSaveFileName(nullptr,
+            QApplication::translate("ExportPointCloudComponent", "Point Cloud Export"),
+            QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+            filters,
+            &selected_filter);
+
+        if (!mExportFile.isEmpty()) {
+
+            if (selected_filter.compare("PLY (*.ply)") == 0) {
+                mView->setFormat(mPlyFormatWidget->windowTitle());
+            } else if (selected_filter.compare("LAS (*.las *.laz)") == 0) {
+                mView->setFormat(mLasFormatWidget->windowTitle());
+            } else {
+                tl::Message::error("Unsupported format");
+                return;
+            }
+
+            mView->setCrs(QString::fromStdString(mModel->crs()));
+
+            mView->exec();
+        }
+    } catch (std::exception &e) {
+        tl::printException(e);
     }
-
 }
 
 void ExportPointCloudPresenterImp::setPlyFormatWidget(const std::shared_ptr<PlyFormatWidget> &plyFormatWidget)

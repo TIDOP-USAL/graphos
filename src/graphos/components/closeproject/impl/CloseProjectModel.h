@@ -44,7 +44,7 @@ public:
 
 // CloseProjectModel interface
 
-public slots:
+public:
 
     void saveProject() override;
 

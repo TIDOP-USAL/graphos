@@ -28,12 +28,13 @@
 namespace graphos
 {
 
-class NvmFormatWidget;
-class BundlerFormatWidget;
-class MveFormatWidget;
+//class NvmFormatWidget;
+//class BundlerFormatWidget;
+//class MveFormatWidget;
 class OriTxtFormatWidget;
 class ExportCameraPosesView;
 class ExportCameraPosesModel;
+class AppStatus;
 
 class ExportCameraPosesPresenterImp
   : public ExportCameraPosesPresenter
@@ -43,7 +44,8 @@ class ExportCameraPosesPresenterImp
 public:
 
     ExportCameraPosesPresenterImp(ExportCameraPosesView *view,
-                                  ExportCameraPosesModel *model);
+                                  ExportCameraPosesModel *model,
+                                  AppStatus *status);
     ~ExportCameraPosesPresenterImp() override;
 
 // ExportCameraPosesPresenter interface
@@ -79,6 +81,7 @@ private:
 
     ExportCameraPosesView *mView;
     ExportCameraPosesModel *mModel;
+    AppStatus *mAppStatus;
     //NvmFormatWidget *mNvmFormatWidget;
     //BundlerFormatWidget *mBundlerFormatWidget;
     //MveFormatWidget *mMveFormatWidget;

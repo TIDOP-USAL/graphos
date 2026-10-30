@@ -5,12 +5,14 @@
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QMouseEvent>
+#include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QWheelEvent>
 #include <QFutureWatcher>
 #include <QtConcurrent/QtConcurrent>
 
 #include <algorithm>
+#include <cmath>
 #include <initializer_list>
 #include <memory>
 
@@ -93,13 +95,17 @@ Easy3DViewer3D::Easy3DViewer3D(QWidget *parent)
     mSelectedObject(nullptr),
     mCamera(new easy3d::Camera),
     mEdl(std::make_unique<easy3d::EyeDomeLighting>(mCamera)),
+    mPickingMode(PickingMode::none),
+    mMeasurementComplete(false),
+    mAreaClosed(false),
     mContextMenu(new Viewer3DContextMenu(this)),
     mBackgroundColor(50, 50, 50),
     mPressedButton(Qt::NoButton),
     mEdlEnabled(false),
-    //mPickingMode(PickingMode::point_info),
     mDrawableAxes(nullptr),
     mDrawableManipSphere(nullptr),
+    mDrawableMeasurementLines(nullptr),
+    mDrawableMeasurementPoints(nullptr),
     mShowManipSphere(false)
 {
     mCamera->setType(easy3d::Camera::PERSPECTIVE);
@@ -120,6 +126,8 @@ Easy3DViewer3D::~Easy3DViewer3D()
 
     mModels.clear();
     delete mDrawableManipSphere;
+    delete mDrawableMeasurementLines;
+    delete mDrawableMeasurementPoints;
     delete mDrawableAxes;
     mEdl.reset();
     delete mCamera;
@@ -135,6 +143,11 @@ void Easy3DViewer3D::clear()
 
     mModels.clear();
     mSelectedObject = nullptr;
+    mPickedPoints.clear();
+    mMeasurementPoints.clear();
+    mMeasurementComplete = false;
+    mAreaClosed = false;
+    updateMeasurementDrawables();
     doneCurrent();
     update();
 }
@@ -279,15 +292,231 @@ void Easy3DViewer3D::addCamera(const QString &id,
         base_edges->set_visible(false);
 }
 
-//void Easy3DViewer3D::activatePicker(PickingMode pickerMode)
-//{ 
-//    mPickingMode = pickerMode;
-//}
-//
-//void Easy3DViewer3D::deactivatePicker()
-//{
-//    mPickingMode = PickingMode::point_info;
-//}
+void Easy3DViewer3D::setPickingMode(PickingMode mode)
+{
+    mPickingMode = mode;
+    mPickedPoints.clear();
+    mMeasurementPoints.clear();
+    mMeasurementComplete = false;
+    mAreaClosed = false;
+    updateMeasurementDrawables();
+
+    switch (mode) {
+    case PickingMode::pointInfo:
+        emit measurementMessage(tr("Click a point to display its coordinates."));
+        break;
+    case PickingMode::distance:
+        emit measurementMessage(tr("Select two points to measure the distance."));
+        break;
+    case PickingMode::angle:
+        emit measurementMessage(tr("Select three points to measure the angle."));
+        break;
+    case PickingMode::area:
+        emit measurementMessage(tr("Select area vertices and right-click to finish."));
+        break;
+    case PickingMode::scale:
+        emit measurementMessage(tr("Select two points to set the model scale."));
+        break;
+    case PickingMode::none:
+        emit measurementMessage(QString());
+        break;
+    }
+}
+
+void Easy3DViewer3D::applyScale(double scale)
+{
+    tl::Matrix<double, 4, 4> transform = tl::Matrix<double, 4, 4>::identity();
+    transform[0][0] = scale;
+    transform[1][1] = scale;
+    transform[2][2] = scale;
+    applyTransform(transform);
+}
+
+void Easy3DViewer3D::applyTransform(const tl::Matrix<double, 4, 4> &transform)
+{
+    makeCurrent();
+    for (auto *model : mModels) {
+        if (!model)
+            continue;
+        for (auto &point : model->points()) {
+            const double x = point.x;
+            const double y = point.y;
+            const double z = point.z;
+            point.x = static_cast<float>(transform[0][0] * x + transform[0][1] * y +
+                                         transform[0][2] * z + transform[0][3]);
+            point.y = static_cast<float>(transform[1][0] * x + transform[1][1] * y +
+                                         transform[1][2] * z + transform[1][3]);
+            point.z = static_cast<float>(transform[2][0] * x + transform[2][1] * y +
+                                         transform[2][2] * z + transform[2][3]);
+        }
+        model->invalidate_bounding_box();
+        if (model->renderer())
+            model->renderer()->update();
+    }
+    mPickedPoints.clear();
+    mMeasurementPoints.clear();
+    mMeasurementComplete = false;
+    mAreaClosed = false;
+    updateMeasurementDrawables();
+    doneCurrent();
+    setGlobalZoom();
+}
+
+void Easy3DViewer3D::updateMeasurementDrawables()
+{
+    const bool owns_context = QOpenGLContext::currentContext() != context();
+    if (owns_context)
+        makeCurrent();
+
+    if (!mDrawableMeasurementPoints)
+        mDrawableMeasurementPoints = new easy3d::PointsDrawable("measurement_points");
+    if (!mDrawableMeasurementLines)
+        mDrawableMeasurementLines = new easy3d::LinesDrawable("measurement_lines");
+
+    std::vector<easy3d::vec3> points;
+    points.reserve(mMeasurementPoints.size());
+    for (const auto &point : mMeasurementPoints)
+        points.emplace_back(point.x(), point.y(), point.z());
+
+    std::vector<easy3d::vec3> lines;
+    if (mMeasurementPoints.size() > 1) {
+        lines.reserve((mMeasurementPoints.size() - 1 + (mAreaClosed ? 1 : 0)) * 2);
+        for (size_t i = 1; i < mMeasurementPoints.size(); ++i) {
+            const auto &first = mMeasurementPoints[i - 1];
+            const auto &second = mMeasurementPoints[i];
+            lines.emplace_back(first.x(), first.y(), first.z());
+            lines.emplace_back(second.x(), second.y(), second.z());
+        }
+        if (mAreaClosed) {
+            const auto &last = mMeasurementPoints.back();
+            const auto &first = mMeasurementPoints.front();
+            lines.emplace_back(last.x(), last.y(), last.z());
+            lines.emplace_back(first.x(), first.y(), first.z());
+        }
+    }
+
+    mDrawableMeasurementPoints->update_vertex_buffer(points);
+    mDrawableMeasurementPoints->state().set_uniform_coloring(easy3d::vec4(1.f, 0.1f, 0.05f, 1.f));
+    mDrawableMeasurementPoints->state().set_lighting(false);
+    mDrawableMeasurementPoints->set_point_size(12.f);
+
+    mDrawableMeasurementLines->update_vertex_buffer(lines);
+    mDrawableMeasurementLines->state().set_uniform_coloring(easy3d::vec4(1.f, 0.9f, 0.05f, 1.f));
+    mDrawableMeasurementLines->state().set_lighting(false);
+    mDrawableMeasurementLines->set_line_width(3.f);
+
+    if (owns_context)
+        doneCurrent();
+}
+
+void Easy3DViewer3D::drawMeasurements()
+{
+    if (mMeasurementPoints.empty() || !mDrawableMeasurementPoints ||
+        !mDrawableMeasurementLines)
+        return;
+
+    const bool depth_test_enabled = glIsEnabled(GL_DEPTH_TEST) == GL_TRUE;
+    glDisable(GL_DEPTH_TEST);
+    if (mMeasurementPoints.size() > 1)
+        mDrawableMeasurementLines->draw(mCamera);
+    mDrawableMeasurementPoints->draw(mCamera);
+    if (depth_test_enabled)
+        glEnable(GL_DEPTH_TEST);
+}
+
+void Easy3DViewer3D::processPickedPoint(const easy3d::vec3 &point)
+{
+    if (mMeasurementComplete) {
+        mPickedPoints.clear();
+        mMeasurementPoints.clear();
+        mMeasurementComplete = false;
+        mAreaClosed = false;
+    }
+
+    const QVector3D picked(point.x, point.y, point.z);
+    mPickedPoints.push_back(picked);
+    mMeasurementPoints.push_back(picked);
+    updateMeasurementDrawables();
+    emit mouseClicked(picked);
+
+    switch (mPickingMode) {
+    case PickingMode::pointInfo:
+        emit measurementMessage(tr("Point: X=%1, Y=%2, Z=%3")
+            .arg(picked.x(), 0, 'f', 3)
+            .arg(picked.y(), 0, 'f', 3)
+            .arg(picked.z(), 0, 'f', 3));
+        mPickedPoints.clear();
+        mMeasurementComplete = true;
+        break;
+    case PickingMode::distance:
+    case PickingMode::scale:
+        if (mPickedPoints.size() == 1) {
+            emit measurementMessage(tr("First point selected. Select the second point."));
+        } else if (mPickedPoints.size() == 2) {
+            const double distance = mPickedPoints[0].distanceToPoint(mPickedPoints[1]);
+            if (mPickingMode == PickingMode::scale)
+                emit measurementMessage(tr("Measured length: %1 m").arg(distance, 0, 'f', 3));
+            else
+                emit measurementMessage(tr("Distance: %1 m").arg(distance, 0, 'f', 3));
+            mPickedPoints.clear();
+            mMeasurementComplete = true;
+        }
+        break;
+    case PickingMode::angle:
+        if (mPickedPoints.size() < 3) {
+            emit measurementMessage(tr("Select point %1 of 3.")
+                .arg(mPickedPoints.size() + 1));
+        } else {
+            const QVector3D first = mPickedPoints[0] - mPickedPoints[1];
+            const QVector3D second = mPickedPoints[2] - mPickedPoints[1];
+            const double denominator = static_cast<double>(first.length()) * second.length();
+            if (denominator > 0.) {
+                const double cosine = std::clamp(
+                    static_cast<double>(QVector3D::dotProduct(first, second)) / denominator,
+                    -1., 1.);
+                const double angle = std::acos(cosine) * 180. / 3.14159265358979323846;
+                emit measurementMessage(tr("Angle: %1°").arg(angle, 0, 'f', 2));
+            } else {
+                emit measurementMessage(tr("Angle cannot be measured from coincident points."));
+            }
+            mPickedPoints.clear();
+            mMeasurementComplete = true;
+        }
+        break;
+    case PickingMode::area:
+        emit measurementMessage(tr("%1 area vertices selected. Right-click to finish.")
+            .arg(mPickedPoints.size()));
+        break;
+    case PickingMode::none:
+        mPickedPoints.clear();
+        break;
+    }
+}
+
+void Easy3DViewer3D::finishAreaMeasurement()
+{
+    if (mPickedPoints.size() < 3) {
+        emit measurementMessage(tr("Select at least three points to measure an area."));
+        mPickedPoints.clear();
+        mMeasurementPoints.clear();
+        updateMeasurementDrawables();
+        return;
+    }
+
+    double area = 0.;
+    const QVector3D origin = mPickedPoints.front();
+    for (size_t i = 1; i + 1 < mPickedPoints.size(); ++i) {
+        const QVector3D first = mPickedPoints[i] - origin;
+        const QVector3D second = mPickedPoints[i + 1] - origin;
+        area += static_cast<double>(QVector3D::crossProduct(first, second).length()) * 0.5;
+    }
+
+    emit measurementMessage(tr("Area: %1 m²").arg(area, 0, 'f', 3));
+    mPickedPoints.clear();
+    mAreaClosed = true;
+    mMeasurementComplete = true;
+    updateMeasurementDrawables();
+}
 
 auto Easy3DViewer3D::captureModel() -> QImage
 { 
@@ -357,8 +586,12 @@ void Easy3DViewer3D::setGlobalZoom()
 
         easy3d::Box3 box;
         for (auto model : mModels) {
-            box.grow(model->bounding_box());
+            if (model)
+                box.grow(model->bounding_box(true));
         }
+
+        if (!box.is_valid())
+            return;
 
         mCamera->setSceneBoundingBox(box.min_point(), box.max_point());
         mCamera->showEntireScene();
@@ -480,13 +713,6 @@ void Easy3DViewer3D::selectEntity(easy3d::Model *entity)
         entity->renderer()->set_selected(true);
     update();
 }
-
-//void Easy3DViewer3D::processPickedPoint(easy3d::Model *entity, unsigned, int, int,
-//                                        const easy3d::vec3 &point)
-//{
-//    if (entity)
-//        emit mouseClicked(QVector3D(point.x, point.y, point.z));
-//}
 
 void Easy3DViewer3D::showContextMenu(const QPoint &position)
 {
@@ -774,6 +1000,7 @@ void Easy3DViewer3D::postDraw()
             manipulation);
     }
 
+    drawMeasurements();
     drawCornerAxes();
 }
 
@@ -837,9 +1064,11 @@ void Easy3DViewer3D::mousePressEvent(QMouseEvent *event)
     mMousePrevious = event->pos();
     mMousePressed = event->pos();
 
-    mCamera->frame()->action_start();
+    if (mPickingMode == PickingMode::none)
+        mCamera->frame()->action_start();
 
-    if ((event->button() == Qt::LeftButton || event->button() == Qt::RightButton) &&
+    if (mPickingMode == PickingMode::none &&
+        (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) &&
         event->modifiers() == Qt::NoModifier) {
         mShowManipSphere = true;
     }
@@ -877,14 +1106,40 @@ void Easy3DViewer3D::mousePressEvent(QMouseEvent *event)
 
 void Easy3DViewer3D::mouseReleaseEvent(QMouseEvent *event)
 {
+    if (mPickingMode != PickingMode::none &&
+        event->button() == Qt::RightButton &&
+        mPickingMode == PickingMode::area) {
+        finishAreaMeasurement();
+        mPressedButton = Qt::NoButton;
+        event->accept();
+        update();
+        return;
+    }
+
+    if (mPickingMode != PickingMode::none &&
+        event->button() == Qt::LeftButton &&
+        (event->pos() - mMousePressed).manhattanLength() <= 4) {
+        bool found = false;
+        const easy3d::vec3 point = pointUnderPixel(event->pos(), found);
+        if (found)
+            processPickedPoint(point);
+        else
+            emit measurementMessage(tr("No model point was selected."));
+        mPressedButton = Qt::NoButton;
+        event->accept();
+        update();
+        return;
+    }
+
     if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
         int xmin = std::min(mMousePressed.x(), event->pos().x());
         int xmax = std::max(mMousePressed.x(), event->pos().x());
         int ymin = std::min(mMousePressed.y(), event->pos().y());
         int ymax = std::max(mMousePressed.y(), event->pos().y());
         mCamera->fitScreenRegion(xmin, ymin, xmax, ymax);
-    } else
+    } else if (mPickingMode == PickingMode::none) {
         mCamera->frame()->action_end();
+    }
 
     if (event->button() == Qt::LeftButton ||
         event->button() == Qt::RightButton)
@@ -921,7 +1176,8 @@ void Easy3DViewer3D::mouseMoveEvent(QMouseEvent *event)
     }
 
     if (mPressedButton != Qt::NoButton) {
-        if (event->modifiers() == Qt::NoModifier) {
+        if (event->modifiers() == Qt::NoModifier &&
+            mPickingMode == PickingMode::none) {
 
             int dx = position.x() - mMousePrevious.x();
             int dy = position.y() - mMousePrevious.y();

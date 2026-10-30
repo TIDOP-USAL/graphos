@@ -29,6 +29,9 @@
 #include "graphos/widgets/TabWidget.h"
 #include "graphos/widgets/GraphicViewer.h"
 #include "graphos/widgets/mapviewer/MapViewer.h"
+#ifdef HAVE_EASY3D
+#include "graphos/widgets/viewer3d/Easy3DViewer3D.h"
+#endif
 //#include "graphos/widgets/Viewer3d.h"
 #include "graphos/widgets/ProgressBarWidget.h"
 #include "graphos/framework/app/Application.h"
@@ -44,6 +47,7 @@
 #include <QDesktopServices>
 #include <QMimeData>
 #include <QDragEnterEvent>
+#include <QSignalBlocker>
 #include <QToolBar>
 
 #include <unordered_map>
@@ -113,7 +117,8 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionViewBottom(new QAction(this)),
     mActionPointMeasuse(new QAction(this)),
     mActionDistanceMeasuse(new QAction(this)),
-    mActionAngleMeasure(new QAction(this))
+    mActionAngleMeasure(new QAction(this)),
+    mActionAreaMeasure(new QAction(this))
 {
     ui->setupUi(this);
     setWindowIcon(QIcon(":/ico/img/graphos.ico"));
@@ -888,9 +893,9 @@ void MainWindowView::deleteOrthos()
     }
 }
 
-void MainWindowView::setStatusBarMsg(const QString &msg)
+void MainWindowView::setStatusBarMsg(const QString &msg, int timeout)
 {
-    ui->statusBar->showMessage(msg, 2000);
+    ui->statusBar->showMessage(msg, timeout);
 }
 
 ProgressBarWidget *MainWindowView::progressBar()
@@ -1217,6 +1222,8 @@ void MainWindowView::initActions()
     mActionDistanceMeasuse->setCheckable(true);
     mActionAngleMeasure->setIcon(QIcon::fromTheme("angle_measure"));
     mActionAngleMeasure->setCheckable(true);
+    mActionAreaMeasure->setIcon(QIcon(":/icons/Material/area_measure.svg"));
+    mActionAreaMeasure->setCheckable(true);
 }
 
 void MainWindowView::initToolbars()
@@ -1273,6 +1280,7 @@ void MainWindowView::initToolbar3dModel()
     mToolBar3dModel->addAction(mActionPointMeasuse);
     mToolBar3dModel->addAction(mActionDistanceMeasuse);
     mToolBar3dModel->addAction(mActionAngleMeasure);
+    mToolBar3dModel->addAction(mActionAreaMeasure);
     this->addToolBar(Qt::TopToolBarArea, mToolBar3dModel);
 }
 
@@ -1514,51 +1522,35 @@ void MainWindowView::initSignalAndSlots()
         }
     });
 
-    //connect(mActionPointMeasuse, &QAction::toggled, [&](bool checked) {
+#ifdef HAVE_EASY3D
+    const auto activateMeasureTool = [this](QAction *action,
+                                            Easy3DViewer3D::PickingMode mode) {
+        connect(action, &QAction::toggled, this, [this, action, mode](bool checked) {
+            auto *viewer = dynamic_cast<Easy3DViewer3D *>(mTabWidget->currentWidget());
+            if (!viewer)
+                return;
 
-    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-    //        const QSignalBlocker block_distance_measuse(mActionDistanceMeasuse);
-    //        const QSignalBlocker block_angle_measuse(mActionAngleMeasure);
-    //        mActionDistanceMeasuse->setChecked(false);
-    //        mActionAngleMeasure->setChecked(false);
+            if (checked) {
+                for (QAction *other : {mActionPointMeasuse, mActionDistanceMeasuse,
+                                       mActionAngleMeasure, mActionAreaMeasure}) {
+                    if (other != action) {
+                        const QSignalBlocker blocker(other);
+                        other->setChecked(false);
+                    }
+                }
+                viewer->setPickingMode(mode);
+            } else if (viewer->pickingMode() == mode) {
+                viewer->setPickingMode(Easy3DViewer3D::PickingMode::none);
+            }
+        });
+    };
 
-    //        if (checked)
-    //            model3D->activatePicker(CCViewer3D::PickingMode::point_info);
-    //        else
-    //            model3D->deactivatePicker();
-    //    }
+    activateMeasureTool(mActionPointMeasuse, Easy3DViewer3D::PickingMode::pointInfo);
+    activateMeasureTool(mActionDistanceMeasuse, Easy3DViewer3D::PickingMode::distance);
+    activateMeasureTool(mActionAngleMeasure, Easy3DViewer3D::PickingMode::angle);
+    activateMeasureTool(mActionAreaMeasure, Easy3DViewer3D::PickingMode::area);
 
-    //});
-
-    //connect(mActionDistanceMeasuse, &QAction::toggled, [&](bool checked) {
-
-    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-    //        const QSignalBlocker block_point_measuse(mActionPointMeasuse);
-    //        const QSignalBlocker block_angle_measuse(mActionAngleMeasure);
-    //        mActionPointMeasuse->setChecked(false);
-    //        mActionAngleMeasure->setChecked(false);
-
-    //        if (checked)
-    //            model3D->activatePicker(CCViewer3D::PickingMode::distance);
-    //        else
-    //            model3D->deactivatePicker();
-    //    }
-    //});
-
-    //connect(mActionAngleMeasure, &QAction::toggled, [&](bool checked) {
-
-    //    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
-    //        const QSignalBlocker block_point_measuse(mActionPointMeasuse);
-    //        const QSignalBlocker block_distance_measuse(mActionDistanceMeasuse);
-    //        mActionPointMeasuse->setChecked(false);
-    //        mActionDistanceMeasuse->setChecked(false);
-
-    //        if (checked)
-    //            model3D->activatePicker(CCViewer3D::PickingMode::angle);
-    //        else
-    //            model3D->deactivatePicker();
-    //    }
-    //});
+#endif
 
     /* TabWidget */
 
@@ -1664,6 +1656,7 @@ void MainWindowView::update()
     mActionPointMeasuse->setEnabled(model_3d_active);
     mActionDistanceMeasuse->setEnabled(model_3d_active);
     mActionAngleMeasure->setEnabled(model_3d_active);
+    mActionAreaMeasure->setEnabled(model_3d_active);
 
     mActionExit->setEnabled(!processing);
 }
@@ -1704,6 +1697,7 @@ void MainWindowView::retranslate()
     mActionPointMeasuse->setText(QApplication::translate("MainWindowView", "Point Measure", nullptr));
     mActionDistanceMeasuse->setText(QApplication::translate("MainWindowView", "Distance Measure", nullptr));
     mActionAngleMeasure->setText(QApplication::translate("MainWindowView", "Angle Measure", nullptr));
+    mActionAreaMeasure->setText(QApplication::translate("MainWindowView", "Area Measure", nullptr));
 
     /* Toolbars */
 

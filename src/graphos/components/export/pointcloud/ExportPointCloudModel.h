@@ -50,7 +50,8 @@ public:
     virtual auto enuCrs() const -> std::string = 0;
     virtual auto crs() const -> std::string = 0;
     virtual auto pointCloudSize() const -> size_t = 0;
-
+    virtual auto isProjectScaled() const -> bool = 0;
+    virtual void saveProject() = 0;
 };
 
 } // namespace graphos

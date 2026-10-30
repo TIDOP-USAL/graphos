@@ -74,7 +74,8 @@ void ExportCameraPosesComponent::createPresenter()
 {
 #ifdef GRAPHOS_GUI
     setPresenter(new ExportCameraPosesPresenterImp(dynamic_cast<ExportCameraPosesView *>(view()),
-                                                   dynamic_cast<ExportCameraPosesModel *>(model())));
+                                                   dynamic_cast<ExportCameraPosesModel *>(model()), 
+                                                   app()->status()));
 #endif // GRAPHOS_GUI
 }
 

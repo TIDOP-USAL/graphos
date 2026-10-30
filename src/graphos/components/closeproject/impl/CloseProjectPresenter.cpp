@@ -25,7 +25,6 @@
 
 #include "graphos/components/closeproject/CloseProjectModel.h"
 #include "graphos/components/closeproject/CloseProjectView.h"
-//#include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QFileDialog>
@@ -53,9 +52,9 @@ void CloseProjectPresenterImp::open()
 {
     if (mAppStatus->isEnabled(AppStatus::Flag::project_modified)) {
         int i_ret = QMessageBox(QMessageBox::Information,
-                                QApplication::translate("CloseProjectComponent", "Save Changes"),
-                                QApplication::translate("CloseProjectComponent", "There are unsaved changes. Do you want to save the changes before closing the project?"),
-                                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
+            QApplication::translate("CloseProjectComponent", "Save Changes"),
+            QApplication::translate("CloseProjectComponent", "There are unsaved changes. Do you want to save the changes before closing the project?"),
+            QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
         if (i_ret == QMessageBox::Yes) {
             mModel->saveProject();
         } else if (i_ret == QMessageBox::Cancel) {

@@ -39,7 +39,7 @@ class ScaleTask
 
 public:
 
-    ScaleTask(double scale/*, ccHObject *model*/);
+    explicit ScaleTask(double scale);
     ~ScaleTask() override;
 
 public:
@@ -56,7 +56,6 @@ protected:
 private:
 
     double mScale;
-    //ccHObject *mModel;
     tl::Matrix<double, 4, 4> mTransform;
 };
 

@@ -26,8 +26,11 @@
 #include <QFile>
 
 #include "graphos/core/project/Project.h"
+#include "graphos/core/project/ProjectUtils.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 #include "graphos/core/utils.h"
 #include "graphos/framework/app/Application.h"
+
 
 #include <QStandardPaths>
 #include <tidop/geospatial/crs.h>
@@ -76,11 +79,32 @@ auto ExportPointCloudModelImp::crs() const -> std::string
     try {
 
         auto enu_crs = mProject->info().enuCrs();
-        return enuCrsToEpsg(mProject->info().enuCrs());
+        if (enu_crs.empty()) return {};
+        return enuCrsToEpsg(enu_crs);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
     }
+}
+
+void ExportPointCloudModelImp::saveProject()
+{
+    try {
+
+        applyProjectTransformations(mProject);
+
+        ProjectWriter writer;
+        writer.write(mProject->info().projectPath(), *mProject);
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Exception detected when saving the project");
+    }
+}
+
+auto ExportPointCloudModelImp::isProjectScaled() const -> bool
+{
+    auto &transform = mProject->transform();
+    return transform != tl::Matrix<double, 4, 4>::identity();
 }
 
 auto ExportPointCloudModelImp::pointCloudSize() const -> size_t

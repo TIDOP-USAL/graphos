@@ -46,10 +46,11 @@ public:
 
     virtual auto graphosProjectsDirectory() const -> tl::Path = 0;
 
-public slots:
+public:
 
     virtual void exportMesh(const tl::Path &exportPath) = 0;
-
+    virtual auto isProjectScaled() const -> bool = 0;
+    virtual void saveProject() = 0;
 };
 
 } // namespace graphos

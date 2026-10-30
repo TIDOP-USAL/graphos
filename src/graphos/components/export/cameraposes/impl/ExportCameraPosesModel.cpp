@@ -24,10 +24,8 @@
 #include "ExportCameraPosesModel.h"
 
 #include "graphos/core/project/Project.h"
+#include "graphos/core/project/ProjectUtils.h"
 #include "graphos/core/project/io/ProjectWriter.h"
-#include "graphos/core/camera/CameraRepository.h"
-#include "graphos/core/image/ImageRepository.h"
-#include "graphos/core/orientation/CameraPosesRepository.h"
 
 namespace graphos
 {
@@ -62,9 +60,36 @@ auto ExportCameraPosesModelImp::enuCrs() const -> QString
 
 void ExportCameraPosesModelImp::graphosExport(const tl::Path &file) const
 {
-    ProjectWriter writer;
-    writer.exportCameras(*mProject, file);
+    try {
+
+        ProjectWriter writer;
+        writer.exportCameras(*mProject, file);
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Exception detected when saving the project");
+    }
 }
+
+void ExportCameraPosesModelImp::saveProject()
+{
+    try {
+
+        applyProjectTransformations(mProject);
+
+        ProjectWriter writer;
+        writer.write(mProject->info().projectPath(), *mProject);
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Exception detected when saving the project");
+    }
+}
+
+auto ExportCameraPosesModelImp::isProjectScaled() const -> bool
+{
+    auto &transform = mProject->transform();
+    return transform != tl::Matrix<double, 4, 4>::identity();
+}
+
 
 void ExportCameraPosesModelImp::init()
 {

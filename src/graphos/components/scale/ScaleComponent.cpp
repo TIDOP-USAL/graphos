@@ -90,7 +90,8 @@ void ScaleComponent::update()
 
     action()->setEnabled(app_status->isEnabled(AppStatus::Flag::project_exists) &&
                          !app_status->isEnabled(AppStatus::Flag::processing) &&
-                         app_status->isEnabled(AppStatus::Flag::dense_model));
+                         app_status->isEnabled(AppStatus::Flag::dense_model) && 
+                         !app_status->isEnabled(AppStatus::Flag::absolute_oriented));
 }
 
 void ScaleComponent::onRunning()

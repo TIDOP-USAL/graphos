@@ -487,6 +487,10 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
         }
 
         auto *viewer3D = new Easy3DViewer3D(mView);
+        connect(viewer3D, &Easy3DViewer3D::measurementMessage,
+                mView, [this](const QString &message) {
+            mView->setStatusBarMsg(message, 0);
+        });
         tab_id = tab_widget->addTab(viewer3D, fileInfo.fileName());
         tab_widget->setCurrentIndex(tab_id);
         tab_widget->setTabToolTip(tab_id, model3D);
@@ -510,13 +514,15 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
             }
 
             viewer3D->setPointLighting(false);
+            const auto project_transform = mModel->transform();
+            if (project_transform != tl::Matrix<double, 4, 4>::identity())
+                viewer3D->applyTransform(project_transform);
             viewer3D->setTopView();
 
             if (loadCameras) {
-                const auto transform = mModel->transform();
-                tl::Affine<double, 3> affine(transform.block(0, 0, 3, 4));
+                tl::Affine<double, 3> affine(project_transform.block(0, 0, 3, 4));
                 const auto rotation = affine.rotation();
-                const bool has_transform = transform != tl::Matrix<double, 4, 4>::identity();
+                const bool has_transform = project_transform != tl::Matrix<double, 4, 4>::identity();
 
                 for (const auto &[image_id, pose] : mModel->poses()) {
                     const auto *image = mModel->images().find(image_id);

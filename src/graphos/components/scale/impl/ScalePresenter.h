@@ -25,6 +25,8 @@
 
 #include "graphos/components/scale/ScalePresenter.h"
 
+#include <QPointer>
+
 namespace graphos
 {
 
@@ -82,6 +84,7 @@ private:
     ScaleView *mView;
     ScaleModel *mModel;
     std::vector<QVector3D> mPoints;
+    QPointer<QObject> mViewer;
 };
 
 } // namespace graphos

@@ -28,6 +28,8 @@
 #include "graphos/framework/app/Application.h"
 #include "graphos/core/AppStatus.h"
 
+#include <tidop/core/base/Exception.h>
+
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -52,8 +54,30 @@ ExportMeshPresenterImp::~ExportMeshPresenterImp()
 
 void ExportMeshPresenterImp::open()
 {
-    mView->setGraphosProjectsPath(QString::fromStdWString(mModel->graphosProjectsDirectory().toWString()));
-    mView->exec();
+    try {
+
+        if (mModel->isProjectScaled()) {
+            int i_ret = QMessageBox(QMessageBox::Information,
+                QApplication::translate("ExportMeshPresenter", "Scaled Project"),
+                QApplication::translate("ExportMeshPresenter",
+                    "The project currently has an active scale. In order to perform the export correctly, "
+                    "it is necessary to save the project first.\n\n"
+                    "Would you like to save the project now and proceed with the export?"),
+                QMessageBox::Yes | QMessageBox::No).exec();
+            if (i_ret == QMessageBox::Yes) {
+                mModel->saveProject();
+                mAppStatus->activeFlag(AppStatus::Flag::project_modified, false);
+            } else if (i_ret == QMessageBox::No) {
+                return;
+            }
+        }
+
+        mView->setGraphosProjectsPath(QString::fromStdWString(mModel->graphosProjectsDirectory().toWString()));
+        mView->exec();
+
+    } catch (std::exception &e) {
+        tl::printException(e);
+    }
 }
 
 void ExportMeshPresenterImp::exportMesh(const QString &file)

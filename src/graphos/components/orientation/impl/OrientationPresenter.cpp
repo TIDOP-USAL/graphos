@@ -128,7 +128,7 @@ void OrientationPresenterImp::onFinished(tl::TaskFinalizedEvent &event)
             ground_points_path.append("ground_points.bin");
 
             tl::Path poses_path = path;
-            poses_path.append("cameraPosesFile.bin");
+            poses_path.append("poses.bin");
 
             TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");
             TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");

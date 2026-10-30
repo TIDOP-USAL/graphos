@@ -32,6 +32,7 @@
 #include <QLabel>
 #include <QSpinBox>
 #include <QPushButton>
+#include <QSignalBlocker>
 
 
 namespace graphos
@@ -131,7 +132,12 @@ void ScaleViewImp::setDistance(double distance)
     mDoubleSpinBoxDistance->setValue(distance);
 }
 
+void ScaleViewImp::setMeasureEnabled(bool enabled)
+{
+    const QSignalBlocker blocker(mPushButtonDistance);
+    mPushButtonDistance->setChecked(enabled);
+}
+
 
 } // namespace graphos
-
 

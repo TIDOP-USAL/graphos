@@ -23,15 +23,14 @@
 
 #include "SaveProjectModel.h"
 
+#include "config_graphos.h"
+
 #include <tidop/math/algebra/rotations/RotationMatrix.h>
 #include <tidop/geometry/transform/Affine.h>
 
 #include "graphos/core/project/Project.h"
+#include "graphos/core/project/ProjectUtils.h"
 #include "graphos/core/project/io/ProjectWriter.h"
-#include "graphos/core/orientation/CameraPose.h"
-#include "graphos/core/orientation/io/CameraPosesReader.h"
-#include "graphos/core/orientation/io/CameraPosesWriter.h"
-#include "graphos/core/orientation/GroundPoint.h"
 
 #include <QStandardPaths>
 
@@ -55,77 +54,14 @@ void SaveProjectModelImp::save()
 
     try {
 
-        auto &transform = mProject->transform();
-        if (transform != tl::Matrix<double, 4, 4>::identity()) {
-
-            // Transforma los modelos
-            // Por ahora lo comento ya que internamente utiliza CloudCompare
-            //auto sparse = mProject->sparseModel();
-            //if (sparse.exists()) transformModel(transform, sparse.toString());
-            //auto dense = mProject->denseModel();
-            //if (dense.exists()) transformModel(transform, dense.toString());
-            //auto mesh = mProject->meshPath();
-            //if (mesh.exists()) transformModel(transform, mesh.toString());
-
-            tl::Affine<double, 3> affine(transform.block(0, 2, 0, 3));
-            auto rotation = affine.rotation();
-
-            // Transforma las cámaras
-            {
-
-                tl::Path poses_path = mProject->cameraPosesFile();
-  
-
-                auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
-                poses_reader->read(poses_path);
-                auto poses = poses_reader->cameraPoses();
-
-                tl::Point3d point;
-                for (auto &[image_id, camera_pose] : poses) {
-
-                    point = affine.transform(camera_pose.position());
-                    camera_pose.setPosition(point);
-
-                    auto rot = tl::Rotation<double,3>(camera_pose.rotationMatrix()) * rotation.inverse();
-                    camera_pose.setRotationMatrix(tl::RotationMatrix<double>(rot.toMatrix()));
-
-                    //mProject->addPhotoOrientation(image_id, camera_pose);
-                }
-
-                auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
-                poses_writer->setCameraPoses(poses);
-                poses_writer->write(poses_path.replaceBaseName("poses"));
-            }
-
-            /// Transforma los puntos terreno
-            {
-                tl::Path ground_points_path = mProject->groundPoints();
-                ground_points_path.append("ground_points.bin");
-                auto gp_reader = GroundPointsReaderFactory::create("GRAPHOS");
-                gp_reader->read(ground_points_path);
-                auto ground_points = gp_reader->points();
-
-                for (auto &ground_point : ground_points) {
-                    auto point = affine.transform(ground_point);
-                    ground_point.setPoint(point);
-                }
-
-                auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
-                gp_writer->setGroundPoints(ground_points);
-                gp_writer->write(ground_points_path.replaceBaseName("ground_points"));
-            }
-
-            transform = tl::Matrix<double, 4, 4>::identity();
-
-        }
+        applyProjectTransformations(mProject);
 
         ProjectWriter writer;
         writer.write(mProject->info().projectPath(), *mProject);
+
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Exception detected when saving the project");
     }
-
-
 }
 
 void SaveProjectModelImp::init()

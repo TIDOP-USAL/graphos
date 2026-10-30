@@ -1913,6 +1913,11 @@
         <translation>Medición de Ángulo</translation>
     </message>
     <message>
+       <location filename="../../src/graphos/gui/MainWindowView.cpp"/>
+       <source>Area Measure</source>
+       <translation>Medición de área</translation>
+    </message>
+    <message>
         <location filename="../../src/graphos/gui/MainWindowView.cpp" line="1670"/>
         <source>Image viewer tools</source>
         <translation>Herramientas de Visor de Imágenes</translation>
@@ -2839,6 +2844,73 @@
         <location filename="../../src/graphos/widgets/TabWidget.cpp" line="183"/>
         <source>Close all tabs but current one</source>
         <translation>Cerrar todas las pestañas menos la actual</translation>
+    </message>
+</context>
+<context>
+    <name>Easy3DViewer3D</name>
+    <message>
+        <source>Click a point to display its coordinates.</source>
+        <translation>Haz clic en un punto para mostrar sus coordenadas.</translation>
+    </message>
+    <message>
+        <source>Select two points to measure the distance.</source>
+        <translation>Selecciona dos puntos para medir la distancia.</translation>
+    </message>
+    <message>
+        <source>Select three points to measure the angle.</source>
+        <translation>Selecciona tres puntos para medir el ángulo.</translation>
+    </message>
+    <message>
+        <source>Select area vertices and right-click to finish.</source>
+        <translation>Selecciona los vértices del área y haz clic derecho para terminar.</translation>
+    </message>
+    <message>
+        <source>Select two points to set the model scale.</source>
+        <translation>Selecciona dos puntos para definir la escala del modelo.</translation>
+    </message>
+    <message>
+        <source>Point: X=%1, Y=%2, Z=%3</source>
+        <translation>Punto: X=%1, Y=%2, Z=%3</translation>
+    </message>
+    <message>
+        <source>First point selected. Select the second point.</source>
+        <translation>Primer punto seleccionado. Selecciona el segundo punto.</translation>
+    </message>
+    <message>
+        <source>Measured length: %1 m</source>
+        <translation>Longitud medida: %1 m</translation>
+    </message>
+    <message>
+        <source>Distance: %1 m</source>
+        <translation>Distancia: %1 m</translation>
+    </message>
+    <message>
+        <source>Select point %1 of 3.</source>
+        <translation>Selecciona el punto %1 de 3.</translation>
+    </message>
+    <message>
+        <source>Angle: %1°</source>
+        <translation>Ángulo: %1°</translation>
+    </message>
+    <message>
+        <source>Angle cannot be measured from coincident points.</source>
+        <translation>No se puede medir el ángulo con puntos coincidentes.</translation>
+    </message>
+    <message>
+        <source>%1 area vertices selected. Right-click to finish.</source>
+        <translation>%1 vértices seleccionados. Haz clic derecho para terminar.</translation>
+    </message>
+    <message>
+        <source>Select at least three points to measure an area.</source>
+        <translation>Selecciona al menos tres puntos para medir un área.</translation>
+    </message>
+    <message>
+        <source>Area: %1 m²</source>
+        <translation>Área: %1 m²</translation>
+    </message>
+    <message>
+        <source>No model point was selected.</source>
+        <translation>No se ha seleccionado ningún punto del modelo.</translation>
     </message>
 </context>
 <context>

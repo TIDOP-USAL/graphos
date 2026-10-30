@@ -48,6 +48,8 @@ public:
     auto cameras() const -> const CameraRepository & override;
     auto enuCrs() const -> QString override;
     void graphosExport(const tl::Path &file) const override;
+    void saveProject() override;
+    auto isProjectScaled() const -> bool override;
 
 // Model interface
 

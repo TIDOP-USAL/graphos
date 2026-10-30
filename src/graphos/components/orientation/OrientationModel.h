@@ -55,7 +55,7 @@ public:
     virtual auto enuCrs() const -> std::string = 0;
     virtual void setEnuCrs(std::string crs) = 0;
     virtual void setGroundPoints(tl::Path groundPoints) = 0;
-    virtual void setCameraPosesFile(tl::Path cameraPosesFile) = 0;
+    virtual void setCameraPosesFile(tl::Path poses) = 0;
     virtual auto isPhotoOriented(size_t imageId) const -> bool = 0;
     virtual auto photoOrientation(size_t imageId) const -> CameraPose = 0;
     virtual void addPhotoOrientation(size_t imageId, const CameraPose &orientation) = 0;

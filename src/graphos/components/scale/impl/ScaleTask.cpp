@@ -26,17 +26,14 @@
 #include <tidop/core/app/Message.h>
 #include <tidop/core/base/Exception.h>
 
-//#include <CCGeom.h>
-//#include <ccPointCloud.h>
-//#include <ccHObjectCaster.h>
+#include <cmath>
 
 namespace graphos
 {
 
-ScaleTask::ScaleTask(double scale/*, ccHObject *model*/)
+ScaleTask::ScaleTask(double scale)
   : tl::Task(),
     mScale(scale),
-    //mModel(model),
     mTransform(tl::Matrix<double, 4, 4>::identity())
 {
 
@@ -61,32 +58,12 @@ void ScaleTask::execute(tl::Progress *progressBar, std::stop_token stopToken)
 {
     tl::unusedParameter(progressBar);
 
-    try {
-
-        //bool locked_vertices;
-        //ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(mModel, &locked_vertices);
-
-        //CCVector3 center(0, 0, 0);
-
-        //cloud->scale(static_cast<PointCoordinateType>(mScale),
-        //             static_cast<PointCoordinateType>(mScale),
-        //             static_cast<PointCoordinateType>(mScale),
-        //             center);
-
-        //mTransform[0][0] = mScale;
-        //mTransform[1][1] = mScale;
-        //mTransform[2][2] = mScale;
-        //mTransform[0][3] = -mScale * static_cast<double>(center.x) + static_cast<double>(center.x);
-        //mTransform[1][3] = -mScale * static_cast<double>(center.y) + static_cast<double>(center.y);
-        //mTransform[2][3] = -mScale * static_cast<double>(center.z) + static_cast<double>(center.z);
-
-        //cloud->prepareDisplayForRefresh_recursive();
-        //mModel->prepareDisplayForRefresh_recursive();
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("error");
-    }
-
+    if (stopToken.stop_requested())
+        return;
+    TL_ASSERT(std::isfinite(mScale) && mScale > 0., "Scale factor must be positive and finite");
+    mTransform[0][0] = mScale;
+    mTransform[1][1] = mScale;
+    mTransform[2][2] = mScale;
 }
 
 } // namespace graphos

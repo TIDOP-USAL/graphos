@@ -50,6 +50,8 @@ public:
     virtual auto cameras() const -> const CameraRepository & = 0;
     virtual auto enuCrs() const -> QString = 0;
     virtual void graphosExport(const tl::Path &file) const = 0;
+    virtual auto isProjectScaled() const -> bool = 0;
+    virtual void saveProject() = 0;
 };
 
 } // namespace graphos

@@ -81,13 +81,15 @@ auto ExportPointCloudViewImp::crs() const -> QString
 
 void ExportPointCloudViewImp::setCrs(const QString &crs)
 {
+    mLineEditCRS->setDisabled(crs.isEmpty());
+    mPushButtonCRS->setDisabled(crs.isEmpty());
+
     mLineEditCRS->setText(crs);
 }
 
 void ExportPointCloudViewImp::initUI()
 {
-    this->setObjectName(QString("DemView"));
-    this->resize(200, 300);
+    this->setObjectName(QString("ExportPointCloudView"));
 
     auto grid_layout = new QGridLayout();
     this->setLayout(grid_layout);
@@ -129,11 +131,11 @@ void ExportPointCloudViewImp::initSignalAndSlots()
 
 void ExportPointCloudViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("ExportPointCloudComponent", "Point Cloud Export", nullptr));
-    mLabelCRS->setText(QCoreApplication::translate("ExportPointCloudComponent", "CRS"));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ExportPointCloudComponent", "Cancel"));
-    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ExportPointCloudComponent", "Ok"));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ExportPointCloudComponent", "Help"));
+    this->setWindowTitle(QApplication::translate("ExportPointCloudView", "Point Cloud Export", nullptr));
+    mLabelCRS->setText(QCoreApplication::translate("ExportPointCloudView", "CRS"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ExportPointCloudView", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ExportPointCloudView", "Ok"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ExportPointCloudView", "Help"));
 }
 
 void ExportPointCloudViewImp::clear()

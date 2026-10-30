@@ -37,6 +37,7 @@
 /* TidopLib */
 #include <tidop/geometry/primitives/Point.h>
 #include <tidop/math/algebra/rotations/RotationMatrix.h>
+#include <tidop/math/algebra/matrix/Matrix.h>
 
 /* Easy3D */
 #ifdef HAVE_EASY3D
@@ -53,6 +54,7 @@ namespace easy3d
 {
 class TrianglesDrawable;
 class LinesDrawable;
+class PointsDrawable;
 }
 
 namespace graphos
@@ -97,6 +99,16 @@ public:
         hide
     };
 
+    enum class PickingMode
+    {
+        none,
+        pointInfo,
+        distance,
+        angle,
+        area,
+        scale
+    };
+
 public:
 
     explicit Easy3DViewer3D(QWidget *parent = nullptr);
@@ -118,16 +130,19 @@ public:
                    double z,
                    const tl::RotationMatrix<double> &rotation);
 
-    //void activatePicker(PickingMode pickerMode);
-    //void deactivatePicker();
+    void setPickingMode(PickingMode mode);
+    auto pickingMode() const -> PickingMode { return mPickingMode; }
+    void applyScale(double scale);
 
     auto captureModel() -> QImage override;
 
     void update();
+    void applyTransform(const tl::Matrix<double, 4, 4> &transform);
 
 signals:
 
     void mouseClicked(QVector3D);
+    void measurementMessage(const QString &message);
 
 public slots:
 
@@ -174,6 +189,8 @@ protected slots:
 protected:
 
     void drawCornerAxes();
+    void drawMeasurements();
+    void updateMeasurementDrawables();
     auto pointUnderPixel(const QPoint &position, bool &found) const -> easy3d::vec3;
 
 private:
@@ -188,6 +205,8 @@ private:
                          const easy3d::vec3 &up);
 
     void addModel(easy3d::Model *entity);
+    void processPickedPoint(const easy3d::vec3 &point);
+    void finishAreaMeasurement();
     auto findChild(const QString& name, easy3d::Model *parent = nullptr) -> easy3d::Model*;
 
 // QOpenGLWidget
@@ -216,7 +235,11 @@ private:
     easy3d::Camera *mCamera;
     std::unique_ptr<easy3d::EyeDomeLighting> mEdl;
     std::vector<easy3d::Model *> mModels;
-    //PickingMode mPickingMode;
+    PickingMode mPickingMode;
+    std::vector<QVector3D> mPickedPoints;
+    std::vector<QVector3D> mMeasurementPoints;
+    bool mMeasurementComplete;
+    bool mAreaClosed;
     Viewer3DContextMenu *mContextMenu;
     QPoint mMousePressed;
     QPoint mMousePrevious;
@@ -226,6 +249,8 @@ private:
 
     easy3d::TrianglesDrawable *mDrawableAxes;
     easy3d::LinesDrawable *mDrawableManipSphere;
+    easy3d::LinesDrawable *mDrawableMeasurementLines;
+    easy3d::PointsDrawable *mDrawableMeasurementPoints;
     bool mShowManipSphere;
 
 };

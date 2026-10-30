@@ -42,7 +42,7 @@ public:
     SaveProjectModel(QObject *parent = nullptr) : Model(parent) {}
     ~SaveProjectModel() override = default;
 
-public slots:
+public:
 
     /*!
      * \brief Save Graphos project

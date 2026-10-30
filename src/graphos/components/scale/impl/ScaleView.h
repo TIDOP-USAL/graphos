@@ -55,6 +55,7 @@ public:
 public slots:
 
     void setDistance(double distance) override;
+    void setMeasureEnabled(bool enabled) override;
 
 // DialogView
 

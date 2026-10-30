@@ -88,6 +88,7 @@ add_files_to_project(${PROJECT_NAME}
                          ortho/SbbProperties.cpp
                          project/Project.cpp
                          project/ProjectInfo.cpp
+                         project/ProjectUtils.cpp
                          project/io/ProjectReader.cpp
                          project/io/ProjectWriter.cpp
                          #task/Progress.cpp
@@ -162,6 +163,7 @@ add_files_to_project(${PROJECT_NAME}
                          ortho/SbbProperties.h
                          project/Project.h
                          project/ProjectInfo.h
+                         project/ProjectUtils.h
                          project/io/ProjectReader.h
                          project/io/ProjectWriter.h)
                          #task/Progress.h
@@ -200,6 +202,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       GLEW::glew
                       CGAL::CGAL
                       ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                      $<$<BOOL:${HAVE_EASY3D}>:easy3d::fileio>
                       #[[${PIXKIT_LIBRARIES}]])
 
 

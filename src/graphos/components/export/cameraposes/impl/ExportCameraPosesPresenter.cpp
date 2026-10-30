@@ -26,23 +26,26 @@
 #include "graphos/components/export/cameraposes/ExportCameraPosesModel.h"
 #include "graphos/components/export/cameraposes/ExportCameraPosesView.h"
 #include "graphos/components/export/cameraposes/impl/ExportCameraPosesTask.h"
-#include "graphos/widgets/NvmFormatWidget.h"
-#include "graphos/widgets/BundlerFormatWidget.h"
-#include "graphos/widgets/MveFormatWidget.h"
+//#include "graphos/widgets/NvmFormatWidget.h"
+//#include "graphos/widgets/BundlerFormatWidget.h"
+//#include "graphos/widgets/MveFormatWidget.h"
 #include "graphos/widgets/OriTxtFormatWidget.h"
 #include "graphos/framework/task/ProgressHandler.h"
+#include "graphos/core/AppStatus.h"
 
-#include <tidop/geometry/primitives/Point.h>
+//#include <tidop/geometry/primitives/Point.h>
 
 #include <QApplication>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QStandardPaths>
 
 namespace graphos
 {
 
 ExportCameraPosesPresenterImp::ExportCameraPosesPresenterImp(ExportCameraPosesView *view,
-                                                             ExportCameraPosesModel *model)
+                                                             ExportCameraPosesModel *model,
+                                                             AppStatus *status)
   : ExportCameraPosesPresenter(),
     mView(view),
     mModel(model),
@@ -80,35 +83,57 @@ ExportCameraPosesPresenterImp::~ExportCameraPosesPresenterImp()
 
 void ExportCameraPosesPresenterImp::open()
 {
-    mExportFormat.clear();
+    try {
 
-    QString filters("GRAPHOS (*.xml);;TXT (*.txt);;ODM (*.json)");
-
-    QString selected_filter;
-    mExportFile = QFileDialog::getSaveFileName(nullptr,
-                                               QApplication::translate("ExportCameraPosesPresenter", "Camera Poses Export"),
-                                               QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-                                               filters,
-                                               &selected_filter);
-
-    if (!mExportFile.isEmpty()) {
-
-        if (selected_filter.compare("GRAPHOS (*.xml)") == 0) {
-            mExportFormat = "GRAPHOS";
-            mModel->graphosExport(tl::Path(mExportFile.toStdString()));
-            return;
-        } else if (selected_filter.compare("TXT (*.txt)") == 0) {
-            mView->setCurrentFormat(mOriTxtFormatWidget->windowTitle());
-        } else if (selected_filter.compare("ODM (*.json)") == 0) {
-            mExportFormat = "ODM";
-            run();
-            return;
-        } else {
-            tl::Message::error("Unsupported format");
-            return;
+        if (mModel->isProjectScaled()) {
+            int i_ret = QMessageBox(QMessageBox::Information,
+                QApplication::translate("ExportCameraPosesPresenter", "Scaled Project"),
+                QApplication::translate("ExportCameraPosesPresenter",
+                    "The project currently has an active scale. In order to perform the export correctly, "
+                    "it is necessary to save the project first.\n\n"
+                    "Would you like to save the project now and proceed with the export?"),
+                QMessageBox::Yes | QMessageBox::No).exec();
+            if (i_ret == QMessageBox::Yes) {
+                mModel->saveProject();
+                mAppStatus->activeFlag(AppStatus::Flag::project_modified, false);
+            } else if (i_ret == QMessageBox::No) {
+                return;
+            }
         }
 
-        mView->exec();
+        mExportFormat.clear();
+
+        QString filters("GRAPHOS (*.xml);;TXT (*.txt);;ODM (*.json)");
+
+        QString selected_filter;
+        mExportFile = QFileDialog::getSaveFileName(nullptr,
+            QApplication::translate("ExportCameraPosesPresenter", "Camera Poses Export"),
+            QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+            filters,
+            &selected_filter);
+
+        if (!mExportFile.isEmpty()) {
+
+            if (selected_filter.compare("GRAPHOS (*.xml)") == 0) {
+                mExportFormat = "GRAPHOS";
+                mModel->graphosExport(tl::Path(mExportFile.toStdString()));
+                return;
+            } else if (selected_filter.compare("TXT (*.txt)") == 0) {
+                mView->setCurrentFormat(mOriTxtFormatWidget->windowTitle());
+            } else if (selected_filter.compare("ODM (*.json)") == 0) {
+                mExportFormat = "ODM";
+                run();
+                return;
+            } else {
+                tl::Message::error("Unsupported format");
+                return;
+            }
+
+            mView->exec();
+        }
+
+    } catch (std::exception &e) {
+        tl::printException(e);
     }
 }
 

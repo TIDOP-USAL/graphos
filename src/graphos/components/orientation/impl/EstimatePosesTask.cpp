@@ -106,7 +106,7 @@ EstimatePosesTask::EstimatePosesTask(tl::Path database,
                 }
 
             if (!found_poses) {
-                tl::Message::warning("'Options::use_poses' is active but there are no camera cameraPosesFile. 'Options::use_poses' is deactivated.");
+                tl::Message::warning("'Options::use_poses' is active but there are no camera poses. 'Options::use_poses' is deactivated.");
                 mOptions.disable(Options::use_poses);
             }
         }
@@ -832,7 +832,7 @@ void EstimatePosesTask::execute(tl::Progress *progressBar, std::stop_token stopT
         auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
         poses_writer->setCameraPoses(camera_poses);
         tl::Path poses_path(mOutputPath);
-        poses_path.append("cameraPosesFile.bin");
+        poses_path.append("poses.bin");
         poses_writer->write(poses_path);
 
         // Actualización de cámaras

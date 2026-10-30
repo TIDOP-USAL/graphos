@@ -24,6 +24,8 @@
 #include "ExportMeshModel.h"
 
 #include "graphos/core/project/Project.h"
+#include "graphos/core/project/ProjectUtils.h"
+#include "graphos/core/project/io/ProjectWriter.h"
 #include "graphos/framework/app/Application.h"
 
 #include <QStandardPaths>
@@ -46,6 +48,26 @@ ExportMeshModelImp::~ExportMeshModelImp()
 void ExportMeshModelImp::exportMesh(const tl::Path &exportPath)
 {
     tl::Path::copy(mProject->meshModel(), exportPath);
+}
+
+void ExportMeshModelImp::saveProject()
+{
+    try {
+
+        applyProjectTransformations(mProject);
+
+        ProjectWriter writer;
+        writer.write(mProject->info().projectPath(), *mProject);
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Exception detected when saving the project");
+    }
+}
+
+auto ExportMeshModelImp::isProjectScaled() const -> bool
+{
+    auto &transform = mProject->transform();
+    return transform != tl::Matrix<double, 4, 4>::identity();
 }
 
 auto ExportMeshModelImp::graphosProjectsDirectory() const -> tl::Path

@@ -42,8 +42,6 @@ public:
     CloseProjectModel(QObject *parent = nullptr) : Model(parent) {}
     ~CloseProjectModel() override = default;
 
-public slots:
-
     /*!
      * \brief Save Graphos project
      */

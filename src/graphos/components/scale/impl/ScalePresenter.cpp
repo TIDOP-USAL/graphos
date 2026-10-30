@@ -32,12 +32,7 @@
 #include "graphos/components/scale/impl/ScaleTask.h"
 #include "graphos/core/utils.h"
 
-//#include <ccPointCloud.h>
-
-//#include <tidop/core/defs.h>
-
-#include <QMessageBox>
-#include <QMainWindow>
+#include <QMetaObject>
 
 namespace graphos
 {
@@ -60,36 +55,38 @@ ScalePresenterImp::~ScalePresenterImp()
 
 void ScalePresenterImp::measure(bool active)
 {
-    //if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
+    if (active) {
+        auto *viewer = dynamic_cast<Easy3DViewer3D *>(Application::instance().viewer3D());
+        if (!viewer) {
+            emit open_3d_model();
+            return;
+        }
 
-    //    if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
-    //        const QSignalBlocker blocker2(ccviewer);
-    //        if (active) {
-    //            dynamic_cast<Application *>(qApp)->mainWindow()->activateWindow();
-    //            connect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
-    //            ccviewer->activatePicker(CCViewer3D::PickingMode::distance);
-    //        } else {
-    //            disconnect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
-    //            ccviewer->deactivatePicker();
-    //        }
-    //    }
+        mViewer = viewer;
+        disconnect(viewer, &Easy3DViewer3D::mouseClicked,
+                   this, &ScalePresenterImp::pointClicked);
+        connect(viewer, &Easy3DViewer3D::mouseClicked,
+                this, &ScalePresenterImp::pointClicked);
+        viewer->setPickingMode(Easy3DViewer3D::PickingMode::scale);
+    } else if (auto *viewer = dynamic_cast<Easy3DViewer3D *>(mViewer.data())) {
+        disconnect(viewer, &Easy3DViewer3D::mouseClicked,
+                   this, &ScalePresenterImp::pointClicked);
+        if (viewer->pickingMode() == Easy3DViewer3D::PickingMode::scale)
+            viewer->setPickingMode(Easy3DViewer3D::PickingMode::none);
+    }
 
-    //} else if (active) {
-    //    QMessageBox msg_box(QMessageBox::Warning,
-    //                       QApplication::translate("ScaleComponent", "A 3D model is required for the measurement"),
-    //                       QApplication::translate("ScaleComponent", "Do you want to open the 3D model??"),
-    //                       QMessageBox::Yes | QMessageBox::No, mView);
-    //    msg_box.setDefaultButton(QMessageBox::Yes);
-    //    int ret = msg_box.exec();
-    //    if (ret == QMessageBox::Yes) {
-    //        emit open_3d_model();
-    //    }
-
-    //}
+    if (!active) {
+        mPoints.clear();
+        mView->setMeasureEnabled(false);
+    }
 }
 
 void ScalePresenterImp::pointClicked(const QVector3D &point)
 {
+    auto *viewer = dynamic_cast<Easy3DViewer3D *>(mViewer.data());
+    if (!viewer || viewer->pickingMode() != Easy3DViewer3D::PickingMode::scale)
+        return;
+
     if (mPoints.empty()) {
         mPoints.push_back(point);
     } else {
@@ -104,6 +101,7 @@ void ScalePresenterImp::open()
 {
     mModel->loadSettings();
     mPoints.resize(0);
+    mView->setMeasureEnabled(false);
 
     /* Configure View here */
 
@@ -119,6 +117,9 @@ void ScalePresenterImp::initSignalAndSlots()
 {
     connect(mView, &TaskView::run, this, &TaskPresenter::run);
     connect(mView, &ScaleView::enableMeasure, this, &ScalePresenterImp::measure);
+    connect(mView, &QDialog::rejected, this, [this] {
+        measure(false);
+    });
     connect(mView, &DialogView::help, 
         [&]() {
             emit help("Scale.html");
@@ -138,6 +139,17 @@ void ScalePresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 {
     TaskPresenter::onFinished(event);
 
+    if (auto *task = dynamic_cast<const ScaleTask *>(event.task())) {
+        const auto transform = task->transform();
+        const double scale = transform[0][0];
+        const QPointer<QObject> viewer = mViewer;
+        QMetaObject::invokeMethod(this, [this, viewer, transform, scale] {
+            mModel->setTransform(transform);
+            if (auto *easy3d_viewer = dynamic_cast<Easy3DViewer3D *>(viewer.data()))
+                easy3d_viewer->applyScale(scale);
+        }, Qt::QueuedConnection);
+    }
+
     if (progressHandler()) {
         progressHandler()->setDescription(QApplication::translate("ScaleComponent", "Task finished"));
     }
@@ -145,45 +157,9 @@ void ScalePresenterImp::onFinished(tl::TaskFinalizedEvent &event)
 
 auto ScalePresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
-    //ccHObject *model = nullptr;
-
-    //if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
-
-    //    if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
-    //        ccHObject *root = ccviewer->object();
-    //        ccHObject::Container clouds;
-    //        // Nubes de puntos o malla
-    //        root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
-
-    //        /// Sólo se permite una nube de puntos en el visor
-    //        //TL_ASSERT(clouds.size() == 1, "Error");
-
-    //        model = clouds.at(0);
-    //    }
-    //}
-
     double scale = mView->distanceReal() / mView->distance();
 
-    std::unique_ptr<tl::Task> task = std::make_unique<ScaleTask>(scale/*, model*/);
-
-    task->subscribe([&](const tl::TaskFinalizedEvent &event) {
-
-        //try {
-
-        //    if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
-        //        if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
-        //            ccviewer->redraw();
-        //        }
-        //    }
-
-        //    auto transform = dynamic_cast<ScaleTask const *>(event->task())->transform();
-        //    mModel->setTransform(transform);
-
-        //} catch (const std::exception &e) {
-        //    tl::printException(e);
-        //}
-
-    });
+    std::unique_ptr<tl::Task> task = std::make_unique<ScaleTask>(scale);
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 0);

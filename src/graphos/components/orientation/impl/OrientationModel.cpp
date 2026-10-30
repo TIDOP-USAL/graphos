@@ -104,9 +104,9 @@ void OrientationModelImp::setGroundPoints(tl::Path groundPoints)
     mProject->setGroundPoints(std::move(groundPoints));
 }
 
-void OrientationModelImp::setCameraPosesFile(tl::Path cameraPosesFile)
+void OrientationModelImp::setCameraPosesFile(tl::Path poses)
 {
-    mProject->setCameraPosesFile(std::move(cameraPosesFile));
+    mProject->setCameraPosesFile(std::move(poses));
 }
 
 auto OrientationModelImp::isPhotoOriented(size_t imageId) const -> bool

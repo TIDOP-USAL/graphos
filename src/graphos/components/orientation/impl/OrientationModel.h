@@ -53,7 +53,7 @@ public:
     auto enuCrs() const -> std::string override;
     void setEnuCrs(std::string crs) override;
     void setGroundPoints(tl::Path groundPoints) override;
-    void setCameraPosesFile(tl::Path cameraPosesFile) override;
+    void setCameraPosesFile(tl::Path poses) override;
     auto isPhotoOriented(size_t imageId) const -> bool override;
     auto photoOrientation(size_t imageId) const -> CameraPose override;
     void addPhotoOrientation(size_t imageId,
